@@ -102,7 +102,7 @@ def kill_process(process):
     try:
         # pylint: disable=not-callable
         if six.PY3:
-            status = subprocess.call(kill_command, timeout=100)
+            status = subprocess.call(kill_command, timeout=10)
         else:
             status = subprocess.call(kill_command)
     except Exception:
