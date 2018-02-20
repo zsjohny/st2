@@ -85,5 +85,7 @@ def transform(cls):
 
             cls.locals[property_name] = [node]
 
+        # Validate always return an instance of this class
+        cls.locals['validate'] = [cls]
 
 MANAGER.register_transform(scoped_nodes.Class, transform)
