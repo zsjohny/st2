@@ -93,7 +93,7 @@ class ActionAliasDB(stormbase.StormFoundationDB, stormbase.ContentPackResourceMi
         result = []
 
         formats = getattr(self, 'formats', [])
-        for format_string in formats:
+        for format_string in formats:  # pylint: disable=not-an-iterable
             if isinstance(format_string, dict) and format_string.get('representation', None):
                 result.extend(format_string['representation'])
             else:

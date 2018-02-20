@@ -65,6 +65,9 @@ class StormFoundationDB(me.Document, DictSerializableClassMixin):
         'abstract': True
     }
 
+    # _fields is assigned by mongoengine
+    _fields = None
+
     def __str__(self):
         attrs = list()
         for k in sorted(self._fields.keys()):
