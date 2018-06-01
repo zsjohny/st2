@@ -13,6 +13,7 @@ git+https://github.com/StackStorm/st2-auth-backend-flat-file.git@master#egg=st2-
 gitpython==2.1.10
 greenlet==0.4.13
 gunicorn==19.8.1
+inotify==0.2.9
 ipaddr
 jinja2
 jsonpath-rw==1.4.0
