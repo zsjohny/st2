@@ -34,6 +34,8 @@ Added
   The most common use case for this feature is migrating / restoring datastore values from one
   StackStorm instance to another which uses the same crypto key.
 
+  NOTE: On RBAC installations, this option can only be used by users with administrator role.
+
   Contributed by Nick Maludy (Encore Technologies)
 
 Changed

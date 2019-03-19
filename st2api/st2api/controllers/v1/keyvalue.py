@@ -417,7 +417,7 @@ class KeyValuePairController(ResourceController):
     def _validate_encrypted_query_parameter(self, encrypted, scope, requester_user):
         is_admin = rbac_utils.user_is_admin(user_db=requester_user)
         if encrypted and not is_admin:
-            msg = 'Pre-encrypted option requires administrator access'
+            msg = 'Encrypted option requires administrator access'
             raise AccessDeniedError(message=msg, user_db=requester_user)
 
     def _validate_scope(self, scope):

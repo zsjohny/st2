@@ -32,6 +32,12 @@ __all__ = [
     'KeyValuesControllerRBACTestCase'
 ]
 
+# value = S3cret!Value
+# encrypted with st2tests/conf/st2_kvstore_tests.crypto.key.json
+ENCRYPTED_VALUE = (
+    '3030303030298D848B45A24EDCD1A82FAB4E831E3FCE6E60956817A48A180E4C040801E'
+    'B30170DACF79498F30520236A629912C3584847098D')
+
 
 class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
     def setUp(self):
@@ -317,6 +323,35 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.assertEqual(resp.json['value'], 'testvalue3')
         self.assertEqual(resp.json['scope'], FULL_USER_SCOPE)
         self.assertEqual(resp.json['user'], 'user1')
+
+    def test_set_encrypted_item_can_only_be_done_by_admin(self):
+        # Non-admin user can't do it
+        self.use_user(self.users['user_1'])
+
+        data = {
+            'name': 'test_new_key_2',
+            'value': ENCRYPTED_VALUE,
+            'encrypted': True,
+            'secret': True
+        }
+        resp = self.app.put_json('/v1/keys/test_new_key_2', data, expect_errors=True)
+        self.assertEqual(resp.status_code, http_client.FORBIDDEN)
+        self.assertTrue('Encrypted option requires administrator access' in
+                        resp.json['faultstring'])
+
+        # Admin user can
+        self.use_user(self.users['admin'])
+
+        data = {
+            'name': 'test_new_key_2',
+            'value': ENCRYPTED_VALUE,
+            'encrypted': True,
+            'secret': True
+        }
+        resp = self.app.put_json('/v1/keys/test_new_key_2', data)
+        self.assertEqual(resp.status_code, http_client.OK)
+        self.assertEqual(resp.json['name'], 'test_new_key_2')
+        self.assertEqual(resp.json['value'], ENCRYPTED_VALUE)
 
     def test_delete_system_scoped_item_non_admin_success(self):
         # Non-admin user can delete any system-scoped item
