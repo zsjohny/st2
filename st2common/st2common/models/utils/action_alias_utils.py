@@ -17,8 +17,14 @@ from __future__ import absolute_import
 import re
 import sys
 from sre_parse import (
-    parse, AT, AT_BEGINNING, AT_BEGINNING_STRING, AT_END, AT_END_STRING,
-    BRANCH, SUBPATTERN,
+    parse,
+    AT,
+    AT_BEGINNING,
+    AT_BEGINNING_STRING,
+    AT_END,
+    AT_END_STRING,
+    BRANCH,
+    SUBPATTERN,
 )
 
 from st2common.exceptions.content import ParseException
@@ -26,7 +32,6 @@ from st2common import log
 
 __all__ = [
     'ActionAliasFormatParser',
-
     'extract_parameters_for_action_alias_db',
     'extract_parameters',
     'search_regex_tokens',
@@ -43,7 +48,6 @@ else:
 
 
 class ActionAliasFormatParser(object):
-
     def __init__(self, alias_format=None, param_stream=None):
         self._format = alias_format or ''
         self._original_param_stream = param_stream or ''
@@ -121,8 +125,9 @@ class ActionAliasFormatParser(object):
         # substituting {{ ... }} with regex named groups, so that param_stream
         # matched against this expression yields a dict of params with values.
         param_match = r'\1["\']?(?P<\2>(?:(?<=\').+?(?=\')|(?<=").+?(?=")|{.+?}|.+?))["\']?'
-        reg = re.sub(r'(\s*)' + self._snippets['optional'], r'(?:' + param_match + r')?',
-                     self._format)
+        reg = re.sub(
+            r'(\s*)' + self._snippets['optional'], r'(?:' + param_match + r')?', self._format
+        )
         reg = re.sub(r'(\s*)' + self._snippets['required'], param_match, reg)
 
         reg_tokens = parse(reg, flags=re.DOTALL)
@@ -142,8 +147,10 @@ class ActionAliasFormatParser(object):
         if not matched_stream:
             # If no match is found we throw since this indicates provided user string (command)
             # didn't match the provided format string
-            raise ParseException('Command "%s" doesn\'t match format string "%s"' %
-                                 (self._original_param_stream, self._format))
+            raise ParseException(
+                'Command "%s" doesn\'t match format string "%s"'
+                % (self._original_param_stream, self._format)
+            )
 
         # Compiling results from the steps 1-3.
         if matched_stream:
@@ -191,8 +198,9 @@ class ActionAliasFormatParser(object):
         return results
 
 
-def extract_parameters_for_action_alias_db(action_alias_db, format_str, param_stream,
-                                           match_multiple=False):
+def extract_parameters_for_action_alias_db(
+    action_alias_db, format_str, param_stream, match_multiple=False
+):
     """
     Extract parameters from the user input based on the provided format string.
 
@@ -203,13 +211,14 @@ def extract_parameters_for_action_alias_db(action_alias_db, format_str, param_st
     formats = action_alias_db.get_format_strings()
 
     if format_str not in formats:
-        raise ValueError('Format string "%s" is not available on the alias "%s"' %
-                         (format_str, action_alias_db.name))
+        raise ValueError(
+            'Format string "%s" is not available on the alias "%s"'
+            % (format_str, action_alias_db.name)
+        )
 
     result = extract_parameters(
-        format_str=format_str,
-        param_stream=param_stream,
-        match_multiple=match_multiple)
+        format_str=format_str, param_stream=param_stream, match_multiple=match_multiple
+    )
     return result
 
 

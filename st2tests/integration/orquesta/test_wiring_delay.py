@@ -23,7 +23,6 @@ from st2common.constants import action as ac_const
 
 
 class TaskDelayWiringTest(base.TestWorkflowExecution):
-
     def test_task_delay(self):
         wf_name = 'examples.orquesta-delay'
         wf_input = {'name': 'Thanos', 'delay': 1}

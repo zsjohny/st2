@@ -24,15 +24,16 @@ from st2common.constants.keyvalue import DATASTORE_SCOPE_SEPARATOR
 from st2common.rbac import utils as rbac_utils
 from st2common.persistence.keyvalue import KeyValuePair
 from st2common.services.config import deserialize_key_value
-from st2common.constants.keyvalue import (FULL_SYSTEM_SCOPE, FULL_USER_SCOPE, USER_SCOPE,
-                                          ALLOWED_SCOPES)
+from st2common.constants.keyvalue import (
+    FULL_SYSTEM_SCOPE,
+    FULL_USER_SCOPE,
+    USER_SCOPE,
+    ALLOWED_SCOPES,
+)
 from st2common.models.db.auth import UserDB
 from st2common.exceptions.rbac import AccessDeniedError
 
-__all__ = [
-    'get_datastore_full_scope',
-    'get_key'
-]
+__all__ = ['get_datastore_full_scope', 'get_key']
 
 LOG = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ def _validate_decrypt_query_parameter(decrypt, scope, is_admin, user_db):
     Validate that the provider user is either admin or requesting to decrypt value for
     themselves.
     """
-    is_user_scope = (scope == USER_SCOPE or scope == FULL_USER_SCOPE)
+    is_user_scope = scope == USER_SCOPE or scope == FULL_USER_SCOPE
     if decrypt and (not is_user_scope and not is_admin):
         msg = 'Decrypt option requires administrator access'
         raise AccessDeniedError(message=msg, user_db=user_db)
@@ -76,7 +77,7 @@ def _derive_scope_and_key(key, user, scope=None):
         return scope, key
 
     if key.startswith('system.'):
-        return FULL_SYSTEM_SCOPE, key[key.index('.') + 1:]
+        return FULL_SYSTEM_SCOPE, key[key.index('.') + 1 :]
 
     return FULL_USER_SCOPE, '%s:%s' % (user, key)
 
@@ -98,24 +99,23 @@ def get_key(key=None, user_db=None, scope=None, decrypt=False):
     scope, key_id = _derive_scope_and_key(key=key, user=user_db.name, scope=scope)
     scope = get_datastore_full_scope(scope)
 
-    LOG.debug('get_key key_id: %s, scope: %s, user: %s, decrypt: %s' % (key_id, scope,
-                                                                        str(user_db.name),
-                                                                        decrypt))
+    LOG.debug(
+        'get_key key_id: %s, scope: %s, user: %s, decrypt: %s'
+        % (key_id, scope, str(user_db.name), decrypt)
+    )
 
     _validate_scope(scope=scope)
 
     is_admin = rbac_utils.user_is_admin(user_db=user_db)
 
     # User needs to be either admin or requesting item for itself
-    _validate_decrypt_query_parameter(decrypt=decrypt, scope=scope, is_admin=is_admin,
-                                      user_db=user_db)
+    _validate_decrypt_query_parameter(
+        decrypt=decrypt, scope=scope, is_admin=is_admin, user_db=user_db
+    )
 
     value = KeyValuePair.get_by_scope_and_name(scope, key_id)
 
     if value:
-        return deserialize_key_value(
-            value.value,
-            decrypt
-        )
+        return deserialize_key_value(value.value, decrypt)
 
     return None

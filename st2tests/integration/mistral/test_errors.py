@@ -20,7 +20,6 @@ from st2common.constants import action as action_constants
 
 
 class ExceptionHandlingTest(base.TestWorkflowExecution):
-
     def test_bad_workflow(self):
         with self.assertRaises(Exception) as t:
             self._execute_workflow('examples.mistral-foobar', {})

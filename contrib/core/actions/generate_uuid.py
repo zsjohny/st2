@@ -18,9 +18,7 @@ import uuid
 
 from st2common.runners.base_action import Action
 
-__all__ = [
-    'GenerateUUID'
-]
+__all__ = ['GenerateUUID']
 
 
 class GenerateUUID(Action):

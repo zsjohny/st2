@@ -23,25 +23,22 @@ from st2common.exceptions.sensors import TriggerTypeRegistrationException
 from st2common.exceptions.triggers import TriggerDoesNotExistException
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 from st2common.exceptions.db import StackStormDBObjectConflictError
-from st2common.models.api.trigger import (TriggerAPI, TriggerTypeAPI)
+from st2common.models.api.trigger import TriggerAPI, TriggerTypeAPI
 from st2common.models.system.common import ResourceReference
-from st2common.persistence.trigger import (Trigger, TriggerType)
+from st2common.persistence.trigger import Trigger, TriggerType
 
 __all__ = [
     'add_trigger_models',
-
     'get_trigger_db_by_ref',
     'get_trigger_db_by_id',
     'get_trigger_db_by_uid',
     'get_trigger_db_by_ref_or_dict',
     'get_trigger_db_given_type_and_params',
     'get_trigger_type_db',
-
     'create_trigger_db',
     'create_trigger_type_db',
-
     'create_or_update_trigger_db',
-    'create_or_update_trigger_type_db'
+    'create_or_update_trigger_type_db',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -50,8 +47,7 @@ LOG = logging.getLogger(__name__)
 def get_trigger_db_given_type_and_params(type=None, parameters=None):
     try:
         parameters = parameters or {}
-        trigger_dbs = Trigger.query(type=type,
-                                    parameters=parameters)
+        trigger_dbs = Trigger.query(type=type, parameters=parameters)
 
         trigger_db = trigger_dbs[0] if len(trigger_dbs) > 0 else None
 
@@ -59,7 +55,7 @@ def get_trigger_db_given_type_and_params(type=None, parameters=None):
         # pymongo and mongoengine
         # Work around for cron-timer when in some scenarios finding an object fails when Python
         # value types are unicode :/
-        is_cron_trigger = (type == CRON_TIMER_TRIGGER_REF)
+        is_cron_trigger = type == CRON_TIMER_TRIGGER_REF
         has_parameters = bool(parameters)
 
         if not trigger_db and six.PY2 and is_cron_trigger and has_parameters:
@@ -74,8 +70,9 @@ def get_trigger_db_given_type_and_params(type=None, parameters=None):
                 non_unicode_literal_parameters[key] = value
             parameters = non_unicode_literal_parameters
 
-            trigger_dbs = Trigger.query(type=type,
-                                        parameters=non_unicode_literal_parameters).no_cache()
+            trigger_dbs = Trigger.query(
+                type=type, parameters=non_unicode_literal_parameters
+            ).no_cache()
 
             # Note: We need to directly access the object, using len or accessing the query set
             # twice won't work - there seems to bug a bug with cursor where accessing it twice
@@ -93,8 +90,13 @@ def get_trigger_db_given_type_and_params(type=None, parameters=None):
 
         return trigger_db
     except StackStormDBObjectNotFoundError as e:
-        LOG.debug('Database lookup for type="%s" parameters="%s" resulted ' +
-                  'in exception : %s.', type, parameters, e, exc_info=True)
+        LOG.debug(
+            'Database lookup for type="%s" parameters="%s" resulted ' + 'in exception : %s.',
+            type,
+            parameters,
+            e,
+            exc_info=True,
+        )
         return None
 
 
@@ -125,10 +127,14 @@ def get_trigger_db_by_ref_or_dict(trigger):
             trigger_type = trigger.get('type', None)
             parameters = trigger.get('parameters', {})
 
-            LOG.debug('Looking up TriggerDB by type and parameters: type=%s, parameters=%s',
-                      trigger_type, parameters)
-            trigger_db = get_trigger_db_given_type_and_params(type=trigger_type,
-                                                              parameters=parameters)
+            LOG.debug(
+                'Looking up TriggerDB by type and parameters: type=%s, parameters=%s',
+                trigger_type,
+                parameters,
+            )
+            trigger_db = get_trigger_db_given_type_and_params(
+                type=trigger_type, parameters=parameters
+            )
 
     return trigger_db
 
@@ -145,8 +151,7 @@ def get_trigger_db_by_id(id):
     try:
         return Trigger.get_by_id(id)
     except StackStormDBObjectNotFoundError as e:
-        LOG.debug('Database lookup for id="%s" resulted in exception : %s.',
-                  id, e, exc_info=True)
+        LOG.debug('Database lookup for id="%s" resulted in exception : %s.', id, e, exc_info=True)
 
     return None
 
@@ -163,8 +168,7 @@ def get_trigger_db_by_uid(uid):
     try:
         return Trigger.get_by_uid(uid)
     except StackStormDBObjectNotFoundError as e:
-        LOG.debug('Database lookup for uid="%s" resulted in exception : %s.',
-                  uid, e, exc_info=True)
+        LOG.debug('Database lookup for uid="%s" resulted in exception : %s.', uid, e, exc_info=True)
 
     return None
 
@@ -181,8 +185,9 @@ def get_trigger_db_by_ref(ref):
     try:
         return Trigger.get_by_ref(ref)
     except StackStormDBObjectNotFoundError as e:
-        LOG.debug('Database lookup for ref="%s" resulted ' +
-                  'in exception : %s.', ref, e, exc_info=True)
+        LOG.debug(
+            'Database lookup for ref="%s" resulted ' + 'in exception : %s.', ref, e, exc_info=True
+        )
 
     return None
 
@@ -198,8 +203,9 @@ def _get_trigger_db(trigger):
         if name and pack:
             ref = ResourceReference.to_string_reference(name=name, pack=pack)
             return get_trigger_db_by_ref(ref)
-        return get_trigger_db_given_type_and_params(type=trigger['type'],
-                                                    parameters=trigger.get('parameters', {}))
+        return get_trigger_db_given_type_and_params(
+            type=trigger['type'], parameters=trigger.get('parameters', {})
+        )
     else:
         raise Exception('Unrecognized object')
 
@@ -216,8 +222,9 @@ def get_trigger_type_db(ref):
     try:
         return TriggerType.get_by_ref(ref)
     except StackStormDBObjectNotFoundError as e:
-        LOG.debug('Database lookup for ref="%s" resulted ' +
-                  'in exception : %s.', ref, e, exc_info=True)
+        LOG.debug(
+            'Database lookup for ref="%s" resulted ' + 'in exception : %s.', ref, e, exc_info=True
+        )
 
     return None
 
@@ -235,8 +242,9 @@ def _get_trigger_dict_given_rule(rule):
 
 def create_trigger_db(trigger_api):
     # TODO: This is used only in trigger API controller. We should get rid of this.
-    trigger_ref = ResourceReference.to_string_reference(name=trigger_api.name,
-                                                        pack=trigger_api.pack)
+    trigger_ref = ResourceReference.to_string_reference(
+        name=trigger_api.name, pack=trigger_api.pack
+    )
     trigger_db = get_trigger_db_by_ref(trigger_ref)
     if not trigger_db:
         trigger_db = TriggerAPI.to_model(trigger_api)
@@ -290,7 +298,8 @@ def create_trigger_db_from_rule(rule):
     if not trigger_dict.get('parameters', {}) and not existing_trigger_db:
         raise TriggerDoesNotExistException(
             'A simple trigger should have been created when registering '
-            'triggertype. Cannot create trigger: %s.' % (trigger_dict))
+            'triggertype. Cannot create trigger: %s.' % (trigger_dict)
+        )
 
     if not existing_trigger_db:
         trigger_db = create_or_update_trigger_db(trigger_dict)
@@ -342,8 +351,9 @@ def create_trigger_type_db(trigger_type):
     """
     trigger_type_api = TriggerTypeAPI(**trigger_type)
     trigger_type_api.validate()
-    ref = ResourceReference.to_string_reference(name=trigger_type_api.name,
-                                                pack=trigger_type_api.pack)
+    ref = ResourceReference.to_string_reference(
+        name=trigger_type_api.name, pack=trigger_type_api.pack
+    )
     trigger_type_db = get_trigger_type_db(ref)
 
     if not trigger_type_db:
@@ -363,10 +373,12 @@ def create_shadow_trigger(trigger_type_db):
         LOG.debug('Skip shadow trigger for TriggerType with parameters %s.', trigger_type_ref)
         return None
 
-    trigger = {'name': trigger_type_db.name,
-               'pack': trigger_type_db.pack,
-               'type': trigger_type_ref,
-               'parameters': {}}
+    trigger = {
+        'name': trigger_type_db.name,
+        'pack': trigger_type_db.pack,
+        'type': trigger_type_ref,
+        'parameters': {},
+    }
 
     return create_or_update_trigger_db(trigger)
 
@@ -386,8 +398,9 @@ def create_or_update_trigger_type_db(trigger_type):
     trigger_type_api.validate()
     trigger_type_api = TriggerTypeAPI.to_model(trigger_type_api)
 
-    ref = ResourceReference.to_string_reference(name=trigger_type_api.name,
-                                                pack=trigger_type_api.pack)
+    ref = ResourceReference.to_string_reference(
+        name=trigger_type_api.name, pack=trigger_type_api.pack
+    )
 
     existing_trigger_type_db = get_trigger_type_db(ref)
     if existing_trigger_type_db:
@@ -417,8 +430,15 @@ def create_or_update_trigger_type_db(trigger_type):
     return trigger_type_db
 
 
-def _create_trigger_type(pack, name, description=None, payload_schema=None,
-                         parameters_schema=None, tags=None, metadata_file=None):
+def _create_trigger_type(
+    pack,
+    name,
+    description=None,
+    payload_schema=None,
+    parameters_schema=None,
+    tags=None,
+    metadata_file=None,
+):
     trigger_type = {
         'name': name,
         'pack': pack,
@@ -426,7 +446,7 @@ def _create_trigger_type(pack, name, description=None, payload_schema=None,
         'payload_schema': payload_schema,
         'parameters_schema': parameters_schema,
         'tags': tags,
-        'metadata_file': metadata_file
+        'metadata_file': metadata_file,
     }
 
     return create_or_update_trigger_type_db(trigger_type=trigger_type)
@@ -440,8 +460,9 @@ def _validate_trigger_type(trigger_type):
     required_fields = ['name']
     for field in required_fields:
         if field not in trigger_type:
-            raise TriggerTypeRegistrationException('Invalid trigger type. Missing field "%s"' %
-                                                   (field))
+            raise TriggerTypeRegistrationException(
+                'Invalid trigger type. Missing field "%s"' % (field)
+            )
 
 
 def _create_trigger(trigger_type):
@@ -453,7 +474,7 @@ def _create_trigger(trigger_type):
         trigger_dict = {
             'name': trigger_type.name,
             'pack': trigger_type.pack,
-            'type': trigger_type.get_reference().ref
+            'type': trigger_type.get_reference().ref,
         }
 
         try:
@@ -461,10 +482,12 @@ def _create_trigger(trigger_type):
         except:
             LOG.exception('Validation failed for Trigger=%s.', trigger_dict)
             raise TriggerTypeRegistrationException(
-                'Unable to create Trigger for TriggerType=%s.' % trigger_type.name)
+                'Unable to create Trigger for TriggerType=%s.' % trigger_type.name
+            )
     else:
-        LOG.debug('Won\'t create Trigger object as TriggerType %s expects ' +
-                  'parameters.', trigger_type)
+        LOG.debug(
+            'Won\'t create Trigger object as TriggerType %s expects ' + 'parameters.', trigger_type
+        )
         return None
 
 
@@ -472,8 +495,9 @@ def _add_trigger_models(trigger_type):
     pack = trigger_type['pack']
     description = trigger_type['description'] if 'description' in trigger_type else ''
     payload_schema = trigger_type['payload_schema'] if 'payload_schema' in trigger_type else {}
-    parameters_schema = trigger_type['parameters_schema'] \
-        if 'parameters_schema' in trigger_type else {}
+    parameters_schema = (
+        trigger_type['parameters_schema'] if 'parameters_schema' in trigger_type else {}
+    )
     tags = trigger_type.get('tags', [])
     metadata_file = trigger_type.get('metadata_file', None)
 
@@ -499,8 +523,11 @@ def add_trigger_models(trigger_types):
 
     :rtype: ``list`` of ``tuple`` (trigger_type, trigger)
     """
-    [r for r in (_validate_trigger_type(trigger_type)
-     for trigger_type in trigger_types) if r is not None]
+    [
+        r
+        for r in (_validate_trigger_type(trigger_type) for trigger_type in trigger_types)
+        if r is not None
+    ]
 
     result = []
     for trigger_type in trigger_types:

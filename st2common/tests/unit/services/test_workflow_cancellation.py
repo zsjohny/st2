@@ -22,6 +22,7 @@ from orquesta import statuses as wf_statuses
 import st2tests
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from st2common.bootstrap import actionsregistrar
@@ -35,39 +36,28 @@ from st2tests.mocks import liveaction as mock_lv_ac_xport
 
 
 TEST_FIXTURES = {
-    'workflows': [
-        'sequential.yaml',
-        'join.yaml'
-    ],
-    'actions': [
-        'sequential.yaml',
-        'join.yaml'
-    ]
+    'workflows': ['sequential.yaml', 'join.yaml'],
+    'actions': ['sequential.yaml', 'join.yaml'],
 }
 
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     publishers.CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 class WorkflowExecutionCancellationTest(st2tests.WorkflowTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(WorkflowExecutionCancellationTest, cls).setUpClass()
@@ -77,8 +67,7 @@ class WorkflowExecutionCancellationTest(st2tests.WorkflowTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:

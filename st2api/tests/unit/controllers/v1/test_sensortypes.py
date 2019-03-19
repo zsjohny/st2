@@ -25,13 +25,12 @@ from tests.base import APIControllerWithIncludeAndExcludeFilterTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'SensorTypeControllerTestCase'
-]
+__all__ = ['SensorTypeControllerTestCase']
 
 
-class SensorTypeControllerTestCase(FunctionalTest,
-                                   APIControllerWithIncludeAndExcludeFilterTestCase):
+class SensorTypeControllerTestCase(
+    FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase
+):
     get_all_path = '/v1/sensortypes'
     controller_cls = SensorTypeController
     include_attribute_field_name = 'entry_point'
@@ -59,8 +58,9 @@ class SensorTypeControllerTestCase(FunctionalTest,
     def test_get_all_negative_limit(self):
         resp = self.app.get('/v1/sensortypes/?limit=-22', expect_errors=True)
         self.assertEqual(resp.status_int, 400)
-        self.assertEqual(resp.json['faultstring'],
-                         u'Limit, "-22" specified, must be a positive number.')
+        self.assertEqual(
+            resp.json['faultstring'], u'Limit, "-22" specified, must be a positive number.'
+        )
 
     def test_get_all_filters(self):
         resp = self.app.get('/v1/sensortypes')

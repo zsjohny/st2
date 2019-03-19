@@ -28,7 +28,6 @@ from st2tests import DbTestCase
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
 class LiveActionModelTest(DbTestCase):
-
     def test_liveaction_crud_no_notify(self):
         created = LiveActionDB()
         created.action = 'core.local'
@@ -37,8 +36,7 @@ class LiveActionModelTest(DbTestCase):
         created.parameters = {}
         saved = LiveActionModelTest._save_liveaction(created)
         retrieved = LiveAction.get_by_id(saved.id)
-        self.assertEqual(saved.action, retrieved.action,
-                         'Same triggertype was not returned.')
+        self.assertEqual(saved.action, retrieved.action, 'Same triggertype was not returned.')
         self.assertEqual(retrieved.notify, None)
 
         # Test update
@@ -64,18 +62,13 @@ class LiveActionModelTest(DbTestCase):
         notify_db = NotificationSchema()
         notify_sub_schema = NotificationSubSchema()
         notify_sub_schema.message = 'Action complete.'
-        notify_sub_schema.data = {
-            'foo': 'bar',
-            'bar': 1,
-            'baz': {'k1': 'v1'}
-        }
+        notify_sub_schema.data = {'foo': 'bar', 'bar': 1, 'baz': {'k1': 'v1'}}
         notify_db.on_complete = notify_sub_schema
         created.notify = notify_db
 
         saved = LiveActionModelTest._save_liveaction(created)
         retrieved = LiveAction.get_by_id(saved.id)
-        self.assertEqual(saved.action, retrieved.action,
-                         'Same triggertype was not returned.')
+        self.assertEqual(saved.action, retrieved.action, 'Same triggertype was not returned.')
         # Assert notify settings saved are right.
         self.assertEqual(notify_sub_schema.message, retrieved.notify.on_complete.message)
         self.assertDictEqual(notify_sub_schema.data, retrieved.notify.on_complete.data)
@@ -92,21 +85,15 @@ class LiveActionModelTest(DbTestCase):
         notify_db = NotificationSchema()
         notify_sub_schema = NotificationSubSchema()
         notify_sub_schema.message = 'Action succeeded.'
-        notify_sub_schema.data = {
-            'foo': 'bar',
-            'bar': 1,
-            'baz': {'k1': 'v1'}
-        }
+        notify_sub_schema.data = {'foo': 'bar', 'bar': 1, 'baz': {'k1': 'v1'}}
         notify_db.on_success = notify_sub_schema
         created.notify = notify_db
         saved = LiveActionModelTest._save_liveaction(created)
         retrieved = LiveAction.get_by_id(saved.id)
-        self.assertEqual(saved.action, retrieved.action,
-                         'Same triggertype was not returned.')
+        self.assertEqual(saved.action, retrieved.action, 'Same triggertype was not returned.')
 
         # Assert notify settings saved are right.
-        self.assertEqual(notify_sub_schema.message,
-                         retrieved.notify.on_success.message)
+        self.assertEqual(notify_sub_schema.message, retrieved.notify.on_success.message)
         self.assertDictEqual(notify_sub_schema.data, retrieved.notify.on_success.data)
         self.assertListEqual(notify_sub_schema.routes, retrieved.notify.on_success.routes)
         self.assertEqual(retrieved.notify.on_failure, None)
@@ -120,12 +107,10 @@ class LiveActionModelTest(DbTestCase):
         created.parameters = {}
         on_success = NotificationSubSchema(message='Action succeeded.')
         on_failure = NotificationSubSchema(message='Action failed.')
-        created.notify = NotificationSchema(on_success=on_success,
-                                            on_failure=on_failure)
+        created.notify = NotificationSchema(on_success=on_success, on_failure=on_failure)
         saved = LiveActionModelTest._save_liveaction(created)
         retrieved = LiveAction.get_by_id(saved.id)
-        self.assertEqual(saved.action, retrieved.action,
-                         'Same triggertype was not returned.')
+        self.assertEqual(saved.action, retrieved.action, 'Same triggertype was not returned.')
         # Assert notify settings saved are right.
         self.assertEqual(on_success.message, retrieved.notify.on_success.message)
         self.assertEqual(on_failure.message, retrieved.notify.on_failure.message)

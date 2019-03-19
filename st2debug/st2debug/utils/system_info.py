@@ -23,7 +23,7 @@ __all__ = [
     'get_memory_info',
     'get_package_list',
     'get_deb_package_list',
-    'get_rpm_package_list'
+    'get_rpm_package_list',
 ]
 
 CPU_INFO_PATH = '/proc/cpuinfo'
@@ -152,10 +152,7 @@ def get_deb_package_list(name_startswith):
         if not name.startswith(name_startswith):
             continue
 
-        item = {
-            'name': name,
-            'version': version
-        }
+        item = {'name': name, 'version': version}
         packages.append(item)
 
     return packages
@@ -182,10 +179,7 @@ def get_rpm_package_list(name_startswith):
         if not name.startswith(name_startswith):
             continue
 
-        item = {
-            'name': name,
-            'version': version
-        }
+        item = {'name': name, 'version': version}
         packages.append(item)
 
     return packages

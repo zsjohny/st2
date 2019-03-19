@@ -22,6 +22,7 @@ class StackStormBaseException(Exception):
         For exceptions raised by plug-ins, see StackStormPluginException
         class.
     """
+
     pass
 
 
@@ -36,4 +37,5 @@ class StackStormPluginException(StackStormBaseException):
         API should inherit from the StackStormPluginException
         class.
     """
+
     pass

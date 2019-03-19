@@ -25,15 +25,10 @@ from st2common.constants.pack import ST2_VERSION_REGEX
 from st2common.util.secrets import get_secret_parameters
 from st2common.util.secrets import mask_secret_parameters
 
-__all__ = [
-    'PackDB',
-    'ConfigSchemaDB',
-    'ConfigDB'
-]
+__all__ = ['PackDB', 'ConfigSchemaDB', 'ConfigDB']
 
 
-class PackDB(stormbase.StormFoundationDB, stormbase.UIDFieldMixin,
-             me.DynamicDocument):
+class PackDB(stormbase.StormFoundationDB, stormbase.UIDFieldMixin, me.DynamicDocument):
     """
     System entity which represents a pack.
     """
@@ -56,9 +51,7 @@ class PackDB(stormbase.StormFoundationDB, stormbase.UIDFieldMixin,
     dependencies = me.ListField(field=me.StringField())
     system = me.DictField()
 
-    meta = {
-        'indexes': stormbase.UIDFieldMixin.get_indexes()
-    }
+    meta = {'indexes': stormbase.UIDFieldMixin.get_indexes()}
 
     def __init__(self, *args, **values):
         super(PackDB, self).__init__(*args, **values)
@@ -71,24 +64,22 @@ class ConfigSchemaDB(stormbase.StormFoundationDB):
     """
 
     pack = me.StringField(
-        required=True,
-        unique=True,
-        help_text='Name of the content pack this schema belongs to.')
+        required=True, unique=True, help_text='Name of the content pack this schema belongs to.'
+    )
     attributes = stormbase.EscapedDynamicField(
-        help_text='The specification for config schema attributes.')
+        help_text='The specification for config schema attributes.'
+    )
 
 
 class ConfigDB(stormbase.StormFoundationDB):
     """
     System entity representing pack config.
     """
+
     pack = me.StringField(
-        required=True,
-        unique=True,
-        help_text='Name of the content pack this config belongs to.')
-    values = stormbase.EscapedDynamicField(
-        help_text='Config values.',
-        default={})
+        required=True, unique=True, help_text='Name of the content pack this config belongs to.'
+    )
+    values = stormbase.EscapedDynamicField(help_text='Config values.', default={})
 
     def mask_secrets(self, value):
         """
@@ -104,8 +95,9 @@ class ConfigDB(stormbase.StormFoundationDB):
         config_schema = config_schema_access.get_by_pack(result['pack'])
 
         secret_parameters = get_secret_parameters(parameters=config_schema.attributes)
-        result['values'] = mask_secret_parameters(parameters=result['values'],
-                                                  secret_parameters=secret_parameters)
+        result['values'] = mask_secret_parameters(
+            parameters=result['values'], secret_parameters=secret_parameters
+        )
 
         return result
 

@@ -25,6 +25,7 @@ from orquesta import statuses as wf_statuses
 import st2tests
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from st2common.bootstrap import actionsregistrar
@@ -52,24 +53,22 @@ PACK_7_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + PAC
 PACKS = [
     TEST_PACK_PATH,
     PACK_7_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
+    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core',
 ]
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     publishers.CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(WorkflowExecutionServiceTest, cls).setUpClass()
@@ -79,8 +78,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -133,9 +131,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
         self.assertEqual(wf_ex_db.status, wf_statuses.REQUESTED)
 
         # Check input and context.
-        expected_input = {
-            'who': 'stan'
-        }
+        expected_input = {'who': 'stan'}
 
         self.assertDictEqual(wf_ex_db.input, expected_input)
 
@@ -151,7 +147,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             workflow_service.request,
             self.get_wf_def(TEST_PACK_PATH, wf_meta),
             ac_ex_db,
-            self.mock_st2_context(ac_ex_db)
+            self.mock_st2_context(ac_ex_db),
         )
 
     def test_request_wf_def_with_bad_action_ref(self):
@@ -167,7 +163,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             workflow_service.request,
             self.get_wf_def(TEST_PACK_PATH, wf_meta),
             ac_ex_db,
-            self.mock_st2_context(ac_ex_db)
+            self.mock_st2_context(ac_ex_db),
         )
 
     def test_request_wf_def_with_unregistered_action(self):
@@ -183,7 +179,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             workflow_service.request,
             self.get_wf_def(TEST_PACK_PATH, wf_meta),
             ac_ex_db,
-            self.mock_st2_context(ac_ex_db)
+            self.mock_st2_context(ac_ex_db),
         )
 
     def test_request_wf_def_with_missing_required_action_param(self):
@@ -200,7 +196,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             workflow_service.request,
             self.get_wf_def(TEST_PACK_PATH, wf_meta),
             ac_ex_db,
-            self.mock_st2_context(ac_ex_db)
+            self.mock_st2_context(ac_ex_db),
         )
 
     def test_request_wf_def_with_unexpected_action_param(self):
@@ -217,7 +213,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             workflow_service.request,
             self.get_wf_def(TEST_PACK_PATH, wf_meta),
             ac_ex_db,
-            self.mock_st2_context(ac_ex_db)
+            self.mock_st2_context(ac_ex_db),
         )
 
     def test_request_task_execution(self):
@@ -246,9 +242,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             'route': task_route,
             'spec': task_spec,
             'ctx': task_ctx,
-            'actions': [
-                {'action': 'core.echo', 'input': {'message': 'Veni, vidi, vici.'}}
-            ]
+            'actions': [{'action': 'core.echo', 'input': {'message': 'Veni, vidi, vici.'}}],
         }
 
         workflow_service.request_task_execution(wf_ex_db, st2_ctx, task_ex_req)
@@ -298,9 +292,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             'route': task_route,
             'spec': task_spec,
             'ctx': task_ctx,
-            'actions': [
-                {'action': 'mock.echo', 'input': {'message': 'Veni, vidi, vici.'}}
-            ]
+            'actions': [{'action': 'mock.echo', 'input': {'message': 'Veni, vidi, vici.'}}],
         }
 
         self.assertRaises(
@@ -308,7 +300,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             workflow_service.request_task_execution,
             wf_ex_db,
             st2_ctx,
-            task_ex_req
+            task_ex_req,
         )
 
     def test_handle_action_execution_completion(self):
@@ -373,9 +365,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
     def test_request_action_execution_render(self):
         # Manually create ConfigDB
         output = 'Testing'
-        value = {
-            "config_item_one": output
-        }
+        value = {"config_item_one": output}
         config_db = pk_db_models.ConfigDB(pack=PACK_7, values=value)
         config = pk_db_access.Config.add_or_update(config_db)
         self.assertEqual(len(config), 3)
@@ -398,7 +388,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
         st2_ctx = {
             'execution_id': wf_ex_db.action_execution,
             'user': root_st2_ctx.get('user'),
-            'pack': root_st2_ctx.get('pack')
+            'pack': root_st2_ctx.get('pack'),
         }
 
         # Manually request task execution.
@@ -412,9 +402,7 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
             'route': task_route,
             'spec': task_spec,
             'ctx': task_ctx,
-            'actions': [
-                {'action': 'dummy_pack_7.render_config_context', 'input': None}
-            ]
+            'actions': [{'action': 'dummy_pack_7.render_config_context', 'input': None}],
         }
         workflow_service.request_task_execution(wf_ex_db, st2_ctx, task_ex_req)
 
@@ -425,8 +413,9 @@ class WorkflowExecutionServiceTest(st2tests.WorkflowTestCase):
 
         # Manually request action execution
         task_ex_db = task_ex_dbs[0]
-        action_ex_db = workflow_service.request_action_execution(wf_ex_db, task_ex_db, st2_ctx,
-                                                                 task_ex_req['actions'][0])
+        action_ex_db = workflow_service.request_action_execution(
+            wf_ex_db, task_ex_db, st2_ctx, task_ex_req['actions'][0]
+        )
 
         # Check required attributes.
         self.assertIsNotNone(str(action_ex_db.id))

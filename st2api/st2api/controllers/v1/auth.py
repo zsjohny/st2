@@ -37,9 +37,7 @@ http_client = six.moves.http_client
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'ApiKeyController'
-]
+__all__ = ['ApiKeyController']
 
 
 # See st2common.rbac.resolvers.ApiKeyPermissionResolver#user_has_resource_db_permission for resaon
@@ -49,13 +47,9 @@ class ApiKeyController(BaseRestControllerMixin):
     Implements the REST endpoint for managing the key value store.
     """
 
-    supported_filters = {
-        'user': 'user'
-    }
+    supported_filters = {'user': 'user'}
 
-    query_options = {
-        'sort': ['user']
-    }
+    query_options = {'sort': ['user']}
 
     def __init__(self):
         super(ApiKeyController, self).__init__()
@@ -72,18 +66,19 @@ class ApiKeyController(BaseRestControllerMixin):
         try:
             api_key_db = ApiKey.get_by_key_or_id(api_key_id_or_key)
         except ApiKeyNotFoundError:
-            msg = ('ApiKey matching %s for reference and id not found.' % (api_key_id_or_key))
+            msg = 'ApiKey matching %s for reference and id not found.' % (api_key_id_or_key)
             LOG.exception(msg)
             abort(http_client.NOT_FOUND, msg)
 
         permission_type = PermissionType.API_KEY_VIEW
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=api_key_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=api_key_db, permission_type=permission_type
+        )
 
         try:
-            mask_secrets = self._get_mask_secrets(show_secrets=show_secrets,
-                                                  requester_user=requester_user)
+            mask_secrets = self._get_mask_secrets(
+                show_secrets=show_secrets, requester_user=requester_user
+            )
             return ApiKeyAPI.from_model(api_key_db, mask_secrets=mask_secrets)
         except (ValidationError, ValueError) as e:
             LOG.exception('Failed to serialize API key.')
@@ -100,15 +95,18 @@ class ApiKeyController(BaseRestControllerMixin):
             Handles requests:
                 GET /apikeys/
         """
-        mask_secrets = self._get_mask_secrets(show_secrets=show_secrets,
-                                              requester_user=requester_user)
+        mask_secrets = self._get_mask_secrets(
+            show_secrets=show_secrets, requester_user=requester_user
+        )
 
         limit = resource.validate_limit_query_param(limit, requester_user=requester_user)
 
         try:
             api_key_dbs = ApiKey.get_all(limit=limit, offset=offset)
-            api_keys = [ApiKeyAPI.from_model(api_key_db, mask_secrets=mask_secrets)
-                        for api_key_db in api_key_dbs]
+            api_keys = [
+                ApiKeyAPI.from_model(api_key_db, mask_secrets=mask_secrets)
+                for api_key_db in api_key_dbs
+            ]
         except OverflowError:
             msg = 'Offset "%s" specified is more than 32 bit int' % (offset)
             raise ValueError(msg)
@@ -127,9 +125,9 @@ class ApiKeyController(BaseRestControllerMixin):
         """
 
         permission_type = PermissionType.API_KEY_CREATE
-        rbac_utils.assert_user_has_resource_api_permission(user_db=requester_user,
-                                                           resource_api=api_key_api,
-                                                           permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_api_permission(
+            user_db=requester_user, resource_api=api_key_api, permission_type=permission_type
+        )
 
         api_key_db = None
         api_key = None
@@ -175,9 +173,9 @@ class ApiKeyController(BaseRestControllerMixin):
         api_key_db = ApiKey.get_by_key_or_id(api_key_id_or_key)
 
         permission_type = PermissionType.API_KEY_MODIFY
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=api_key_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=api_key_db, permission_type=permission_type
+        )
 
         old_api_key_db = api_key_db
         api_key_db = ApiKeyAPI.to_model(api_key_api)
@@ -221,9 +219,9 @@ class ApiKeyController(BaseRestControllerMixin):
         api_key_db = ApiKey.get_by_key_or_id(api_key_id_or_key)
 
         permission_type = PermissionType.API_KEY_DELETE
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=api_key_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=api_key_db, permission_type=permission_type
+        )
 
         ApiKey.delete(api_key_db)
 

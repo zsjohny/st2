@@ -24,6 +24,7 @@ from st2common.util.api import get_full_public_api_url
 from st2common.util.api import get_mistral_api_url
 from st2tests.config import parse_args
 from six.moves import zip
+
 parse_args()
 
 

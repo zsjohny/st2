@@ -39,7 +39,6 @@ def get_handler():
 
 
 class QueueConsumerTest(DbTestCase):
-
     @mock.patch.object(FakeMessageHandler, 'process', mock.MagicMock())
     def test_process_message(self):
         payload = FakeModelDB()
@@ -72,7 +71,6 @@ def get_staged_handler():
 
 
 class StagedQueueConsumerTest(DbTestCase):
-
     @mock.patch.object(FakeStagedMessageHandler, 'pre_ack_process', mock.MagicMock())
     def test_process_message_pre_ack(self):
         payload = FakeModelDB()
@@ -90,7 +88,8 @@ class StagedQueueConsumerTest(DbTestCase):
         mock_message = mock.MagicMock()
         handler._queue_consumer.process(payload, mock_message)
         BufferedDispatcher.dispatch.assert_called_once_with(
-            handler._queue_consumer._process_message, payload)
+            handler._queue_consumer._process_message, payload
+        )
         handler._queue_consumer._process_message(payload)
         FakeStagedMessageHandler.process.assert_called_once_with(payload)
         self.assertTrue(mock_message.ack.called)
@@ -104,13 +103,10 @@ class StagedQueueConsumerTest(DbTestCase):
 
 
 class FakeVariableMessageHandler(consumers.VariableMessageHandler):
-
     def __init__(self, connection, queues):
         super(FakeVariableMessageHandler, self).__init__(connection, queues)
 
-        self.message_types = {
-            FakeModelDB: self.handle_fake_model
-        }
+        self.message_types = {FakeModelDB: self.handle_fake_model}
 
     def process(self, message):
         handler_function = self.message_types.get(type(message))
@@ -125,7 +121,6 @@ def get_variable_messages_handler():
 
 
 class VariableMessageQueueConsumerTest(DbTestCase):
-
     @mock.patch.object(FakeVariableMessageHandler, 'handle_fake_model', mock.MagicMock())
     def test_process_message(self):
         payload = FakeModelDB()

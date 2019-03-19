@@ -21,9 +21,7 @@ from st2reactor.cmd import sensormanager
 from python_runner import python_runner
 from st2common import runners
 
-__all__ = [
-    'LoggingMiscUtilsTestCase'
-]
+__all__ = ['LoggingMiscUtilsTestCase']
 
 
 class LoggingMiscUtilsTestCase(unittest2.TestCase):

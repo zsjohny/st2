@@ -35,9 +35,7 @@ from st2common.persistence.pack import Config
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'PackConfigsController'
-]
+__all__ = ['PackConfigsController']
 
 LOG = logging.getLogger(__name__)
 
@@ -54,8 +52,9 @@ class PackConfigsController(ResourceController, BaseRestControllerMixin):
         # this case, RBAC is checked on the parent PackDB object
         self.get_one_db_method = packs_service.get_pack_by_ref
 
-    def get_all(self, requester_user, sort=None, offset=0, limit=None, show_secrets=False,
-                **raw_filters):
+    def get_all(
+        self, requester_user, sort=None, offset=0, limit=None, show_secrets=False, **raw_filters
+    ):
         """
         Retrieve configs for all the packs.
 
@@ -65,12 +64,14 @@ class PackConfigsController(ResourceController, BaseRestControllerMixin):
         from_model_kwargs = {
             'mask_secrets': self._get_mask_secrets(requester_user, show_secrets=show_secrets)
         }
-        return super(PackConfigsController, self)._get_all(sort=sort,
-                                                           offset=offset,
-                                                           limit=limit,
-                                                           from_model_kwargs=from_model_kwargs,
-                                                           raw_filters=raw_filters,
-                                                           requester_user=requester_user)
+        return super(PackConfigsController, self)._get_all(
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            from_model_kwargs=from_model_kwargs,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, pack_ref, requester_user, show_secrets=False):
         """
@@ -88,9 +89,9 @@ class PackConfigsController(ResourceController, BaseRestControllerMixin):
             msg = 'Unable to identify resource with pack_ref "%s".' % (pack_ref)
             abort(http_client.NOT_FOUND, msg)
 
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=instance,
-                                                          permission_type=PermissionType.PACK_VIEW)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=instance, permission_type=PermissionType.PACK_VIEW
+        )
 
         return self._get_one_by_pack_ref(pack_ref=pack_ref, from_model_kwargs=from_model_kwargs)
 

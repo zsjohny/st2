@@ -17,58 +17,23 @@ import unittest2
 
 from st2common.util import output_schema
 
-from st2common.constants.action import (
-    LIVEACTION_STATUS_SUCCEEDED,
-    LIVEACTION_STATUS_FAILED
-)
+from st2common.constants.action import LIVEACTION_STATUS_SUCCEEDED, LIVEACTION_STATUS_FAILED
 
 ACTION_RESULT = {
-    'output': {
-        'output_1': 'Bobby',
-        'output_2': 5,
-        'deep_output': {
-            'deep_item_1': 'Jindal',
-        },
-    }
+    'output': {'output_1': 'Bobby', 'output_2': 5, 'deep_output': {'deep_item_1': 'Jindal'}}
 }
 
-RUNNER_SCHEMA = {
-    'output': {
-        'type': 'object'
-    },
-    'error': {
-        'type': 'array'
-    },
-}
+RUNNER_SCHEMA = {'output': {'type': 'object'}, 'error': {'type': 'array'}}
 
 ACTION_SCHEMA = {
-    'output_1': {
-        'type': 'string'
-    },
-    'output_2': {
-        'type': 'integer'
-    },
-    'deep_output': {
-        'type': 'object',
-        'parameters': {
-            'deep_item_1': {
-                'type': 'string',
-            },
-        },
-    },
+    'output_1': {'type': 'string'},
+    'output_2': {'type': 'integer'},
+    'deep_output': {'type': 'object', 'parameters': {'deep_item_1': {'type': 'string'}}},
 }
 
-RUNNER_SCHEMA_FAIL = {
-    'not_a_key_you_have': {
-        'type': 'string'
-    },
-}
+RUNNER_SCHEMA_FAIL = {'not_a_key_you_have': {'type': 'string'}}
 
-ACTION_SCHEMA_FAIL = {
-    'not_a_key_you_have': {
-        'type': 'string'
-    },
-}
+ACTION_SCHEMA_FAIL = {'not_a_key_you_have': {'type': 'string'}}
 
 OUTPUT_KEY = 'output'
 
@@ -104,7 +69,7 @@ class OutputSchemaTestCase(unittest2.TestCase):
                 "output': {'deep_output': {'deep_item_1': 'Jindal'},\n                "
                 "'output_1': 'Bobby',\n                'output_2': 5}}"
             ),
-            'message': 'Error validating output. See error output for more details.'
+            'message': 'Error validating output. See error output for more details.',
         }
 
         self.assertEqual(result, expected_result)
@@ -121,7 +86,7 @@ class OutputSchemaTestCase(unittest2.TestCase):
 
         expected_result = {
             'error': "Additional properties are not allowed",
-            'message': u'Error validating output. See error output for more details.'
+            'message': u'Error validating output. See error output for more details.',
         }
 
         # To avoid random failures (especially in python3) this assert cant be

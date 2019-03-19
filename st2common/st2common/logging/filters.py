@@ -16,11 +16,7 @@
 from __future__ import absolute_import
 import logging
 
-__all__ = [
-    'LoggerNameExclusionFilter',
-    'LoggerFunctionNameExclusionFilter',
-    'LogLevelFilter',
-]
+__all__ = ['LoggerNameExclusionFilter', 'LoggerFunctionNameExclusionFilter', 'LogLevelFilter']
 
 
 class LoggerNameExclusionFilter(object):

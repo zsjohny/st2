@@ -57,13 +57,11 @@ MODEL_MODULE_NAMES = [
     'st2common.models.db.trace',
     'st2common.models.db.trigger',
     'st2common.models.db.webhook',
-    'st2common.models.db.workflow'
+    'st2common.models.db.workflow',
 ]
 
 # A list of model names for which we don't perform extra index cleanup
-INDEX_CLEANUP_MODEL_NAMES_BLACKLIST = [
-    'PermissionGrantDB'
-]
+INDEX_CLEANUP_MODEL_NAMES_BLACKLIST = ['PermissionGrantDB']
 
 # Reference to DB model classes used for db_ensure_indexes
 # NOTE: This variable is populated lazily inside get_model_classes()
@@ -91,9 +89,20 @@ def get_model_classes():
     return MODEL_CLASSES
 
 
-def _db_connect(db_name, db_host, db_port, username=None, password=None,
-             ssl=False, ssl_keyfile=None, ssl_certfile=None, ssl_cert_reqs=None,
-             ssl_ca_certs=None, authentication_mechanism=None, ssl_match_hostname=True):
+def _db_connect(
+    db_name,
+    db_host,
+    db_port,
+    username=None,
+    password=None,
+    ssl=False,
+    ssl_keyfile=None,
+    ssl_certfile=None,
+    ssl_cert_reqs=None,
+    ssl_ca_certs=None,
+    authentication_mechanism=None,
+    ssl_match_hostname=True,
+):
 
     if '://' in db_host:
         # Hostname is provided as a URI string. Make sure we don't log the password in case one is
@@ -115,18 +124,30 @@ def _db_connect(db_name, db_host, db_port, username=None, password=None,
         host_string = '%s:%s' % (db_host, db_port)
         username_string = username
 
-    LOG.info('Connecting to database "%s" @ "%s" as user "%s".' % (db_name, host_string,
-                                                                   str(username_string)))
+    LOG.info(
+        'Connecting to database "%s" @ "%s" as user "%s".'
+        % (db_name, host_string, str(username_string))
+    )
 
-    ssl_kwargs = _get_ssl_kwargs(ssl=ssl, ssl_keyfile=ssl_keyfile, ssl_certfile=ssl_certfile,
-                                 ssl_cert_reqs=ssl_cert_reqs, ssl_ca_certs=ssl_ca_certs,
-                                 authentication_mechanism=authentication_mechanism,
-                                 ssl_match_hostname=ssl_match_hostname)
+    ssl_kwargs = _get_ssl_kwargs(
+        ssl=ssl,
+        ssl_keyfile=ssl_keyfile,
+        ssl_certfile=ssl_certfile,
+        ssl_cert_reqs=ssl_cert_reqs,
+        ssl_ca_certs=ssl_ca_certs,
+        authentication_mechanism=authentication_mechanism,
+        ssl_match_hostname=ssl_match_hostname,
+    )
 
-    connection = mongoengine.connection.connect(db_name, host=db_host,
-                                                port=db_port, tz_aware=True,
-                                                username=username, password=password,
-                                                **ssl_kwargs)
+    connection = mongoengine.connection.connect(
+        db_name,
+        host=db_host,
+        port=db_port,
+        tz_aware=True,
+        username=username,
+        password=password,
+        **ssl_kwargs
+    )
 
     # NOTE: Since pymongo 3.0, connect() method is lazy and not blocking (always returns success)
     # so we need to issue a command / query to check if connection has been
@@ -136,27 +157,50 @@ def _db_connect(db_name, db_host, db_port, username=None, password=None,
         # The ismaster command is cheap and does not require auth
         connection.admin.command('ismaster')
     except ConnectionFailure as e:
-        LOG.error('Failed to connect to database "%s" @ "%s" as user "%s": %s' %
-                  (db_name, host_string, str(username_string), six.text_type(e)))
+        LOG.error(
+            'Failed to connect to database "%s" @ "%s" as user "%s": %s'
+            % (db_name, host_string, str(username_string), six.text_type(e))
+        )
         raise e
 
-    LOG.info('Successfully connected to database "%s" @ "%s" as user "%s".' % (
-        db_name, host_string, str(username_string)))
+    LOG.info(
+        'Successfully connected to database "%s" @ "%s" as user "%s".'
+        % (db_name, host_string, str(username_string))
+    )
 
     return connection
 
 
-def db_setup(db_name, db_host, db_port, username=None, password=None, ensure_indexes=True,
-             ssl=False, ssl_keyfile=None, ssl_certfile=None,
-             ssl_cert_reqs=None, ssl_ca_certs=None,
-             authentication_mechanism=None, ssl_match_hostname=True):
+def db_setup(
+    db_name,
+    db_host,
+    db_port,
+    username=None,
+    password=None,
+    ensure_indexes=True,
+    ssl=False,
+    ssl_keyfile=None,
+    ssl_certfile=None,
+    ssl_cert_reqs=None,
+    ssl_ca_certs=None,
+    authentication_mechanism=None,
+    ssl_match_hostname=True,
+):
 
-    connection = _db_connect(db_name, db_host, db_port, username=username,
-                             password=password, ssl=ssl, ssl_keyfile=ssl_keyfile,
-                             ssl_certfile=ssl_certfile,
-                             ssl_cert_reqs=ssl_cert_reqs, ssl_ca_certs=ssl_ca_certs,
-                             authentication_mechanism=authentication_mechanism,
-                             ssl_match_hostname=ssl_match_hostname)
+    connection = _db_connect(
+        db_name,
+        db_host,
+        db_port,
+        username=username,
+        password=password,
+        ssl=ssl,
+        ssl_keyfile=ssl_keyfile,
+        ssl_certfile=ssl_certfile,
+        ssl_cert_reqs=ssl_cert_reqs,
+        ssl_ca_certs=ssl_ca_certs,
+        authentication_mechanism=authentication_mechanism,
+        ssl_match_hostname=ssl_match_hostname,
+    )
 
     # Create all the indexes upfront to prevent race-conditions caused by
     # lazy index creation
@@ -218,8 +262,10 @@ def db_ensure_indexes(model_classes=None):
         if removed_count:
             LOG.debug('Removed "%s" extra indexes for model "%s"' % (removed_count, class_name))
 
-    LOG.debug('Indexes are ensured for models: %s' %
-              ', '.join(sorted((model_class.__name__ for model_class in model_classes))))
+    LOG.debug(
+        'Indexes are ensured for models: %s'
+        % ', '.join(sorted((model_class.__name__ for model_class in model_classes)))
+    )
 
 
 def cleanup_extra_indexes(model_class):
@@ -258,11 +304,15 @@ def drop_obsolete_types_indexes(model_class):
     collection.update({}, {'$unset': {'_types': 1}}, multi=True)
 
     info = collection.index_information()
-    indexes_to_drop = [key for key, value in six.iteritems(info)
-                       if '_types' in dict(value['key']) or 'types' in value]
+    indexes_to_drop = [
+        key
+        for key, value in six.iteritems(info)
+        if '_types' in dict(value['key']) or 'types' in value
+    ]
 
-    LOG.debug('Will drop obsolete types indexes for model "%s": %s' % (class_name,
-                                                                       str(indexes_to_drop)))
+    LOG.debug(
+        'Will drop obsolete types indexes for model "%s": %s' % (class_name, str(indexes_to_drop))
+    )
 
     for index in indexes_to_drop:
         collection.drop_index(index)
@@ -275,30 +325,54 @@ def db_teardown():
     mongoengine.connection.disconnect()
 
 
-def db_cleanup(db_name, db_host, db_port, username=None, password=None,
-               ssl=False, ssl_keyfile=None, ssl_certfile=None,
-               ssl_cert_reqs=None, ssl_ca_certs=None,
-               authentication_mechanism=None, ssl_match_hostname=True):
+def db_cleanup(
+    db_name,
+    db_host,
+    db_port,
+    username=None,
+    password=None,
+    ssl=False,
+    ssl_keyfile=None,
+    ssl_certfile=None,
+    ssl_cert_reqs=None,
+    ssl_ca_certs=None,
+    authentication_mechanism=None,
+    ssl_match_hostname=True,
+):
 
-    connection = _db_connect(db_name, db_host, db_port, username=username,
-                             password=password, ssl=ssl, ssl_keyfile=ssl_keyfile,
-                             ssl_certfile=ssl_certfile,
-                             ssl_cert_reqs=ssl_cert_reqs, ssl_ca_certs=ssl_ca_certs,
-                             authentication_mechanism=authentication_mechanism,
-                             ssl_match_hostname=ssl_match_hostname)
+    connection = _db_connect(
+        db_name,
+        db_host,
+        db_port,
+        username=username,
+        password=password,
+        ssl=ssl,
+        ssl_keyfile=ssl_keyfile,
+        ssl_certfile=ssl_certfile,
+        ssl_cert_reqs=ssl_cert_reqs,
+        ssl_ca_certs=ssl_ca_certs,
+        authentication_mechanism=authentication_mechanism,
+        ssl_match_hostname=ssl_match_hostname,
+    )
 
-    LOG.info('Dropping database "%s" @ "%s:%s" as user "%s".',
-             db_name, db_host, db_port, str(username))
+    LOG.info(
+        'Dropping database "%s" @ "%s:%s" as user "%s".', db_name, db_host, db_port, str(username)
+    )
 
     connection.drop_database(db_name)
     return connection
 
 
-def _get_ssl_kwargs(ssl=False, ssl_keyfile=None, ssl_certfile=None, ssl_cert_reqs=None,
-                    ssl_ca_certs=None, authentication_mechanism=None, ssl_match_hostname=True):
-    ssl_kwargs = {
-        'ssl': ssl,
-    }
+def _get_ssl_kwargs(
+    ssl=False,
+    ssl_keyfile=None,
+    ssl_certfile=None,
+    ssl_cert_reqs=None,
+    ssl_ca_certs=None,
+    authentication_mechanism=None,
+    ssl_match_hostname=True,
+):
+    ssl_kwargs = {'ssl': ssl}
     if ssl_keyfile:
         ssl_kwargs['ssl'] = True
         ssl_kwargs['ssl_keyfile'] = ssl_keyfile
@@ -363,7 +437,7 @@ class MongoDBAccess(object):
             try:
                 instances = instances.only(*only_fields)
             except (mongoengine.errors.LookUpError, AttributeError) as e:
-                msg = ('Invalid or unsupported include attribute specified: %s' % six.text_type(e))
+                msg = 'Invalid or unsupported include attribute specified: %s' % six.text_type(e)
                 raise ValueError(msg)
 
         instance = instances[0] if instances else None
@@ -415,7 +489,7 @@ class MongoDBAccess(object):
                 result = result.exclude(*exclude_fields)
             except (mongoengine.errors.LookUpError, AttributeError) as e:
                 field = get_field_name_from_mongoengine_error(e)
-                msg = ('Invalid or unsupported exclude attribute specified: %s' % field)
+                msg = 'Invalid or unsupported exclude attribute specified: %s' % field
                 raise ValueError(msg)
 
         if only_fields:
@@ -423,7 +497,7 @@ class MongoDBAccess(object):
                 result = result.only(*only_fields)
             except (mongoengine.errors.LookUpError, AttributeError) as e:
                 field = get_field_name_from_mongoengine_error(e)
-                msg = ('Invalid or unsupported include attribute specified: %s' % field)
+                msg = 'Invalid or unsupported include attribute specified: %s' % field
                 raise ValueError(msg)
 
         if no_dereference:
@@ -499,8 +573,9 @@ class MongoDBAccess(object):
                 # Create a new QCombination object with the same operation and fixed filters
                 _args += (visitor.QCombination(arg.operation, children),)
             else:
-                raise TypeError("Unknown argument type '%s' of argument '%s'"
-                    % (type(arg), repr(arg)))
+                raise TypeError(
+                    "Unknown argument type '%s' of argument '%s'" % (type(arg), repr(arg))
+                )
 
         return _args
 
@@ -524,8 +599,9 @@ class MongoDBAccess(object):
         return result
 
     def _process_datetime_range_filters(self, filters, order_by=None):
-        ranges = {k: v for k, v in six.iteritems(filters)
-                  if type(v) in [str, six.text_type] and '..' in v}
+        ranges = {
+            k: v for k, v in six.iteritems(filters) if type(v) in [str, six.text_type] and '..' in v
+        }
 
         order_by_list = copy.deepcopy(order_by) if order_by else []
         for k, v in six.iteritems(ranges):
@@ -555,7 +631,6 @@ class MongoDBAccess(object):
 
 
 class ChangeRevisionMongoDBAccess(MongoDBAccess):
-
     def insert(self, instance):
         instance = self.model.objects.insert(instance)
 

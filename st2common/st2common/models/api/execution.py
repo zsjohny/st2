@@ -28,10 +28,7 @@ from st2common.models.api.rule import RuleAPI
 from st2common.models.api.action import RunnerTypeAPI, ActionAPI, LiveActionAPI
 from st2common import log as logging
 
-__all__ = [
-    'ActionExecutionAPI',
-    'ActionExecutionOutputAPI'
-]
+__all__ = ['ActionExecutionAPI', 'ActionExecutionOutputAPI']
 
 
 LOG = logging.getLogger(__name__)
@@ -54,10 +51,7 @@ class ActionExecutionAPI(BaseAPI):
         "description": "Record of the execution of an action.",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string",
-                "required": True
-            },
+            "id": {"type": "string", "required": True},
             "trigger": TriggerAPI.schema,
             "trigger_type": TriggerTypeAPI.schema,
             "trigger_instance": TriggerInstanceAPI.schema,
@@ -68,27 +62,27 @@ class ActionExecutionAPI(BaseAPI):
             "status": {
                 "description": "The current status of the action execution.",
                 "type": "string",
-                "enum": LIVEACTION_STATUSES
+                "enum": LIVEACTION_STATUSES,
             },
             "start_timestamp": {
                 "description": "The start time when the action is executed.",
                 "type": "string",
-                "pattern": isotime.ISO8601_UTC_REGEX
+                "pattern": isotime.ISO8601_UTC_REGEX,
             },
             "end_timestamp": {
                 "description": "The timestamp when the action has finished.",
                 "type": "string",
-                "pattern": isotime.ISO8601_UTC_REGEX
+                "pattern": isotime.ISO8601_UTC_REGEX,
             },
             "elapsed_seconds": {
                 "description": "Time duration in seconds taken for completion of this execution.",
                 "type": "number",
-                "required": False
+                "required": False,
             },
             "web_url": {
                 "description": "History URL for this execution if you want to view in UI.",
                 "type": "string",
-                "required": False
+                "required": False,
             },
             "parameters": {
                 "description": "Input parameters for the action.",
@@ -101,53 +95,44 @@ class ActionExecutionAPI(BaseAPI):
                             {"type": "integer"},
                             {"type": "number"},
                             {"type": "object"},
-                            {"type": "string"}
+                            {"type": "string"},
                         ]
                     }
                 },
-                'additionalProperties': False
+                'additionalProperties': False,
             },
-            "context": {
-                "type": "object"
-            },
+            "context": {"type": "object"},
             "result": {
-                "anyOf": [{"type": "array"},
-                          {"type": "boolean"},
-                          {"type": "integer"},
-                          {"type": "number"},
-                          {"type": "object"},
-                          {"type": "string"}]
+                "anyOf": [
+                    {"type": "array"},
+                    {"type": "boolean"},
+                    {"type": "integer"},
+                    {"type": "number"},
+                    {"type": "object"},
+                    {"type": "string"},
+                ]
             },
             "parent": {"type": "string"},
-            "children": {
-                "type": "array",
-                "items": {"type": "string"},
-                "uniqueItems": True
-            },
+            "children": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
             "log": {
                 "description": "Contains information about execution state transitions.",
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "timestamp": {
-                            "type": "string",
-                            "pattern": isotime.ISO8601_UTC_REGEX
-                        },
-                        "status": {
-                            "type": "string",
-                            "enum": LIVEACTION_STATUSES
-                        }
-                    }
-                }
+                        "timestamp": {"type": "string", "pattern": isotime.ISO8601_UTC_REGEX},
+                        "status": {"type": "string", "enum": LIVEACTION_STATUSES},
+                    },
+                },
             },
             "delay": {
-                "description": ("How long (in milliseconds) to delay the execution before"
-                                "scheduling."),
+                "description": (
+                    "How long (in milliseconds) to delay the execution before" "scheduling."
+                ),
                 "type": "integer",
-            }
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
@@ -200,33 +185,16 @@ class ActionExecutionOutputAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string'
-            },
-            'execution_id': {
-                'type': 'string'
-            },
-            'action_ref': {
-                'type': 'string'
-            },
-            'runner_ref': {
-                'type': 'string'
-            },
-            'timestamp': {
-                'type': 'string',
-                'pattern': isotime.ISO8601_UTC_REGEX
-            },
-            'output_type': {
-                'type': 'string'
-            },
-            'data': {
-                'type': 'string'
-            },
-            'delay': {
-                'type': 'integer'
-            }
+            'id': {'type': 'string'},
+            'execution_id': {'type': 'string'},
+            'action_ref': {'type': 'string'},
+            'runner_ref': {'type': 'string'},
+            'timestamp': {'type': 'string', 'pattern': isotime.ISO8601_UTC_REGEX},
+            'output_type': {'type': 'string'},
+            'data': {'type': 'string'},
+            'delay': {'type': 'integer'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod

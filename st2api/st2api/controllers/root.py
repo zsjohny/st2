@@ -15,9 +15,7 @@
 
 from st2common import __version__
 
-__all__ = [
-    'RootController'
-]
+__all__ = ['RootController']
 
 
 class RootController(object):

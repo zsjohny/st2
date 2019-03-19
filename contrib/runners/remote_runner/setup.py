@@ -34,8 +34,10 @@ apply_vagrant_workaround()
 setup(
     name='stackstorm-runner-remote',
     version=__version__,
-    description=('Remote SSH shell command and script action runner for StackStorm event-driven '
-                 'automation platform'),
+    description=(
+        'Remote SSH shell command and script action runner for StackStorm event-driven '
+        'automation platform'
+    ),
     author='StackStorm',
     author_email='info@stackstorm.com',
     license='Apache License (2.0)',
@@ -52,6 +54,6 @@ setup(
         'st2common.runners.runner': [
             'remote-shell-cmd = remote_runner.remote_command_runner',
             'remote-shell-script = remote_runner.remote_script_runner',
-        ],
-    }
+        ]
+    },
 )

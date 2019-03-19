@@ -20,13 +20,12 @@ from st2common.models.db import MongoDBAccess
 from st2common.models.db import stormbase
 from st2common.constants.types import ResourceType
 
-__all__ = [
-    'SensorTypeDB'
-]
+__all__ = ['SensorTypeDB']
 
 
-class SensorTypeDB(stormbase.StormBaseDB, stormbase.ContentPackResourceMixin,
-                   stormbase.UIDFieldMixin):
+class SensorTypeDB(
+    stormbase.StormBaseDB, stormbase.ContentPackResourceMixin, stormbase.UIDFieldMixin
+):
     """
     Description of a specific type of a sensor (think of it as a sensor
     template).
@@ -49,16 +48,13 @@ class SensorTypeDB(stormbase.StormBaseDB, stormbase.ContentPackResourceMixin,
     entry_point = me.StringField()
     trigger_types = me.ListField(field=me.StringField())
     poll_interval = me.IntField()
-    enabled = me.BooleanField(default=True,
-                              help_text=u'Flag indicating whether the sensor is enabled.')
+    enabled = me.BooleanField(
+        default=True, help_text=u'Flag indicating whether the sensor is enabled.'
+    )
 
     meta = {
-        'indexes': [
-            {'fields': ['name']},
-            {'fields': ['enabled']},
-            {'fields': ['trigger_types']},
-        ] + (stormbase.ContentPackResourceMixin.get_indexes() +
-             stormbase.UIDFieldMixin.get_indexes())
+        'indexes': [{'fields': ['name']}, {'fields': ['enabled']}, {'fields': ['trigger_types']}]
+        + (stormbase.ContentPackResourceMixin.get_indexes() + stormbase.UIDFieldMixin.get_indexes())
     }
 
     def __init__(self, *args, **values):

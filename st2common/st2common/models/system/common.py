@@ -13,11 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = [
-    'InvalidReferenceError',
-    'InvalidResourceReferenceError',
-    'ResourceReference',
-]
+__all__ = ['InvalidReferenceError', 'InvalidResourceReferenceError', 'ResourceReference']
 
 PACK_SEPARATOR = '.'
 
@@ -42,6 +38,7 @@ class ResourceReference(object):
     """
     Class used for referring to resources which belong to a content pack.
     """
+
     def __init__(self, pack=None, name=None):
         self.pack = self.validate_pack_name(pack=pack)
         self.name = name
@@ -72,8 +69,9 @@ class ResourceReference(object):
             pack = ResourceReference.validate_pack_name(pack=pack)
             return PACK_SEPARATOR.join([pack, name])
         else:
-            raise ValueError('Both pack and name needed for building ref. pack=%s, name=%s' %
-                             (pack, name))
+            raise ValueError(
+                'Both pack and name needed for building ref. pack=%s, name=%s' % (pack, name)
+            )
 
     @staticmethod
     def validate_pack_name(pack):
@@ -97,5 +95,4 @@ class ResourceReference(object):
             raise InvalidResourceReferenceError(ref=ref)
 
     def __repr__(self):
-        return ('<ResourceReference pack=%s,name=%s,ref=%s>' %
-                (self.pack, self.name, self.ref))
+        return '<ResourceReference pack=%s,name=%s,ref=%s>' % (self.pack, self.name, self.ref)

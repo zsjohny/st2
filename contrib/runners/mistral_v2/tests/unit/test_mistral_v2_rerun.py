@@ -29,6 +29,7 @@ from oslo_config import cfg
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from mistral_v2.mistral_v2 import MistralRunner
@@ -47,23 +48,14 @@ from st2tests.mocks.liveaction import MockLiveActionPublisher
 
 
 TEST_FIXTURES = {
-    'workflows': [
-        'workflow_v2.yaml',
-        'workbook_v2_many_workflows.yaml'
-    ],
-    'actions': [
-        'workflow_v2.yaml',
-        'workbook_v2_many_workflows.yaml'
-    ]
+    'workflows': ['workflow_v2.yaml', 'workbook_v2_many_workflows.yaml'],
+    'actions': ['workflow_v2.yaml', 'workbook_v2_many_workflows.yaml'],
 }
 
 TEST_PACK = 'mistral_tests'
 TEST_PACK_PATH = fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 # Action executions requirements
 ACTION_PARAMS = {'friend': 'Rocky'}
@@ -112,20 +104,18 @@ WF1_TASK2 = {'id': str(uuid.uuid4()), 'name': 'say-friend', 'state': 'SUCCESS'}
 WF1_TASKS = [tasks.Task(None, WF1_TASK1), tasks.Task(None, WF1_TASK2)]
 
 
-@mock.patch.object(
-    CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+)
 class MistralRunnerTest(ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(MistralRunnerTest, cls).setUpClass()
@@ -142,8 +132,7 @@ class MistralRunnerTest(ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -157,285 +146,235 @@ class MistralRunnerTest(ExecutionDbTestCase):
         local_run_result = (action_constants.LIVEACTION_STATUS_SUCCEEDED, NON_EMPTY_RESULT, None)
         local_runner_cls.run = mock.Mock(return_value=local_run_result)
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_resume_option(self):
         patched_mistral_runner = runners.get_runner('mistral-v2').__class__
 
         mock_resume_result = (
             action_constants.LIVEACTION_STATUS_RUNNING,
             {'tasks': []},
-            {'execution_id': str(uuid.uuid4())}
+            {'execution_id': str(uuid.uuid4())},
         )
 
-        with mock.patch.object(patched_mistral_runner, 'resume_workflow',
-                               mock.MagicMock(return_value=mock_resume_result)):
+        with mock.patch.object(
+            patched_mistral_runner,
+            'resume_workflow',
+            mock.MagicMock(return_value=mock_resume_result),
+        ):
 
             liveaction1 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
             liveaction1, execution1 = action_service.request(liveaction1)
             self.assertFalse(patched_mistral_runner.resume_workflow.called)
 
             # Rerun the execution.
-            context = {
-                're-run': {
-                    'ref': execution1.id,
-                    'tasks': ['x']
-                }
-            }
+            context = {'re-run': {'ref': execution1.id, 'tasks': ['x']}}
 
             liveaction2 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, context=context)
             liveaction2, execution2 = action_service.request(liveaction2)
 
             liveaction2 = self._wait_on_status(
-                liveaction2,
-                action_constants.LIVEACTION_STATUS_RUNNING
+                liveaction2, action_constants.LIVEACTION_STATUS_RUNNING
             )
 
-            task_specs = {
-                'x': {
-                    'reset': False
-                }
-            }
+            task_specs = {'x': {'reset': False}}
 
             patched_mistral_runner.resume_workflow.assert_called_with(
-                ex_ref=execution1,
-                task_specs=task_specs
+                ex_ref=execution1, task_specs=task_specs
             )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_resume_option_reset_tasks(self):
         patched_mistral_runner = runners.get_runner('mistral-v2').__class__
 
         mock_resume_result = (
             action_constants.LIVEACTION_STATUS_RUNNING,
             {'tasks': []},
-            {'execution_id': str(uuid.uuid4())}
+            {'execution_id': str(uuid.uuid4())},
         )
 
-        with mock.patch.object(patched_mistral_runner, 'resume_workflow',
-                               mock.MagicMock(return_value=mock_resume_result)):
+        with mock.patch.object(
+            patched_mistral_runner,
+            'resume_workflow',
+            mock.MagicMock(return_value=mock_resume_result),
+        ):
 
             liveaction1 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
             liveaction1, execution1 = action_service.request(liveaction1)
             self.assertFalse(patched_mistral_runner.resume_workflow.called)
 
             # Rerun the execution.
-            context = {
-                're-run': {
-                    'ref': execution1.id,
-                    'tasks': ['x', 'y'],
-                    'reset': ['y']
-                }
-            }
+            context = {'re-run': {'ref': execution1.id, 'tasks': ['x', 'y'], 'reset': ['y']}}
 
             liveaction2 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, context=context)
             liveaction2, execution2 = action_service.request(liveaction2)
 
             liveaction2 = self._wait_on_status(
-                liveaction2,
-                action_constants.LIVEACTION_STATUS_RUNNING
+                liveaction2, action_constants.LIVEACTION_STATUS_RUNNING
             )
 
-            task_specs = {
-                'x': {
-                    'reset': False
-                },
-                'y': {
-                    'reset': True
-                }
-            }
+            task_specs = {'x': {'reset': False}, 'y': {'reset': True}}
 
             patched_mistral_runner.resume_workflow.assert_called_with(
-                ex_ref=execution1,
-                task_specs=task_specs
+                ex_ref=execution1, task_specs=task_specs
             )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC_NOT_RERUNABLE)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC_NOT_RERUNABLE)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC_NOT_RERUNABLE)))
-    @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=WF1_TASKS))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC_NOT_RERUNABLE)),
+    )
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=WF1_TASKS))
     def test_resume_workflow_not_in_rerunable_state(self):
         liveaction1 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
 
         # Rerun the execution.
-        context = {
-            're-run': {
-                'ref': execution1.id,
-                'tasks': ['say-friend']
-            }
-        }
+        context = {'re-run': {'ref': execution1.id, 'tasks': ['say-friend']}}
 
         liveaction2 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, context=context)
         liveaction2, execution2 = action_service.request(liveaction2)
         liveaction2 = self._wait_on_status(liveaction2, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('not in a rerunable state', liveaction2.result.get('error'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'list',
+        mock.MagicMock(return_value=[executions.Execution(None, WF1_EXEC)]),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'list',
-        mock.MagicMock(return_value=[executions.Execution(None, WF1_EXEC)]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=WF1_TASKS))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=WF1_TASKS))
     def test_resume_tasks_not_in_rerunable_state(self):
         liveaction1 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
 
         # Rerun the execution.
-        context = {
-            're-run': {
-                'ref': execution1.id,
-                'tasks': ['say-friend']
-            }
-        }
+        context = {'re-run': {'ref': execution1.id, 'tasks': ['say-friend']}}
 
         liveaction2 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, context=context)
         liveaction2, execution2 = action_service.request(liveaction2)
         liveaction2 = self._wait_on_status(liveaction2, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('Unable to identify rerunable', liveaction2.result.get('error'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'list',
+        mock.MagicMock(return_value=[executions.Execution(None, WF1_EXEC)]),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'list',
-        mock.MagicMock(return_value=[executions.Execution(None, WF1_EXEC)]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=WF1_TASKS))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=WF1_TASKS))
     def test_resume_unidentified_tasks(self):
         liveaction1 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
 
         # Rerun the execution.
-        context = {
-            're-run': {
-                'ref': execution1.id,
-                'tasks': ['x']
-            }
-        }
+        context = {'re-run': {'ref': execution1.id, 'tasks': ['x']}}
 
         liveaction2 = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, context=context)
         liveaction2, execution2 = action_service.request(liveaction2)
         liveaction2 = self._wait_on_status(liveaction2, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('Unable to identify', liveaction2.result.get('error'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'update',
-        mock.MagicMock(side_effect=[
-            executions.Execution(None, WB1_MAIN_EXEC),
-            executions.Execution(None, WB1_SUB1_EXEC)
-        ]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC_ERRORED)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'list',
-        mock.MagicMock(side_effect=[
-            [
-                executions.Execution(None, WB1_MAIN_EXEC_ERRORED),
-                executions.Execution(None, WB1_SUB1_EXEC_ERRORED)
-            ],
-            [
-                executions.Execution(None, WB1_SUB1_EXEC_ERRORED)
+        executions.ExecutionManager,
+        'update',
+        mock.MagicMock(
+            side_effect=[
+                executions.Execution(None, WB1_MAIN_EXEC),
+                executions.Execution(None, WB1_SUB1_EXEC),
             ]
-        ]))
+        ),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(side_effect=[
-            WB1_MAIN_TASKS,     # First call of _get_tasks at mistral_v2 runner
-            WB1_SUB1_TASKS,     # Recursive call of the first _get_tasks
-            WB1_MAIN_TASKS,     # tasks.list in _update_workflow_env at mistral_v2 runner
-            []                  # Resursive call of _update_workflow_env
-        ]))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC_ERRORED)),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'rerun',
-        mock.MagicMock(return_value=None))
+        executions.ExecutionManager,
+        'list',
+        mock.MagicMock(
+            side_effect=[
+                [
+                    executions.Execution(None, WB1_MAIN_EXEC_ERRORED),
+                    executions.Execution(None, WB1_SUB1_EXEC_ERRORED),
+                ],
+                [executions.Execution(None, WB1_SUB1_EXEC_ERRORED)],
+            ]
+        ),
+    )
+    @mock.patch.object(
+        tasks.TaskManager,
+        'list',
+        mock.MagicMock(
+            side_effect=[
+                WB1_MAIN_TASKS,  # First call of _get_tasks at mistral_v2 runner
+                WB1_SUB1_TASKS,  # Recursive call of the first _get_tasks
+                WB1_MAIN_TASKS,  # tasks.list in _update_workflow_env at mistral_v2 runner
+                [],  # Resursive call of _update_workflow_env
+            ]
+        ),
+    )
+    @mock.patch.object(tasks.TaskManager, 'rerun', mock.MagicMock(return_value=None))
     def test_resume_subworkflow_task(self):
         liveaction1 = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
 
         # Rerun the execution.
-        context = {
-            're-run': {
-                'ref': execution1.id,
-                'tasks': ['greet.say-friend']
-            }
-        }
+        context = {'re-run': {'ref': execution1.id, 'tasks': ['greet.say-friend']}}
 
         liveaction2 = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS, context=context)
         liveaction2, execution2 = action_service.request(liveaction2)
@@ -453,105 +392,106 @@ class MistralRunnerTest(ExecutionDbTestCase):
                         'parent': {
                             'pack': 'mistral_tests',
                             're-run': context['re-run'],
-                            'execution_id': str(execution2.id)
+                            'execution_id': str(execution2.id),
                         },
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
             },
-            'st2_action_api_url': 'http://0.0.0.0:9101/v1'
+            'st2_action_api_url': 'http://0.0.0.0:9101/v1',
         }
 
         tasks.TaskManager.rerun.assert_called_with(
-            WB1_SUB1_TASK2['id'],
-            reset=False,
-            env=expected_env
+            WB1_SUB1_TASK2['id'], reset=False, env=expected_env
         )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC_ERRORED)),
+    )
     @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC_ERRORED)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'list',
+        executions.ExecutionManager,
+        'list',
         mock.MagicMock(
             return_value=[
                 executions.Execution(None, WB1_MAIN_EXEC_ERRORED),
-                executions.Execution(None, WB1_SUB1_EXEC_ERRORED)]))
+                executions.Execution(None, WB1_SUB1_EXEC_ERRORED),
+            ]
+        ),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(side_effect=[WB1_MAIN_TASKS, WB1_SUB1_TASKS]))
+        tasks.TaskManager, 'list', mock.MagicMock(side_effect=[WB1_MAIN_TASKS, WB1_SUB1_TASKS])
+    )
     def test_resume_unidentified_subworkflow_task(self):
         liveaction1 = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
 
         # Rerun the execution.
-        context = {
-            're-run': {
-                'ref': execution1.id,
-                'tasks': ['greet.x']
-            }
-        }
+        context = {'re-run': {'ref': execution1.id, 'tasks': ['greet.x']}}
 
         liveaction2 = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS, context=context)
         liveaction2, execution2 = action_service.request(liveaction2)
         liveaction2 = self._wait_on_status(liveaction2, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('Unable to identify', liveaction2.result.get('error'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'update',
-        mock.MagicMock(side_effect=[
-            executions.Execution(None, WB1_MAIN_EXEC),
-            executions.Execution(None, WB1_SUB1_EXEC)
-        ]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC_ERRORED)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'list',
-        mock.MagicMock(side_effect=[
-            [
-                executions.Execution(None, WB1_MAIN_EXEC_ERRORED),
-                executions.Execution(None, WB1_SUB1_EXEC_ERRORED)
-            ],
-            [
-                executions.Execution(None, WB1_SUB1_EXEC_ERRORED)
+        executions.ExecutionManager,
+        'update',
+        mock.MagicMock(
+            side_effect=[
+                executions.Execution(None, WB1_MAIN_EXEC),
+                executions.Execution(None, WB1_SUB1_EXEC),
             ]
-        ]))
+        ),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(side_effect=[
-            WB1_MAIN_TASKS,     # First call of _get_tasks at mistral_v2 runner
-            WB1_SUB1_TASKS,     # Recursive call of the first _get_tasks
-            WB1_MAIN_TASKS,     # tasks.list in _update_workflow_env at mistral_v2 runner
-            []                  # Resursive call of _update_workflow_env
-        ]))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_MAIN_EXEC_ERRORED)),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'rerun',
-        mock.MagicMock(return_value=None))
+        executions.ExecutionManager,
+        'list',
+        mock.MagicMock(
+            side_effect=[
+                [
+                    executions.Execution(None, WB1_MAIN_EXEC_ERRORED),
+                    executions.Execution(None, WB1_SUB1_EXEC_ERRORED),
+                ],
+                [executions.Execution(None, WB1_SUB1_EXEC_ERRORED)],
+            ]
+        ),
+    )
+    @mock.patch.object(
+        tasks.TaskManager,
+        'list',
+        mock.MagicMock(
+            side_effect=[
+                WB1_MAIN_TASKS,  # First call of _get_tasks at mistral_v2 runner
+                WB1_SUB1_TASKS,  # Recursive call of the first _get_tasks
+                WB1_MAIN_TASKS,  # tasks.list in _update_workflow_env at mistral_v2 runner
+                [],  # Resursive call of _update_workflow_env
+            ]
+        ),
+    )
+    @mock.patch.object(tasks.TaskManager, 'rerun', mock.MagicMock(return_value=None))
     def test_resume_and_reset_subworkflow_task(self):
         liveaction1 = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
@@ -561,7 +501,7 @@ class MistralRunnerTest(ExecutionDbTestCase):
             're-run': {
                 'ref': execution1.id,
                 'tasks': ['greet.say-friend'],
-                'reset': ['greet.say-friend']
+                'reset': ['greet.say-friend'],
             }
         }
 
@@ -581,17 +521,15 @@ class MistralRunnerTest(ExecutionDbTestCase):
                         'parent': {
                             'pack': 'mistral_tests',
                             're-run': context['re-run'],
-                            'execution_id': str(execution2.id)
+                            'execution_id': str(execution2.id),
                         },
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
             },
-            'st2_action_api_url': 'http://0.0.0.0:9101/v1'
+            'st2_action_api_url': 'http://0.0.0.0:9101/v1',
         }
 
         tasks.TaskManager.rerun.assert_called_with(
-            WB1_SUB1_TASK2['id'],
-            reset=True,
-            env=expected_env
+            WB1_SUB1_TASK2['id'], reset=True, env=expected_env
         )

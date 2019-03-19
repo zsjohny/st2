@@ -20,7 +20,6 @@ from st2common.util.ip_utils import split_host_port
 
 
 class IPUtilsTests(unittest2.TestCase):
-
     def test_host_port_split(self):
 
         # Simple IPv4

@@ -23,7 +23,7 @@ __all__ = [
     'version_equal',
     'version_match',
     'version_bump_major',
-    'version_bump_minor'
+    'version_bump_minor',
 ]
 
 

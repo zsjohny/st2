@@ -31,46 +31,26 @@ class TriggerTypeAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
-            'ref': {
-                'type': 'string'
-            },
-            'uid': {
-                'type': 'string'
-            },
-            'name': {
-                'type': 'string',
-                'required': True
-            },
-            'pack': {
-                'type': 'string'
-            },
-            'description': {
-                'type': 'string'
-            },
-            'payload_schema': {
-                'type': 'object',
-                'default': {}
-            },
-            'parameters_schema': {
-                'type': 'object',
-                'default': {}
-            },
+            'id': {'type': 'string', 'default': None},
+            'ref': {'type': 'string'},
+            'uid': {'type': 'string'},
+            'name': {'type': 'string', 'required': True},
+            'pack': {'type': 'string'},
+            'description': {'type': 'string'},
+            'payload_schema': {'type': 'object', 'default': {}},
+            'parameters_schema': {'type': 'object', 'default': {}},
             'tags': {
                 'description': 'User associated metadata assigned to this object.',
                 'type': 'array',
-                'items': {'type': 'object'}
+                'items': {'type': 'object'},
             },
             "metadata_file": {
                 "description": "Path to the metadata file relative to the pack directory.",
                 "type": "string",
-                "default": ""
-            }
+                "default": "",
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -83,9 +63,15 @@ class TriggerTypeAPI(BaseAPI):
         tags = TagsHelper.to_model(getattr(trigger_type, 'tags', []))
         metadata_file = getattr(trigger_type, 'metadata_file', None)
 
-        model = cls.model(name=name, description=description, pack=pack,
-                          payload_schema=payload_schema, parameters_schema=parameters_schema,
-                          tags=tags, metadata_file=metadata_file)
+        model = cls.model(
+            name=name,
+            description=description,
+            pack=pack,
+            payload_schema=payload_schema,
+            parameters_schema=parameters_schema,
+            tags=tags,
+            metadata_file=metadata_file,
+        )
         return model
 
     @classmethod
@@ -100,34 +86,16 @@ class TriggerAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
-            'ref': {
-                'type': 'string'
-            },
-            'uid': {
-                'type': 'string'
-            },
-            'name': {
-                'type': 'string'
-            },
-            'pack': {
-                'type': 'string'
-            },
-            'type': {
-                'type': 'string',
-                'required': True
-            },
-            'parameters': {
-                'type': 'object'
-            },
-            'description': {
-                'type': 'string'
-            }
+            'id': {'type': 'string', 'default': None},
+            'ref': {'type': 'string'},
+            'uid': {'type': 'string'},
+            'name': {'type': 'string'},
+            'pack': {'type': 'string'},
+            'type': {'type': 'string', 'required': True},
+            'parameters': {'type': 'object'},
+            'description': {'type': 'string'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -155,8 +123,9 @@ class TriggerAPI(BaseAPI):
             # assign a name if none is provided.
             name = str(uuid.uuid4())
 
-        model = cls.model(name=name, description=description, pack=pack, type=_type,
-                          parameters=parameters)
+        model = cls.model(
+            name=name, description=description, pack=pack, type=_type, parameters=parameters
+        )
         return model
 
     def to_dict(self):
@@ -169,28 +138,13 @@ class TriggerInstanceAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string'
-            },
-            'occurrence_time': {
-                'type': 'string',
-                'pattern': isotime.ISO8601_UTC_REGEX
-            },
-            'payload': {
-                'type': 'object'
-            },
-            'trigger': {
-                'type': 'string',
-                'default': None,
-                'required': True
-            },
-            'status': {
-                'type': 'string',
-                'default': None,
-                'enum': TRIGGER_INSTANCE_STATUSES
-            }
+            'id': {'type': 'string'},
+            'occurrence_time': {'type': 'string', 'pattern': isotime.ISO8601_UTC_REGEX},
+            'payload': {'type': 'object'},
+            'trigger': {'type': 'string', 'default': None, 'required': True},
+            'status': {'type': 'string', 'default': None, 'enum': TRIGGER_INSTANCE_STATUSES},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -209,6 +163,7 @@ class TriggerInstanceAPI(BaseAPI):
         occurrence_time = isotime.parse(instance.occurrence_time)
         status = instance.status
 
-        model = cls.model(trigger=trigger, payload=payload, occurrence_time=occurrence_time,
-                          status=status)
+        model = cls.model(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time, status=status
+        )
         return model

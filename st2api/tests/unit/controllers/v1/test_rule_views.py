@@ -28,18 +28,15 @@ TEST_FIXTURES = {
     'runners': ['testrunner1.yaml'],
     'actions': ['action1.yaml', 'action2.yaml'],
     'triggers': ['trigger1.yaml'],
-    'triggertypes': ['triggertype1.yaml']
+    'triggertypes': ['triggertype1.yaml'],
 }
 
-TEST_FIXTURES_RULES = {
-    'rules': ['rule1.yaml', 'rule4.yaml', 'rule5.yaml']
-}
+TEST_FIXTURES_RULES = {'rules': ['rule1.yaml', 'rule4.yaml', 'rule5.yaml']}
 
 FIXTURES_PACK = 'generic'
 
 
-class RuleViewControllerTestCase(FunctionalTest,
-                                 APIControllerWithIncludeAndExcludeFilterTestCase):
+class RuleViewControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase):
     get_all_path = '/v1/rules/views'
     controller_cls = RuleViewController
     include_attribute_field_name = 'criteria'
@@ -51,13 +48,15 @@ class RuleViewControllerTestCase(FunctionalTest,
     def setUpClass(cls):
         super(RuleViewControllerTestCase, cls).setUpClass()
         models = RuleViewControllerTestCase.fixtures_loader.save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES)
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
         RuleViewControllerTestCase.ACTION_1 = models['actions']['action1.yaml']
         RuleViewControllerTestCase.TRIGGER_TYPE_1 = models['triggertypes']['triggertype1.yaml']
 
         file_name = 'rule1.yaml'
         cls.rules = RuleViewControllerTestCase.fixtures_loader.save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES_RULES)['rules']
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES_RULES
+        )['rules']
         RuleViewControllerTestCase.RULE_1 = cls.rules[file_name]
 
     def test_get_all(self):
@@ -70,10 +69,13 @@ class RuleViewControllerTestCase(FunctionalTest,
         get_resp = self.__do_get_one(rule_id)
         self.assertEqual(get_resp.status_int, http_client.OK)
         self.assertEqual(self.__get_rule_id(get_resp), rule_id)
-        self.assertEqual(get_resp.json['action']['description'],
-                         RuleViewControllerTestCase.ACTION_1.description)
-        self.assertEqual(get_resp.json['trigger']['description'],
-                         RuleViewControllerTestCase.TRIGGER_TYPE_1.description)
+        self.assertEqual(
+            get_resp.json['action']['description'], RuleViewControllerTestCase.ACTION_1.description
+        )
+        self.assertEqual(
+            get_resp.json['trigger']['description'],
+            RuleViewControllerTestCase.TRIGGER_TYPE_1.description,
+        )
 
     def test_get_one_by_ref(self):
         rule_name = RuleViewControllerTestCase.RULE_1.name

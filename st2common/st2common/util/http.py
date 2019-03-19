@@ -18,16 +18,19 @@ import six
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'HTTP_SUCCESS',
-    'parse_content_type_header'
-]
+__all__ = ['HTTP_SUCCESS', 'parse_content_type_header']
 
-HTTP_SUCCESS = [http_client.OK, http_client.CREATED, http_client.ACCEPTED,
-                http_client.NON_AUTHORITATIVE_INFORMATION, http_client.NO_CONTENT,
-                http_client.RESET_CONTENT, http_client.PARTIAL_CONTENT,
-                http_client.MULTI_STATUS, http_client.IM_USED,
-                ]
+HTTP_SUCCESS = [
+    http_client.OK,
+    http_client.CREATED,
+    http_client.ACCEPTED,
+    http_client.NON_AUTHORITATIVE_INFORMATION,
+    http_client.NO_CONTENT,
+    http_client.RESET_CONTENT,
+    http_client.PARTIAL_CONTENT,
+    http_client.MULTI_STATUS,
+    http_client.IM_USED,
+]
 
 
 def parse_content_type_header(content_type):

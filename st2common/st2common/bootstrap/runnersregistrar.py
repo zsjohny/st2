@@ -25,9 +25,7 @@ from st2common.persistence.runner import RunnerType
 from st2common.constants.runners import RUNNERS_NAMESPACE
 from st2common.util.action_db import get_runnertype_by_name
 
-__all__ = [
-    'register_runner_types',
-]
+__all__ = ['register_runner_types']
 
 
 LOG = logging.getLogger(__name__)

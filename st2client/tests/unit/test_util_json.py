@@ -27,31 +27,18 @@ LOG = logging.getLogger(__name__)
 DOC = {
     'a01': 1,
     'b01': 2,
-    'c01': {
-        'c11': 3,
-        'd12': 4,
-        'c13': {
-            'c21': 5,
-            'c22': 6
-        },
-        'c14': [7, 8, 9]
-    }
+    'c01': {'c11': 3, 'd12': 4, 'c13': {'c21': 5, 'c22': 6}, 'c14': [7, 8, 9]},
 }
 
 DOC_IP_ADDRESS = {
     'ips': {
-        "192.168.1.1": {
-            "hostname": "router.domain.tld"
-        },
-        "192.168.1.10": {
-            "hostname": "server.domain.tld"
-        }
+        "192.168.1.1": {"hostname": "router.domain.tld"},
+        "192.168.1.10": {"hostname": "server.domain.tld"},
     }
 }
 
 
 class TestGetValue(unittest2.TestCase):
-
     def test_dot_notation(self):
         self.assertEqual(jsutil.get_value(DOC, 'a01'), 1)
         self.assertEqual(jsutil.get_value(DOC, 'c01.c11'), 3)
@@ -71,8 +58,9 @@ class TestGetValue(unittest2.TestCase):
         self.assertIsNone(jsutil.get_value(DOC, 'c01.c14.c31'))
 
     def test_ip_address(self):
-        self.assertEqual(jsutil.get_value(DOC_IP_ADDRESS, 'ips."192.168.1.1"'),
-                         {"hostname": "router.domain.tld"})
+        self.assertEqual(
+            jsutil.get_value(DOC_IP_ADDRESS, 'ips."192.168.1.1"'), {"hostname": "router.domain.tld"}
+        )
 
     def test_chars_nums_dashes_underscores_calls_simple(self):
         for char in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_':
@@ -118,29 +106,31 @@ class TestGetValue(unittest2.TestCase):
 
 
 class TestGetKeyValuePairs(unittest2.TestCase):
-
     def test_select_kvps(self):
-        self.assertEqual(jsutil.get_kvps(DOC, ['a01']),
-                         {'a01': 1})
-        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c11']),
-                         {'c01': {'c11': 3}})
-        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c13.c22']),
-                         {'c01': {'c13': {'c22': 6}}})
-        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c13']),
-                         {'c01': {'c13': {'c21': 5, 'c22': 6}}})
-        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c14']),
-                         {'c01': {'c14': [7, 8, 9]}})
-        self.assertEqual(jsutil.get_kvps(DOC, ['a01', 'c01.c11', 'c01.c13.c21']),
-                         {'a01': 1, 'c01': {'c11': 3, 'c13': {'c21': 5}}})
-        self.assertEqual(jsutil.get_kvps(DOC_IP_ADDRESS,
-                                         ['ips."192.168.1.1"',
-                                          'ips."192.168.1.10".hostname']),
-                         {'ips':
-                          {'"192':
-                           {'168':
-                            {'1':
-                             {'1"': {'hostname': 'router.domain.tld'},
-                              '10"': {'hostname': 'server.domain.tld'}}}}}})
+        self.assertEqual(jsutil.get_kvps(DOC, ['a01']), {'a01': 1})
+        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c11']), {'c01': {'c11': 3}})
+        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c13.c22']), {'c01': {'c13': {'c22': 6}}})
+        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c13']), {'c01': {'c13': {'c21': 5, 'c22': 6}}})
+        self.assertEqual(jsutil.get_kvps(DOC, ['c01.c14']), {'c01': {'c14': [7, 8, 9]}})
+        self.assertEqual(
+            jsutil.get_kvps(DOC, ['a01', 'c01.c11', 'c01.c13.c21']),
+            {'a01': 1, 'c01': {'c11': 3, 'c13': {'c21': 5}}},
+        )
+        self.assertEqual(
+            jsutil.get_kvps(DOC_IP_ADDRESS, ['ips."192.168.1.1"', 'ips."192.168.1.10".hostname']),
+            {
+                'ips': {
+                    '"192': {
+                        '168': {
+                            '1': {
+                                '1"': {'hostname': 'router.domain.tld'},
+                                '10"': {'hostname': 'server.domain.tld'},
+                            }
+                        }
+                    }
+                }
+            },
+        )
 
     def test_select_kvps_with_val_error(self):
         self.assertRaises(ValueError, jsutil.get_kvps, DOC, [None])
@@ -152,5 +142,6 @@ class TestGetKeyValuePairs(unittest2.TestCase):
         self.assertEqual(jsutil.get_kvps(DOC, ['a01.a11']), {})
         self.assertEqual(jsutil.get_kvps(DOC, ['c01.c11.c21.c31']), {})
         self.assertEqual(jsutil.get_kvps(DOC, ['c01.c14.c31']), {})
-        self.assertEqual(jsutil.get_kvps(DOC, ['a01', 'c01.c11', 'c01.c13.c23']),
-                         {'a01': 1, 'c01': {'c11': 3}})
+        self.assertEqual(
+            jsutil.get_kvps(DOC, ['a01', 'c01.c11', 'c01.c13.c23']), {'a01': 1, 'c01': {'c11': 3}}
+        )

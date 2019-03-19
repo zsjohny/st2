@@ -4,10 +4,12 @@ import time
 from st2common.runners.base_action import Action
 from st2client.models.action_alias import ActionAliasMatch
 from st2client.models.aliasexecution import ActionAliasExecution
-from st2client.commands.action import (LIVEACTION_STATUS_REQUESTED,
-                                       LIVEACTION_STATUS_SCHEDULED,
-                                       LIVEACTION_STATUS_RUNNING,
-                                       LIVEACTION_STATUS_CANCELING)
+from st2client.commands.action import (
+    LIVEACTION_STATUS_REQUESTED,
+    LIVEACTION_STATUS_SCHEDULED,
+    LIVEACTION_STATUS_RUNNING,
+    LIVEACTION_STATUS_CANCELING,
+)
 from st2client.client import Client
 
 
@@ -21,8 +23,7 @@ class ExecuteActionAliasAction(Action):
     def run(self, text, source_channel=None, user=None):
         alias_match = ActionAliasMatch()
         alias_match.command = text
-        alias, representation = self.client.managers['ActionAlias'].match(
-            alias_match)
+        alias, representation = self.client.managers['ActionAlias'].match(alias_match)
 
         execution = ActionAliasExecution()
         execution.name = alias.name
@@ -44,7 +45,7 @@ class ExecuteActionAliasAction(Action):
             LIVEACTION_STATUS_REQUESTED,
             LIVEACTION_STATUS_SCHEDULED,
             LIVEACTION_STATUS_RUNNING,
-            LIVEACTION_STATUS_CANCELING
+            LIVEACTION_STATUS_CANCELING,
         ]
         action_exec_mgr = self.client.managers['LiveAction']
         execution = action_exec_mgr.get_by_id(execution_id)

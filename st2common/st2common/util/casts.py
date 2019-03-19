@@ -94,7 +94,7 @@ CASTS = {
     'integer': _cast_integer,
     'number': _cast_number,
     'object': _cast_object,
-    'string': _cast_string
+    'string': _cast_string,
 }
 
 

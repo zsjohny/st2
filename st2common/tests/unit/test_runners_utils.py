@@ -24,6 +24,7 @@ from st2tests import fixturesloader
 
 
 from st2tests import config as tests_config
+
 tests_config.parse_args()
 
 
@@ -33,7 +34,7 @@ TEST_FIXTURES = {
     'liveactions': ['liveaction1.yaml'],
     'actions': ['local.yaml'],
     'executions': ['execution1.yaml'],
-    'runners': ['run-local.yaml']
+    'runners': ['run-local.yaml'],
 }
 
 
@@ -48,8 +49,7 @@ class RunnersUtilityTests(base.CleanDbTestCase):
         loader = fixturesloader.FixturesLoader()
 
         self.models = loader.save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict=TEST_FIXTURES
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
         )
 
         self.liveaction_db = self.models['liveactions']['liveaction1.yaml']

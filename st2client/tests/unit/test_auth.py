@@ -35,19 +35,9 @@ from st2client.utils.httpclient import add_auth_token_to_headers, add_json_conte
 LOG = logging.getLogger(__name__)
 
 if six.PY3:
-    RULE = {
-        'name': 'drule',
-        'description': 'i am THE rule.',
-        'pack': 'cli',
-        'id': uuid.uuid4().hex
-    }
+    RULE = {'name': 'drule', 'description': 'i am THE rule.', 'pack': 'cli', 'id': uuid.uuid4().hex}
 else:
-    RULE = {
-        'id': uuid.uuid4().hex,
-        'description': 'i am THE rule.',
-        'name': 'drule',
-        'pack': 'cli',
-    }
+    RULE = {'id': uuid.uuid4().hex, 'description': 'i am THE rule.', 'name': 'drule', 'pack': 'cli'}
 
 
 class TestLoginBase(base.BaseCLITestCase):
@@ -123,19 +113,27 @@ class TestLoginPasswordAndConfig(TestLoginBase):
         'token': '44583f15945b4095afbf57058535ca64',
         'expiry': '2017-02-12T00:53:09.632783Z',
         'id': '589e607532ed3535707f10eb',
-        'metadata': {}
+        'metadata': {},
     }
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')))
+        requests,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')),
+    )
     def runTest(self):
         '''Test 'st2 login' functionality by specifying a password and a configuration file
         '''
 
         expected_username = self.TOKEN['user']
-        args = ['--config', self.CONFIG_FILE, 'login', expected_username, '--password',
-                'Password1!']
+        args = [
+            '--config',
+            self.CONFIG_FILE,
+            'login',
+            expected_username,
+            '--password',
+            'Password1!',
+        ]
 
         self.shell.run(args)
 
@@ -162,15 +160,17 @@ class TestLoginIntPwdAndConfig(TestLoginBase):
         'token': '44583f15945b4095afbf57058535ca64',
         'expiry': '2017-02-12T00:53:09.632783Z',
         'id': '589e607532ed3535707f10eb',
-        'metadata': {}
+        'metadata': {},
     }
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')))
+        requests,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')),
+    )
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     @mock.patch('st2client.commands.auth.getpass')
     def runTest(self, mock_gp):
         '''Test 'st2 login' functionality with interactive password entry
@@ -185,7 +185,7 @@ class TestLoginIntPwdAndConfig(TestLoginBase):
 
         expected_kwargs = {
             'headers': {'content-type': 'application/json'},
-            'auth': ('st2admin', 'Password1!')
+            'auth': ('st2admin', 'Password1!'),
         }
         requests.post.assert_called_with('http://127.0.0.1:9100/tokens', '{}', **expected_kwargs)
 
@@ -210,12 +210,8 @@ class TestLoginIntPwdAndConfig(TestLoginBase):
         self.shell.run(args)
 
         expected_kwargs = {
-            'headers': {
-                'X-Auth-Token': self.TOKEN['token']
-            },
-            'params': {
-                'include_attributes': 'ref,name,description,version,author'
-            }
+            'headers': {'X-Auth-Token': self.TOKEN['token']},
+            'params': {'include_attributes': 'ref,name,description,version,author'},
         }
         requests.get.assert_called_with('http://127.0.0.1:9101/v1/packs', **expected_kwargs)
 
@@ -229,20 +225,29 @@ class TestLoginWritePwdOkay(TestLoginBase):
         'token': '44583f15945b4095afbf57058535ca64',
         'expiry': '2017-02-12T00:53:09.632783Z',
         'id': '589e607532ed3535707f10eb',
-        'metadata': {}
+        'metadata': {},
     }
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')))
+        requests,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')),
+    )
     @mock.patch('st2client.commands.auth.getpass')
     def runTest(self, mock_gp):
         '''Test 'st2 login' functionality with --write-password flag set
         '''
 
         expected_username = self.TOKEN['user']
-        args = ['--config', self.CONFIG_FILE, 'login', expected_username, '--password',
-                'Password1!', '--write-password']
+        args = [
+            '--config',
+            self.CONFIG_FILE,
+            'login',
+            expected_username,
+            '--password',
+            'Password1!',
+            '--write-password',
+        ]
 
         self.shell.run(args)
 
@@ -270,12 +275,14 @@ class TestLoginUncaughtException(TestLoginBase):
         'token': '44583f15945b4095afbf57058535ca64',
         'expiry': '2017-02-12T00:53:09.632783Z',
         'id': '589e607532ed3535707f10eb',
-        'metadata': {}
+        'metadata': {},
     }
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')))
+        requests,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(TOKEN), 200, 'OK')),
+    )
     @mock.patch('st2client.commands.auth.getpass')
     def runTest(self, mock_gp):
         '''Test 'st2 login' ability to detect unhandled exceptions
@@ -383,11 +390,13 @@ class TestAuthToken(base.BaseCLITestCase):
         self.assertDictEqual(kwargs['headers'], expected)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     def test_decorate_resource_list(self):
-        url = ('http://127.0.0.1:9101/v1/rules/'
-              '?include_attributes=ref,pack,description,enabled&limit=50')
+        url = (
+            'http://127.0.0.1:9101/v1/rules/'
+            '?include_attributes=ref,pack,description,enabled&limit=50'
+        )
         url = url.replace(',', '%2C')
 
         # Test without token.
@@ -409,8 +418,8 @@ class TestAuthToken(base.BaseCLITestCase):
         requests.get.assert_called_with(url, **kwargs)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK'))
+    )
     def test_decorate_resource_get(self):
         rule_ref = '%s.%s' % (RULE['pack'], RULE['name'])
         url = 'http://127.0.0.1:9101/v1/rules/%s' % rule_ref
@@ -434,8 +443,10 @@ class TestAuthToken(base.BaseCLITestCase):
         requests.get.assert_called_with(url, **kwargs)
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK')))
+        requests,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK')),
+    )
     def test_decorate_resource_post(self):
         url = 'http://127.0.0.1:9101/v1/rules'
         data = {'name': RULE['name'], 'description': RULE['description']}
@@ -467,11 +478,11 @@ class TestAuthToken(base.BaseCLITestCase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK'))
+    )
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK')))
+        requests, 'put', mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK'))
+    )
     def test_decorate_resource_put(self):
         rule_ref = '%s.%s' % (RULE['pack'], RULE['name'])
 
@@ -516,11 +527,11 @@ class TestAuthToken(base.BaseCLITestCase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps(RULE), 200, 'OK'))
+    )
     @mock.patch.object(
-        requests, 'delete',
-        mock.MagicMock(return_value=base.FakeResponse('', 204, 'OK')))
+        requests, 'delete', mock.MagicMock(return_value=base.FakeResponse('', 204, 'OK'))
+    )
     def test_decorate_resource_delete(self):
         rule_ref = '%s.%s' % (RULE['pack'], RULE['name'])
         get_url = 'http://127.0.0.1:9101/v1/rules/%s' % rule_ref

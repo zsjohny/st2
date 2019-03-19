@@ -29,11 +29,7 @@ from st2common.transport import reactor as reactor_transport
 from st2common.util import action_db as action_utils
 
 
-__all__ = [
-    'Inquirer',
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['Inquirer', 'get_runner', 'get_metadata']
 
 LOG = logging.getLogger(__name__)
 
@@ -51,9 +47,9 @@ DEFAULT_SCHEMA = {
         "continue": {
             "type": "boolean",
             "description": "Would you like to continue the workflow?",
-            "required": True
+            "required": True,
         }
-    }
+    },
 }
 
 
@@ -84,13 +80,10 @@ class Inquirer(runners.ActionRunner):
         # Assemble and dispatch trigger
         trigger_ref = sys_db_models.ResourceReference.to_string_reference(
             pack=trigger_constants.INQUIRY_TRIGGER['pack'],
-            name=trigger_constants.INQUIRY_TRIGGER['name']
+            name=trigger_constants.INQUIRY_TRIGGER['name'],
         )
 
-        trigger_payload = {
-            "id": str(exc.id),
-            "route": self.route
-        }
+        trigger_payload = {"id": str(exc.id), "route": self.route}
 
         self.trigger_dispatcher.dispatch(trigger_ref, trigger_payload)
 
@@ -99,7 +92,7 @@ class Inquirer(runners.ActionRunner):
             "roles": self.roles_param,
             "users": self.users_param,
             "route": self.route,
-            "ttl": self.ttl
+            "ttl": self.ttl,
         }
 
         return (action_constants.LIVEACTION_STATUS_PENDING, result, None)
@@ -110,10 +103,9 @@ class Inquirer(runners.ActionRunner):
         # is made in the run method, but because the liveaction hasn't update to pending status
         # yet, there is a race condition where the pause request is mishandled.
         if status == action_constants.LIVEACTION_STATUS_PENDING:
-            pause_parent = (
-                self.liveaction.context.get("parent") and
-                not workflow_service.is_action_execution_under_workflow_context(self.liveaction)
-            )
+            pause_parent = self.liveaction.context.get(
+                "parent"
+            ) and not workflow_service.is_action_execution_under_workflow_context(self.liveaction)
 
             # For action execution under Action Chain and Mistral workflows, request the entire
             # workflow to pause. Orquesta handles pause differently and so does not require parent

@@ -22,17 +22,10 @@ from st2common import log as logging
 from st2common.util.compat import to_unicode
 
 
-__all__ = [
-    'get_jinja_environment',
-    'render_values',
-    'is_jinja_expression'
-]
+__all__ = ['get_jinja_environment', 'render_values', 'is_jinja_expression']
 
 
-JINJA_EXPRESSIONS_START_MARKERS = [
-    '{{',
-    '{%'
-]
+JINJA_EXPRESSIONS_START_MARKERS = ['{{', '{%']
 
 JINJA_REGEX = '({{(.*)}})'
 JINJA_REGEX_PTRN = re.compile(JINJA_REGEX)
@@ -57,7 +50,6 @@ def get_filters():
     # make here are also made there so that feature parity is maintained.
     return {
         'decrypt_kv': datastore.decrypt_kv,
-
         'from_json_string': data.from_json_string,
         'from_yaml_string': data.from_yaml_string,
         'json_escape': data.json_escape,
@@ -65,14 +57,11 @@ def get_filters():
         'to_complex': data.to_complex,
         'to_json_string': data.to_json_string,
         'to_yaml_string': data.to_yaml_string,
-
         'regex_match': regex.regex_match,
         'regex_replace': regex.regex_replace,
         'regex_search': regex.regex_search,
         'regex_substring': regex.regex_substring,
-
         'to_human_time_from_seconds': time.to_human_time_from_seconds,
-
         'version_compare': version.version_compare,
         'version_more_than': version.version_more_than,
         'version_less_than': version.version_less_than,
@@ -83,9 +72,8 @@ def get_filters():
         'version_bump_patch': version.version_bump_patch,
         'version_strip_patch': version.version_strip_patch,
         'use_none': data.use_none,
-
         'basename': path.basename,
-        'dirname': path.dirname
+        'dirname': path.dirname,
     }
 
 
@@ -103,9 +91,7 @@ def get_jinja_environment(allow_undefined=False, trim_blocks=True, lstrip_blocks
 
     undefined = jinja2.Undefined if allow_undefined else jinja2.StrictUndefined
     env = jinja2.Environment(  # nosec
-        undefined=undefined,
-        trim_blocks=trim_blocks,
-        lstrip_blocks=lstrip_blocks
+        undefined=undefined, trim_blocks=trim_blocks, lstrip_blocks=lstrip_blocks
     )
     env.filters.update(get_filters())
     env.tests['in'] = lambda item, list: item in list

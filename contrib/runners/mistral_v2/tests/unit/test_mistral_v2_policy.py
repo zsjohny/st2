@@ -29,6 +29,7 @@ from oslo_config import cfg
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
 from six.moves import range
+
 tests_config.parse_args()
 
 import st2common
@@ -54,10 +55,7 @@ MISTRAL_RUNNER_NAME = 'mistral_v2'
 TEST_PACK = 'mistral_tests'
 TEST_PACK_PATH = fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 # Non-workbook with a single workflow
 WF1_META_FILE_NAME = 'workflow_v2.yaml'
@@ -73,20 +71,18 @@ MISTRAL_EXECUTION = {'id': str(uuid.uuid4()), 'state': 'RUNNING', 'workflow_name
 WF1_EXEC = copy.deepcopy(MISTRAL_EXECUTION)
 
 
-@mock.patch.object(
-    CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+)
 class MistralRunnerPolicyTest(ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(MistralRunnerPolicyTest, cls).setUpClass()
@@ -108,8 +104,7 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
         runnersregistrar.register_runners()
 
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -119,8 +114,7 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
         policiesregistrar.register_policy_types(st2common)
 
         policies_registrar = policiesregistrar.PolicyRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -136,21 +130,17 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
         for policy_db in policy_dbs:
             Policy.delete(policy_db, publish=False)
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        action_executions.ActionExecutionManager, 'update',
-        mock.MagicMock(return_value=None))
+        action_executions.ActionExecutionManager, 'update', mock.MagicMock(return_value=None)
+    )
     def test_cancel_on_task_action_concurrency(self):
         # Delete other policies in the test pack to avoid conflicts.
         required_policy = 'mistral_tests.cancel_on_concurrency'
@@ -167,13 +157,13 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
             liveaction, execution1 = action_service.request(liveaction)
 
             liveaction = self._wait_on_status(
-                liveaction,
-                action_constants.LIVEACTION_STATUS_RUNNING
+                liveaction, action_constants.LIVEACTION_STATUS_RUNNING
             )
 
         # Check number of running instances
         running = LiveAction.count(
-            action=WF1_NAME, status=action_constants.LIVEACTION_STATUS_RUNNING)
+            action=WF1_NAME, status=action_constants.LIVEACTION_STATUS_RUNNING
+        )
 
         self.assertEqual(running, threshold)
 
@@ -187,7 +177,7 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
             # to indicate that this is executed under a workflow.
             callback = {
                 'source': MISTRAL_RUNNER_NAME,
-                'url': 'http://127.0.0.1:8989/v2/action_executions/12345'
+                'url': 'http://127.0.0.1:8989/v2/action_executions/12345',
             }
 
             params = {'friend': 'grande animalerie'}
@@ -198,27 +188,22 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
 
             # Assert cancel has been called.
             liveaction2 = self._wait_on_status(
-                liveaction2,
-                action_constants.LIVEACTION_STATUS_CANCELING
+                liveaction2, action_constants.LIVEACTION_STATUS_CANCELING
             )
 
             mistral_runner_cls.cancel.assert_called_once_with()
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        action_executions.ActionExecutionManager, 'update',
-        mock.MagicMock(return_value=None))
+        action_executions.ActionExecutionManager, 'update', mock.MagicMock(return_value=None)
+    )
     def test_cancel_on_task_action_concurrency_by_attr(self):
         # Delete other policies in the test pack to avoid conflicts.
         required_policy = 'mistral_tests.cancel_on_concurrency_by_attr'
@@ -238,14 +223,15 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
             liveaction = LiveAction.get_by_id(str(liveaction.id))
 
             liveaction = self._wait_on_status(
-                liveaction,
-                action_constants.LIVEACTION_STATUS_RUNNING
+                liveaction, action_constants.LIVEACTION_STATUS_RUNNING
             )
 
         # Check number of running instances
         running = LiveAction.count(
-            action=WF1_NAME, status=action_constants.LIVEACTION_STATUS_RUNNING,
-            parameters__friend=params['friend'])
+            action=WF1_NAME,
+            status=action_constants.LIVEACTION_STATUS_RUNNING,
+            parameters__friend=params['friend'],
+        )
 
         self.assertEqual(running, threshold)
 
@@ -259,7 +245,7 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
             # to indicate that this is executed under a workflow.
             callback = {
                 'source': MISTRAL_RUNNER_NAME,
-                'url': 'http://127.0.0.1:8989/v2/action_executions/12345'
+                'url': 'http://127.0.0.1:8989/v2/action_executions/12345',
             }
 
             liveaction2 = LiveActionDB(action=WF1_NAME, parameters=params, callback=callback)
@@ -268,8 +254,7 @@ class MistralRunnerPolicyTest(ExecutionDbTestCase):
 
             # Assert cancel has been called.
             liveaction2 = self._wait_on_status(
-                liveaction2,
-                action_constants.LIVEACTION_STATUS_CANCELING
+                liveaction2, action_constants.LIVEACTION_STATUS_CANCELING
             )
 
             mistral_runner_cls.cancel.assert_called_once_with()

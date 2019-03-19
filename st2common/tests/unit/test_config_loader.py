@@ -24,9 +24,7 @@ from st2common.util.config_loader import ContentPackConfigLoader
 
 from st2tests.base import CleanDbTestCase
 
-__all__ = [
-    'ContentPackConfigLoaderTestCase'
-]
+__all__ = ['ContentPackConfigLoaderTestCase']
 
 
 class ContentPackConfigLoaderTestCase(CleanDbTestCase):
@@ -46,20 +44,22 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
     def test_get_config_some_values_overriden_in_datastore(self):
         # Test a scenario where some values are overriden in datastore via pack
         # flobal config
-        kvp_db = set_datastore_value_for_config_key(pack_name='dummy_pack_5',
-                                                    key_name='api_secret',
-                                                    value='some_api_secret',
-                                                    secret=True,
-                                                    user='joe')
+        kvp_db = set_datastore_value_for_config_key(
+            pack_name='dummy_pack_5',
+            key_name='api_secret',
+            value='some_api_secret',
+            secret=True,
+            user='joe',
+        )
 
         # This is a secret so a value should be encrypted
         self.assertTrue(kvp_db.value != 'some_api_secret')
         self.assertTrue(len(kvp_db.value) > len('some_api_secret') * 2)
         self.assertTrue(kvp_db.secret)
 
-        kvp_db = set_datastore_value_for_config_key(pack_name='dummy_pack_5',
-                                                    key_name='private_key_path',
-                                                    value='some_private_key')
+        kvp_db = set_datastore_value_for_config_key(
+            pack_name='dummy_pack_5', key_name='private_key_path', value='some_private_key'
+        )
         self.assertEqual(kvp_db.value, 'some_private_key')
         self.assertFalse(kvp_db.secret)
 
@@ -74,7 +74,7 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
             'regions': ['us-west-1'],
             'region': 'default-region-value',
             'private_key_path': 'some_private_key',
-            'non_required_with_default_value': 'config value'
+            'non_required_with_default_value': 'config value',
         }
 
         self.assertEqual(config, expected_config)
@@ -150,9 +150,7 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
             'key_with_default_falsy_value_3': False,
             'key_with_default_falsy_value_4': None,
             'key_with_default_falsy_value_5': {},
-            'key_with_default_falsy_value_6': {
-                'key_2': False
-            }
+            'key_with_default_falsy_value_6': {'key_2': False},
         }
         config_db = ConfigDB(pack=pack_name, values=values)
         config_db = Config.add_or_update(config_db)
@@ -181,11 +179,7 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
             'api_key': '',
             'api_secret': '',
             'regions': ['us-west-1', 'us-east-1'],
-            'auth_settings': {
-                'host': '127.0.0.3',
-                'port': 8080,
-                'device_uids': ['a', 'b', 'c']
-            }
+            'auth_settings': {'host': '127.0.0.3', 'port': 8080, 'device_uids': ['a', 'b', 'c']},
         }
         self.assertEqual(config, expected_config)
 
@@ -199,20 +193,16 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
             'api_key': '',
             'api_secret': '',
             'regions': ['us-west-1', 'us-east-1'],
-            'auth_settings': {
-                'host': '127.0.0.6',
-                'port': 9090,
-                'device_uids': ['a', 'b', 'c']
-            }
+            'auth_settings': {'host': '127.0.0.6', 'port': 9090, 'device_uids': ['a', 'b', 'c']},
         }
         self.assertEqual(config, expected_config)
 
         # 3. Nested attribute (auth_settings.token) references a non-secret datastore value
         pack_name = 'dummy_pack_schema_with_nested_object_3'
 
-        kvp_db = set_datastore_value_for_config_key(pack_name=pack_name,
-                                                    key_name='auth_settings_token',
-                                                    value='some_auth_settings_token')
+        kvp_db = set_datastore_value_for_config_key(
+            pack_name=pack_name, key_name='auth_settings_token', value='some_auth_settings_token'
+        )
         self.assertEqual(kvp_db.value, 'some_auth_settings_token')
         self.assertFalse(kvp_db.secret)
 
@@ -227,28 +217,32 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
                 'host': '127.0.0.10',
                 'port': 8080,
                 'device_uids': ['a', 'b', 'c'],
-                'token': 'some_auth_settings_token'
-            }
+                'token': 'some_auth_settings_token',
+            },
         }
         self.assertEqual(config, expected_config)
 
         # 4. Nested attribute (auth_settings.token) references a secret datastore value
         pack_name = 'dummy_pack_schema_with_nested_object_4'
 
-        kvp_db = set_datastore_value_for_config_key(pack_name=pack_name,
-                                                    key_name='auth_settings_token',
-                                                    value='joe_token_secret',
-                                                    secret=True,
-                                                    user='joe')
+        kvp_db = set_datastore_value_for_config_key(
+            pack_name=pack_name,
+            key_name='auth_settings_token',
+            value='joe_token_secret',
+            secret=True,
+            user='joe',
+        )
         self.assertTrue(kvp_db.value != 'joe_token_secret')
         self.assertTrue(len(kvp_db.value) > len('joe_token_secret') * 2)
         self.assertTrue(kvp_db.secret)
 
-        kvp_db = set_datastore_value_for_config_key(pack_name=pack_name,
-                                                    key_name='auth_settings_token',
-                                                    value='alice_token_secret',
-                                                    secret=True,
-                                                    user='alice')
+        kvp_db = set_datastore_value_for_config_key(
+            pack_name=pack_name,
+            key_name='auth_settings_token',
+            value='alice_token_secret',
+            secret=True,
+            user='alice',
+        )
         self.assertTrue(kvp_db.value != 'alice_token_secret')
         self.assertTrue(len(kvp_db.value) > len('alice_token_secret') * 2)
         self.assertTrue(kvp_db.secret)
@@ -264,8 +258,8 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
                 'host': '127.0.0.11',
                 'port': 8080,
                 'device_uids': ['a', 'b', 'c'],
-                'token': 'joe_token_secret'
-            }
+                'token': 'joe_token_secret',
+            },
         }
         self.assertEqual(config, expected_config)
 
@@ -280,8 +274,8 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
                 'host': '127.0.0.11',
                 'port': 8080,
                 'device_uids': ['a', 'b', 'c'],
-                'token': 'alice_token_secret'
-            }
+                'token': 'alice_token_secret',
+            },
         }
         self.assertEqual(config, expected_config)
 
@@ -290,97 +284,86 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
         loader = ContentPackConfigLoader(pack_name=pack_name)
 
         # Render fails on top-level item
-        values = {
-            'level0_key': '{{st2kvXX.invalid}}'
-        }
+        values = {'level0_key': '{{st2kvXX.invalid}}'}
         config_db = ConfigDB(pack=pack_name, values=values)
         config_db = Config.add_or_update(config_db)
 
-        expected_msg = ('Failed to render dynamic configuration value for key "level0_key" with '
-                        'value "{{st2kvXX.invalid}}" for pack ".*?" config: '
-                        '<class \'jinja2.exceptions.UndefinedError\'> '
-                        '\'st2kvXX\' is undefined')
+        expected_msg = (
+            'Failed to render dynamic configuration value for key "level0_key" with '
+            'value "{{st2kvXX.invalid}}" for pack ".*?" config: '
+            '<class \'jinja2.exceptions.UndefinedError\'> '
+            '\'st2kvXX\' is undefined'
+        )
         self.assertRaisesRegexp(RuntimeError, expected_msg, loader.get_config)
         config_db.delete()
 
         # Renders fails on fist level item
-        values = {
-            'level0_object': {
-                'level1_key': '{{st2kvXX.invalid}}'
-            }
-        }
+        values = {'level0_object': {'level1_key': '{{st2kvXX.invalid}}'}}
         config_db = ConfigDB(pack=pack_name, values=values)
         Config.add_or_update(config_db)
 
-        expected_msg = ('Failed to render dynamic configuration value for key '
-                        '"level0_object.level1_key" with value "{{st2kvXX.invalid}}"'
-                        ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
-                        ' \'st2kvXX\' is undefined')
+        expected_msg = (
+            'Failed to render dynamic configuration value for key '
+            '"level0_object.level1_key" with value "{{st2kvXX.invalid}}"'
+            ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
+            ' \'st2kvXX\' is undefined'
+        )
         self.assertRaisesRegexp(RuntimeError, expected_msg, loader.get_config)
         config_db.delete()
 
         # Renders fails on second level item
-        values = {
-            'level0_object': {
-                'level1_object': {
-                    'level2_key': '{{st2kvXX.invalid}}'
-                }
-            }
-        }
+        values = {'level0_object': {'level1_object': {'level2_key': '{{st2kvXX.invalid}}'}}}
         config_db = ConfigDB(pack=pack_name, values=values)
         Config.add_or_update(config_db)
 
-        expected_msg = ('Failed to render dynamic configuration value for key '
-                        '"level0_object.level1_object.level2_key" with value "{{st2kvXX.invalid}}"'
-                        ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
-                        ' \'st2kvXX\' is undefined')
+        expected_msg = (
+            'Failed to render dynamic configuration value for key '
+            '"level0_object.level1_object.level2_key" with value "{{st2kvXX.invalid}}"'
+            ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
+            ' \'st2kvXX\' is undefined'
+        )
         self.assertRaisesRegexp(RuntimeError, expected_msg, loader.get_config)
         config_db.delete()
 
         # Renders fails on list item
-        values = {
-            'level0_object': [
-                'abc',
-                '{{st2kvXX.invalid}}'
-            ]
-        }
+        values = {'level0_object': ['abc', '{{st2kvXX.invalid}}']}
         config_db = ConfigDB(pack=pack_name, values=values)
         Config.add_or_update(config_db)
 
-        expected_msg = ('Failed to render dynamic configuration value for key '
-                        '"level0_object.1" with value "{{st2kvXX.invalid}}"'
-                        ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
-                        ' \'st2kvXX\' is undefined')
+        expected_msg = (
+            'Failed to render dynamic configuration value for key '
+            '"level0_object.1" with value "{{st2kvXX.invalid}}"'
+            ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
+            ' \'st2kvXX\' is undefined'
+        )
         self.assertRaisesRegexp(RuntimeError, expected_msg, loader.get_config)
         config_db.delete()
 
         # Renders fails on nested object in list item
-        values = {
-            'level0_object': [
-                {'level2_key': '{{st2kvXX.invalid}}'}
-            ]
-        }
+        values = {'level0_object': [{'level2_key': '{{st2kvXX.invalid}}'}]}
         config_db = ConfigDB(pack=pack_name, values=values)
         Config.add_or_update(config_db)
 
-        expected_msg = ('Failed to render dynamic configuration value for key '
-                        '"level0_object.0.level2_key" with value "{{st2kvXX.invalid}}"'
-                        ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
-                        ' \'st2kvXX\' is undefined')
+        expected_msg = (
+            'Failed to render dynamic configuration value for key '
+            '"level0_object.0.level2_key" with value "{{st2kvXX.invalid}}"'
+            ' for pack ".*?" config: <class \'jinja2.exceptions.UndefinedError\'>'
+            ' \'st2kvXX\' is undefined'
+        )
         self.assertRaisesRegexp(RuntimeError, expected_msg, loader.get_config)
         config_db.delete()
 
         # Renders fails on invalid syntax
-        values = {
-            'level0_key': '{{ this is some invalid Jinja }}'
-        }
+        values = {'level0_key': '{{ this is some invalid Jinja }}'}
         config_db = ConfigDB(pack=pack_name, values=values)
         Config.add_or_update(config_db)
 
-        expected_msg = ('Failed to render dynamic configuration value for key '
-                        '"level0_key" with value "{{ this is some invalid Jinja }}"'
-                        ' for pack ".*?" config: <class \'jinja2.exceptions.TemplateSyntaxError\'>'
-                        ' expected token \'end of print statement\', got \'Jinja\'')
+        expected_msg = (
+            'Failed to render dynamic configuration value for key '
+            '"level0_key" with value "{{ this is some invalid Jinja }}"'
+            ' for pack ".*?" config: <class \'jinja2.exceptions.TemplateSyntaxError\'>'
+            ' expected token \'end of print statement\', got \'Jinja\''
+        )
         self.assertRaisesRegexp(RuntimeError, expected_msg, loader.get_config)
         config_db.delete()
 
@@ -391,9 +374,7 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
         ####################
         # value in top level item
         KeyValuePair.add_or_update(KeyValuePairDB(name='k1', value='v1'))
-        values = {
-            'level0_key': '{{st2kv.system.k1}}'
-        }
+        values = {'level0_key': '{{st2kv.system.k1}}'}
         config_db = ConfigDB(pack=pack_name, values=values)
         config_db = Config.add_or_update(config_db)
 
@@ -417,26 +398,21 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
             'level0_key': '{{st2kv.system.k0}}',
             'level0_object': {
                 'level1_key': '{{st2kv.system.k1}}',
-                'level1_object': {
-                    'level2_key': '{{st2kv.system.k2}}'
-                }
-            }
+                'level1_object': {'level2_key': '{{st2kv.system.k2}}'},
+            },
         }
         config_db = ConfigDB(pack=pack_name, values=values)
         config_db = Config.add_or_update(config_db)
 
         config_rendered = loader.get_config()
 
-        self.assertEquals(config_rendered,
-                          {
-                              'level0_key': 'v0',
-                              'level0_object': {
-                                  'level1_key': 'v1',
-                                  'level1_object': {
-                                      'level2_key': 'v2'
-                                  }
-                              }
-                          })
+        self.assertEquals(
+            config_rendered,
+            {
+                'level0_key': 'v0',
+                'level0_object': {'level1_key': 'v1', 'level1_object': {'level2_key': 'v2'}},
+            },
+        )
 
         config_db.delete()
 
@@ -449,28 +425,13 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
 
         ####################
         # values in list
-        values = {
-            'level0_key': [
-                'a',
-                '{{st2kv.system.k0}}',
-                'b',
-                '{{st2kv.system.k1}}',
-            ]
-        }
+        values = {'level0_key': ['a', '{{st2kv.system.k0}}', 'b', '{{st2kv.system.k1}}']}
         config_db = ConfigDB(pack=pack_name, values=values)
         config_db = Config.add_or_update(config_db)
 
         config_rendered = loader.get_config()
 
-        self.assertEquals(config_rendered,
-                          {
-                              'level0_key': [
-                                  'a',
-                                  'v0',
-                                  'b',
-                                  'v1'
-                              ]
-                          })
+        self.assertEquals(config_rendered, {'level0_key': ['a', 'v0', 'b', 'v1']})
 
         config_db.delete()
 
@@ -486,20 +447,10 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
         # values in objects embedded in lists and nested lists
         values = {
             'level0_key': [
-                {
-                    'level1_key0': '{{st2kv.system.k0}}'
-                },
+                {'level1_key0': '{{st2kv.system.k0}}'},
                 '{{st2kv.system.k1}}',
-                [
-                    '{{st2kv.system.k0}}',
-                    '{{st2kv.system.k1}}',
-                    '{{st2kv.system.k2}}',
-                ],
-                {
-                    'level1_key2': [
-                        '{{st2kv.system.k2}}',
-                    ]
-                }
+                ['{{st2kv.system.k0}}', '{{st2kv.system.k1}}', '{{st2kv.system.k2}}'],
+                {'level1_key2': ['{{st2kv.system.k2}}']},
             ]
         }
         config_db = ConfigDB(pack=pack_name, values=values)
@@ -507,25 +458,17 @@ class ContentPackConfigLoaderTestCase(CleanDbTestCase):
 
         config_rendered = loader.get_config()
 
-        self.assertEquals(config_rendered,
-                          {
-                              'level0_key': [
-                                  {
-                                      'level1_key0': 'v0'
-                                  },
-                                  'v1',
-                                  [
-                                      'v0',
-                                      'v1',
-                                      'v2',
-                                  ],
-                                  {
-                                      'level1_key2': [
-                                          'v2',
-                                      ]
-                                  }
-                              ]
-                          })
+        self.assertEquals(
+            config_rendered,
+            {
+                'level0_key': [
+                    {'level1_key0': 'v0'},
+                    'v1',
+                    ['v0', 'v1', 'v2'],
+                    {'level1_key2': ['v2']},
+                ]
+            },
+        )
 
         config_db.delete()
 

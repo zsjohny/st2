@@ -35,37 +35,27 @@ class DummyActionExecution(object):
 
 FIXTURES_PACK = 'generic'
 
-TEST_MODELS = {
-    'actions': ['a1.yaml', 'a2.yaml'],
-    'runners': ['testrunner1.yaml']
-}
+TEST_MODELS = {'actions': ['a1.yaml', 'a2.yaml'], 'runners': ['testrunner1.yaml']}
 
-MODELS = FixturesLoader().load_models(fixtures_pack=FIXTURES_PACK,
-                                      fixtures_dict=TEST_MODELS)
+MODELS = FixturesLoader().load_models(fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_MODELS)
 ACTION_1 = MODELS['actions']['a1.yaml']
 ACTION_2 = MODELS['actions']['a2.yaml']
 RUNNER = MODELS['runners']['testrunner1.yaml']
 
 CHAIN_1_PATH = FixturesLoader().get_fixture_file_path_abs(
-    FIXTURES_PACK, 'actionchains', 'chain_with_notifications.yaml')
+    FIXTURES_PACK, 'actionchains', 'chain_with_notifications.yaml'
+)
 
 
+@mock.patch.object(action_db_util, 'get_runnertype_by_name', mock.MagicMock(return_value=RUNNER))
 @mock.patch.object(
-    action_db_util,
-    'get_runnertype_by_name',
-    mock.MagicMock(return_value=RUNNER))
+    action_service, 'is_action_canceled_or_canceling', mock.MagicMock(return_value=False)
+)
 @mock.patch.object(
-    action_service,
-    'is_action_canceled_or_canceling',
-    mock.MagicMock(return_value=False))
-@mock.patch.object(
-    action_service,
-    'is_action_paused_or_pausing',
-    mock.MagicMock(return_value=False))
+    action_service, 'is_action_paused_or_pausing', mock.MagicMock(return_value=False)
+)
 class TestActionChainNotifications(ExecutionDbTestCase):
-
-    @mock.patch.object(action_db_util, 'get_action_by_ref',
-                       mock.MagicMock(return_value=ACTION_1))
+    @mock.patch.object(action_db_util, 'get_action_by_ref', mock.MagicMock(return_value=ACTION_1))
     @mock.patch.object(action_service, 'request', return_value=(DummyActionExecution(), None))
     def test_chain_runner_success_path(self, request):
         chain_runner = acr.get_runner()

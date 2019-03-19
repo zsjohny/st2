@@ -19,14 +19,10 @@ from pkg_resources import get_distribution
 
 from st2common.constants.pack import USER_PACK_NAME_BLACKLIST
 
-__all__ = [
-    'RequirementsValidator',
-    'validate_pack_name'
-]
+__all__ = ['RequirementsValidator', 'validate_pack_name']
 
 
 class RequirementsValidator(object):
-
     @staticmethod
     def validate(requirements_file):
         if not os.path.exists(requirements_file):
@@ -57,7 +53,6 @@ def validate_pack_name(name):
         raise ValueError('Content pack name cannot be empty')
 
     if name.lower() in USER_PACK_NAME_BLACKLIST:
-        raise ValueError('Name "%s" is blacklisted and can\'t be used' %
-                         (name.lower()))
+        raise ValueError('Name "%s" is blacklisted and can\'t be used' % (name.lower()))
 
     return name

@@ -16,13 +16,10 @@
 from __future__ import absolute_import
 from st2common.models.db.stormbase import TagField
 
-__all__ = [
-    'TagsHelper'
-]
+__all__ = ['TagsHelper']
 
 
 class TagsHelper(object):
-
     @staticmethod
     def to_model(tags):
         tags = tags or []

@@ -15,9 +15,7 @@
 
 from tests.unit.controllers.v1.test_rules_rbac import BaseRuleControllerRBACTestCase
 
-__all__ = [
-    'RuleViewsControllerRBACTestCase'
-]
+__all__ = ['RuleViewsControllerRBACTestCase']
 
 
 class RuleViewsControllerRBACTestCase(BaseRuleControllerRBACTestCase):

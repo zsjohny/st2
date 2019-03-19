@@ -21,9 +21,7 @@ import six
 from st2common.runners.utils import get_logger_for_python_runner_action
 from st2common.runners.utils import PackConfigDict
 
-__all__ = [
-    'Action'
-]
+__all__ = ['Action']
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -53,8 +51,9 @@ class Action(object):
             pack_name = 'unknown'
 
         self.config = PackConfigDict(pack_name, self.config)
-        self.logger = get_logger_for_python_runner_action(action_name=self.__class__.__name__,
-                                                          log_level=log_level)
+        self.logger = get_logger_for_python_runner_action(
+            action_name=self.__class__.__name__, log_level=log_level
+        )
 
     @abc.abstractmethod
     def run(self, **kwargs):

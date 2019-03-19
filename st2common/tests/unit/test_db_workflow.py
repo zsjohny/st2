@@ -28,7 +28,6 @@ from st2common.exceptions import db as db_exc
 
 @mock.patch.object(publishers.PoolPublisher, 'publish', mock.MagicMock())
 class WorkflowExecutionModelTest(st2tests.DbTestCase):
-
     def test_workflow_execution_crud(self):
         initial = wf_db_models.WorkflowExecutionDB()
         initial.action_execution = uuid.uuid4().hex
@@ -71,9 +70,7 @@ class WorkflowExecutionModelTest(st2tests.DbTestCase):
         created.delete()
 
         self.assertRaises(
-            db_exc.StackStormDBObjectNotFoundError,
-            wf_db_access.WorkflowExecution.get_by_id,
-            doc_id
+            db_exc.StackStormDBObjectNotFoundError, wf_db_access.WorkflowExecution.get_by_id, doc_id
         )
 
     def test_workflow_execution_write_conflict(self):
@@ -107,14 +104,12 @@ class WorkflowExecutionModelTest(st2tests.DbTestCase):
             db_exc.StackStormDBObjectWriteConflictError,
             wf_db_access.WorkflowExecution.update,
             retrieved2,
-            graph={'var2': 'fubar'}
+            graph={'var2': 'fubar'},
         )
 
         # Test delete
         created.delete()
 
         self.assertRaises(
-            db_exc.StackStormDBObjectNotFoundError,
-            wf_db_access.WorkflowExecution.get_by_id,
-            doc_id
+            db_exc.StackStormDBObjectNotFoundError, wf_db_access.WorkflowExecution.get_by_id, doc_id
         )

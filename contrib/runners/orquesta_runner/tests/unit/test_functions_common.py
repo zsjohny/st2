@@ -23,6 +23,7 @@ import st2tests
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests.unit import base
@@ -47,34 +48,31 @@ from st2tests.mocks import workflow as mock_wf_ex_xport
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state),
+)
 class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(OrquestaFunctionTest, cls).setUpClass()
@@ -84,8 +82,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -143,7 +140,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'data_yaml_str_2': 'foo:\n  bar: foobar\n',
             'data_query_1': ['foobar'],
             'data_none_str': data_funcs.NONE_MAGIC_VALUE,
-            'data_str': 'foobar'
+            'data_str': 'foobar',
         }
 
         self._execute_workflow(wf_name, expected_output)
@@ -164,7 +161,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'data_query_1': ['foobar'],
             'data_pipe_str_1': '{"foo": {"bar": "foobar"}}',
             'data_none_str': data_funcs.NONE_MAGIC_VALUE,
-            'data_str': 'foobar'
+            'data_str': 'foobar',
         }
 
         self._execute_workflow(wf_name, expected_output)
@@ -172,20 +169,14 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
     def test_path_functions_in_yaql(self):
         wf_name = 'yaql-path-functions'
 
-        expected_output = {
-            'basename': 'file.txt',
-            'dirname': '/path/to/some'
-        }
+        expected_output = {'basename': 'file.txt', 'dirname': '/path/to/some'}
 
         self._execute_workflow(wf_name, expected_output)
 
     def test_path_functions_in_jinja(self):
         wf_name = 'jinja-path-functions'
 
-        expected_output = {
-            'basename': 'file.txt',
-            'dirname': '/path/to/some'
-        }
+        expected_output = {'basename': 'file.txt', 'dirname': '/path/to/some'}
 
         self._execute_workflow(wf_name, expected_output)
 
@@ -196,7 +187,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'match': True,
             'replace': 'wxyz',
             'search': True,
-            'substring': '668 Infinite Dr'
+            'substring': '668 Infinite Dr',
         }
 
         self._execute_workflow(wf_name, expected_output)
@@ -208,7 +199,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'match': True,
             'replace': 'wxyz',
             'search': True,
-            'substring': '668 Infinite Dr'
+            'substring': '668 Infinite Dr',
         }
 
         self._execute_workflow(wf_name, expected_output)
@@ -216,18 +207,14 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
     def test_time_functions_in_yaql(self):
         wf_name = 'yaql-time-functions'
 
-        expected_output = {
-            'time': '3h25m45s'
-        }
+        expected_output = {'time': '3h25m45s'}
 
         self._execute_workflow(wf_name, expected_output)
 
     def test_time_functions_in_jinja(self):
         wf_name = 'jinja-time-functions'
 
-        expected_output = {
-            'time': '3h25m45s'
-        }
+        expected_output = {'time': '3h25m45s'}
 
         self._execute_workflow(wf_name, expected_output)
 
@@ -245,7 +232,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'bump_major': '1.0.0',
             'bump_minor': '0.11.0',
             'bump_patch': '0.10.1',
-            'strip_patch': '0.10'
+            'strip_patch': '0.10',
         }
 
         self._execute_workflow(wf_name, expected_output)
@@ -264,7 +251,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'bump_major': '1.0.0',
             'bump_minor': '0.11.0',
             'bump_patch': '0.10.1',
-            'strip_patch': '0.10'
+            'strip_patch': '0.10',
         }
 
         self._execute_workflow(wf_name, expected_output)

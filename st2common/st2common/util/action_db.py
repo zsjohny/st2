@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from __future__ import absolute_import
+
 try:
     import simplejson as json
 except ImportError:
@@ -50,7 +51,7 @@ __all__ = [
     'get_liveaction_by_id',
     'update_liveaction_status',
     'serialize_positional_argument',
-    'get_args'
+    'get_args',
 ]
 
 
@@ -90,10 +91,14 @@ def get_runnertype_by_id(runnertype_id):
     try:
         runnertype = RunnerType.get_by_id(runnertype_id)
     except (ValueError, ValidationError) as e:
-        LOG.warning('Database lookup for runnertype with id="%s" resulted in '
-                    'exception: %s', runnertype_id, e)
-        raise StackStormDBObjectNotFoundError('Unable to find runnertype with '
-                                              'id="%s"' % runnertype_id)
+        LOG.warning(
+            'Database lookup for runnertype with id="%s" resulted in ' 'exception: %s',
+            runnertype_id,
+            e,
+        )
+        raise StackStormDBObjectNotFoundError(
+            'Unable to find runnertype with ' 'id="%s"' % runnertype_id
+        )
 
     return runnertype
 
@@ -106,18 +111,21 @@ def get_runnertype_by_name(runnertype_name):
     try:
         runnertypes = RunnerType.query(name=runnertype_name)
     except (ValueError, ValidationError) as e:
-        LOG.error('Database lookup for name="%s" resulted in exception: %s',
-                  runnertype_name, e)
-        raise StackStormDBObjectNotFoundError('Unable to find runnertype with name="%s"'
-                                              % runnertype_name)
+        LOG.error('Database lookup for name="%s" resulted in exception: %s', runnertype_name, e)
+        raise StackStormDBObjectNotFoundError(
+            'Unable to find runnertype with name="%s"' % runnertype_name
+        )
 
     if not runnertypes:
-        raise StackStormDBObjectNotFoundError('Unable to find RunnerType with name="%s"'
-                                              % runnertype_name)
+        raise StackStormDBObjectNotFoundError(
+            'Unable to find RunnerType with name="%s"' % runnertype_name
+        )
 
     if len(runnertypes) > 1:
-        LOG.warning('More than one RunnerType returned from DB lookup by name. '
-                    'Result list is: %s', runnertypes)
+        LOG.warning(
+            'More than one RunnerType returned from DB lookup by name. ' 'Result list is: %s',
+            runnertypes,
+        )
 
     return runnertypes[0]
 
@@ -133,10 +141,10 @@ def get_action_by_id(action_id):
     try:
         action = Action.get_by_id(action_id)
     except (ValueError, ValidationError) as e:
-        LOG.warning('Database lookup for action with id="%s" resulted in '
-                    'exception: %s', action_id, e)
-        raise StackStormDBObjectNotFoundError('Unable to find action with '
-                                              'id="%s"' % action_id)
+        LOG.warning(
+            'Database lookup for action with id="%s" resulted in ' 'exception: %s', action_id, e
+        )
+        raise StackStormDBObjectNotFoundError('Unable to find action with ' 'id="%s"' % action_id)
 
     return action
 
@@ -153,8 +161,9 @@ def get_action_by_ref(ref):
     try:
         return Action.get_by_ref(ref)
     except ValueError as e:
-        LOG.debug('Database lookup for ref="%s" resulted ' +
-                  'in exception : %s.', ref, e, exc_info=True)
+        LOG.debug(
+            'Database lookup for ref="%s" resulted ' + 'in exception : %s.', ref, e, exc_info=True
+        )
         return None
 
 
@@ -169,17 +178,28 @@ def get_liveaction_by_id(liveaction_id):
     try:
         liveaction = LiveAction.get_by_id(liveaction_id)
     except (ValidationError, ValueError) as e:
-        LOG.error('Database lookup for LiveAction with id="%s" resulted in '
-                  'exception: %s', liveaction_id, e)
-        raise StackStormDBObjectNotFoundError('Unable to find LiveAction with '
-                                              'id="%s"' % liveaction_id)
+        LOG.error(
+            'Database lookup for LiveAction with id="%s" resulted in ' 'exception: %s',
+            liveaction_id,
+            e,
+        )
+        raise StackStormDBObjectNotFoundError(
+            'Unable to find LiveAction with ' 'id="%s"' % liveaction_id
+        )
 
     return liveaction
 
 
-def update_liveaction_status(status=None, result=None, context=None, end_timestamp=None,
-                             liveaction_id=None, runner_info=None, liveaction_db=None,
-                             publish=True):
+def update_liveaction_status(
+    status=None,
+    result=None,
+    context=None,
+    end_timestamp=None,
+    liveaction_id=None,
+    runner_info=None,
+    liveaction_db=None,
+    publish=True,
+):
     """
         Update the status of the specified LiveAction to the value provided in
         new_status.
@@ -189,26 +209,25 @@ def update_liveaction_status(status=None, result=None, context=None, end_timesta
     """
 
     if (liveaction_id is None) and (liveaction_db is None):
-        raise ValueError('Must specify an liveaction_id or an liveaction_db when '
-                         'calling update_LiveAction_status')
+        raise ValueError(
+            'Must specify an liveaction_id or an liveaction_db when '
+            'calling update_LiveAction_status'
+        )
 
     if liveaction_db is None:
         liveaction_db = get_liveaction_by_id(liveaction_id)
 
     if status not in LIVEACTION_STATUSES:
-        raise ValueError('Attempting to set status for LiveAction "%s" '
-                         'to unknown status string. Unknown status is "%s"'
-                         % (liveaction_db, status))
+        raise ValueError(
+            'Attempting to set status for LiveAction "%s" '
+            'to unknown status string. Unknown status is "%s"' % (liveaction_db, status)
+        )
 
     if result and cfg.CONF.system.validate_output_schema and status == LIVEACTION_STATUS_SUCCEEDED:
         action_db = get_action_by_ref(liveaction_db.action)
         runner_db = get_runnertype_by_name(action_db.runner_type['name'])
         result, status = output_schema.validate_output(
-            runner_db.output_schema,
-            action_db.output_schema,
-            result,
-            status,
-            runner_db.output_key,
+            runner_db.output_schema, action_db.output_schema, result, status, runner_db.output_key
         )
 
     # If liveaction_db status is set then we need to decrement the counter
@@ -222,13 +241,19 @@ def update_liveaction_status(status=None, result=None, context=None, end_timesta
         get_driver().inc_counter('action.executions.%s' % (status))
 
     extra = {'liveaction_db': liveaction_db}
-    LOG.debug('Updating ActionExection: "%s" with status="%s"', liveaction_db.id, status,
-              extra=extra)
+    LOG.debug(
+        'Updating ActionExection: "%s" with status="%s"', liveaction_db.id, status, extra=extra
+    )
 
     # If liveaction is already canceled, then do not allow status to be updated.
     if liveaction_db.status == LIVEACTION_STATUS_CANCELED and status != LIVEACTION_STATUS_CANCELED:
-        LOG.info('Unable to update ActionExecution "%s" with status="%s". '
-                 'ActionExecution is already canceled.', liveaction_db.id, status, extra=extra)
+        LOG.info(
+            'Unable to update ActionExecution "%s" with status="%s". '
+            'ActionExecution is already canceled.',
+            liveaction_db.id,
+            status,
+            extra=extra,
+        )
         return liveaction_db
 
     old_status = liveaction_db.status
@@ -319,8 +344,7 @@ def get_args(action_parameters, action_db):
 
         # Perform serialization for positional arguments
         arg_value = action_parameters.get(arg, None)
-        arg_value = serialize_positional_argument(argument_type=arg_type,
-                                                  argument_value=arg_value)
+        arg_value = serialize_positional_argument(argument_type=arg_type, argument_value=arg_value)
 
         positional_args.append(arg_value)
         positional_args_keys.add(arg)

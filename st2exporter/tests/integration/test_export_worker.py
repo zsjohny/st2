@@ -27,32 +27,43 @@ from st2exporter.worker import ExecutionsExporter
 from st2tests.base import DbTestCase
 from st2tests.fixturesloader import FixturesLoader
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 DESCENDANTS_PACK = 'descendants'
 
 DESCENDANTS_FIXTURES = {
-    'executions': ['root_execution.yaml', 'child1_level1.yaml', 'child2_level1.yaml',
-                   'child1_level2.yaml', 'child2_level2.yaml', 'child3_level2.yaml',
-                   'child1_level3.yaml', 'child2_level3.yaml', 'child3_level3.yaml']
+    'executions': [
+        'root_execution.yaml',
+        'child1_level1.yaml',
+        'child2_level1.yaml',
+        'child1_level2.yaml',
+        'child2_level2.yaml',
+        'child3_level2.yaml',
+        'child1_level3.yaml',
+        'child2_level3.yaml',
+        'child3_level3.yaml',
+    ]
 }
 
 
 class TestExportWorker(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestExportWorker, cls).setUpClass()
         fixtures_loader = FixturesLoader()
-        loaded_fixtures = fixtures_loader.save_fixtures_to_db(fixtures_pack=DESCENDANTS_PACK,
-                                                              fixtures_dict=DESCENDANTS_FIXTURES)
+        loaded_fixtures = fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=DESCENDANTS_PACK, fixtures_dict=DESCENDANTS_FIXTURES
+        )
         TestExportWorker.saved_executions = loaded_fixtures['executions']
 
     @mock.patch.object(os.path, 'exists', mock.MagicMock(return_value=True))
     def test_get_marker_from_db(self):
         marker_dt = date_utils.get_datetime_utc_now() - datetime.timedelta(minutes=5)
-        marker_db = DumperMarkerDB(marker=isotime.format(marker_dt, offset=False),
-                                   updated_at=date_utils.get_datetime_utc_now())
+        marker_db = DumperMarkerDB(
+            marker=isotime.format(marker_dt, offset=False),
+            updated_at=date_utils.get_datetime_utc_now(),
+        )
         DumperMarker.add_or_update(marker_db)
         exec_exporter = ExecutionsExporter(None, None)
         export_marker = exec_exporter._get_export_marker_from_db()

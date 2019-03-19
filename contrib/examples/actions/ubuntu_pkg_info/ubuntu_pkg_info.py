@@ -19,5 +19,6 @@ def main(args):
 
     sys.stdout.write(payload)
 
+
 if __name__ == '__main__':
     main(sys.argv)

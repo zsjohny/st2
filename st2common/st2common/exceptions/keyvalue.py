@@ -16,10 +16,7 @@
 from __future__ import absolute_import
 from st2common.exceptions import StackStormBaseException
 
-__all__ = [
-    'CryptoKeyNotSetupException',
-    'InvalidScopeException'
-]
+__all__ = ['CryptoKeyNotSetupException', 'InvalidScopeException']
 
 
 class CryptoKeyNotSetupException(StackStormBaseException):

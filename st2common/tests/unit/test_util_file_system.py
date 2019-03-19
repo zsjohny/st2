@@ -35,17 +35,12 @@ class FileSystemUtilsTestCase(unittest2.TestCase):
             '__init__.py',
             'meta/mock_exception.yaml',
             'meta/concurrency.yaml',
-            'meta/__init__.py'
+            'meta/__init__.py',
         ]
         result = get_file_list(directory=directory, exclude_patterns=['*.pyc'])
         self.assertItemsEqual(expected, result)
 
         # Custom exclude pattern
-        expected = [
-            'mock_exception.py',
-            'concurrency.py',
-            '__init__.py',
-            'meta/__init__.py'
-        ]
+        expected = ['mock_exception.py', 'concurrency.py', '__init__.py', 'meta/__init__.py']
         result = get_file_list(directory=directory, exclude_patterns=['*.pyc', '*.yaml'])
         self.assertItemsEqual(expected, result)

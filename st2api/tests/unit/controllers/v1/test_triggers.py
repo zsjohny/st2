@@ -26,7 +26,7 @@ TRIGGER_0 = {
     'pack': 'dummy_pack_1',
     'description': 'test trigger',
     'type': 'dummy_pack_1.st2.test.triggertype0',
-    'parameters': {}
+    'parameters': {},
 }
 
 TRIGGER_1 = {
@@ -34,7 +34,7 @@ TRIGGER_1 = {
     'pack': 'dummy_pack_1',
     'description': 'test trigger',
     'type': 'dummy_pack_1.st2.test.triggertype1',
-    'parameters': {}
+    'parameters': {},
 }
 
 TRIGGER_2 = {
@@ -42,17 +42,12 @@ TRIGGER_2 = {
     'pack': 'dummy_pack_1',
     'description': 'test trigger',
     'type': 'dummy_pack_1.st2.test.triggertype2',
-    'parameters': {
-        'param1': {
-            'foo': 'bar'
-        }
-    }
+    'parameters': {'param1': {'foo': 'bar'}},
 }
 
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
 class TestTriggerController(FunctionalTest):
-
     @classmethod
     def setUpClass(cls):
         super(TestTriggerController, cls).setUpClass()
@@ -137,7 +132,7 @@ class TestTriggerController(FunctionalTest):
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-            'parameters_schema': {}
+            'parameters_schema': {},
         }
         TRIGGERTYPE_1 = {
             'name': 'st2.test.triggertype1',
@@ -150,7 +145,7 @@ class TestTriggerController(FunctionalTest):
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-            'parameters_schema': {'param1': {'type': 'object'}}
+            'parameters_schema': {'param1': {'type': 'object'}},
         }
         cls.app.post_json('/v1/triggertypes', TRIGGERTYPE_0, expect_errors=False)
         cls.app.post_json('/v1/triggertypes', TRIGGERTYPE_1, expect_errors=False)

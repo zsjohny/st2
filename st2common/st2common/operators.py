@@ -22,12 +22,7 @@ from st2common.util import date as date_utils
 from st2common.constants.rules import TRIGGER_ITEM_PAYLOAD_PREFIX
 from st2common.util.payload import PayloadLookup
 
-__all__ = [
-    'SEARCH',
-    'get_operator',
-    'get_allowed_operators',
-    'UnrecognizedConditionError',
-]
+__all__ = ['SEARCH', 'get_operator', 'get_allowed_operators', 'UnrecognizedConditionError']
 
 
 def get_allowed_operators():
@@ -107,33 +102,47 @@ def search(value, criteria_pattern, criteria_condition, check_function):
     """
     if criteria_condition == 'any':
         # Any item of the list can match all patterns
-        rtn = any([
-            # Any payload item can match
-            all([
-                # Match all patterns
-                check_function(
-                    child_criterion_k, child_criterion_v,
-                    PayloadLookup(child_payload, prefix=TRIGGER_ITEM_PAYLOAD_PREFIX))
-                for child_criterion_k, child_criterion_v in six.iteritems(criteria_pattern)
-            ])
-            for child_payload in value
-        ])
+        rtn = any(
+            [
+                # Any payload item can match
+                all(
+                    [
+                        # Match all patterns
+                        check_function(
+                            child_criterion_k,
+                            child_criterion_v,
+                            PayloadLookup(child_payload, prefix=TRIGGER_ITEM_PAYLOAD_PREFIX),
+                        )
+                        for child_criterion_k, child_criterion_v in six.iteritems(criteria_pattern)
+                    ]
+                )
+                for child_payload in value
+            ]
+        )
     elif criteria_condition == 'all':
         # Every item of the list must match all patterns
-        rtn = all([
-            # All payload items must match
-            all([
-                # Match all patterns
-                check_function(
-                    child_criterion_k, child_criterion_v,
-                    PayloadLookup(child_payload, prefix=TRIGGER_ITEM_PAYLOAD_PREFIX))
-                for child_criterion_k, child_criterion_v in six.iteritems(criteria_pattern)
-            ])
-            for child_payload in value
-        ])
+        rtn = all(
+            [
+                # All payload items must match
+                all(
+                    [
+                        # Match all patterns
+                        check_function(
+                            child_criterion_k,
+                            child_criterion_v,
+                            PayloadLookup(child_payload, prefix=TRIGGER_ITEM_PAYLOAD_PREFIX),
+                        )
+                        for child_criterion_k, child_criterion_v in six.iteritems(criteria_pattern)
+                    ]
+                )
+                for child_payload in value
+            ]
+        )
     else:
-        raise UnrecognizedConditionError("The '%s' search condition is not recognized, only 'any' "
-                                         "and 'all' are allowed" % criteria_condition)
+        raise UnrecognizedConditionError(
+            "The '%s' search condition is not recognized, only 'any' "
+            "and 'all' are allowed" % criteria_condition
+        )
 
     return rtn
 

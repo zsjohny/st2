@@ -28,5 +28,5 @@ __all__ = [
     'publishers',
     'reactor',
     'utils',
-    'connection_retry_wrapper'
+    'connection_retry_wrapper',
 ]

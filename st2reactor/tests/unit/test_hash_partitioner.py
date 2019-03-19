@@ -23,9 +23,7 @@ from st2tests import DbTestCase
 from st2tests.fixturesloader import FixturesLoader
 
 PACK = 'generic'
-FIXTURES_1 = {
-    'sensors': ['sensor1.yaml', 'sensor2.yaml', 'sensor3.yaml']
-}
+FIXTURES_1 = {'sensors': ['sensor1.yaml', 'sensor2.yaml', 'sensor3.yaml']}
 
 
 class HashPartitionerTest(DbTestCase):
@@ -38,7 +36,8 @@ class HashPartitionerTest(DbTestCase):
         # Create TriggerTypes before creation of Rule to avoid failure. Rule requires the
         # Trigger and therefore TriggerType to be created prior to rule creation.
         cls.models = FixturesLoader().save_fixtures_to_db(
-            fixtures_pack=PACK, fixtures_dict=FIXTURES_1)
+            fixtures_pack=PACK, fixtures_dict=FIXTURES_1
+        )
         config.parse_args()
 
     def test_full_range_hash_partitioner(self):
@@ -49,9 +48,9 @@ class HashPartitionerTest(DbTestCase):
     def test_multi_range_hash_partitioner(self):
         range_third = int(Range.RANGE_MAX_VALUE / 3)
         range_two_third = range_third * 2
-        hash_ranges = \
-            'MIN..{range_third}|{range_third}..{range_two_third}|{range_two_third}..MAX'.format(
-                range_third=range_third, range_two_third=range_two_third)
+        hash_ranges = 'MIN..{range_third}|{range_third}..{range_two_third}|{range_two_third}..MAX'.format(
+            range_third=range_third, range_two_third=range_two_third
+        )
         partitioner = HashPartitioner('node1', hash_ranges)
         sensors = partitioner.get_sensors()
         self.assertEqual(len(sensors), 3, 'Expected all sensors')
@@ -89,12 +88,15 @@ class HashPartitionerTest(DbTestCase):
             if partitioner3._is_in_hash_range(ref):
                 p3_count += 1
 
-        self.assertEqual(p1_count + p2_count + p3_count, refs_count,
-                         'Sum should equal all sensors.')
+        self.assertEqual(
+            p1_count + p2_count + p3_count, refs_count, 'Sum should equal all sensors.'
+        )
 
         # Test effectiveness by checking if the  sd is within 20% of mean
         mean = refs_count / 3
-        variance = float((p1_count - mean)**2 + (p1_count - mean)**2 + (p3_count - mean)**2) / 3
+        variance = (
+            float((p1_count - mean) ** 2 + (p1_count - mean) ** 2 + (p3_count - mean) ** 2) / 3
+        )
         sd = math.sqrt(variance)
 
         self.assertTrue(sd / mean <= 0.2, 'Some values deviate too much from the mean.')

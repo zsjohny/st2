@@ -21,10 +21,7 @@ from st2common.services import coordination
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 from st2common.rbac import utils as rbac_utils
 
-__all__ = [
-    'ServiceRegistryGroupsController',
-    'ServiceRegistryGroupMembersController',
-]
+__all__ = ['ServiceRegistryGroupsController', 'ServiceRegistryGroupMembersController']
 
 
 class ServiceRegistryGroupsController(object):
@@ -36,9 +33,7 @@ class ServiceRegistryGroupsController(object):
         group_ids = list(coordinator.get_groups().get())
         group_ids = [item.decode('utf-8') for item in group_ids]
 
-        result = {
-            'groups': group_ids
-        }
+        result = {'groups': group_ids}
         return result
 
 
@@ -54,19 +49,17 @@ class ServiceRegistryGroupMembersController(object):
         try:
             member_ids = list(coordinator.get_members(group_id).get())
         except GroupNotCreated:
-            msg = ('Group with ID "%s" not found.' % (group_id.decode('utf-8')))
+            msg = 'Group with ID "%s" not found.' % (group_id.decode('utf-8'))
             raise StackStormDBObjectNotFoundError(msg)
 
-        result = {
-            'members': []
-        }
+        result = {'members': []}
 
         for member_id in member_ids:
             capabilities = coordinator.get_member_capabilities(group_id, member_id).get()
             item = {
                 'group_id': group_id.decode('utf-8'),
                 'member_id': member_id.decode('utf-8'),
-                'capabilities': capabilities
+                'capabilities': capabilities,
             }
             result['members'].append(item)
 

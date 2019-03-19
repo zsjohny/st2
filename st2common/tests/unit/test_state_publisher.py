@@ -65,7 +65,6 @@ class FakeModel(persistence.Access):
 
 
 class StatePublisherTest(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(StatePublisherTest, cls).setUpClass()
@@ -79,9 +78,9 @@ class StatePublisherTest(DbTestCase):
     def test_publish(self):
         instance = FakeModelDB(state='faked')
         self.access.publish_state(instance)
-        publishers.PoolPublisher.publish.assert_called_with(instance,
-                                                            FAKE_STATE_MGMT_XCHG,
-                                                            instance.state)
+        publishers.PoolPublisher.publish.assert_called_with(
+            instance, FAKE_STATE_MGMT_XCHG, instance.state
+        )
 
     def test_publish_unset(self):
         instance = FakeModelDB()

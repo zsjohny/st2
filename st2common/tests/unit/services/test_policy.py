@@ -16,6 +16,7 @@
 from __future__ import absolute_import
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 import st2common
@@ -36,19 +37,18 @@ PACK = 'generic'
 
 TEST_FIXTURES = {
     'actions': [
-        'action1.yaml',     # wolfpack.action-1
-        'action2.yaml',     # wolfpack.action-2
-        'local.yaml'        # core.local
+        'action1.yaml',  # wolfpack.action-1
+        'action2.yaml',  # wolfpack.action-2
+        'local.yaml',  # core.local
     ],
     'policies': [
-        'policy_2.yaml',    # mock policy on wolfpack.action-1
-        'policy_5.yaml'     # concurrency policy on wolfpack.action-2
-    ]
+        'policy_2.yaml',  # mock policy on wolfpack.action-1
+        'policy_5.yaml',  # concurrency policy on wolfpack.action-2
+    ],
 }
 
 
 class PolicyServiceTestCase(st2tests.DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(PolicyServiceTestCase, cls).setUpClass()
@@ -60,8 +60,7 @@ class PolicyServiceTestCase(st2tests.DbTestCase):
         policies_registrar.register_policy_types(st2common)
 
         loader = fixtures.FixturesLoader()
-        loader.save_fixtures_to_db(fixtures_pack=PACK,
-                                   fixtures_dict=TEST_FIXTURES)
+        loader.save_fixtures_to_db(fixtures_pack=PACK, fixtures_dict=TEST_FIXTURES)
 
     def setUp(self):
         super(PolicyServiceTestCase, self).setUp()
@@ -92,15 +91,13 @@ class PolicyServiceTestCase(st2tests.DbTestCase):
     def test_action_has_specific_policies(self):
         self.assertTrue(
             policy_service.has_policies(
-                self.lv_ac_db_2,
-                policy_types=policy_constants.POLICY_TYPES_REQUIRING_LOCK
+                self.lv_ac_db_2, policy_types=policy_constants.POLICY_TYPES_REQUIRING_LOCK
             )
         )
 
     def test_action_does_not_have_specific_policies(self):
         self.assertFalse(
             policy_service.has_policies(
-                self.lv_ac_db_1,
-                policy_types=policy_constants.POLICY_TYPES_REQUIRING_LOCK
+                self.lv_ac_db_1, policy_types=policy_constants.POLICY_TYPES_REQUIRING_LOCK
             )
         )

@@ -23,10 +23,7 @@ import yaml
 from st2client import formatters
 from st2client.utils import jsutil
 
-__all__ = [
-    'JsonFormatter',
-    'YAMLFormatter'
-]
+__all__ = ['JsonFormatter', 'YAMLFormatter']
 
 LOG = logging.getLogger(__name__)
 
@@ -52,7 +49,6 @@ class BaseFormatter(formatters.Formatter):
 
 
 class JsonFormatter(BaseFormatter):
-
     @classmethod
     def format(self, subject, *args, **kwargs):
         docs = BaseFormatter.format(subject, *args, **kwargs)
@@ -60,7 +56,6 @@ class JsonFormatter(BaseFormatter):
 
 
 class YAMLFormatter(BaseFormatter):
-
     @classmethod
     def format(self, subject, *args, **kwargs):
         docs = BaseFormatter.format(subject, *args, **kwargs)

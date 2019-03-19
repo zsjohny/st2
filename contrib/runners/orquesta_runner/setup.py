@@ -48,9 +48,7 @@ setup(
     package_data={'orquesta_runner': ['runner.yaml']},
     scripts=[],
     entry_points={
-        'st2common.runners.runner': [
-            'orquesta = orquesta_runner.orquesta_runner',
-        ],
+        'st2common.runners.runner': ['orquesta = orquesta_runner.orquesta_runner'],
         'orquesta.expressions.functions': [
             'st2kv = orquesta_functions.st2kv:st2kv_',
             'task = orquesta_functions.runtime:task',
@@ -66,8 +64,10 @@ setup(
             'regex_replace = st2common.expressions.functions.regex:regex_replace',
             'regex_search = st2common.expressions.functions.regex:regex_search',
             'regex_substring = st2common.expressions.functions.regex:regex_substring',
-            ('to_human_time_from_seconds = '
-                'st2common.expressions.functions.time:to_human_time_from_seconds'),
+            (
+                'to_human_time_from_seconds = '
+                'st2common.expressions.functions.time:to_human_time_from_seconds'
+            ),
             'to_json_string = st2common.expressions.functions.data:to_json_string',
             'to_yaml_string = st2common.expressions.functions.data:to_yaml_string',
             'use_none = st2common.expressions.functions.data:use_none',
@@ -81,7 +81,7 @@ setup(
             'version_bump_patch = st2common.expressions.functions.version:version_bump_patch',
             'version_strip_patch = st2common.expressions.functions.version:version_strip_patch',
             'yaml_dump = st2common.expressions.functions.data:to_yaml_string',
-            'yaml_parse = st2common.expressions.functions.data:from_yaml_string'
+            'yaml_parse = st2common.expressions.functions.data:from_yaml_string',
         ],
-    }
+    },
 )

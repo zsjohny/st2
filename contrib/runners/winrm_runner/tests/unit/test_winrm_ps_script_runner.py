@@ -28,7 +28,6 @@ POWERSHELL_SCRIPT_PATH = os.path.join(FIXTURES_PATH, "TestScript.ps1")
 
 
 class WinRmPsScriptRunnerTestCase(RunnerTestCase):
-
     def setUp(self):
         super(WinRmPsScriptRunnerTestCase, self).setUpClass()
         self._runner = winrm_ps_script_runner.get_runner()
@@ -54,7 +53,8 @@ class WinRmPsScriptRunnerTestCase(RunnerTestCase):
         result = self._runner.run({})
 
         self.assertEquals(result, 'expected')
-        mock_run_ps.assert_called_with('''& {[CmdletBinding()]
+        mock_run_ps.assert_called_with(
+            '''& {[CmdletBinding()]
 Param(
   [bool]$p_bool,
   [int]$p_integer,
@@ -77,4 +77,5 @@ Write-Output "p_array = $($p_array | ConvertTo-Json -Compress)"
 Write-Output "p_obj = $($p_obj | ConvertTo-Json -Compress)"
 Write-Output "p_pos0 = $p_pos0"
 Write-Output "p_pos1 = $p_pos1"
-} -d @{"test" = @("`r", $true, 3)} 1 "abc"''')
+} -d @{"test" = @("`r", $true, 3)} 1 "abc"'''
+        )

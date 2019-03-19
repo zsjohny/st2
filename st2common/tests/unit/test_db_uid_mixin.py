@@ -35,15 +35,26 @@ class UIDMixinTestCase(CleanDbTestCase):
         self.assertEqual(action_2_db.get_uid(), 'action:core:local')
 
     def test_uid_is_populated_on_save(self):
-        pack_1_db = PackDB(ref='test_pack', name='test', description='foo', version='1.0.0',
-                           author='dev', email='test@example.com')
+        pack_1_db = PackDB(
+            ref='test_pack',
+            name='test',
+            description='foo',
+            version='1.0.0',
+            author='dev',
+            email='test@example.com',
+        )
         pack_1_db = Pack.add_or_update(pack_1_db)
         pack_1_db.reload()
 
         self.assertEqual(pack_1_db.uid, 'pack:test_pack')
 
-        action_1_db = ActionDB(name='local', pack='core', ref='core.local', entry_point='',
-                               runner_type={'name': 'local-shell-cmd'})
+        action_1_db = ActionDB(
+            name='local',
+            pack='core',
+            ref='core.local',
+            entry_point='',
+            runner_type={'name': 'local-shell-cmd'},
+        )
         action_1_db = Action.add_or_update(action_1_db)
         action_1_db.reload()
 

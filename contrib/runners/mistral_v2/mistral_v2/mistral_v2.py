@@ -37,12 +37,7 @@ from st2common.util.url import get_url_without_trailing_slash
 from st2common.util.api import get_full_public_api_url
 from st2common.util.api import get_mistral_api_url
 
-__all__ = [
-    'MistralRunner',
-
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['MistralRunner', 'get_runner', 'get_metadata']
 
 
 LOG = logging.getLogger(__name__)
@@ -64,7 +59,8 @@ class MistralRunner(PollingAsyncActionRunner):
             project_name=cfg.CONF.mistral.keystone_project_name,
             auth_url=cfg.CONF.mistral.keystone_auth_url,
             cacert=cfg.CONF.mistral.cacert,
-            insecure=cfg.CONF.mistral.insecure)
+            insecure=cfg.CONF.mistral.insecure,
+        )
 
     @classmethod
     def is_polling_enabled(cls):
@@ -87,14 +83,18 @@ class MistralRunner(PollingAsyncActionRunner):
         # If workbook, change the value of the "name" key.
         if is_workbook:
             if def_dict.get('name') != action_ref:
-                raise Exception('Name of the workbook must be the same as the '
-                                'fully qualified action name "%s".' % action_ref)
+                raise Exception(
+                    'Name of the workbook must be the same as the '
+                    'fully qualified action name "%s".' % action_ref
+                )
         # If workflow, change the key name of the workflow.
         else:
             workflow_name = [k for k, v in six.iteritems(def_dict) if k != 'version'][0]
             if workflow_name != action_ref:
-                raise Exception('Name of the workflow must be the same as the '
-                                'fully qualified action name "%s".' % action_ref)
+                raise Exception(
+                    'Name of the workflow must be the same as the '
+                    'fully qualified action name "%s".' % action_ref
+                )
 
     def _save_workbook(self, name, def_yaml):
         # If the workbook is not found, the mistral client throws a generic API exception.
@@ -144,13 +144,15 @@ class MistralRunner(PollingAsyncActionRunner):
         if num_workflows > 1:
             fully_qualified_wf_name = self.runner_parameters.get('workflow')
             if not fully_qualified_wf_name:
-                raise ValueError('Workbook definition is detected. '
-                                 'Default workflow cannot be determined.')
+                raise ValueError(
+                    'Workbook definition is detected. ' 'Default workflow cannot be determined.'
+                )
 
-            wf_name = fully_qualified_wf_name[fully_qualified_wf_name.rindex('.') + 1:]
+            wf_name = fully_qualified_wf_name[fully_qualified_wf_name.rindex('.') + 1 :]
             if wf_name not in def_dict['workflows']:
-                raise ValueError('Unable to find the workflow "%s" in the workbook.'
-                                 % fully_qualified_wf_name)
+                raise ValueError(
+                    'Unable to find the workflow "%s" in the workbook.' % fully_qualified_wf_name
+                )
 
             return fully_qualified_wf_name
         elif num_workflows == 1:
@@ -168,9 +170,7 @@ class MistralRunner(PollingAsyncActionRunner):
         public_api_url = get_full_public_api_url()
 
         # Build context with additional information
-        parent_context = {
-            'execution_id': self.execution_id
-        }
+        parent_context = {'execution_id': self.execution_id}
 
         if getattr(self.liveaction, 'context', None):
             parent_context.update(self.liveaction.context)
@@ -192,7 +192,7 @@ class MistralRunner(PollingAsyncActionRunner):
             'endpoint': endpoint,
             'parent': parent_context,
             'notify': {},
-            'skip_notify_tasks': self._skip_notify_tasks
+            'skip_notify_tasks': self._skip_notify_tasks,
         }
 
         # Include notification information
@@ -208,11 +208,7 @@ class MistralRunner(PollingAsyncActionRunner):
                 'st2_execution_id': self.execution_id,
                 'st2_liveaction_id': self.liveaction_id,
                 'st2_action_api_url': public_api_url,
-                '__actions': {
-                    'st2.action': {
-                        'st2_context': st2_execution_context
-                    }
-                }
+                '__actions': {'st2.action': {'st2_context': st2_execution_context}},
             }
         }
 
@@ -233,7 +229,8 @@ class MistralRunner(PollingAsyncActionRunner):
         retry_on_exception=utils.retry_on_exceptions,
         wait_exponential_multiplier=cfg.CONF.mistral.retry_exp_msec,
         wait_exponential_max=cfg.CONF.mistral.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec)
+        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec,
+    )
     def run(self, action_parameters):
         resume_options = self._get_resume_options()
 
@@ -264,13 +261,15 @@ class MistralRunner(PollingAsyncActionRunner):
         # Get workbook/workflow definition from file.
         def_yaml = self.get_workflow_definition(self.entry_point)
         def_dict = yaml.safe_load(def_yaml)
-        is_workbook = ('workflows' in def_dict)
+        is_workbook = 'workflows' in def_dict
 
         if not is_workbook:
             # Non-workbook definition containing multiple workflows is not supported.
             if len([k for k, _ in six.iteritems(def_dict) if k != 'version']) != 1:
-                raise Exception('Workflow (not workbook) definition is detected. '
-                                'Multiple workflows is not supported.')
+                raise Exception(
+                    'Workflow (not workbook) definition is detected. '
+                    'Multiple workflows is not supported.'
+                )
 
         action_ref = '%s.%s' % (self.action.pack, self.action.name)
         self._check_name(action_ref, is_workbook, def_dict)
@@ -284,14 +283,12 @@ class MistralRunner(PollingAsyncActionRunner):
         if is_workbook:
             self._save_workbook(action_ref, def_yaml_xformed)
             default_workflow = self._find_default_workflow(def_dict_xformed)
-            execution = self._client.executions.create(default_workflow,
-                                                       workflow_input=inputs,
-                                                       **options)
+            execution = self._client.executions.create(
+                default_workflow, workflow_input=inputs, **options
+            )
         else:
             self._save_workflow(action_ref, def_yaml_xformed)
-            execution = self._client.executions.create(action_ref,
-                                                       workflow_input=inputs,
-                                                       **options)
+            execution = self._client.executions.create(action_ref, workflow_input=inputs, **options)
 
         status = action_constants.LIVEACTION_STATUS_RUNNING
         partial_results = {'tasks': []}
@@ -299,7 +296,7 @@ class MistralRunner(PollingAsyncActionRunner):
         # pylint: disable=no-member
         current_context = {
             'execution_id': str(execution.id),
-            'workflow_name': execution.workflow_name
+            'workflow_name': execution.workflow_name,
         }
 
         exec_context = self.context
@@ -314,13 +311,18 @@ class MistralRunner(PollingAsyncActionRunner):
         if '.' in task_name:
             dot_pos = task_name.index('.')
             parent_task_name = task_name[:dot_pos]
-            task_name = task_name[dot_pos + 1:]
+            task_name = task_name[dot_pos + 1 :]
 
             parent_task_ids = [task.id for task in task_exs if task.name == parent_task_name]
 
-            workflow_ex_ids = [wf_ex.id for wf_ex in executions
-                               if (getattr(wf_ex, 'task_execution_id', None) and
-                                   wf_ex.task_execution_id in parent_task_ids)]
+            workflow_ex_ids = [
+                wf_ex.id
+                for wf_ex in executions
+                if (
+                    getattr(wf_ex, 'task_execution_id', None)
+                    and wf_ex.task_execution_id in parent_task_ids
+                )
+            ]
 
             tasks = {}
 
@@ -366,9 +368,11 @@ class MistralRunner(PollingAsyncActionRunner):
 
         missing_tasks = list(set(task_specs.keys()) - set(tasks.keys()))
         if missing_tasks:
-            raise Exception('Only tasks in error state can be rerun. Unable to identify '
-                            'rerunable tasks: %s. Please make sure that the task name is correct '
-                            'and the task is in rerunable state.' % ', '.join(missing_tasks))
+            raise Exception(
+                'Only tasks in error state can be rerun. Unable to identify '
+                'rerunable tasks: %s. Please make sure that the task name is correct '
+                'and the task is in rerunable state.' % ', '.join(missing_tasks)
+            )
 
         # Construct additional options for the workflow execution
         options = self._construct_workflow_execution_options()
@@ -382,7 +386,7 @@ class MistralRunner(PollingAsyncActionRunner):
             self._client.tasks.rerun(
                 task_obj['id'],
                 reset=task_specs[task_name].get('reset', False),
-                env=options.get('env', None)
+                env=options.get('env', None),
             )
 
         status = action_constants.LIVEACTION_STATUS_RUNNING
@@ -391,7 +395,7 @@ class MistralRunner(PollingAsyncActionRunner):
         # pylint: disable=no-member
         current_context = {
             'execution_id': str(execution.id),
-            'workflow_name': execution.workflow_name
+            'workflow_name': execution.workflow_name,
         }
 
         exec_context = self.context
@@ -404,7 +408,8 @@ class MistralRunner(PollingAsyncActionRunner):
         retry_on_exception=utils.retry_on_exceptions,
         wait_exponential_multiplier=cfg.CONF.mistral.retry_exp_msec,
         wait_exponential_max=cfg.CONF.mistral.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec)
+        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec,
+    )
     def pause(self):
         mistral_ctx = self.context.get('mistral', dict())
 
@@ -424,11 +429,12 @@ class MistralRunner(PollingAsyncActionRunner):
         # Identify the list of action executions that are workflows and cascade pause.
         for child_exec_id in self.execution.children:
             child_exec = ActionExecution.get(id=child_exec_id, raise_exception=True)
-            if (child_exec.runner['name'] in action_constants.WORKFLOW_RUNNER_TYPES and
-                    child_exec.status == action_constants.LIVEACTION_STATUS_RUNNING):
+            if (
+                child_exec.runner['name'] in action_constants.WORKFLOW_RUNNER_TYPES
+                and child_exec.status == action_constants.LIVEACTION_STATUS_RUNNING
+            ):
                 action_service.request_pause(
-                    LiveAction.get(id=child_exec.liveaction['id']),
-                    self.context.get('user', None)
+                    LiveAction.get(id=child_exec.liveaction['id']), self.context.get('user', None)
                 )
 
         status = (
@@ -437,17 +443,14 @@ class MistralRunner(PollingAsyncActionRunner):
             else action_constants.LIVEACTION_STATUS_PAUSED
         )
 
-        return (
-            status,
-            self.liveaction.result,
-            self.liveaction.context
-        )
+        return (status, self.liveaction.result, self.liveaction.context)
 
     @retrying.retry(
         retry_on_exception=utils.retry_on_exceptions,
         wait_exponential_multiplier=cfg.CONF.mistral.retry_exp_msec,
         wait_exponential_max=cfg.CONF.mistral.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec)
+        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec,
+    )
     def resume(self):
         mistral_ctx = self.context.get('mistral', dict())
 
@@ -467,24 +470,26 @@ class MistralRunner(PollingAsyncActionRunner):
         # Identify the list of action executions that are workflows and cascade resume.
         for child_exec_id in self.execution.children:
             child_exec = ActionExecution.get(id=child_exec_id, raise_exception=True)
-            if (child_exec.runner['name'] in action_constants.WORKFLOW_RUNNER_TYPES and
-                    child_exec.status == action_constants.LIVEACTION_STATUS_PAUSED):
+            if (
+                child_exec.runner['name'] in action_constants.WORKFLOW_RUNNER_TYPES
+                and child_exec.status == action_constants.LIVEACTION_STATUS_PAUSED
+            ):
                 action_service.request_resume(
-                    LiveAction.get(id=child_exec.liveaction['id']),
-                    self.context.get('user', None)
+                    LiveAction.get(id=child_exec.liveaction['id']), self.context.get('user', None)
                 )
 
         return (
             action_constants.LIVEACTION_STATUS_RUNNING,
             self.execution.result,
-            self.execution.context
+            self.execution.context,
         )
 
     @retrying.retry(
         retry_on_exception=utils.retry_on_exceptions,
         wait_exponential_multiplier=cfg.CONF.mistral.retry_exp_msec,
         wait_exponential_max=cfg.CONF.mistral.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec)
+        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec,
+    )
     def cancel(self):
         mistral_ctx = self.context.get('mistral', dict())
 
@@ -504,11 +509,12 @@ class MistralRunner(PollingAsyncActionRunner):
         # Identify the list of action executions that are workflows and still running.
         for child_exec_id in self.execution.children:
             child_exec = ActionExecution.get(id=child_exec_id)
-            if (child_exec.runner['name'] in action_constants.WORKFLOW_RUNNER_TYPES and
-                    child_exec.status in action_constants.LIVEACTION_CANCELABLE_STATES):
+            if (
+                child_exec.runner['name'] in action_constants.WORKFLOW_RUNNER_TYPES
+                and child_exec.status in action_constants.LIVEACTION_CANCELABLE_STATES
+            ):
                 action_service.request_cancellation(
-                    LiveAction.get(id=child_exec.liveaction['id']),
-                    self.context.get('user', None)
+                    LiveAction.get(id=child_exec.liveaction['id']), self.context.get('user', None)
                 )
 
         status = (
@@ -517,11 +523,7 @@ class MistralRunner(PollingAsyncActionRunner):
             else action_constants.LIVEACTION_STATUS_CANCELED
         )
 
-        return (
-            status,
-            self.liveaction.result,
-            self.liveaction.context
-        )
+        return (status, self.liveaction.result, self.liveaction.context)
 
     @staticmethod
     def _build_mistral_context(parent, current):
@@ -544,8 +546,9 @@ class MistralRunner(PollingAsyncActionRunner):
                     actual_parent['workflow_name'] = orig_parent_context['workflow_name']
                     del orig_parent_context['workflow_name']
                 if 'workflow_execution_id' in list(orig_parent_context.keys()):
-                    actual_parent['workflow_execution_id'] = \
-                        orig_parent_context['workflow_execution_id']
+                    actual_parent['workflow_execution_id'] = orig_parent_context[
+                        'workflow_execution_id'
+                    ]
                     del orig_parent_context['workflow_execution_id']
                 context['mistral'] = orig_parent_context
                 context['mistral'].update(current)

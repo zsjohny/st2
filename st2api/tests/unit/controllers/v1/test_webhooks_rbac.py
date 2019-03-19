@@ -17,6 +17,7 @@ import six
 import mock
 
 from st2common.services import triggers as trigger_service
+
 with mock.patch.object(trigger_service, 'create_trigger_type_db', mock.MagicMock()):
     from st2api.controllers.v1.webhooks import HooksHolder
 
@@ -39,9 +40,7 @@ from tests.unit.controllers.v1.test_webhooks import DUMMY_TRIGGER_API
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'WebhookControllerRBACTestCase'
-]
+__all__ = ['WebhookControllerRBACTestCase']
 
 
 class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
@@ -63,9 +62,11 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # Roles
         # webhook_list
-        grant_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=ResourceType.WEBHOOK,
-                                     permission_types=[PermissionType.WEBHOOK_LIST])
+        grant_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.WEBHOOK,
+            permission_types=[PermissionType.WEBHOOK_LIST],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='webhook_list', permission_grants=permission_grants)
@@ -76,9 +77,11 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
         name = 'git'
         webhook_db = WebhookDB(name=name)
         webhook_uid = webhook_db.get_uid()
-        grant_db = PermissionGrantDB(resource_uid=webhook_uid,
-                                     resource_type=ResourceType.WEBHOOK,
-                                     permission_types=[PermissionType.WEBHOOK_VIEW])
+        grant_db = PermissionGrantDB(
+            resource_uid=webhook_uid,
+            resource_type=ResourceType.WEBHOOK,
+            permission_types=[PermissionType.WEBHOOK_VIEW],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='webhook_view', permission_grants=permission_grants)
@@ -89,13 +92,15 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['webhook_list'].name,
             role=self.roles['webhook_list'].name,
-            source='assignments/%s.yaml' % self.users['webhook_list'].name)
+            source='assignments/%s.yaml' % self.users['webhook_list'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['webhook_view'].name,
             role=self.roles['webhook_view'].name,
-            source='assignments/%s.yaml' % self.users['webhook_view'].name)
+            source='assignments/%s.yaml' % self.users['webhook_view'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_get_all_no_permissions(self):
@@ -103,12 +108,13 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.app.get('/v1/webhooks', expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "webhook_list"')
+        expected_msg = 'User "no_permissions" doesn\'t have required permission "webhook_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
-    @mock.patch.object(HooksHolder, 'get_triggers_for_hook', mock.MagicMock(
-        return_value=[DUMMY_TRIGGER_API]))
+    @mock.patch.object(
+        HooksHolder, 'get_triggers_for_hook', mock.MagicMock(return_value=[DUMMY_TRIGGER_API])
+    )
     def test_get_one_no_permissions(self):
         user_db = self.users['no_permissions']
         self.use_user(user_db)
@@ -119,15 +125,17 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
         webhook_uid = webhook_db.get_uid()
 
         resp = self.app.get('/v1/webhooks/%s' % (webhook_id), expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "webhook_view"'
-                        ' on resource "%s"' % (webhook_uid))
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission "webhook_view"'
+            ' on resource "%s"' % (webhook_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
-    @mock.patch.object(HooksHolder, 'get_all', mock.MagicMock(
-        return_value=[DUMMY_TRIGGER_API]))
-    @mock.patch.object(HooksHolder, 'get_triggers_for_hook', mock.MagicMock(
-        return_value=[DUMMY_TRIGGER_API]))
+    @mock.patch.object(HooksHolder, 'get_all', mock.MagicMock(return_value=[DUMMY_TRIGGER_API]))
+    @mock.patch.object(
+        HooksHolder, 'get_triggers_for_hook', mock.MagicMock(return_value=[DUMMY_TRIGGER_API])
+    )
     def test_get_all_permission_success_get_one_no_permission_failure(self):
         user_db = self.users['webhook_list']
         self.use_user(user_db)
@@ -143,15 +151,17 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
         webhook_uid = webhook_db.get_uid()
 
         resp = self.app.get('/v1/webhooks/%s' % (webhook_id), expect_errors=True)
-        expected_msg = ('User "webhook_list" doesn\'t have required permission "webhook_view"'
-                        ' on resource "%s"' % (webhook_uid))
+        expected_msg = (
+            'User "webhook_list" doesn\'t have required permission "webhook_view"'
+            ' on resource "%s"' % (webhook_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
-    @mock.patch.object(HooksHolder, 'get_all', mock.MagicMock(
-        return_value=[DUMMY_TRIGGER_API]))
-    @mock.patch.object(HooksHolder, 'get_triggers_for_hook', mock.MagicMock(
-        return_value=[DUMMY_TRIGGER_API]))
+    @mock.patch.object(HooksHolder, 'get_all', mock.MagicMock(return_value=[DUMMY_TRIGGER_API]))
+    @mock.patch.object(
+        HooksHolder, 'get_triggers_for_hook', mock.MagicMock(return_value=[DUMMY_TRIGGER_API])
+    )
     def test_get_one_permission_success_get_all_no_permission_failure(self):
         user_db = self.users['webhook_view']
         self.use_user(user_db)
@@ -165,6 +175,6 @@ class WebhookControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.assertEqual(resp.json['ref'], DUMMY_TRIGGER_DB.ref)
 
         resp = self.app.get('/v1/webhooks', expect_errors=True)
-        expected_msg = ('User "webhook_view" doesn\'t have required permission "webhook_list"')
+        expected_msg = 'User "webhook_view" doesn\'t have required permission "webhook_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)

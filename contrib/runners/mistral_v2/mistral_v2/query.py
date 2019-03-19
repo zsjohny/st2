@@ -25,26 +25,22 @@ DONE_STATES = {
     'ERROR': action_constants.LIVEACTION_STATUS_FAILED,
     'SUCCESS': action_constants.LIVEACTION_STATUS_SUCCEEDED,
     'CANCELLED': action_constants.LIVEACTION_STATUS_CANCELED,
-    'PAUSED': action_constants.LIVEACTION_STATUS_PAUSED
+    'PAUSED': action_constants.LIVEACTION_STATUS_PAUSED,
 }
 
-ACTIVE_STATES = {
-    'RUNNING': action_constants.LIVEACTION_STATUS_RUNNING
-}
+ACTIVE_STATES = {'RUNNING': action_constants.LIVEACTION_STATUS_RUNNING}
 
 CANCELED_STATES = [
     action_constants.LIVEACTION_STATUS_CANCELED,
-    action_constants.LIVEACTION_STATUS_CANCELING
+    action_constants.LIVEACTION_STATUS_CANCELING,
 ]
 
 PAUSED_STATES = [
     action_constants.LIVEACTION_STATUS_PAUSED,
-    action_constants.LIVEACTION_STATUS_PAUSING
+    action_constants.LIVEACTION_STATUS_PAUSING,
 ]
 
-RESUMING_STATES = [
-    action_constants.LIVEACTION_STATUS_RESUMING
-]
+RESUMING_STATES = [action_constants.LIVEACTION_STATUS_RESUMING]
 
 
 def get_instance():
@@ -64,14 +60,16 @@ class MistralResultsQuerier(Querier):
             project_name=cfg.CONF.mistral.keystone_project_name,
             auth_url=cfg.CONF.mistral.keystone_auth_url,
             cacert=cfg.CONF.mistral.cacert,
-            insecure=cfg.CONF.mistral.insecure)
+            insecure=cfg.CONF.mistral.insecure,
+        )
         self._jitter = cfg.CONF.mistral.jitter_interval
 
     @retrying.retry(
         retry_on_exception=utils.retry_on_exceptions,
         wait_exponential_multiplier=cfg.CONF.mistral.retry_exp_msec,
         wait_exponential_max=cfg.CONF.mistral.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec)
+        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec,
+    )
     def query(self, execution_id, query_context, last_query_time=None):
         """
         Queries mistral for workflow results using v2 APIs.
@@ -89,8 +87,10 @@ class MistralResultsQuerier(Querier):
 
         mistral_exec_id = query_context.get('mistral', {}).get('execution_id', None)
         if not mistral_exec_id:
-            raise Exception('[%s] Missing mistral workflow execution ID in query context. %s'
-                            % (execution_id, query_context))
+            raise Exception(
+                '[%s] Missing mistral workflow execution ID in query context. %s'
+                % (execution_id, query_context)
+            )
 
         LOG.info('[%s] Querying mistral execution %s...', execution_id, mistral_exec_id)
 
@@ -100,22 +100,19 @@ class MistralResultsQuerier(Querier):
             stream = getattr(liveaction_db, 'result', {})
 
             wf_tasks_result = self._get_workflow_tasks(
-                execution_id,
-                mistral_exec_id,
-                recorded_tasks=stream.get('tasks', [])
+                execution_id, mistral_exec_id, recorded_tasks=stream.get('tasks', [])
             )
 
-            result = self._format_query_result(
-                liveaction_db.result,
-                wf_result,
-                wf_tasks_result
-            )
+            result = self._format_query_result(liveaction_db.result, wf_result, wf_tasks_result)
         except exceptions.ReferenceNotFoundError as exc:
             LOG.exception('[%s] Unable to find reference.', execution_id)
             return (action_constants.LIVEACTION_STATUS_FAILED, str(exc))
         except Exception:
-            LOG.exception('[%s] Unable to fetch mistral workflow result and tasks. %s',
-                          execution_id, query_context)
+            LOG.exception(
+                '[%s] Unable to fetch mistral workflow result and tasks. %s',
+                execution_id,
+                query_context,
+            )
             raise
 
         # Retrieve liveaction_db again in case state has changed
@@ -123,9 +120,7 @@ class MistralResultsQuerier(Querier):
         liveaction_db = action_utils.get_liveaction_by_id(execution_id)
 
         status = self._determine_execution_status(
-            liveaction_db,
-            result['extra']['state'],
-            result['tasks']
+            liveaction_db, result['extra']['state'], result['tasks']
         )
 
         LOG.info('[%s] Determined execution status: %s', execution_id, status)
@@ -154,16 +149,13 @@ class MistralResultsQuerier(Querier):
 
         result = jsonify.try_loads(execution.output) if execution.state in DONE_STATES else {}
 
-        result['extra'] = {
-            'state': execution.state,
-            'state_info': execution.state_info
-        }
+        result['extra'] = {'state': execution.state, 'state_info': execution.state_info}
 
         LOG.info(
             '[%s] Query returned status "%s" for mistral execution %s.',
             st2_exec_id,
             execution.state,
-            mistral_exec_id
+            mistral_exec_id,
         )
 
         return result
@@ -190,10 +182,12 @@ class MistralResultsQuerier(Querier):
             for wf_task in wf_tasks:
                 recorded = list([x for x in recorded_tasks if x['id'] == wf_task.id])
 
-                if (not recorded or
-                        recorded[0].get('state') != wf_task.state or
-                        str(recorded[0].get('created_at')) != wf_task.created_at or
-                        str(recorded[0].get('updated_at')) != wf_task.updated_at):
+                if (
+                    not recorded
+                    or recorded[0].get('state') != wf_task.state
+                    or str(recorded[0].get('created_at')) != wf_task.created_at
+                    or str(recorded[0].get('updated_at')) != wf_task.updated_at
+                ):
                     queries.append(wf_task)
 
             target_task_names = [wf_task.name for wf_task in queries]
@@ -202,7 +196,7 @@ class MistralResultsQuerier(Querier):
                 '[%s] Querying the following tasks for mistral execution %s: %s',
                 st2_exec_id,
                 mistral_exec_id,
-                ', '.join(target_task_names) if target_task_names else 'None'
+                ', '.join(target_task_names) if target_task_names else 'None',
             )
 
             for wf_task in queries:
@@ -230,7 +224,7 @@ class MistralResultsQuerier(Querier):
             'created_at': task.get('created_at', None),
             'updated_at': task.get('updated_at', None),
             'state': task.get('state', None),
-            'state_info': task.get('state_info', None)
+            'state_info': task.get('state_info', None),
         }
 
         for attr in ['result', 'input', 'published']:
@@ -244,8 +238,7 @@ class MistralResultsQuerier(Querier):
         new_wf_task_ids = [entry['id'] for entry in new_wf_tasks_result]
 
         old_wf_tasks_result_to_keep = [
-            entry for entry in current_result.get('tasks', [])
-            if entry['id'] not in new_wf_task_ids
+            entry for entry in current_result.get('tasks', []) if entry['id'] not in new_wf_task_ids
         ]
 
         result['tasks'] = old_wf_tasks_result_to_keep + new_wf_tasks_result
@@ -265,12 +258,16 @@ class MistralResultsQuerier(Querier):
             # Catch exception where a child is requested twice due to st2mistral retrying
             # from a st2 API connection failure. The first child will be stuck in requested
             # while the mistral workflow is already completed.
-            if (mistral_wf_state in DONE_STATES and
-                    child_exec.status == action_constants.LIVEACTION_STATUS_REQUESTED):
+            if (
+                mistral_wf_state in DONE_STATES
+                and child_exec.status == action_constants.LIVEACTION_STATUS_REQUESTED
+            ):
                 continue
 
-            if (child_exec.status not in action_constants.LIVEACTION_COMPLETED_STATES and
-                    child_exec.status != action_constants.LIVEACTION_STATUS_PAUSED):
+            if (
+                child_exec.status not in action_constants.LIVEACTION_COMPLETED_STATES
+                and child_exec.status != action_constants.LIVEACTION_STATUS_PAUSED
+            ):
                 active_st2_tasks = True
                 break
 

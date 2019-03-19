@@ -24,7 +24,6 @@ from tests.unit.base import ChangeRevFakeModel, ChangeRevFakeModelDB
 
 
 class TestChangeRevision(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestChangeRevision, cls).setUpClass()
@@ -64,11 +63,7 @@ class TestChangeRevision(DbTestCase):
         # Test delete
         created.delete()
 
-        self.assertRaises(
-            db_exc.StackStormDBObjectNotFoundError,
-            self.access.get_by_id,
-            doc_id
-        )
+        self.assertRaises(db_exc.StackStormDBObjectNotFoundError, self.access.get_by_id, doc_id)
 
     def test_write_conflict(self):
         initial = ChangeRevFakeModelDB(name=uuid.uuid4().hex, context={'a': 1})
@@ -94,5 +89,5 @@ class TestChangeRevision(DbTestCase):
             db_exc.StackStormDBObjectWriteConflictError,
             self.access.update,
             retrieved2,
-            context={'a': 1, 'b': 2}
+            context={'a': 1, 'b': 2},
         )

@@ -48,12 +48,10 @@ __all__ = [
     'GitWorktreeActionRunner',
     'PollingAsyncActionRunner',
     'ShellRunnerMixin',
-
     'get_runner',
     'get_metadata',
-
     'get_query_module',
-    'get_callback_module'
+    'get_callback_module',
 ]
 
 
@@ -84,9 +82,11 @@ def get_runner(name, config=None):
         except Exception as e:
             available_runners = get_available_plugins(namespace=RUNNERS_NAMESPACE)
             available_runners = ', '.join(available_runners)
-            msg = ('Failed to find runner %s. Make sure that the runner is available and installed '
-                   'in StackStorm virtual environment. Available runners are: %s' %
-                   (name, available_runners))
+            msg = (
+                'Failed to find runner %s. Make sure that the runner is available and installed '
+                'in StackStorm virtual environment. Available runners are: %s'
+                % (name, available_runners)
+            )
             LOG.exception(msg)
 
             raise exc.ActionRunnerCreateError('%s\n\n%s' % (msg, six.text_type(e)))
@@ -210,7 +210,7 @@ class ActionRunner(object):
         return (
             action_constants.LIVEACTION_STATUS_CANCELED,
             self.liveaction.result,
-            self.liveaction.context
+            self.liveaction.context,
         )
 
     def post_run(self, status, result):
@@ -275,7 +275,6 @@ class AsyncActionRunner(ActionRunner):
 
 
 class PollingAsyncActionRunner(AsyncActionRunner):
-
     @classmethod
     def is_polling_enabled(cls):
         return True
@@ -311,11 +310,13 @@ class GitWorktreeActionRunner(ActionRunner):
 
             # Override entry_point so it points to git worktree directory
             pack_name = self.get_pack_name()
-            entry_point = self._get_entry_point_for_worktree_path(pack_name=pack_name,
-                                                  entry_point=self.entry_point,
-                                                  worktree_path=self.git_worktree_path)
+            entry_point = self._get_entry_point_for_worktree_path(
+                pack_name=pack_name,
+                entry_point=self.entry_point,
+                worktree_path=self.git_worktree_path,
+            )
 
-            assert(entry_point.startswith(self.git_worktree_path))
+            assert entry_point.startswith(self.git_worktree_path)
 
             self.entry_point = entry_point
 
@@ -325,9 +326,11 @@ class GitWorktreeActionRunner(ActionRunner):
         # Remove git worktree directories (if used and available)
         if self.git_worktree_path and self.git_worktree_revision:
             pack_name = self.get_pack_name()
-            self.cleanup_git_worktree(worktree_path=self.git_worktree_path,
-                                      content_version=self.git_worktree_revision,
-                                      pack_name=pack_name)
+            self.cleanup_git_worktree(
+                worktree_path=self.git_worktree_path,
+                content_version=self.git_worktree_revision,
+                pack_name=pack_name,
+            )
 
     def create_git_worktree(self, content_version):
         """
@@ -348,48 +351,43 @@ class GitWorktreeActionRunner(ActionRunner):
             'pack_name': pack_name,
             'pack_directory': pack_directory,
             'content_version': content_version,
-            'worktree_path': worktree_path
+            'worktree_path': worktree_path,
         }
 
         if not os.path.isdir(pack_directory):
-            msg = ('Failed to create git worktree for pack "%s". Pack directory "%s" doesn\'t '
-                   'exist.' % (pack_name, pack_directory))
+            msg = (
+                'Failed to create git worktree for pack "%s". Pack directory "%s" doesn\'t '
+                'exist.' % (pack_name, pack_directory)
+            )
             raise ValueError(msg)
 
-        args = [
-            'git',
-            '-C',
-            pack_directory,
-            'worktree',
-            'add',
-            worktree_path,
-            content_version
-        ]
+        args = ['git', '-C', pack_directory, 'worktree', 'add', worktree_path, content_version]
         cmd = list2cmdline(args)
 
-        LOG.debug('Creating git worktree for pack "%s", content version "%s" and execution '
-                  'id "%s" in "%s"' % (pack_name, content_version, self.execution_id,
-                                       worktree_path), extra=extra)
+        LOG.debug(
+            'Creating git worktree for pack "%s", content version "%s" and execution '
+            'id "%s" in "%s"' % (pack_name, content_version, self.execution_id, worktree_path),
+            extra=extra,
+        )
         LOG.debug('Command: %s' % (cmd))
-        exit_code, stdout, stderr, timed_out = run_command(cmd=cmd,
-                                                           cwd=pack_directory,
-                                                           stdout=subprocess.PIPE,
-                                                           stderr=subprocess.PIPE,
-                                                           shell=True)
+        exit_code, stdout, stderr, timed_out = run_command(
+            cmd=cmd, cwd=pack_directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
 
         if exit_code != 0:
-            self._handle_git_worktree_error(pack_name=pack_name, pack_directory=pack_directory,
-                                            content_version=content_version,
-                                            exit_code=exit_code, stdout=stdout, stderr=stderr)
+            self._handle_git_worktree_error(
+                pack_name=pack_name,
+                pack_directory=pack_directory,
+                content_version=content_version,
+                exit_code=exit_code,
+                stdout=stdout,
+                stderr=stderr,
+            )
         else:
             LOG.debug('Git worktree created in "%s"' % (worktree_path), extra=extra)
 
         # Make sure system / action runner user can access that directory
-        args = [
-            'chmod',
-            '777',
-            worktree_path
-        ]
+        args = ['chmod', '777', worktree_path]
         cmd = list2cmdline(args)
         run_command(cmd=cmd, shell=True)
 
@@ -402,15 +400,18 @@ class GitWorktreeActionRunner(ActionRunner):
         :rtype: ``bool``
         """
         # Safety check to make sure we don't remove something outside /tmp
-        assert(worktree_path.startswith('/tmp'))
-        assert(worktree_path.startswith('/tmp/%s' % (self.WORKTREE_DIRECTORY_PREFIX)))
+        assert worktree_path.startswith('/tmp')
+        assert worktree_path.startswith('/tmp/%s' % (self.WORKTREE_DIRECTORY_PREFIX))
 
         if self._debug:
-            LOG.debug('Not removing git worktree "%s" because debug mode is enabled' %
-                      (worktree_path))
+            LOG.debug(
+                'Not removing git worktree "%s" because debug mode is enabled' % (worktree_path)
+            )
         else:
-            LOG.debug('Removing git worktree "%s" for pack "%s" and content version "%s"' %
-                      (worktree_path, pack_name, content_version))
+            LOG.debug(
+                'Removing git worktree "%s" for pack "%s" and content version "%s"'
+                % (worktree_path, pack_name, content_version)
+            )
 
             try:
                 shutil.rmtree(worktree_path, ignore_errors=True)
@@ -419,8 +420,9 @@ class GitWorktreeActionRunner(ActionRunner):
 
         return True
 
-    def _handle_git_worktree_error(self, pack_name, pack_directory, content_version, exit_code,
-                                   stdout, stderr):
+    def _handle_git_worktree_error(
+        self, pack_name, pack_directory, content_version, exit_code, stdout, stderr
+    ):
         """
         Handle "git worktree" related errors and throw a more user-friendly exception.
         """
@@ -434,21 +436,27 @@ class GitWorktreeActionRunner(ActionRunner):
 
         # 1. Installed version of git which doesn't support worktree command
         if "git: 'worktree' is not a git command." in stderr:
-            msg = ('Installed git version doesn\'t support git worktree command. '
-                   'To be able to utilize this functionality you need to use git '
-                   '>= 2.5.0.')
+            msg = (
+                'Installed git version doesn\'t support git worktree command. '
+                'To be able to utilize this functionality you need to use git '
+                '>= 2.5.0.'
+            )
             raise ValueError(error_prefix + msg)
 
         # 2. Provided pack directory is not a git repository
         if "Not a git repository" in stderr:
-            msg = ('Pack directory "%s" is not a git repository. To utilize this functionality, '
-                   'pack directory needs to be a git repository.' % (pack_directory))
+            msg = (
+                'Pack directory "%s" is not a git repository. To utilize this functionality, '
+                'pack directory needs to be a git repository.' % (pack_directory)
+            )
             raise ValueError(error_prefix + msg)
 
         # 3. Invalid revision provided
         if "invalid reference" in stderr:
-            msg = ('Invalid content_version "%s" provided. Make sure that git repository is up '
-                   'to date and contains that revision.' % (content_version))
+            msg = (
+                'Invalid content_version "%s" provided. Make sure that git repository is up '
+                'to date and contains that revision.' % (content_version)
+            )
             raise ValueError(error_prefix + msg)
 
     def _get_entry_point_for_worktree_path(self, pack_name, entry_point, worktree_path):

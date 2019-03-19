@@ -38,8 +38,7 @@ class ReferenceTest(DbTestCase):
         super(ReferenceTest, cls).setUpClass()
         trigger = TriggerDB(pack='dummy_pack_1', name='trigger-1')
         cls.__model = Trigger.add_or_update(trigger)
-        cls.__ref = {'id': str(cls.__model.id),
-                     'name': cls.__model.name}
+        cls.__ref = {'id': str(cls.__model.id), 'name': cls.__model.name}
 
     @classmethod
     @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())

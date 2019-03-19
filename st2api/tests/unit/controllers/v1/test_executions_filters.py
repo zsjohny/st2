@@ -22,6 +22,7 @@ import six
 from six.moves import http_client
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests import FunctionalTest
@@ -36,7 +37,6 @@ from st2common.models.api.execution import ActionExecutionAPI
 
 
 class TestActionExecutionFilters(FunctionalTest):
-
     @classmethod
     def testDownClass(cls):
         pass
@@ -60,13 +60,13 @@ class TestActionExecutionFilters(FunctionalTest):
                 'runner': copy.deepcopy(fixture.ARTIFACTS['runners']['action-chain']),
                 'liveaction': copy.deepcopy(fixture.ARTIFACTS['liveactions']['workflow']),
                 'context': copy.deepcopy(fixture.ARTIFACTS['context']),
-                'children': []
+                'children': [],
             },
             {
                 'action': copy.deepcopy(fixture.ARTIFACTS['actions']['local']),
                 'runner': copy.deepcopy(fixture.ARTIFACTS['runners']['run-local']),
-                'liveaction': copy.deepcopy(fixture.ARTIFACTS['liveactions']['task1'])
-            }
+                'liveaction': copy.deepcopy(fixture.ARTIFACTS['liveactions']['task1']),
+            },
         ]
 
         def assign_parent(child):
@@ -132,15 +132,13 @@ class TestActionExecutionFilters(FunctionalTest):
         self.assertDictEqual(record['liveaction'], fake_record.liveaction)
 
     def test_get_one_failed(self):
-        response = self.app.get('/v1/executions/%s' % str(bson.ObjectId()),
-                                expect_errors=True)
+        response = self.app.get('/v1/executions/%s' % str(bson.ObjectId()), expect_errors=True)
         self.assertEqual(response.status_int, http_client.NOT_FOUND)
 
     def test_limit(self):
         limit = 10
         refs = [k for k, v in six.iteritems(self.refs) if v.action['name'] == 'chain']
-        response = self.app.get('/v1/executions?action=executions.chain&limit=%s' %
-                                limit)
+        response = self.app.get('/v1/executions?action=executions.chain&limit=%s' % limit)
         self.assertEqual(response.status_int, 200)
         self.assertIsInstance(response.json, list)
         self.assertEqual(len(response.json), limit)
@@ -162,11 +160,13 @@ class TestActionExecutionFilters(FunctionalTest):
 
     def test_limit_negative(self):
         limit = -22
-        response = self.app.get('/v1/executions?action=executions.chain&limit=%s' % limit,
-                                expect_errors=True)
+        response = self.app.get(
+            '/v1/executions?action=executions.chain&limit=%s' % limit, expect_errors=True
+        )
         self.assertEqual(response.status_int, 400)
-        self.assertEqual(response.json['faultstring'],
-                         u'Limit, "-22" specified, must be a positive number.')
+        self.assertEqual(
+            response.json['faultstring'], u'Limit, "-22" specified, must be a positive number.'
+        )
 
     def test_query(self):
         refs = [k for k, v in six.iteritems(self.refs) if v.action['name'] == 'chain']
@@ -179,8 +179,15 @@ class TestActionExecutionFilters(FunctionalTest):
         self.assertListEqual(sorted(ids), sorted(refs))
 
     def test_filters(self):
-        excludes = ['parent', 'timestamp', 'action', 'liveaction', 'timestamp_gt',
-                    'timestamp_lt', 'status']
+        excludes = [
+            'parent',
+            'timestamp',
+            'action',
+            'liveaction',
+            'timestamp_gt',
+            'timestamp_lt',
+            'status',
+        ]
         for param, field in six.iteritems(ActionExecutionsController.supported_filters):
             if param in excludes:
                 continue
@@ -195,8 +202,15 @@ class TestActionExecutionFilters(FunctionalTest):
             self.assertGreater(int(response.headers['X-Total-Count']), 0)
 
     def test_advanced_filters(self):
-        excludes = ['parent', 'timestamp', 'action', 'liveaction', 'timestamp_gt',
-                    'timestamp_lt', 'status']
+        excludes = [
+            'parent',
+            'timestamp',
+            'action',
+            'liveaction',
+            'timestamp_gt',
+            'timestamp_lt',
+            'status',
+        ]
         for param, field in six.iteritems(ActionExecutionsController.supported_filters):
             if param in excludes:
                 continue
@@ -213,18 +227,15 @@ class TestActionExecutionFilters(FunctionalTest):
     def test_advanced_filters_malformed(self):
         response = self.app.get('/v1/executions?filter=a:b,c:d', expect_errors=True)
         self.assertEqual(response.status_int, 400)
-        self.assertEqual(response.json, {
-            "faultstring": "Cannot resolve field \"a\""
-        })
+        self.assertEqual(response.json, {"faultstring": "Cannot resolve field \"a\""})
         response = self.app.get('/v1/executions?filter=action.ref', expect_errors=True)
         self.assertEqual(response.status_int, 400)
-        self.assertEqual(response.json, {
-            "faultstring": "invalid format for filter \"action.ref\""
-        })
+        self.assertEqual(response.json, {"faultstring": "invalid format for filter \"action.ref\""})
 
     def test_parent(self):
-        refs = [v for k, v in six.iteritems(self.refs)
-                if v.action['name'] == 'chain' and v.children]
+        refs = [
+            v for k, v in six.iteritems(self.refs) if v.action['name'] == 'chain' and v.children
+        ]
         self.assertTrue(refs)
         ref = random.choice(refs)
         response = self.app.get('/v1/executions?parent=%s' % str(ref.id))
@@ -253,8 +264,7 @@ class TestActionExecutionFilters(FunctionalTest):
         page_count = int(self.num_records / page_size)
         for i in range(page_count):
             offset = i * page_size
-            response = self.app.get('/v1/executions?offset=%s&limit=%s' % (
-                offset, page_size))
+            response = self.app.get('/v1/executions?offset=%s&limit=%s' % (offset, page_size))
             self.assertEqual(response.status_int, 200)
             self.assertIsInstance(response.json, list)
             self.assertEqual(len(response.json), page_size)
@@ -270,9 +280,11 @@ class TestActionExecutionFilters(FunctionalTest):
         # In this test we only care about making sure this exact query works. This query is used
         # by the webui for the history page so it is special and breaking this is bad.
         limit = 50
-        history_query = '/v1/executions?limit={}&parent=null&exclude_attributes=' \
-                        'result%2Ctrigger_instance&status=&action=&trigger_type=&rule=&' \
-                        'offset=0'.format(limit)
+        history_query = (
+            '/v1/executions?limit={}&parent=null&exclude_attributes='
+            'result%2Ctrigger_instance&status=&action=&trigger_type=&rule=&'
+            'offset=0'.format(limit)
+        )
         response = self.app.get(history_query)
         self.assertEqual(response.status_int, 200)
         self.assertIsInstance(response.json, list)
@@ -372,8 +384,10 @@ class TestActionExecutionFilters(FunctionalTest):
         # Both, lt and gt filters, should return exactly two results
         timestamp_gt = self.start_timestamps[10]
         timestamp_lt = self.start_timestamps[13]
-        response = self.app.get('/v1/executions?timestamp_gt=%s&timestamp_lt=%s' %
-                                (isoformat(timestamp_gt), isoformat(timestamp_lt)))
+        response = self.app.get(
+            '/v1/executions?timestamp_gt=%s&timestamp_lt=%s'
+            % (isoformat(timestamp_gt), isoformat(timestamp_lt))
+        )
         self.assertEqual(len(response.json), 2)
         self.assertTrue(isotime.parse(response.json[0]['start_timestamp']) > timestamp_gt)
         self.assertTrue(isotime.parse(response.json[1]['start_timestamp']) > timestamp_gt)

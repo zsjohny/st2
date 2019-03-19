@@ -21,77 +21,56 @@ from st2common.models.db.auth import UserDB
 
 from six.moves import http_client
 
-__all__ = [
-    'KeyValuePairControllerTestCase'
-]
+__all__ = ['KeyValuePairControllerTestCase']
 
-KVP = {
-    'name': 'keystone_endpoint',
-    'value': 'http://127.0.0.1:5000/v3'
-}
+KVP = {'name': 'keystone_endpoint', 'value': 'http://127.0.0.1:5000/v3'}
 
-KVP_2 = {
-    'name': 'keystone_version',
-    'value': 'v3'
-}
+KVP_2 = {'name': 'keystone_version', 'value': 'v3'}
 
-KVP_2_USER = {
-    'name': 'keystone_version',
-    'value': 'user_v3',
-    'scope': 'st2kv.user'
-}
+KVP_2_USER = {'name': 'keystone_version', 'value': 'user_v3', 'scope': 'st2kv.user'}
 
-KVP_2_USER_LEGACY = {
-    'name': 'keystone_version',
-    'value': 'user_v3',
-    'scope': 'user'
-}
+KVP_2_USER_LEGACY = {'name': 'keystone_version', 'value': 'user_v3', 'scope': 'user'}
 
 KVP_3_USER = {
     'name': 'keystone_endpoint',
     'value': 'http://127.0.1.1:5000/v3',
-    'scope': 'st2kv.user'
+    'scope': 'st2kv.user',
 }
 
 KVP_4_USER = {
     'name': 'customer_ssn',
     'value': '123-456-7890',
     'secret': True,
-    'scope': 'st2kv.user'
+    'scope': 'st2kv.user',
 }
 
-KVP_WITH_TTL = {
-    'name': 'keystone_endpoint',
-    'value': 'http://127.0.0.1:5000/v3',
-    'ttl': 10
-}
+KVP_WITH_TTL = {'name': 'keystone_endpoint', 'value': 'http://127.0.0.1:5000/v3', 'ttl': 10}
 
-SECRET_KVP = {
-    'name': 'secret_key1',
-    'value': 'secret_value1',
-    'secret': True
-}
+SECRET_KVP = {'name': 'secret_key1', 'value': 'secret_value1', 'secret': True}
 
 # value = S3cret!Value
 # encrypted with st2tests/conf/st2_kvstore_tests.crypto.key.json
 ENCRYPTED_KVP = {
     'name': 'secret_key1',
-    'value': ('3030303030298D848B45A24EDCD1A82FAB4E831E3FCE6E60956817A48A180E4C040801E'
-              'B30170DACF79498F30520236A629912C3584847098D'),
-    'encrypted': True
+    'value': (
+        '3030303030298D848B45A24EDCD1A82FAB4E831E3FCE6E60956817A48A180E4C040801E'
+        'B30170DACF79498F30520236A629912C3584847098D'
+    ),
+    'encrypted': True,
 }
 
 ENCRYPTED_KVP_SECRET_FALSE = {
     'name': 'secret_key2',
-    'value': ('3030303030298D848B45A24EDCD1A82FAB4E831E3FCE6E60956817A48A180E4C040801E'
-              'B30170DACF79498F30520236A629912C3584847098D'),
+    'value': (
+        '3030303030298D848B45A24EDCD1A82FAB4E831E3FCE6E60956817A48A180E4C040801E'
+        'B30170DACF79498F30520236A629912C3584847098D'
+    ),
     'secret': True,
-    'encrypted': True
+    'encrypted': True,
 }
 
 
 class KeyValuePairControllerTestCase(FunctionalTest):
-
     def test_get_all(self):
         resp = self.app.get('/v1/keys')
         self.assertEqual(resp.status_int, 200)
@@ -113,14 +92,16 @@ class KeyValuePairControllerTestCase(FunctionalTest):
 
         # Insert some mock data
         # System scoped keys
-        put_resp = self.__do_put('system1', {'name': 'system1', 'value': 'val1',
-                                             'scope': 'st2kv.system'})
+        put_resp = self.__do_put(
+            'system1', {'name': 'system1', 'value': 'val1', 'scope': 'st2kv.system'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'system1')
         self.assertEqual(put_resp.json['scope'], 'st2kv.system')
 
-        put_resp = self.__do_put('system2', {'name': 'system2', 'value': 'val2',
-                                             'scope': 'st2kv.system'})
+        put_resp = self.__do_put(
+            'system2', {'name': 'system2', 'value': 'val2', 'scope': 'st2kv.system'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'system2')
         self.assertEqual(put_resp.json['scope'], 'st2kv.system')
@@ -128,15 +109,17 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         # user1 scoped keys
         self.use_user(user_db_1)
 
-        put_resp = self.__do_put('user1', {'name': 'user1', 'value': 'user1',
-                                           'scope': 'st2kv.user'})
+        put_resp = self.__do_put(
+            'user1', {'name': 'user1', 'value': 'user1', 'scope': 'st2kv.user'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'user1')
         self.assertEqual(put_resp.json['scope'], 'st2kv.user')
         self.assertEqual(put_resp.json['value'], 'user1')
 
-        put_resp = self.__do_put('userkey', {'name': 'userkey', 'value': 'user1',
-                                           'scope': 'st2kv.user'})
+        put_resp = self.__do_put(
+            'userkey', {'name': 'userkey', 'value': 'user1', 'scope': 'st2kv.user'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'userkey')
         self.assertEqual(put_resp.json['scope'], 'st2kv.user')
@@ -145,15 +128,17 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         # user2 scoped keys
         self.use_user(user_db_2)
 
-        put_resp = self.__do_put('user2', {'name': 'user2', 'value': 'user2',
-                                           'scope': 'st2kv.user'})
+        put_resp = self.__do_put(
+            'user2', {'name': 'user2', 'value': 'user2', 'scope': 'st2kv.user'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'user2')
         self.assertEqual(put_resp.json['scope'], 'st2kv.user')
         self.assertEqual(put_resp.json['value'], 'user2')
 
-        put_resp = self.__do_put('userkey', {'name': 'userkey', 'value': 'user2',
-                                           'scope': 'st2kv.user'})
+        put_resp = self.__do_put(
+            'userkey', {'name': 'userkey', 'value': 'user2', 'scope': 'st2kv.user'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'userkey')
         self.assertEqual(put_resp.json['scope'], 'st2kv.user')
@@ -162,15 +147,17 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         # user3 scoped keys
         self.use_user(user_db_3)
 
-        put_resp = self.__do_put('user3', {'name': 'user3', 'value': 'user3',
-                                           'scope': 'st2kv.user'})
+        put_resp = self.__do_put(
+            'user3', {'name': 'user3', 'value': 'user3', 'scope': 'st2kv.user'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'user3')
         self.assertEqual(put_resp.json['scope'], 'st2kv.user')
         self.assertEqual(put_resp.json['value'], 'user3')
 
-        put_resp = self.__do_put('userkey', {'name': 'userkey', 'value': 'user3',
-                                           'scope': 'st2kv.user'})
+        put_resp = self.__do_put(
+            'userkey', {'name': 'userkey', 'value': 'user3', 'scope': 'st2kv.user'}
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['name'], 'userkey')
         self.assertEqual(put_resp.json['scope'], 'st2kv.user')
@@ -351,10 +338,10 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         self.__do_delete(self.__get_kvp_id(put_resp))
 
     def test_put_with_scope(self):
-        self.app.put_json('/v1/keys/%s' % 'keystone_endpoint', KVP,
-                          expect_errors=False)
-        self.app.put_json('/v1/keys/%s?scope=st2kv.system' % 'keystone_version', KVP_2,
-                          expect_errors=False)
+        self.app.put_json('/v1/keys/%s' % 'keystone_endpoint', KVP, expect_errors=False)
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.system' % 'keystone_version', KVP_2, expect_errors=False
+        )
 
         get_resp_1 = self.app.get('/v1/keys/keystone_endpoint')
         self.assertTrue(get_resp_1.status_int, 200)
@@ -369,10 +356,12 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         self.app.delete('/v1/keys/keystone_version?scope=st2kv.system')
 
     def test_put_user_scope_and_system_scope_dont_overlap(self):
-        self.app.put_json('/v1/keys/%s?scope=st2kv.system' % 'keystone_version', KVP_2,
-                          expect_errors=False)
-        self.app.put_json('/v1/keys/%s?scope=st2kv.user' % 'keystone_version', KVP_2_USER,
-                          expect_errors=False)
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.system' % 'keystone_version', KVP_2, expect_errors=False
+        )
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.user' % 'keystone_version', KVP_2_USER, expect_errors=False
+        )
         get_resp = self.app.get('/v1/keys/keystone_version?scope=st2kv.system')
         self.assertEqual(get_resp.json['value'], KVP_2['value'])
 
@@ -382,22 +371,27 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         self.app.delete('/v1/keys/keystone_version?scope=st2kv.user')
 
     def test_put_invalid_scope(self):
-        put_resp = self.app.put_json('/v1/keys/keystone_version?scope=st2', KVP_2,
-                                     expect_errors=True)
+        put_resp = self.app.put_json(
+            '/v1/keys/keystone_version?scope=st2', KVP_2, expect_errors=True
+        )
         self.assertTrue(put_resp.status_int, 400)
 
     def test_get_all_with_scope(self):
-        self.app.put_json('/v1/keys/%s?scope=st2kv.system' % 'keystone_version', KVP_2,
-                          expect_errors=False)
-        self.app.put_json('/v1/keys/%s?scope=st2kv.user' % 'keystone_version', KVP_2_USER,
-                          expect_errors=False)
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.system' % 'keystone_version', KVP_2, expect_errors=False
+        )
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.user' % 'keystone_version', KVP_2_USER, expect_errors=False
+        )
 
         # Note that the following two calls overwrite st2sytem and st2kv.user scoped variables with
         # same name.
-        self.app.put_json('/v1/keys/%s?scope=system' % 'keystone_version', KVP_2,
-                          expect_errors=False)
-        self.app.put_json('/v1/keys/%s?scope=user' % 'keystone_version', KVP_2_USER_LEGACY,
-                          expect_errors=False)
+        self.app.put_json(
+            '/v1/keys/%s?scope=system' % 'keystone_version', KVP_2, expect_errors=False
+        )
+        self.app.put_json(
+            '/v1/keys/%s?scope=user' % 'keystone_version', KVP_2_USER_LEGACY, expect_errors=False
+        )
 
         get_resp_all = self.app.get('/v1/keys?scope=all')
         self.assertTrue(len(get_resp_all.json), 2)
@@ -422,12 +416,15 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         self.app.delete('/v1/keys/keystone_version?scope=st2kv.user')
 
     def test_get_all_with_scope_and_prefix_filtering(self):
-        self.app.put_json('/v1/keys/%s?scope=st2kv.user' % 'keystone_version', KVP_2_USER,
-                          expect_errors=False)
-        self.app.put_json('/v1/keys/%s?scope=st2kv.user' % 'keystone_endpoint', KVP_3_USER,
-                          expect_errors=False)
-        self.app.put_json('/v1/keys/%s?scope=st2kv.user' % 'customer_ssn', KVP_4_USER,
-                          expect_errors=False)
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.user' % 'keystone_version', KVP_2_USER, expect_errors=False
+        )
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.user' % 'keystone_endpoint', KVP_3_USER, expect_errors=False
+        )
+        self.app.put_json(
+            '/v1/keys/%s?scope=st2kv.user' % 'customer_ssn', KVP_4_USER, expect_errors=False
+        )
         get_prefix = self.app.get('/v1/keys?scope=st2kv.user&prefix=keystone')
         self.assertEqual(len(get_prefix.json), 2)
         self.app.delete('/v1/keys/keystone_version?scope=st2kv.user')
@@ -549,8 +546,9 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         put_resp = self.__do_put('secret_key1', data, expect_errors=True)
         self.assertEqual(put_resp.status_code, 400)
 
-        expected_error = ('Failed to verify the integrity of the provided value for key '
-                          '"secret_key1".')
+        expected_error = (
+            'Failed to verify the integrity of the provided value for key ' '"secret_key1".'
+        )
         self.assertTrue(expected_error in put_resp.json['faultstring'])
 
         data = copy.deepcopy(ENCRYPTED_KVP)
@@ -558,8 +556,9 @@ class KeyValuePairControllerTestCase(FunctionalTest):
         put_resp = self.__do_put('secret_key1', data, expect_errors=True)
         self.assertEqual(put_resp.status_code, 400)
 
-        expected_error = ('Failed to verify the integrity of the provided value for key '
-                          '"secret_key1".')
+        expected_error = (
+            'Failed to verify the integrity of the provided value for key ' '"secret_key1".'
+        )
         self.assertTrue(expected_error in put_resp.json['faultstring'])
 
     def test_put_delete(self):

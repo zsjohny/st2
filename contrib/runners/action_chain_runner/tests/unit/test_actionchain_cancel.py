@@ -20,6 +20,7 @@ import os
 import tempfile
 
 from st2tests import config as test_config
+
 test_config.parse_args()
 
 from st2common.bootstrap import actionsregistrar
@@ -40,39 +41,25 @@ from six.moves import range
 
 
 TEST_FIXTURES = {
-    'chains': [
-        'test_cancel.yaml',
-        'test_cancel_with_subworkflow.yaml'
-    ],
-    'actions': [
-        'test_cancel.yaml',
-        'test_cancel_with_subworkflow.yaml'
-    ]
+    'chains': ['test_cancel.yaml', 'test_cancel_with_subworkflow.yaml'],
+    'actions': ['test_cancel.yaml', 'test_cancel_with_subworkflow.yaml'],
 }
 
 TEST_PACK = 'action_chain_tests'
 TEST_PACK_PATH = fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 USERNAME = 'stanley'
 
 
-@mock.patch.object(
-    CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
-@mock.patch.object(
-    CUDPublisher,
-    'publish_create',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_create', mock.MagicMock(return_value=None))
 @mock.patch.object(
     LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=MockLiveActionPublisherNonBlocking.publish_state))
+    mock.MagicMock(side_effect=MockLiveActionPublisherNonBlocking.publish_state),
+)
 class ActionChainRunnerPauseResumeTest(ExecutionDbTestCase):
 
     temp_file_path = None
@@ -86,8 +73,7 @@ class ActionChainRunnerPauseResumeTest(ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -98,7 +84,7 @@ class ActionChainRunnerPauseResumeTest(ExecutionDbTestCase):
 
         # Create temporary directory used by the tests
         _, self.temp_file_path = tempfile.mkstemp()
-        os.chmod(self.temp_file_path, 0o755)   # nosec
+        os.chmod(self.temp_file_path, 0o755)  # nosec
 
     def tearDown(self):
         if self.temp_file_path and os.path.exists(self.temp_file_path):

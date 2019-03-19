@@ -42,25 +42,24 @@ from distutils.spawn import find_executable
 from st2common.util.shell import run_command
 from six.moves import range
 
-__all__ = [
-    'PythonRunnerActionWrapperProcessTestCase'
-]
+__all__ = ['PythonRunnerActionWrapperProcessTestCase']
 
 # Maximum limit for the process wrapper script execution time (in seconds)
 WRAPPER_PROCESS_RUN_TIME_UPPER_LIMIT = 0.31
 
-ASSERTION_ERROR_MESSAGE = ("""
+ASSERTION_ERROR_MESSAGE = """
 Python wrapper process script took more than %s seconds to execute (%s). This most likely means
 that a direct or in-direct import of a module which takes a long time to load has been added (e.g.
 jsonschema, pecan, kombu, etc).
 
 Please review recently changed and added code for potential slow import issues and refactor /
 re-organize code if possible.
-""".strip())
+""".strip()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WRAPPER_SCRIPT_PATH = os.path.join(BASE_DIR,
-                                   '../../../python_runner/python_runner/python_action_wrapper.py')
+WRAPPER_SCRIPT_PATH = os.path.join(
+    BASE_DIR, '../../../python_runner/python_runner/python_action_wrapper.py'
+)
 WRAPPER_SCRIPT_PATH = os.path.abspath(WRAPPER_SCRIPT_PATH)
 TIME_BINARY_PATH = find_executable('time')
 TIME_BINARY_AVAILABLE = TIME_BINARY_PATH is not None
@@ -78,8 +77,9 @@ class PythonRunnerActionWrapperProcessTestCase(unittest2.TestCase):
         self.assertTrue('usage: python_action_wrapper.py' in stderr)
 
         expected_msg_1 = 'python_action_wrapper.py: error: argument --pack is required'
-        expected_msg_2 = ('python_action_wrapper.py: error: the following arguments are '
-                          'required: --pack')
+        expected_msg_2 = (
+            'python_action_wrapper.py: error: the following arguments are ' 'required: --pack'
+        )
 
         self.assertTrue(expected_msg_1 in stderr or expected_msg_2 in stderr)
 
@@ -96,9 +96,11 @@ class PythonRunnerActionWrapperProcessTestCase(unittest2.TestCase):
             run_time_seconds = float(stderr)
             run_times.append(run_time_seconds)
 
-        avg_run_time_seconds = (sum(run_times) / count)
-        assertion_msg = ASSERTION_ERROR_MESSAGE % (WRAPPER_PROCESS_RUN_TIME_UPPER_LIMIT,
-                                                   avg_run_time_seconds)
+        avg_run_time_seconds = sum(run_times) / count
+        assertion_msg = ASSERTION_ERROR_MESSAGE % (
+            WRAPPER_PROCESS_RUN_TIME_UPPER_LIMIT,
+            avg_run_time_seconds,
+        )
         self.assertTrue(avg_run_time_seconds <= WRAPPER_PROCESS_RUN_TIME_UPPER_LIMIT, assertion_msg)
 
     def test_config_with_a_lot_of_items_and_a_lot_of_parameters_work_fine(self):
@@ -117,9 +119,10 @@ class PythonRunnerActionWrapperProcessTestCase(unittest2.TestCase):
 
         file_path = os.path.join(BASE_DIR, '../../../../examples/actions/noop.py')
 
-        command_string = ('python %s --pack=dummy --file-path=%s --config=\'%s\' '
-                          '--parameters=\'%s\'' %
-                         (WRAPPER_SCRIPT_PATH, file_path, config, parameters))
+        command_string = (
+            'python %s --pack=dummy --file-path=%s --config=\'%s\' '
+            '--parameters=\'%s\'' % (WRAPPER_SCRIPT_PATH, file_path, config, parameters)
+        )
         exit_code, stdout, stderr = run_command(command_string, shell=True)
         self.assertEqual(exit_code, 0)
         self.assertTrue('"status"' in stdout)
@@ -128,13 +131,15 @@ class PythonRunnerActionWrapperProcessTestCase(unittest2.TestCase):
         config = {}
         file_path = os.path.join(BASE_DIR, '../../../../examples/actions/noop.py')
 
-        command_string = ('python %s --pack=dummy --file-path=%s --config=\'%s\' '
-                          '--stdin-parameters' %
-                         (WRAPPER_SCRIPT_PATH, file_path, config))
+        command_string = (
+            'python %s --pack=dummy --file-path=%s --config=\'%s\' '
+            '--stdin-parameters' % (WRAPPER_SCRIPT_PATH, file_path, config)
+        )
         exit_code, stdout, stderr = run_command(command_string, shell=True)
 
-        expected_msg = ('ValueError: No input received and timed out while waiting for parameters '
-                        'from stdin')
+        expected_msg = (
+            'ValueError: No input received and timed out while waiting for parameters ' 'from stdin'
+        )
         self.assertEqual(exit_code, 1)
         self.assertTrue(expected_msg in stderr)
 
@@ -143,12 +148,15 @@ class PythonRunnerActionWrapperProcessTestCase(unittest2.TestCase):
 
         file_path = os.path.join(BASE_DIR, '../../../contrib/examples/actions/noop.py')
         # Not a valid JSON string
-        command_string = ('echo "invalid" | python %s --pack=dummy --file-path=%s --config=\'%s\' '
-                          '--stdin-parameters' %
-                         (WRAPPER_SCRIPT_PATH, file_path, config))
+        command_string = (
+            'echo "invalid" | python %s --pack=dummy --file-path=%s --config=\'%s\' '
+            '--stdin-parameters' % (WRAPPER_SCRIPT_PATH, file_path, config)
+        )
         exit_code, stdout, stderr = run_command(command_string, shell=True)
 
-        expected_msg = ('ValueError: Failed to parse parameters from stdin. Expected a JSON '
-                        'object with "parameters" attribute:')
+        expected_msg = (
+            'ValueError: Failed to parse parameters from stdin. Expected a JSON '
+            'object with "parameters" attribute:'
+        )
         self.assertEqual(exit_code, 1)
         self.assertTrue(expected_msg in stderr)

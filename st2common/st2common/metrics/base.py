@@ -29,17 +29,16 @@ from st2common.exceptions.plugins import PluginLoadError
 
 __all__ = [
     'BaseMetricsDriver',
-
     'Timer',
     'Counter',
     'CounterWithTimer',
-
     'metrics_initialize',
-    'get_driver'
+    'get_driver',
 ]
 
 if not hasattr(cfg.CONF, 'metrics'):
     from st2common.config import register_opts
+
     register_opts()
 
 LOG = logging.getLogger(__name__)
@@ -97,6 +96,7 @@ class Timer(object):
     """
     Timer context manager for easily sending timer statistics.
     """
+
     def __init__(self, key, include_parameter=False):
         check_key(key)
 
@@ -138,6 +138,7 @@ class Timer(object):
                 if self._include_parameter:
                     kw['metrics_timer'] = metrics_timer
                 return func(*args, **kw)
+
         return wrapper
 
 
@@ -145,6 +146,7 @@ class Counter(object):
     """
     Counter context manager for easily sending counter statistics.
     """
+
     def __init__(self, key):
         check_key(key)
         self.key = key
@@ -162,6 +164,7 @@ class Counter(object):
         def wrapper(*args, **kw):
             with self:
                 return func(*args, **kw)
+
         return wrapper
 
 
@@ -211,6 +214,7 @@ class CounterWithTimer(object):
                 if self._include_parameter:
                     kw['metrics_counter_with_timer'] = counter_with_timer
                 return func(*args, **kw)
+
         return wrapper
 
 

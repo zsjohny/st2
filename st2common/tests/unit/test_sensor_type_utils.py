@@ -22,12 +22,11 @@ from st2common.models.utils import sensor_type_utils
 
 
 class SensorTypeUtilsTestCase(unittest2.TestCase):
-
     def test_to_sensor_db_model_no_trigger_types(self):
         sensor_meta = {
             'artifact_uri': 'file:///data/st2contrib/packs/jira/sensors/jira_sensor.py',
             'class_name': 'JIRASensor',
-            'pack': 'jira'
+            'pack': 'jira',
         }
         sensor_api = SensorTypeAPI(**sensor_meta)
         sensor_model = SensorTypeAPI.to_model(sensor_api)
@@ -36,14 +35,15 @@ class SensorTypeUtilsTestCase(unittest2.TestCase):
         self.assertEqual(sensor_model.artifact_uri, sensor_meta['artifact_uri'])
         self.assertListEqual(sensor_model.trigger_types, [])
 
-    @mock.patch.object(sensor_type_utils, 'create_trigger_types', mock.MagicMock(
-        return_value=['mock.trigger_ref']))
+    @mock.patch.object(
+        sensor_type_utils, 'create_trigger_types', mock.MagicMock(return_value=['mock.trigger_ref'])
+    )
     def test_to_sensor_db_model_with_trigger_types(self):
         sensor_meta = {
             'artifact_uri': 'file:///data/st2contrib/packs/jira/sensors/jira_sensor.py',
             'class_name': 'JIRASensor',
             'pack': 'jira',
-            'trigger_types': [{'pack': 'jira', 'name': 'issue_created', 'parameters': {}}]
+            'trigger_types': [{'pack': 'jira', 'name': 'issue_created', 'parameters': {}}],
         }
 
         sensor_api = SensorTypeAPI(**sensor_meta)
@@ -52,8 +52,10 @@ class SensorTypeUtilsTestCase(unittest2.TestCase):
 
     def test_get_sensor_entry_point(self):
         # System packs
-        file_path = 'file:///data/st/st2reactor/st2reactor/' + \
-                    'contrib/sensors/st2_generic_webhook_sensor.py'
+        file_path = (
+            'file:///data/st/st2reactor/st2reactor/'
+            + 'contrib/sensors/st2_generic_webhook_sensor.py'
+        )
         class_name = 'St2GenericWebhooksSensor'
 
         sensor = {'artifact_uri': file_path, 'class_name': class_name, 'pack': 'core'}

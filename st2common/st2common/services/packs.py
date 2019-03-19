@@ -26,22 +26,11 @@ from st2common.persistence.pack import Pack
 from st2common.util.misc import lowercase_value
 from six.moves import range
 
-__all__ = [
-    'get_pack_by_ref',
-    'fetch_pack_index',
-    'get_pack_from_index',
-    'search_pack_index'
-]
+__all__ = ['get_pack_by_ref', 'fetch_pack_index', 'get_pack_from_index', 'search_pack_index']
 
-EXCLUDE_FIELDS = [
-    "repo_url",
-    "email"
-]
+EXCLUDE_FIELDS = ["repo_url", "email"]
 
-SEARCH_PRIORITY = [
-    "name",
-    "keywords"
-]
+SEARCH_PRIORITY = ["name", "keywords"]
 
 LOG = logging.getLogger(__name__)
 
@@ -85,12 +74,7 @@ def _fetch_and_compile_index(index_urls, logger=None, proxy_config=None):
             proxies_dict['http'] = http_proxy
 
     for index_url in index_urls:
-        index_status = {
-            'url': index_url,
-            'packs': 0,
-            'message': None,
-            'error': None,
-        }
+        index_status = {'url': index_url, 'packs': 0, 'message': None, 'error': None}
         index_json = None
 
         try:
@@ -147,8 +131,9 @@ def fetch_pack_index(index_url=None, logger=None, allow_empty=False, proxy_confi
     logger = logger or LOG
 
     index_urls = _build_index_list(index_url)
-    index, status = _fetch_and_compile_index(index_urls=index_urls, logger=logger,
-                                             proxy_config=proxy_config)
+    index, status = _fetch_and_compile_index(
+        index_urls=index_urls, logger=logger, proxy_config=proxy_config
+    )
 
     # If one of the indexes on the list is unresponsive, we do not throw
     # immediately. The only case where an exception is raised is when no
@@ -156,11 +141,14 @@ def fetch_pack_index(index_url=None, logger=None, allow_empty=False, proxy_confi
     # This behavior allows for mirrors / backups and handling connection
     # or network issues in one of the indexes.
     if not index and not allow_empty:
-        raise ValueError("No results from the %s: tried %s.\nStatus: %s" % (
-            ("index" if len(index_urls) == 1 else "indexes"),
-            ", ".join(index_urls),
-            json.dumps(status, indent=4)
-        ))
+        raise ValueError(
+            "No results from the %s: tried %s.\nStatus: %s"
+            % (
+                ("index" if len(index_urls) == 1 else "indexes"),
+                ", ".join(index_urls),
+                json.dumps(status, indent=4),
+            )
+        )
     return (index, status)
 
 

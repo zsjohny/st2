@@ -64,8 +64,7 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         # Create some mock roles
         role_1_db = rbac_services.create_role(name='custom_role_1')
-        role_2_db = rbac_services.create_role(name='custom_role_2',
-                                              description='custom role 2')
+        role_2_db = rbac_services.create_role(name='custom_role_2', description='custom role 2')
         self.roles['custom_role_1'] = role_1_db
         self.roles['custom_role_2'] = role_2_db
 
@@ -76,8 +75,10 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         # Create some mock role assignments
         role_assignment_1 = UserRoleAssignmentDB(
-            user=self.users['1_custom_role'].name, role=self.roles['custom_role_1'].name,
-            source='assignments/%s.yaml' % self.users['1_custom_role'].name)
+            user=self.users['1_custom_role'].name,
+            role=self.roles['custom_role_1'].name,
+            source='assignments/%s.yaml' % self.users['1_custom_role'].name,
+        )
         role_assignment_1 = UserRoleAssignment.add_or_update(role_assignment_1)
 
         # Note: User use pymongo to insert mock data because we want to insert a
@@ -86,10 +87,12 @@ class RBACServicesTestCase(CleanDbTestCase):
         db = client['st2-test']
         db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_1'})
         db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_2'})
-        db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_3',
-                                               'is_remote': False})
-        db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_4',
-                                               'is_remote': True})
+        db.user_role_assignment_d_b.insert_one(
+            {'user': 'user_5', 'role': 'role_3', 'is_remote': False}
+        )
+        db.user_role_assignment_d_b.insert_one(
+            {'user': 'user_5', 'role': 'role_4', 'is_remote': True}
+        )
 
         # Create some mock resources on which permissions can be granted
         rule_1_db = RuleDB(pack='test1', name='rule1', ref='test1.rule1')
@@ -101,8 +104,9 @@ class RBACServicesTestCase(CleanDbTestCase):
         # Test a case where a document doesn't exist is_remote field and when it
         # does
         user_db = self.users['user_5']
-        role_assignment_dbs = rbac_services.get_role_assignments_for_user(user_db=user_db,
-                                                                          include_remote=False)
+        role_assignment_dbs = rbac_services.get_role_assignments_for_user(
+            user_db=user_db, include_remote=False
+        )
         self.assertEqual(len(role_assignment_dbs), 3)
         self.assertEqual(role_assignment_dbs[0].role, 'role_1')
         self.assertEqual(role_assignment_dbs[1].role, 'role_2')
@@ -112,8 +116,9 @@ class RBACServicesTestCase(CleanDbTestCase):
         self.assertEqual(role_assignment_dbs[2].is_remote, False)
 
         user_db = self.users['user_5']
-        role_assignment_dbs = rbac_services.get_role_assignments_for_user(user_db=user_db,
-                                                                          include_remote=True)
+        role_assignment_dbs = rbac_services.get_role_assignments_for_user(
+            user_db=user_db, include_remote=True
+        )
         self.assertEqual(len(role_assignment_dbs), 4)
         self.assertEqual(role_assignment_dbs[3].role, 'role_4')
         self.assertEqual(role_assignment_dbs[3].is_remote, True)
@@ -165,8 +170,9 @@ class RBACServicesTestCase(CleanDbTestCase):
     def test_create_role_with_system_role_name(self):
         # Roles with names which match system role names can't be created
         expected_msg = '"observer" role name is blacklisted'
-        self.assertRaisesRegexp(ValueError, expected_msg, rbac_services.create_role,
-                                name=SystemRole.OBSERVER)
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, rbac_services.create_role, name=SystemRole.OBSERVER
+        )
 
     def test_delete_system_role(self):
         # System roles can't be deleted
@@ -174,8 +180,7 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         for name in system_roles:
             expected_msg = 'System roles can\'t be deleted'
-            self.assertRaisesRegexp(ValueError, expected_msg, rbac_services.delete_role,
-                                    name=name)
+            self.assertRaisesRegexp(ValueError, expected_msg, rbac_services.delete_role, name=name)
 
     def test_grant_and_revoke_role(self):
         user_db = UserDB(name='test-user-1')
@@ -190,8 +195,10 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         # Assign a role, should have one role assigned
         rbac_services.assign_role_to_user(
-            role_db=self.roles['custom_role_1'], user_db=user_db,
-            source='assignments/%s.yaml' % user_db.name)
+            role_db=self.roles['custom_role_1'],
+            user_db=user_db,
+            source='assignments/%s.yaml' % user_db.name,
+        )
 
         role_dbs = rbac_services.get_roles_for_user(user_db=user_db)
         self.assertItemsEqual(role_dbs, [self.roles['custom_role_1']])
@@ -200,8 +207,7 @@ class RBACServicesTestCase(CleanDbTestCase):
         self.assertItemsEqual(role_dbs, [self.roles['custom_role_1']])
 
         # Revoke previously assigned role, should have no roles again
-        rbac_services.revoke_role_from_user(role_db=self.roles['custom_role_1'],
-                                            user_db=user_db)
+        rbac_services.revoke_role_from_user(role_db=self.roles['custom_role_1'], user_db=user_db)
 
         role_dbs = rbac_services.get_roles_for_user(user_db=user_db)
         self.assertItemsEqual(role_dbs, [])
@@ -221,8 +227,10 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         # Assign a role, should have one role assigned
         rbac_services.assign_role_to_user(
-            role_db=self.roles['custom_role_1'], user_db=user_db,
-            source='assignments/%s_1.yaml' % user_db.name)
+            role_db=self.roles['custom_role_1'],
+            user_db=user_db,
+            source='assignments/%s_1.yaml' % user_db.name,
+        )
 
         role_dbs = rbac_services.get_roles_for_user(user_db=user_db)
         self.assertItemsEqual(role_dbs, [self.roles['custom_role_1']])
@@ -232,8 +240,10 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         # Assign the same role again.
         rbac_services.assign_role_to_user(
-            role_db=self.roles['custom_role_1'], user_db=user_db,
-            source='assignments/%s_2.yaml' % user_db.name)
+            role_db=self.roles['custom_role_1'],
+            user_db=user_db,
+            source='assignments/%s_2.yaml' % user_db.name,
+        )
 
         role_dbs_2 = rbac_services.get_roles_for_user(user_db=user_db)
         self.assertItemsEqual(role_dbs_2, [self.roles['custom_role_1']])
@@ -254,19 +264,27 @@ class RBACServicesTestCase(CleanDbTestCase):
         user_db = User.add_or_update(user_db)
 
         role_assignment_db_1 = rbac_services.assign_role_to_user(
-            role_db=self.roles['custom_role_1'], user_db=user_db,
-            source='assignments/%s_10.yaml' % user_db.name)
+            role_db=self.roles['custom_role_1'],
+            user_db=user_db,
+            source='assignments/%s_10.yaml' % user_db.name,
+        )
 
         # 1. Without ignore errors
-        self.assertRaises(StackStormDBObjectConflictError, rbac_services.assign_role_to_user,
-            role_db=self.roles['custom_role_1'], user_db=user_db,
-            source='assignments/%s_10.yaml' % user_db.name)
+        self.assertRaises(
+            StackStormDBObjectConflictError,
+            rbac_services.assign_role_to_user,
+            role_db=self.roles['custom_role_1'],
+            user_db=user_db,
+            source='assignments/%s_10.yaml' % user_db.name,
+        )
 
         # 2. With ignore errors
         role_assignment_db_2 = rbac_services.assign_role_to_user(
-            role_db=self.roles['custom_role_1'], user_db=user_db,
+            role_db=self.roles['custom_role_1'],
+            user_db=user_db,
             source='assignments/%s_10.yaml' % user_db.name,
-            ignore_already_exists_error=True)
+            ignore_already_exists_error=True,
+        )
 
         self.assertEqual(role_assignment_db_1, role_assignment_db_2)
         self.assertEqual(role_assignment_db_1.id, role_assignment_db_2.id)
@@ -284,22 +302,23 @@ class RBACServicesTestCase(CleanDbTestCase):
         permission_types = [PermissionType.RULE_CREATE, PermissionType.RULE_MODIFY]
 
         permission_grant = rbac_services.create_permission_grant_for_resource_db(
-            role_db=role_db,
-            resource_db=resource_db,
-            permission_types=permission_types)
+            role_db=role_db, resource_db=resource_db, permission_types=permission_types
+        )
 
         # Retrieve all grants
         permission_grants = rbac_services.get_all_permission_grants_for_user(user_db=user_db)
         self.assertItemsEqual(permission_grants, [permission_grant])
 
         # Retrieve all grants, filter on resource with no grants
-        permission_grants = rbac_services.get_all_permission_grants_for_user(user_db=user_db,
-            resource_types=[ResourceType.PACK])
+        permission_grants = rbac_services.get_all_permission_grants_for_user(
+            user_db=user_db, resource_types=[ResourceType.PACK]
+        )
         self.assertItemsEqual(permission_grants, [])
 
         # Retrieve all grants, filter on resource with grants
-        permission_grants = rbac_services.get_all_permission_grants_for_user(user_db=user_db,
-            resource_types=[ResourceType.RULE])
+        permission_grants = rbac_services.get_all_permission_grants_for_user(
+            user_db=user_db, resource_types=[ResourceType.RULE]
+        )
         self.assertItemsEqual(permission_grants, [permission_grant])
 
     def test_create_and_remove_permission_grant(self):
@@ -308,17 +327,17 @@ class RBACServicesTestCase(CleanDbTestCase):
 
         # Grant "ALL" permission to the resource
         permission_types = [PermissionType.RULE_ALL]
-        rbac_services.create_permission_grant_for_resource_db(role_db=role_db,
-                                                              resource_db=resource_db,
-                                                              permission_types=permission_types)
+        rbac_services.create_permission_grant_for_resource_db(
+            role_db=role_db, resource_db=resource_db, permission_types=permission_types
+        )
 
         role_db.reload()
         self.assertItemsEqual(role_db.permission_grants, role_db.permission_grants)
 
         # Remove the previously granted permission
-        rbac_services.remove_permission_grant_for_resource_db(role_db=role_db,
-                                                              resource_db=resource_db,
-                                                              permission_types=permission_types)
+        rbac_services.remove_permission_grant_for_resource_db(
+            role_db=role_db, resource_db=resource_db, permission_types=permission_types
+        )
 
         role_db.reload()
         self.assertItemsEqual(role_db.permission_grants, [])
@@ -330,16 +349,24 @@ class RBACServicesTestCase(CleanDbTestCase):
         permission_types = [PermissionType.RULE_ALL]
 
         expected_msg = 'Permissions cannot be manipulated for a resource of type'
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                rbac_services.create_permission_grant_for_resource_db,
-                                role_db=role_db, resource_db=resource_db,
-                                permission_types=permission_types)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            rbac_services.create_permission_grant_for_resource_db,
+            role_db=role_db,
+            resource_db=resource_db,
+            permission_types=permission_types,
+        )
 
         expected_msg = 'Permissions cannot be manipulated for a resource of type'
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                rbac_services.remove_permission_grant_for_resource_db,
-                                role_db=role_db, resource_db=resource_db,
-                                permission_types=permission_types)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            rbac_services.remove_permission_grant_for_resource_db,
+            role_db=role_db,
+            resource_db=resource_db,
+            permission_types=permission_types,
+        )
 
     def test_manipulate_permission_grants_invalid_permission_types(self):
         # Try to assign / revoke a permission which is not supported for a particular resource
@@ -348,13 +375,21 @@ class RBACServicesTestCase(CleanDbTestCase):
         permission_types = [PermissionType.ACTION_EXECUTE]
 
         expected_msg = 'Invalid permission type'
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                rbac_services.create_permission_grant_for_resource_db,
-                                role_db=role_db, resource_db=resource_db,
-                                permission_types=permission_types)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            rbac_services.create_permission_grant_for_resource_db,
+            role_db=role_db,
+            resource_db=resource_db,
+            permission_types=permission_types,
+        )
 
         expected_msg = 'Invalid permission type'
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                rbac_services.remove_permission_grant_for_resource_db,
-                                role_db=role_db, resource_db=resource_db,
-                                permission_types=permission_types)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            rbac_services.remove_permission_grant_for_resource_db,
+            role_db=role_db,
+            resource_db=resource_db,
+            permission_types=permission_types,
+        )

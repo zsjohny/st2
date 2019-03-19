@@ -27,7 +27,7 @@ TRIGGER_0 = {
     'pack': 'dummy_pack_1',
     'description': 'test trigger',
     'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-    'parameters_schema': {}
+    'parameters_schema': {},
 }
 TRIGGER_1 = {
     'name': 'st2.test.triggertype1',
@@ -40,12 +40,13 @@ TRIGGER_2 = {
     'pack': 'dummy_pack_3',
     'description': 'test trigger',
     'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-    'parameters_schema': {'param1': {'type': 'object'}}
+    'parameters_schema': {'param1': {'type': 'object'}},
 }
 
 
-class TriggerTypeControllerTestCase(FunctionalTest,
-                                    APIControllerWithIncludeAndExcludeFilterTestCase):
+class TriggerTypeControllerTestCase(
+    FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase
+):
     get_all_path = '/v1/triggertypes'
     controller_cls = TriggerTypeController
     include_attribute_field_name = 'payload_schema'

@@ -38,7 +38,7 @@ RUNNER_TYPE_1 = {
     'enabled': True,
     'name': 'local-shell-cmd',
     'runner_module': 'local_runner',
-    'runner_parameters': {}
+    'runner_parameters': {},
 }
 
 ACTION_1 = {
@@ -49,57 +49,34 @@ ACTION_1 = {
     'pack': 'sixpack',
     'runner_type': 'local-shell-cmd',
     'parameters': {
-        'a': {
-            'type': 'string',
-            'default': 'abc'
-        },
-        'b': {
-            'type': 'number',
-            'default': 123
-        },
-        'c': {
-            'type': 'number',
-            'default': 123,
-            'immutable': True
-        },
-        'd': {
-            'type': 'string',
-            'secret': True
-        }
-    }
+        'a': {'type': 'string', 'default': 'abc'},
+        'b': {'type': 'number', 'default': 123},
+        'c': {'type': 'number', 'default': 123, 'immutable': True},
+        'd': {'type': 'string', 'secret': True},
+    },
 }
 
 LIVE_ACTION_1 = {
     'action': 'sixpack.st2.dummy.action1',
-    'parameters': {
-        'hosts': 'localhost',
-        'cmd': 'uname -a',
-        'd': SUPER_SECRET_PARAMETER
-    }
+    'parameters': {'hosts': 'localhost', 'cmd': 'uname -a', 'd': SUPER_SECRET_PARAMETER},
 }
 
 EXECUTION_1 = {
     'id': '598dbf0c0640fd54bffc688b',
-    'action': {
-        'ref': 'sixpack.st2.dummy.action1'
-    },
-    'parameters': {
-        'hosts': 'localhost',
-        'cmd': 'uname -a',
-        'd': SUPER_SECRET_PARAMETER
-    }
+    'action': {'ref': 'sixpack.st2.dummy.action1'},
+    'parameters': {'hosts': 'localhost', 'cmd': 'uname -a', 'd': SUPER_SECRET_PARAMETER},
 }
 
 STDOUT_1 = {
     'execution_id': '598dbf0c0640fd54bffc688b',
     'action_ref': 'dummy.action1',
-    'output_type': 'stdout'
+    'output_type': 'stdout',
 }
 
 STDERR_1 = {
     'execution_id': '598dbf0c0640fd54bffc688b',
     'action_ref': 'dummy.action1',
-    'output_type': 'stderr'
+    'output_type': 'stderr',
 }
 
 
@@ -115,7 +92,6 @@ class META(object):
 
 
 class TestStreamController(FunctionalTest):
-
     @classmethod
     def setUpClass(cls):
         super(TestStreamController, cls).setUpClass()

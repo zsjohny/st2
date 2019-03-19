@@ -34,8 +34,10 @@ apply_vagrant_workaround()
 setup(
     name='stackstorm-runner-winrm',
     version=__version__,
-    description=('WinRM shell command and PowerShell script action runner for'
-                 ' the StackStorm event-driven automation platform'),
+    description=(
+        'WinRM shell command and PowerShell script action runner for'
+        ' the StackStorm event-driven automation platform'
+    ),
     author='StackStorm',
     author_email='info@stackstorm.com',
     license='Apache License (2.0)',
@@ -53,6 +55,6 @@ setup(
             'winrm-cmd = winrm_runner.winrm_command_runner',
             'winrm-ps-cmd = winrm_runner.winrm_ps_command_runner',
             'winrm-ps-script = winrm_runner.winrm_ps_script_runner',
-        ],
-    }
+        ]
+    },
 )

@@ -22,11 +22,7 @@ from kombu import Connection
 
 from st2common import log as logging
 
-__all__ = [
-    'get_connection',
-
-    'get_messaging_urls'
-]
+__all__ = ['get_connection', 'get_messaging_urls']
 
 LOG = logging.getLogger(__name__)
 
@@ -57,12 +53,14 @@ def get_connection(urls=None, connection_kwargs=None):
 
     kwargs = {}
 
-    ssl_kwargs = _get_ssl_kwargs(ssl=cfg.CONF.messaging.ssl,
-                                 ssl_keyfile=cfg.CONF.messaging.ssl_keyfile,
-                                 ssl_certfile=cfg.CONF.messaging.ssl_certfile,
-                                 ssl_cert_reqs=cfg.CONF.messaging.ssl_cert_reqs,
-                                 ssl_ca_certs=cfg.CONF.messaging.ssl_ca_certs,
-                                 login_method=cfg.CONF.messaging.login_method)
+    ssl_kwargs = _get_ssl_kwargs(
+        ssl=cfg.CONF.messaging.ssl,
+        ssl_keyfile=cfg.CONF.messaging.ssl_keyfile,
+        ssl_certfile=cfg.CONF.messaging.ssl_certfile,
+        ssl_cert_reqs=cfg.CONF.messaging.ssl_cert_reqs,
+        ssl_ca_certs=cfg.CONF.messaging.ssl_ca_certs,
+        login_method=cfg.CONF.messaging.login_method,
+    )
 
     # NOTE: "connection_kwargs" argument passed to this function has precedence over config values
     if len(ssl_kwargs) == 1 and ssl_kwargs['ssl'] is True:
@@ -82,8 +80,14 @@ def get_connection(urls=None, connection_kwargs=None):
     return connection
 
 
-def _get_ssl_kwargs(ssl=False, ssl_keyfile=None, ssl_certfile=None, ssl_cert_reqs=None,
-                    ssl_ca_certs=None, login_method=None):
+def _get_ssl_kwargs(
+    ssl=False,
+    ssl_keyfile=None,
+    ssl_certfile=None,
+    ssl_cert_reqs=None,
+    ssl_ca_certs=None,
+    login_method=None,
+):
     """
     Return SSL keyword arguments to be used with the kombu.Connection class.
     """

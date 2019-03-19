@@ -30,9 +30,7 @@ from st2tests.base import CleanDbTestCase
 from st2tests import fixturesloader
 
 
-__all__ = [
-    'ConfigsRegistrarTestCase'
-]
+__all__ = ['ConfigsRegistrarTestCase']
 
 PACK_1_PATH = os.path.join(fixturesloader.get_fixtures_packs_base_path(), 'dummy_pack_1')
 PACK_6_PATH = os.path.join(fixturesloader.get_fixtures_packs_base_path(), 'dummy_pack_6')
@@ -98,8 +96,9 @@ class ConfigsRegistrarTestCase(CleanDbTestCase):
         self.assertEqual(len(pack_dbs), 0)
         self.assertEqual(len(config_dbs), 0)
 
-        registrar = ConfigsRegistrar(use_pack_cache=False, fail_on_failure=True,
-                                     validate_configs=True)
+        registrar = ConfigsRegistrar(
+            use_pack_cache=False, fail_on_failure=True, validate_configs=True
+        )
         registrar._pack_loader.get_packs = mock.Mock()
         registrar._pack_loader.get_packs.return_value = {'dummy_pack_6': PACK_6_PATH}
 
@@ -109,15 +108,19 @@ class ConfigsRegistrarTestCase(CleanDbTestCase):
         packs_base_paths = content_utils.get_packs_base_paths()
 
         if six.PY3:
-            expected_msg = ('Failed validating attribute "regions" in config for pack '
-                            '"dummy_pack_6" (.*?): 1000 is not of type \'array\'')
+            expected_msg = (
+                'Failed validating attribute "regions" in config for pack '
+                '"dummy_pack_6" (.*?): 1000 is not of type \'array\''
+            )
         else:
-            expected_msg = ('Failed validating attribute "regions" in config for pack '
-                            '"dummy_pack_6" (.*?): 1000 is not of type u\'array\'')
+            expected_msg = (
+                'Failed validating attribute "regions" in config for pack '
+                '"dummy_pack_6" (.*?): 1000 is not of type u\'array\''
+            )
 
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                registrar.register_from_packs,
-                                base_dirs=packs_base_paths)
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, registrar.register_from_packs, base_dirs=packs_base_paths
+        )
 
     def test_register_all_configs_with_config_schema_validation_validation_failure_2(self):
         # Verify DB is empty
@@ -127,8 +130,9 @@ class ConfigsRegistrarTestCase(CleanDbTestCase):
         self.assertEqual(len(pack_dbs), 0)
         self.assertEqual(len(config_dbs), 0)
 
-        registrar = ConfigsRegistrar(use_pack_cache=False, fail_on_failure=True,
-                                     validate_configs=True)
+        registrar = ConfigsRegistrar(
+            use_pack_cache=False, fail_on_failure=True, validate_configs=True
+        )
         registrar._pack_loader.get_packs = mock.Mock()
         registrar._pack_loader.get_packs.return_value = {'dummy_pack_19': PACK_19_PATH}
 
@@ -138,14 +142,18 @@ class ConfigsRegistrarTestCase(CleanDbTestCase):
         packs_base_paths = content_utils.get_packs_base_paths()
 
         if six.PY3:
-            expected_msg = ('Failed validating attribute "instances.0.alias" in config for pack '
-                            '"dummy_pack_19" (.*?): {\'not\': \'string\'} is not of type '
-                            '\'string\'')
+            expected_msg = (
+                'Failed validating attribute "instances.0.alias" in config for pack '
+                '"dummy_pack_19" (.*?): {\'not\': \'string\'} is not of type '
+                '\'string\''
+            )
         else:
-            expected_msg = ('Failed validating attribute "instances.0.alias" in config for pack '
-                            '"dummy_pack_19" (.*?): {\'not\': \'string\'} is not of type '
-                            'u\'string\'')
+            expected_msg = (
+                'Failed validating attribute "instances.0.alias" in config for pack '
+                '"dummy_pack_19" (.*?): {\'not\': \'string\'} is not of type '
+                'u\'string\''
+            )
 
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                registrar.register_from_packs,
-                                base_dirs=packs_base_paths)
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, registrar.register_from_packs, base_dirs=packs_base_paths
+        )

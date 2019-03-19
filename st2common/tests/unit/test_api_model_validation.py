@@ -18,9 +18,7 @@ import unittest2
 
 from st2common.models.api.base import BaseAPI
 
-__all__ = [
-    'APIModelValidationTestCase'
-]
+__all__ = ['APIModelValidationTestCase']
 
 
 class MockAPIModel1(BaseAPI):
@@ -33,24 +31,19 @@ class MockAPIModel1(BaseAPI):
             'id': {
                 'description': 'The unique identifier for the action runner.',
                 'type': ['string', 'null'],
-                'default': None
+                'default': None,
             },
             'name': {
                 'description': 'The name of the action runner.',
                 'type': 'string',
-                'required': True
+                'required': True,
             },
             'description': {
                 'description': 'The description of the action runner.',
-                'type': 'string'
+                'type': 'string',
             },
-            'enabled': {
-                'type': 'boolean',
-                'default': True
-            },
-            'parameters': {
-                'type': 'object'
-            },
+            'enabled': {'type': 'boolean', 'default': True},
+            'parameters': {'type': 'object'},
             'permission_grants': {
                 'type': 'array',
                 'items': {
@@ -60,23 +53,20 @@ class MockAPIModel1(BaseAPI):
                             'type': 'string',
                             'description': 'UID of a resource to which this grant applies to.',
                             'required': False,
-                            'default': 'unknown'
+                            'default': 'unknown',
                         },
-                        'enabled': {
-                            'type': 'boolean',
-                            'default': True
-                        },
+                        'enabled': {'type': 'boolean', 'default': True},
                         'description': {
                             'type': 'string',
                             'description': 'Description',
-                            'required': False
-                        }
-                    }
+                            'required': False,
+                        },
+                    },
                 },
-                'default': []
-            }
+                'default': [],
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
 
@@ -90,7 +80,7 @@ class MockAPIModel2(BaseAPI):
             'id': {
                 'description': 'The unique identifier for the action runner.',
                 'type': 'string',
-                'default': None
+                'default': None,
             },
             'permission_grants': {
                 'type': 'array',
@@ -101,32 +91,23 @@ class MockAPIModel2(BaseAPI):
                             'type': 'string',
                             'description': 'UID of a resource to which this grant applies to.',
                             'required': False,
-                            'default': None
+                            'default': None,
                         },
-                        'description': {
-                            'type': 'string',
-                            'required': True
-                        }
-                    }
+                        'description': {'type': 'string', 'required': True},
+                    },
                 },
-                'default': []
+                'default': [],
             },
             'parameters': {
                 'type': 'object',
                 'properties': {
-                    'id': {
-                        'type': 'string',
-                        'default': None
-                    },
-                    'name': {
-                        'type': 'string',
-                        'required': True
-                    }
+                    'id': {'type': 'string', 'default': None},
+                    'name': {'type': 'string', 'required': True},
                 },
                 'additionalProperties': False,
-            }
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
 
@@ -153,8 +134,9 @@ class APIModelValidationTestCase(unittest2.TestCase):
         self.assertEqual(mock_model_api_validated.permission_grants, [])
 
         # "permission_grants" attribute present, but child missing
-        mock_model_api = MockAPIModel1(name='name', enabled=False,
-                                       permission_grants=[{}, {'description': 'test'}])
+        mock_model_api = MockAPIModel1(
+            name='name', enabled=False, permission_grants=[{}, {'description': 'test'}]
+        )
         self.assertEqual(mock_model_api.name, 'name')
         self.assertEqual(mock_model_api.enabled, False)
         self.assertEqual(mock_model_api.permission_grants, [{}, {'description': 'test'}])
@@ -170,9 +152,13 @@ class APIModelValidationTestCase(unittest2.TestCase):
         self.assertEqual(mock_model_api_validated.id, None)
         self.assertEqual(mock_model_api_validated.name, 'name')
         self.assertEqual(mock_model_api_validated.enabled, False)
-        self.assertEqual(mock_model_api_validated.permission_grants,
-                         [{'resource_uid': 'unknown', 'enabled': True},
-                          {'resource_uid': 'unknown', 'enabled': True, 'description': 'test'}])
+        self.assertEqual(
+            mock_model_api_validated.permission_grants,
+            [
+                {'resource_uid': 'unknown', 'enabled': True},
+                {'resource_uid': 'unknown', 'enabled': True, 'description': 'test'},
+            ],
+        )
 
     def test_validate_nested_attribute_with_default_not_provided(self):
         mock_model_api = MockAPIModel2()
@@ -193,8 +179,9 @@ class APIModelValidationTestCase(unittest2.TestCase):
         self.assertEqual(getattr(mock_model_api_validated, 'parameters', 'notset'), 'notset')
 
     def test_validate_allow_default_none_for_any_type(self):
-        mock_model_api = MockAPIModel2(permission_grants=[{'description': 'test'}],
-                                       parameters={'name': 'test'})
+        mock_model_api = MockAPIModel2(
+            permission_grants=[{'description': 'test'}], parameters={'name': 'test'}
+        )
         self.assertEqual(getattr(mock_model_api, 'id', 'notset'), 'notset')
         self.assertEqual(mock_model_api.permission_grants, [{'description': 'test'}])
         self.assertEqual(mock_model_api.parameters, {'name': 'test'})
@@ -208,6 +195,8 @@ class APIModelValidationTestCase(unittest2.TestCase):
 
         # Verify cleaned object
         self.assertEqual(mock_model_api_validated.id, None)
-        self.assertEqual(mock_model_api_validated.permission_grants,
-                         [{'description': 'test', 'resource_uid': None}])
+        self.assertEqual(
+            mock_model_api_validated.permission_grants,
+            [{'description': 'test', 'resource_uid': None}],
+        )
         self.assertEqual(mock_model_api_validated.parameters, {'id': None, 'name': 'test'})

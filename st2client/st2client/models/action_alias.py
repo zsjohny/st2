@@ -17,10 +17,7 @@ from __future__ import absolute_import
 
 from st2client.models import core
 
-__all__ = [
-    'ActionAlias',
-    'ActionAliasMatch'
-]
+__all__ = ['ActionAlias', 'ActionAliasMatch']
 
 
 class ActionAlias(core.Resource):

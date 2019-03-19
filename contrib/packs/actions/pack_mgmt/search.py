@@ -25,21 +25,21 @@ class PackSearch(Action):
         self.https_proxy = os.environ.get('https_proxy', self.config.get('https_proxy', None))
         self.http_proxy = os.environ.get('http_proxy', self.config.get('http_proxy', None))
         self.proxy_ca_bundle_path = os.environ.get(
-            'proxy_ca_bundle_path',
-            self.config.get('proxy_ca_bundle_path', None)
+            'proxy_ca_bundle_path', self.config.get('proxy_ca_bundle_path', None)
         )
         self.no_proxy = os.environ.get('no_proxy', self.config.get('no_proxy', None))
 
         self.proxy_config = None
 
         if self.http_proxy or self.https_proxy:
-            self.logger.debug('Using proxy %s',
-                              self.http_proxy if self.http_proxy else self.https_proxy)
+            self.logger.debug(
+                'Using proxy %s', self.http_proxy if self.http_proxy else self.https_proxy
+            )
             self.proxy_config = {
                 'https_proxy': self.https_proxy,
                 'http_proxy': self.http_proxy,
                 'proxy_ca_bundle_path': self.proxy_ca_bundle_path,
-                'no_proxy': self.no_proxy
+                'no_proxy': self.no_proxy,
             }
 
         if self.https_proxy and not os.environ.get('https_proxy', None):
@@ -55,6 +55,7 @@ class PackSearch(Action):
             os.environ['no_proxy'] = self.no_proxy
 
     """"Search for packs in StackStorm Exchange and other directories."""
+
     def run(self, query):
         """
         :param query: A word or a phrase to search for

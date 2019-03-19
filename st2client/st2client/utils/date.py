@@ -20,10 +20,7 @@ from pytz import timezone as TZ
 
 from st2client.config import get_config
 
-__all__ = [
-    'parse',
-    'format_isodate'
-]
+__all__ = ['parse', 'format_isodate']
 
 
 def add_utc_tz(dt):

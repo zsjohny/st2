@@ -87,8 +87,9 @@ def _override_common_opts():
 
 
 def _override_api_opts():
-    CONF.set_override(name='allow_origin', override=['http://127.0.0.1:3000', 'http://dev'],
-                      group='api')
+    CONF.set_override(
+        name='allow_origin', override=['http://127.0.0.1:3000', 'http://dev'], group='api'
+    )
 
 
 def _override_keyvalue_opts():
@@ -122,13 +123,13 @@ def _register_api_opts():
     # Brittle!
     pecan_opts = [
         cfg.StrOpt(
-            'root', default='st2api.controllers.root.RootController',
-            help='Pecan root controller'),
+            'root', default='st2api.controllers.root.RootController', help='Pecan root controller'
+        ),
         cfg.StrOpt('template_path', default='%(confdir)s/st2api/st2api/templates'),
         cfg.ListOpt('modules', default=['st2api']),
         cfg.BoolOpt('debug', default=True),
         cfg.BoolOpt('auth_enable', default=True),
-        cfg.DictOpt('errors', default={404: '/error/404', '__force_dict__': True})
+        cfg.DictOpt('errors', default={404: '/error/404', '__force_dict__': True}),
     ]
 
     _register_opts(pecan_opts, group='api_pecan')
@@ -136,61 +137,86 @@ def _register_api_opts():
     api_opts = [
         cfg.BoolOpt('debug', default=True),
         cfg.IntOpt(
-            'max_page_size', default=100,
+            'max_page_size',
+            default=100,
             help='Maximum limit (page size) argument which can be specified by the user in a query '
-                 'string. If a larger value is provided, it will default to this value.')
+            'string. If a larger value is provided, it will default to this value.',
+        ),
     ]
 
     _register_opts(api_opts, group='api')
 
     messaging_opts = [
         cfg.StrOpt(
-            'url', default='amqp://guest:guest@127.0.0.1:5672//',
-            help='URL of the messaging server.'),
+            'url',
+            default='amqp://guest:guest@127.0.0.1:5672//',
+            help='URL of the messaging server.',
+        ),
         cfg.ListOpt(
-            'cluster_urls', default=[],
-            help='URL of all the nodes in a messaging service cluster.'),
+            'cluster_urls', default=[], help='URL of all the nodes in a messaging service cluster.'
+        ),
         cfg.IntOpt(
-            'connection_retries', default=10,
-            help='How many times should we retry connection before failing.'),
+            'connection_retries',
+            default=10,
+            help='How many times should we retry connection before failing.',
+        ),
         cfg.IntOpt(
-            'connection_retry_wait', default=10000,
-            help='How long should we wait between connection retries.'),
+            'connection_retry_wait',
+            default=10000,
+            help='How long should we wait between connection retries.',
+        ),
         cfg.BoolOpt(
-            'ssl', default=False,
+            'ssl',
+            default=False,
             help='Use SSL / TLS to connect to the messaging server. Same as '
-                 'appending "?ssl=true" at the end of the connection URL string.'),
+            'appending "?ssl=true" at the end of the connection URL string.',
+        ),
         cfg.StrOpt(
-            'ssl_keyfile', default=None,
-            help='Private keyfile used to identify the local connection against RabbitMQ.'),
+            'ssl_keyfile',
+            default=None,
+            help='Private keyfile used to identify the local connection against RabbitMQ.',
+        ),
         cfg.StrOpt(
-            'ssl_certfile', default=None,
-            help='Certificate file used to identify the local connection (client).'),
+            'ssl_certfile',
+            default=None,
+            help='Certificate file used to identify the local connection (client).',
+        ),
         cfg.StrOpt(
-            'ssl_cert_reqs', default=None, choices='none, optional, required',
+            'ssl_cert_reqs',
+            default=None,
+            choices='none, optional, required',
             help='Specifies whether a certificate is required from the other side of the '
-                 'connection, and whether it will be validated if provided.'),
+            'connection, and whether it will be validated if provided.',
+        ),
         cfg.StrOpt(
-            'ssl_ca_certs', default=None,
+            'ssl_ca_certs',
+            default=None,
             help='ca_certs file contains a set of concatenated CA certificates, which are '
-                 'used to validate certificates passed from RabbitMQ.'),
+            'used to validate certificates passed from RabbitMQ.',
+        ),
         cfg.StrOpt(
-            'login_method', default=None,
-            help='Login method to use (AMQPLAIN, PLAIN, EXTERNAL, etc.).')
+            'login_method',
+            default=None,
+            help='Login method to use (AMQPLAIN, PLAIN, EXTERNAL, etc.).',
+        ),
     ]
 
     _register_opts(messaging_opts, group='messaging')
 
     ssh_runner_opts = [
         cfg.StrOpt(
-            'remote_dir', default='/tmp',
-            help='Location of the script on the remote filesystem.'),
+            'remote_dir', default='/tmp', help='Location of the script on the remote filesystem.'
+        ),
         cfg.BoolOpt(
-            'allow_partial_failure', default=False,
-            help='How partial success of actions run on multiple nodes should be treated.'),
+            'allow_partial_failure',
+            default=False,
+            help='How partial success of actions run on multiple nodes should be treated.',
+        ),
         cfg.BoolOpt(
-            'use_ssh_config', default=False,
-            help='Use the .ssh/config file. Useful to override ports etc.')
+            'use_ssh_config',
+            default=False,
+            help='Use the .ssh/config file. Useful to override ports etc.',
+        ),
     ]
 
     _register_opts(ssh_runner_opts, group='ssh_runner')
@@ -199,11 +225,11 @@ def _register_api_opts():
 def _register_stream_opts():
     stream_opts = [
         cfg.IntOpt(
-            'heartbeat', default=25,
-            help='Send empty message every N seconds to keep connection open'),
-        cfg.BoolOpt(
-            'debug', default=False,
-            help='Specify to enable debug mode.'),
+            'heartbeat',
+            default=25,
+            help='Send empty message every N seconds to keep connection open',
+        ),
+        cfg.BoolOpt('debug', default=False, help='Specify to enable debug mode.'),
     ]
 
     _register_opts(stream_opts, group='stream')
@@ -219,7 +245,7 @@ def _register_auth_opts():
         cfg.StrOpt('backend_kwargs', default=None),
         cfg.StrOpt('logging', default='conf/logging.conf'),
         cfg.IntOpt('token_ttl', default=86400, help='Access token ttl in seconds.'),
-        cfg.BoolOpt('debug', default=True)
+        cfg.BoolOpt('debug', default=True),
     ]
 
     _register_opts(auth_opts, group='auth')
@@ -228,20 +254,24 @@ def _register_auth_opts():
 def _register_action_sensor_opts():
     action_sensor_opts = [
         cfg.BoolOpt(
-            'enable', default=True,
-            help='Whether to enable or disable the ability to post a trigger on action.'),
+            'enable',
+            default=True,
+            help='Whether to enable or disable the ability to post a trigger on action.',
+        ),
         cfg.StrOpt(
-            'triggers_base_url', default='http://127.0.0.1:9101/v1/triggertypes/',
-            help='URL for action sensor to post TriggerType.'),
+            'triggers_base_url',
+            default='http://127.0.0.1:9101/v1/triggertypes/',
+            help='URL for action sensor to post TriggerType.',
+        ),
         cfg.IntOpt(
-            'request_timeout', default=1,
-            help='Timeout value of all httprequests made by action sensor.'),
+            'request_timeout',
+            default=1,
+            help='Timeout value of all httprequests made by action sensor.',
+        ),
+        cfg.IntOpt('max_attempts', default=10, help='No. of times to retry registration.'),
         cfg.IntOpt(
-            'max_attempts', default=10,
-            help='No. of times to retry registration.'),
-        cfg.IntOpt(
-            'retry_wait', default=1,
-            help='Amount of time to wait prior to retrying a request.')
+            'retry_wait', default=1, help='Amount of time to wait prior to retrying a request.'
+        ),
     ]
 
     _register_opts(action_sensor_opts, group='action_sensor')
@@ -250,18 +280,24 @@ def _register_action_sensor_opts():
 def _register_ssh_runner_opts():
     ssh_runner_opts = [
         cfg.BoolOpt(
-            'use_ssh_config', default=False,
-            help='Use the .ssh/config file. Useful to override ports etc.'),
+            'use_ssh_config',
+            default=False,
+            help='Use the .ssh/config file. Useful to override ports etc.',
+        ),
         cfg.StrOpt(
-            'remote_dir', default='/tmp',
-            help='Location of the script on the remote filesystem.'),
+            'remote_dir', default='/tmp', help='Location of the script on the remote filesystem.'
+        ),
         cfg.BoolOpt(
-            'allow_partial_failure', default=False,
-            help='How partial success of actions run on multiple nodes should be treated.'),
+            'allow_partial_failure',
+            default=False,
+            help='How partial success of actions run on multiple nodes should be treated.',
+        ),
         cfg.IntOpt(
-            'max_parallel_actions', default=50,
+            'max_parallel_actions',
+            default=50,
             help='Max number of parallel remote SSH actions that should be run. '
-                 'Works only with Paramiko SSH runner.'),
+            'Works only with Paramiko SSH runner.',
+        ),
     ]
 
     _register_opts(ssh_runner_opts, group='ssh_runner')
@@ -270,20 +306,30 @@ def _register_ssh_runner_opts():
 def _register_scheduler_opts():
     scheduler_opts = [
         cfg.IntOpt(
-            'pool_size', default=10,
-            help='The size of the pool used by the scheduler for scheduling executions.'),
+            'pool_size',
+            default=10,
+            help='The size of the pool used by the scheduler for scheduling executions.',
+        ),
         cfg.FloatOpt(
-            'sleep_interval', default=0.01,
-            help='How long to sleep between each action scheduler main loop run interval (in ms).'),
+            'sleep_interval',
+            default=0.01,
+            help='How long to sleep between each action scheduler main loop run interval (in ms).',
+        ),
         cfg.FloatOpt(
-            'gc_interval', default=5,
-            help='How often to look for zombie executions before rescheduling them (in ms).'),
+            'gc_interval',
+            default=5,
+            help='How often to look for zombie executions before rescheduling them (in ms).',
+        ),
         cfg.IntOpt(
-            'retry_max_attempt', default=3,
-            help='The maximum number of attempts that the scheduler retries on error.'),
+            'retry_max_attempt',
+            default=3,
+            help='The maximum number of attempts that the scheduler retries on error.',
+        ),
         cfg.IntOpt(
-            'retry_wait_msec', default=100,
-            help='The number of milliseconds to wait in between retries.')
+            'retry_wait_msec',
+            default=100,
+            help='The number of milliseconds to wait in between retries.',
+        ),
     ]
 
     _register_opts(scheduler_opts, group='scheduler')
@@ -292,8 +338,8 @@ def _register_scheduler_opts():
 def _register_exporter_opts():
     exporter_opts = [
         cfg.StrOpt(
-            'dump_dir', default='/opt/stackstorm/exports/',
-            help='Directory to dump data to.')
+            'dump_dir', default='/opt/stackstorm/exports/', help='Directory to dump data to.'
+        )
     ]
 
     _register_opts(exporter_opts, group='exporter')
@@ -301,14 +347,13 @@ def _register_exporter_opts():
 
 def _register_sensor_container_opts():
     partition_opts = [
-        cfg.StrOpt(
-            'sensor_node_name', default='sensornode1',
-            help='name of the sensor node.'),
+        cfg.StrOpt('sensor_node_name', default='sensornode1', help='name of the sensor node.'),
         cfg.Opt(
             'partition_provider',
             type=types.Dict(value_type=types.String()),
             default={'name': DEFAULT_PARTITION_LOADER},
-            help='Provider of sensor node partition config.')
+            help='Provider of sensor node partition config.',
+        ),
     ]
 
     _register_opts(partition_opts, group='sensorcontainer')
@@ -316,10 +361,12 @@ def _register_sensor_container_opts():
     # Other options
     other_opts = [
         cfg.BoolOpt(
-            'single_sensor_mode', default=False,
+            'single_sensor_mode',
+            default=False,
             help='Run in a single sensor mode where parent process exits when a sensor crashes / '
-                 'dies. This is useful in environments where partitioning, sensor process life '
-                 'cycle and failover is handled by a 3rd party service such as kubernetes.')
+            'dies. This is useful in environments where partitioning, sensor process life '
+            'cycle and failover is handled by a 3rd party service such as kubernetes.',
+        )
     ]
 
     _register_opts(other_opts, group='sensorcontainer')
@@ -329,12 +376,15 @@ def _register_sensor_container_opts():
         cfg.StrOpt(
             'sensor-ref',
             help='Only run sensor with the provided reference. Value is of the form '
-                 '<pack>.<sensor-name> (e.g. linux.FileWatchSensor).'),
+            '<pack>.<sensor-name> (e.g. linux.FileWatchSensor).',
+        ),
         cfg.BoolOpt(
-            'single-sensor-mode', default=False,
+            'single-sensor-mode',
+            default=False,
             help='Run in a single sensor mode where parent process exits when a sensor crashes / '
-                 'dies. This is useful in environments where partitioning, sensor process life '
-                 'cycle and failover is handled by a 3rd party service such as kubernetes.')
+            'dies. This is useful in environments where partitioning, sensor process life '
+            'cycle and failover is handled by a 3rd party service such as kubernetes.',
+        ),
     ]
 
     _register_cli_opts(cli_opts)

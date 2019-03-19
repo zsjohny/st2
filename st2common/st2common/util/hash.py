@@ -19,9 +19,7 @@ import six
 
 import hashlib
 
-__all__ = [
-    'hash'
-]
+__all__ = ['hash']
 
 
 FIXED_SALT = 'saltnpepper'

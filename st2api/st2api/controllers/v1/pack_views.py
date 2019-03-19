@@ -33,10 +33,7 @@ from st2common.router import Response
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'FilesController',
-    'FileController'
-]
+__all__ = ['FilesController', 'FileController']
 
 http_client = six.moves.http_client
 
@@ -46,12 +43,10 @@ BOM_LEN = len(codecs.BOM_UTF8)
 
 # Maximum file size in bytes. If the file on disk is larger then this value, we don't include it
 # in the response. This prevents DDoS / exhaustion attacks.
-MAX_FILE_SIZE = (500 * 1000)
+MAX_FILE_SIZE = 500 * 1000
 
 # File paths in the file controller for which RBAC checks are not performed
-WHITELISTED_FILE_PATHS = [
-    'icon.png'
-]
+WHITELISTED_FILE_PATHS = ['icon.png']
 
 
 class BaseFileController(BasePacksController):
@@ -112,9 +107,9 @@ class FilesController(BaseFileController):
         """
         pack_db = self._get_by_ref_or_id(ref_or_id=ref_or_id)
 
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=pack_db,
-                                                          permission_type=PermissionType.PACK_VIEW)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=pack_db, permission_type=PermissionType.PACK_VIEW
+        )
 
         if not pack_db:
             msg = 'Pack with ref_or_id "%s" does not exist' % (ref_or_id)
@@ -132,8 +127,10 @@ class FilesController(BaseFileController):
 
             file_size = self._get_file_size(file_path=normalized_file_path)
             if file_size is not None and file_size > MAX_FILE_SIZE:
-                LOG.debug('Skipping file "%s" which size exceeds max file size (%s bytes)' %
-                          (normalized_file_path, MAX_FILE_SIZE))
+                LOG.debug(
+                    'Skipping file "%s" which size exceeds max file size (%s bytes)'
+                    % (normalized_file_path, MAX_FILE_SIZE)
+                )
                 continue
 
             content = self._get_file_content(file_path=normalized_file_path)
@@ -143,10 +140,7 @@ class FilesController(BaseFileController):
                 LOG.debug('Skipping binary file "%s"' % (normalized_file_path))
                 continue
 
-            item = {
-                'file_path': file_path,
-                'content': content
-            }
+            item = {'file_path': file_path, 'content': content}
             result.append(item)
         return result
 
@@ -172,8 +166,9 @@ class FileController(BaseFileController):
     Controller which allows user to retrieve content of a specific file in a pack.
     """
 
-    def get_one(self, ref_or_id, file_path, requester_user, if_none_match=None,
-                if_modified_since=None):
+    def get_one(
+        self, ref_or_id, file_path, requester_user, if_none_match=None, if_modified_since=None
+    ):
         """
             Outputs the content of a specific file in a pack.
 
@@ -194,9 +189,9 @@ class FileController(BaseFileController):
         # Note: Until list filtering is in place we don't require RBAC check for icon file
         permission_type = PermissionType.PACK_VIEW
         if file_path not in WHITELISTED_FILE_PATHS:
-            rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                              resource_db=pack_db,
-                                                              permission_type=permission_type)
+            rbac_utils.assert_user_has_resource_db_permission(
+                user_db=requester_user, resource_db=pack_db, permission_type=permission_type
+            )
 
         normalized_file_path = get_pack_file_abs_path(pack_ref=pack_ref, file_path=file_path)
         if not normalized_file_path or not os.path.isfile(normalized_file_path):
@@ -207,18 +202,21 @@ class FileController(BaseFileController):
 
         response = Response()
 
-        if not self._is_file_changed(file_mtime,
-                                     if_none_match=if_none_match,
-                                     if_modified_since=if_modified_since):
+        if not self._is_file_changed(
+            file_mtime, if_none_match=if_none_match, if_modified_since=if_modified_since
+        ):
             response.status = http_client.NOT_MODIFIED
         else:
             if file_size is not None and file_size > MAX_FILE_SIZE:
-                msg = ('File %s exceeds maximum allowed file size (%s bytes)' %
-                       (file_path, MAX_FILE_SIZE))
+                msg = 'File %s exceeds maximum allowed file size (%s bytes)' % (
+                    file_path,
+                    MAX_FILE_SIZE,
+                )
                 raise ValueError(msg)
 
-            content_type = mimetypes.guess_type(normalized_file_path)[0] or \
-                'application/octet-stream'
+            content_type = (
+                mimetypes.guess_type(normalized_file_path)[0] or 'application/octet-stream'
+            )
 
             response.headers['Content-Type'] = content_type
             response.body = self._get_file_content(file_path=normalized_file_path)

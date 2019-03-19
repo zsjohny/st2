@@ -26,9 +26,7 @@ from st2common.rbac.types import PermissionType
 
 from st2api.controllers.resource import ResourceController
 
-__all__ = [
-    'RuleEnforcementViewController'
-]
+__all__ = ['RuleEnforcementViewController']
 
 
 class RuleEnforcementViewController(ResourceController):
@@ -50,8 +48,16 @@ class RuleEnforcementViewController(ResourceController):
     supported_filters = SUPPORTED_FILTERS
     filter_transform_functions = FILTER_TRANSFORM_FUNCTIONS
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
         rule_enforcement_apis = super(RuleEnforcementViewController, self)._get_all(
             exclude_fields=exclude_attributes,
             include_fields=include_attributes,
@@ -59,15 +65,16 @@ class RuleEnforcementViewController(ResourceController):
             offset=offset,
             limit=limit,
             raw_filters=raw_filters,
-            requester_user=requester_user)
+            requester_user=requester_user,
+        )
 
         rule_enforcement_apis.json = self._append_view_properties(rule_enforcement_apis.json)
         return rule_enforcement_apis
 
     def get_one(self, id, requester_user):
-        rule_enforcement_api = super(RuleEnforcementViewController,
-                     self)._get_one_by_id(id, requester_user=requester_user,
-                                          permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
+        rule_enforcement_api = super(RuleEnforcementViewController, self)._get_one_by_id(
+            id, requester_user=requester_user, permission_type=PermissionType.RULE_ENFORCEMENT_VIEW
+        )
         rule_enforcement_api = self._append_view_properties([rule_enforcement_api.__json__()])[0]
         return rule_enforcement_api
 
@@ -91,18 +98,14 @@ class RuleEnforcementViewController(ResourceController):
         # retrieve fields we need
         only_fields = [
             'id',
-
             'action.ref',
             'action.parameters',
-
             'runner.name',
             'runner.runner_parameters',
-
             'parameters',
-            'status'
+            'status',
         ]
-        execution_dbs = ActionExecution.query(id__in=execution_ids,
-                                              only_fields=only_fields)
+        execution_dbs = ActionExecution.query(id__in=execution_ids, only_fields=only_fields)
 
         execution_dbs_by_id = {}
         for execution_db in execution_dbs:

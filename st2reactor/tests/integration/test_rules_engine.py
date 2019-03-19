@@ -27,9 +27,7 @@ from st2common.constants.timer import TIMER_DISABLED_LOG_LINE
 from st2tests.base import IntegrationTestCase
 from st2tests.base import CleanDbTestCase
 
-__all__ = [
-    'TimersEngineServiceEnableDisableTestCase'
-]
+__all__ = ['TimersEngineServiceEnableDisableTestCase']
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -79,12 +77,15 @@ class TimersEngineServiceEnableDisableTestCase(IntegrationTestCase, CleanDbTestC
                 self.remove_process(process=process)
 
         if not seen_line:
-            raise AssertionError('Didn\'t see "%s" log line in timer output' %
-                                 (TIMER_ENABLED_LOG_LINE))
+            raise AssertionError(
+                'Didn\'t see "%s" log line in timer output' % (TIMER_ENABLED_LOG_LINE)
+            )
 
     def test_timer_enable_explicit(self):
-        self._append_to_cfg_file(cfg_path=self.cfg_path,
-                                 content='\n[timersengine]\nenable = True\n[timer]\nenable = True')
+        self._append_to_cfg_file(
+            cfg_path=self.cfg_path,
+            content='\n[timersengine]\nenable = True\n[timer]\nenable = True',
+        )
         process = None
         seen_line = False
 
@@ -105,12 +106,15 @@ class TimersEngineServiceEnableDisableTestCase(IntegrationTestCase, CleanDbTestC
                 self.remove_process(process=process)
 
         if not seen_line:
-            raise AssertionError('Didn\'t see "%s" log line in timer output' %
-                                 (TIMER_ENABLED_LOG_LINE))
+            raise AssertionError(
+                'Didn\'t see "%s" log line in timer output' % (TIMER_ENABLED_LOG_LINE)
+            )
 
     def test_timer_disable_explicit(self):
-        self._append_to_cfg_file(cfg_path=self.cfg_path,
-            content='\n[timersengine]\nenable = False\n[timer]\nenable = False')
+        self._append_to_cfg_file(
+            cfg_path=self.cfg_path,
+            content='\n[timersengine]\nenable = False\n[timer]\nenable = False',
+        )
         process = None
         seen_line = False
 
@@ -131,12 +135,14 @@ class TimersEngineServiceEnableDisableTestCase(IntegrationTestCase, CleanDbTestC
                 self.remove_process(process=process)
 
         if not seen_line:
-            raise AssertionError('Didn\'t see "%s" log line in timer output' %
-                                 (TIMER_DISABLED_LOG_LINE))
+            raise AssertionError(
+                'Didn\'t see "%s" log line in timer output' % (TIMER_DISABLED_LOG_LINE)
+            )
 
     def _start_times_engine(self, cmd):
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   shell=False, preexec_fn=os.setsid)
+        process = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, preexec_fn=os.setsid
+        )
         self.add_process(process=process)
         return process
 

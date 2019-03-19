@@ -33,13 +33,15 @@ __all__ = [
     'get_pack_resource_file_abs_path',
     'get_relative_path_to_pack_file',
     'check_pack_directory_exists',
-    'check_pack_content_directory_exists'
+    'check_pack_content_directory_exists',
 ]
 
 INVALID_FILE_PATH_ERROR = """
 Invalid file path: "%s". File path needs to be relative to the pack%sdirectory (%s).
 For example "my_%s.py".
-""".strip().replace('\n', ' ')
+""".strip().replace(
+    '\n', ' '
+)
 
 # Cache which stores pack name -> pack base path mappings
 PACK_NAME_TO_BASE_PATH_CACHE = {}
@@ -227,14 +229,15 @@ def get_entry_point_abs_path(pack=None, entry_point=None, use_pack_cache=False):
         common_prefix = os.path.commonprefix([pack_base_path, entry_point])
 
         if common_prefix != pack_base_path:
-            raise ValueError('Entry point file "%s" is located outside of the pack directory' %
-                             (entry_point))
+            raise ValueError(
+                'Entry point file "%s" is located outside of the pack directory' % (entry_point)
+            )
 
         return entry_point
 
-    entry_point_abs_path = get_pack_resource_file_abs_path(pack_ref=pack,
-                                                           resource_type='action',
-                                                           file_path=entry_point)
+    entry_point_abs_path = get_pack_resource_file_abs_path(
+        pack_ref=pack, resource_type='action', file_path=entry_point
+    )
     return entry_point_abs_path
 
 
@@ -274,8 +277,12 @@ def get_pack_file_abs_path(pack_ref, file_path, resource_type=None, use_pack_cac
     normalized_file_path = os.path.normpath('/' + file_path).lstrip('/')
 
     if normalized_file_path != file_path:
-        msg = INVALID_FILE_PATH_ERROR % (file_path, resource_type_plural, resource_base_path,
-                                         resource_type or 'action')
+        msg = INVALID_FILE_PATH_ERROR % (
+            file_path,
+            resource_type_plural,
+            resource_base_path,
+            resource_type or 'action',
+        )
         raise ValueError(msg)
 
     path_components.append(normalized_file_path)
@@ -286,8 +293,12 @@ def get_pack_file_abs_path(pack_ref, file_path, resource_type=None, use_pack_cac
     # Final safety check for common prefix to avoid traversal attack
     common_prefix = os.path.commonprefix([pack_base_path, result])
     if common_prefix != pack_base_path:
-        msg = INVALID_FILE_PATH_ERROR % (file_path, resource_type_plural, resource_base_path,
-                                         resource_type or 'action')
+        msg = INVALID_FILE_PATH_ERROR % (
+            file_path,
+            resource_type_plural,
+            resource_base_path,
+            resource_type or 'action',
+        )
         raise ValueError(msg)
 
     return result
@@ -324,8 +335,9 @@ def get_pack_resource_file_abs_path(pack_ref, resource_type, file_path):
 
     path_components.append(file_path)
     file_path = os.path.join(*path_components)
-    result = get_pack_file_abs_path(pack_ref=pack_ref, file_path=file_path,
-                                    resource_type=resource_type)
+    result = get_pack_file_abs_path(
+        pack_ref=pack_ref, file_path=file_path, resource_type=resource_type
+    )
     return result
 
 
@@ -350,8 +362,10 @@ def get_relative_path_to_pack_file(pack_ref, file_path, use_pack_cache=False):
 
     common_prefix = os.path.commonprefix([pack_base_path, file_path])
     if common_prefix != pack_base_path:
-        raise ValueError('file_path (%s) is not located inside the pack directory (%s)' %
-                         (file_path, pack_base_path))
+        raise ValueError(
+            'file_path (%s) is not located inside the pack directory (%s)'
+            % (file_path, pack_base_path)
+        )
 
     relative_path = os.path.relpath(file_path, common_prefix)
     return relative_path

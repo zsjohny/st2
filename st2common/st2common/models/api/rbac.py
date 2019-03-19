@@ -26,11 +26,9 @@ from st2common.util.uid import parse_uid
 __all__ = [
     'RoleAPI',
     'UserRoleAssignmentAPI',
-
     'RoleDefinitionFileFormatAPI',
     'UserRoleAssignmentFileFormatAPI',
-
-    'AuthGroupToRoleMapAssignmentFileFormatAPI'
+    'AuthGroupToRoleMapAssignmentFileFormatAPI',
 ]
 
 
@@ -39,31 +37,13 @@ class RoleAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
-            'name': {
-                'type': 'string',
-                'required': True
-            },
-            'description': {
-                'type': 'string'
-            },
-            'permission_grant_ids': {
-                'type': 'array',
-                'items': {
-                    'type': 'string'
-                }
-            },
-            'permission_grant_objects': {
-                'type': 'array',
-                'items': {
-                    'type': 'object'
-                }
-            }
+            'id': {'type': 'string', 'default': None},
+            'name': {'type': 'string', 'required': True},
+            'description': {'type': 'string'},
+            'permission_grant_ids': {'type': 'array', 'items': {'type': 'string'}},
+            'permission_grant_objects': {'type': 'array', 'items': {'type': 'object'}},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -71,12 +51,14 @@ class RoleAPI(BaseAPI):
         role = cls._from_model(model, mask_secrets=mask_secrets)
 
         # Convert ObjectIDs to strings
-        role['permission_grant_ids'] = [str(permission_grant) for permission_grant in
-                                        model.permission_grants]
+        role['permission_grant_ids'] = [
+            str(permission_grant) for permission_grant in model.permission_grants
+        ]
 
         # Retrieve and include corresponding permission grant objects
         if retrieve_permission_grant_objects:
             from st2common.persistence.rbac import PermissionGrant
+
             permission_grant_dbs = PermissionGrant.query(id__in=role['permission_grants'])
 
             permission_grant_apis = []
@@ -94,29 +76,14 @@ class UserRoleAssignmentAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
-            'user': {
-                'type': 'string',
-                'required': True
-            },
-            'role': {
-                'type': 'string',
-                'required': True
-            },
-            'description': {
-                'type': 'string'
-            },
-            'is_remote': {
-                'type': 'boolean'
-            },
-            'source': {
-                'type': 'string'
-            }
+            'id': {'type': 'string', 'default': None},
+            'user': {'type': 'string', 'required': True},
+            'role': {'type': 'string', 'required': True},
+            'description': {'type': 'string'},
+            'is_remote': {'type': 'boolean'},
+            'source': {'type': 'string'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
 
@@ -125,23 +92,12 @@ class PermissionGrantAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
-            'resource_uid': {
-                'type': 'string',
-                'required': True
-            },
-            'resource_type': {
-                'type': 'string',
-                'required': True
-            },
-            'permission_types': {
-                'type': 'array'
-            }
+            'id': {'type': 'string', 'default': None},
+            'resource_uid': {'type': 'string', 'required': True},
+            'resource_type': {'type': 'string', 'required': True},
+            'permission_types': {'type': 'array'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
 
@@ -157,18 +113,16 @@ class RoleDefinitionFileFormatAPI(BaseAPI):
                 'type': 'string',
                 'description': 'Role name',
                 'required': True,
-                'default': None
+                'default': None,
             },
-            'description': {
-                'type': 'string',
-                'description': 'Role description',
-                'required': False
-            },
+            'description': {'type': 'string', 'description': 'Role description', 'required': False},
             'enabled': {
                 'type': 'boolean',
-                'description': ('Flag indicating if this role is enabled. Note: Disabled roles '
-                                'are simply ignored when loading definitions from disk.'),
-                'default': True
+                'description': (
+                    'Flag indicating if this role is enabled. Note: Disabled roles '
+                    'are simply ignored when loading definitions from disk.'
+                ),
+                'default': True,
             },
             'permission_grants': {
                 'type': 'array',
@@ -179,7 +133,7 @@ class RoleDefinitionFileFormatAPI(BaseAPI):
                             'type': 'string',
                             'description': 'UID of a resource to which this grant applies to.',
                             'required': False,
-                            'default': None
+                            'default': None,
                         },
                         'permission_types': {
                             'type': 'array',
@@ -189,15 +143,15 @@ class RoleDefinitionFileFormatAPI(BaseAPI):
                                 'type': 'string',
                                 # Note: We permission aditional validation for based on the
                                 # resource type in other place
-                                'enum': PermissionType.get_valid_values()
+                                'enum': PermissionType.get_valid_values(),
                             },
-                            'default': []
-                        }
-                    }
-                }
-            }
+                            'default': [],
+                        },
+                    },
+                },
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     def validate(self):
@@ -216,12 +170,15 @@ class RoleDefinitionFileFormatAPI(BaseAPI):
                 # Permission types which apply to a resource
                 resource_type, _ = parse_uid(uid=resource_uid)
                 valid_permission_types = PermissionType.get_valid_permissions_for_resource_type(
-                    resource_type=resource_type)
+                    resource_type=resource_type
+                )
 
                 for permission_type in permission_types:
                     if permission_type not in valid_permission_types:
-                        message = ('Invalid permission type "%s" for resource type "%s"' %
-                                   (permission_type, resource_type))
+                        message = 'Invalid permission type "%s" for resource type "%s"' % (
+                            permission_type,
+                            resource_type,
+                        )
                         raise ValueError(message)
             else:
                 # Right now we only support single permission type (list) which is global and
@@ -229,9 +186,11 @@ class RoleDefinitionFileFormatAPI(BaseAPI):
                 for permission_type in permission_types:
                     if permission_type not in GLOBAL_PERMISSION_TYPES:
                         valid_global_permission_types = ', '.join(GLOBAL_PERMISSION_TYPES)
-                        message = ('Invalid permission type "%s". Valid global permission types '
-                                   'which can be used without a resource id are: %s' %
-                                   (permission_type, valid_global_permission_types))
+                        message = (
+                            'Invalid permission type "%s". Valid global permission types '
+                            'which can be used without a resource id are: %s'
+                            % (permission_type, valid_global_permission_types)
+                        )
                         raise ValueError(message)
 
         return cleaned
@@ -263,39 +222,38 @@ class UserRoleAssignmentFileFormatAPI(BaseAPI):
                 'type': 'string',
                 'description': 'Username',
                 'required': True,
-                'default': None
+                'default': None,
             },
             'description': {
                 'type': 'string',
                 'description': 'Assignment description',
                 'required': False,
-                'default': None
+                'default': None,
             },
             'enabled': {
                 'type': 'boolean',
-                'description': ('Flag indicating if this assignment is enabled. Note: Disabled '
-                                'assignments are simply ignored when loading definitions from '
-                                ' disk.'),
-                'default': True
+                'description': (
+                    'Flag indicating if this assignment is enabled. Note: Disabled '
+                    'assignments are simply ignored when loading definitions from '
+                    ' disk.'
+                ),
+                'default': True,
             },
             'roles': {
                 'type': 'array',
                 'description': 'Roles assigned to this user',
                 'uniqueItems': True,
-                'items': {
-                    'type': 'string'
-                },
-                'required': True
+                'items': {'type': 'string'},
+                'required': True,
             },
             'file_path': {
                 'type': 'string',
                 'description': 'Path of the file of where this assignment comes from.',
                 'default': None,
-                'required': False
-            }
-
+                'required': False,
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     def validate(self, validate_role_exists=False):
@@ -310,39 +268,41 @@ class AuthGroupToRoleMapAssignmentFileFormatAPI(BaseAPI):
             'group': {
                 'type': 'string',
                 'description': 'Name of the group as returned by auth backend.',
-                'required': True
+                'required': True,
             },
             'description': {
                 'type': 'string',
                 'description': 'Mapping description',
                 'required': False,
-                'default': None
+                'default': None,
             },
             'enabled': {
                 'type': 'boolean',
-                'description': ('Flag indicating if this mapping is enabled. Note: Disabled '
-                                'assignments are simply ignored when loading definitions from '
-                                ' disk.'),
-                'default': True
+                'description': (
+                    'Flag indicating if this mapping is enabled. Note: Disabled '
+                    'assignments are simply ignored when loading definitions from '
+                    ' disk.'
+                ),
+                'default': True,
             },
             'roles': {
                 'type': 'array',
-                'description': ('StackStorm roles which are assigned to each user which belongs '
-                                'to that group.'),
+                'description': (
+                    'StackStorm roles which are assigned to each user which belongs '
+                    'to that group.'
+                ),
                 'uniqueItems': True,
-                'items': {
-                    'type': 'string'
-                },
-                'required': True
+                'items': {'type': 'string'},
+                'required': True,
             },
             'file_path': {
                 'type': 'string',
                 'description': 'Path of the file of where this assignment comes from.',
                 'default': None,
-                'required': False
-            }
+                'required': False,
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     def validate(self, validate_role_exists=False):

@@ -26,8 +26,11 @@ class CheckProcs(object):
         if debug is True:
             print("Debug is on")
 
-        self.allProcs = [procs for procs in os.listdir(self.procDir) if procs.isdigit() and
-                         int(procs) != int(self.myPid)]
+        self.allProcs = [
+            procs
+            for procs in os.listdir(self.procDir)
+            if procs.isdigit() and int(procs) != int(self.myPid)
+        ]
 
     def process(self, criteria):
         for p in self.allProcs:

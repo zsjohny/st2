@@ -39,9 +39,7 @@ from st2tests.base import CleanDbTestCase
 from st2tests.fixturesloader import FixturesLoader
 from six.moves import range
 
-__all__ = [
-    'GarbageCollectorServiceTestCase'
-]
+__all__ = ['GarbageCollectorServiceTestCase']
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -60,10 +58,7 @@ BINARY = os.path.abspath(BINARY)
 CMD = [PYTHON_BINARY, BINARY, '--config-file', ST2_CONFIG_PATH]
 CMD_INQUIRY = [PYTHON_BINARY, BINARY, '--config-file', INQUIRY_CONFIG_PATH]
 
-TEST_FIXTURES = {
-    'runners': ['inquirer.yaml'],
-    'actions': ['ask.yaml']
-}
+TEST_FIXTURES = {'runners': ['inquirer.yaml'], 'actions': ['ask.yaml']}
 
 FIXTURES_PACK = 'generic'
 
@@ -77,7 +72,8 @@ class GarbageCollectorServiceTestCase(IntegrationTestCase, CleanDbTestCase):
         super(GarbageCollectorServiceTestCase, self).setUp()
 
         self.models = FixturesLoader().save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES)
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
     def test_garbage_collection(self):
         now = date_utils.get_datetime_utc_now()
@@ -87,102 +83,123 @@ class GarbageCollectorServiceTestCase(IntegrationTestCase, CleanDbTestCase):
         # config
         old_executions_count = 15
         ttl_days = 30  # > 20
-        timestamp = (now - datetime.timedelta(days=ttl_days))
+        timestamp = now - datetime.timedelta(days=ttl_days)
         for index in range(0, old_executions_count):
-            action_execution_db = ActionExecutionDB(start_timestamp=timestamp,
-                                                    end_timestamp=timestamp,
-                                                    status=status,
-                                                    action={'ref': 'core.local'},
-                                                    runner={'name': 'local-shell-cmd'},
-                                                    liveaction={'ref': 'foo'})
+            action_execution_db = ActionExecutionDB(
+                start_timestamp=timestamp,
+                end_timestamp=timestamp,
+                status=status,
+                action={'ref': 'core.local'},
+                runner={'name': 'local-shell-cmd'},
+                liveaction={'ref': 'foo'},
+            )
             ActionExecution.add_or_update(action_execution_db)
 
-            stdout_db = ActionExecutionOutputDB(execution_id=str(action_execution_db.id),
-                                                action_ref='core.local',
-                                                runner_ref='dummy',
-                                                timestamp=timestamp,
-                                                output_type='stdout',
-                                                data='stdout')
+            stdout_db = ActionExecutionOutputDB(
+                execution_id=str(action_execution_db.id),
+                action_ref='core.local',
+                runner_ref='dummy',
+                timestamp=timestamp,
+                output_type='stdout',
+                data='stdout',
+            )
             ActionExecutionOutput.add_or_update(stdout_db)
 
-            stderr_db = ActionExecutionOutputDB(execution_id=str(action_execution_db.id),
-                                                action_ref='core.local',
-                                                runner_ref='dummy',
-                                                timestamp=timestamp,
-                                                output_type='stderr',
-                                                data='stderr')
+            stderr_db = ActionExecutionOutputDB(
+                execution_id=str(action_execution_db.id),
+                action_ref='core.local',
+                runner_ref='dummy',
+                timestamp=timestamp,
+                output_type='stderr',
+                data='stderr',
+            )
             ActionExecutionOutput.add_or_update(stderr_db)
 
         # Insert come mock ActionExecutionDB objects with start_timestamp > TTL defined in the
         # config
         new_executions_count = 5
         ttl_days = 2  # < 20
-        timestamp = (now - datetime.timedelta(days=ttl_days))
+        timestamp = now - datetime.timedelta(days=ttl_days)
         for index in range(0, new_executions_count):
-            action_execution_db = ActionExecutionDB(start_timestamp=timestamp,
-                                                    end_timestamp=timestamp,
-                                                    status=status,
-                                                    action={'ref': 'core.local'},
-                                                    runner={'name': 'local-shell-cmd'},
-                                                    liveaction={'ref': 'foo'})
+            action_execution_db = ActionExecutionDB(
+                start_timestamp=timestamp,
+                end_timestamp=timestamp,
+                status=status,
+                action={'ref': 'core.local'},
+                runner={'name': 'local-shell-cmd'},
+                liveaction={'ref': 'foo'},
+            )
             ActionExecution.add_or_update(action_execution_db)
 
-            stdout_db = ActionExecutionOutputDB(execution_id=str(action_execution_db.id),
-                                                action_ref='core.local',
-                                                runner_ref='dummy',
-                                                timestamp=timestamp,
-                                                output_type='stdout',
-                                                data='stdout')
+            stdout_db = ActionExecutionOutputDB(
+                execution_id=str(action_execution_db.id),
+                action_ref='core.local',
+                runner_ref='dummy',
+                timestamp=timestamp,
+                output_type='stdout',
+                data='stdout',
+            )
             ActionExecutionOutput.add_or_update(stdout_db)
 
-            stderr_db = ActionExecutionOutputDB(execution_id=str(action_execution_db.id),
-                                                action_ref='core.local',
-                                                runner_ref='dummy',
-                                                timestamp=timestamp,
-                                                output_type='stderr',
-                                                data='stderr')
+            stderr_db = ActionExecutionOutputDB(
+                execution_id=str(action_execution_db.id),
+                action_ref='core.local',
+                runner_ref='dummy',
+                timestamp=timestamp,
+                output_type='stderr',
+                data='stderr',
+            )
             ActionExecutionOutput.add_or_update(stderr_db)
 
         # Insert some mock output objects where start_timestamp > action_executions_output_ttl
         new_output_count = 5
         ttl_days = 15  # > 10 and < 20
-        timestamp = (now - datetime.timedelta(days=ttl_days))
+        timestamp = now - datetime.timedelta(days=ttl_days)
         for index in range(0, new_output_count):
-            action_execution_db = ActionExecutionDB(start_timestamp=timestamp,
-                                                    end_timestamp=timestamp,
-                                                    status=status,
-                                                    action={'ref': 'core.local'},
-                                                    runner={'name': 'local-shell-cmd'},
-                                                    liveaction={'ref': 'foo'})
+            action_execution_db = ActionExecutionDB(
+                start_timestamp=timestamp,
+                end_timestamp=timestamp,
+                status=status,
+                action={'ref': 'core.local'},
+                runner={'name': 'local-shell-cmd'},
+                liveaction={'ref': 'foo'},
+            )
             ActionExecution.add_or_update(action_execution_db)
 
-            stdout_db = ActionExecutionOutputDB(execution_id=str(action_execution_db.id),
-                                                action_ref='core.local',
-                                                runner_ref='dummy',
-                                                timestamp=timestamp,
-                                                output_type='stdout',
-                                                data='stdout')
+            stdout_db = ActionExecutionOutputDB(
+                execution_id=str(action_execution_db.id),
+                action_ref='core.local',
+                runner_ref='dummy',
+                timestamp=timestamp,
+                output_type='stdout',
+                data='stdout',
+            )
             ActionExecutionOutput.add_or_update(stdout_db)
 
-            stderr_db = ActionExecutionOutputDB(execution_id=str(action_execution_db.id),
-                                                action_ref='core.local',
-                                                runner_ref='dummy',
-                                                timestamp=timestamp,
-                                                output_type='stderr',
-                                                data='stderr')
+            stderr_db = ActionExecutionOutputDB(
+                execution_id=str(action_execution_db.id),
+                action_ref='core.local',
+                runner_ref='dummy',
+                timestamp=timestamp,
+                output_type='stderr',
+                data='stderr',
+            )
             ActionExecutionOutput.add_or_update(stderr_db)
 
         execs = ActionExecution.get_all()
-        self.assertEqual(len(execs),
-                         (old_executions_count + new_executions_count + new_output_count))
+        self.assertEqual(
+            len(execs), (old_executions_count + new_executions_count + new_output_count)
+        )
 
         stdout_dbs = ActionExecutionOutput.query(output_type='stdout')
-        self.assertEqual(len(stdout_dbs),
-                         (old_executions_count + new_executions_count + new_output_count))
+        self.assertEqual(
+            len(stdout_dbs), (old_executions_count + new_executions_count + new_output_count)
+        )
 
         stderr_dbs = ActionExecutionOutput.query(output_type='stderr')
-        self.assertEqual(len(stderr_dbs),
-                         (old_executions_count + new_executions_count + new_output_count))
+        self.assertEqual(
+            len(stderr_dbs), (old_executions_count + new_executions_count + new_output_count)
+        )
 
         # Start garbage collector
         process = self._start_garbage_collector()
@@ -209,28 +226,27 @@ class GarbageCollectorServiceTestCase(IntegrationTestCase, CleanDbTestCase):
 
         # Insert some mock Inquiries with start_timestamp > TTL
         old_inquiry_count = 15
-        timestamp = (now - datetime.timedelta(minutes=3))
+        timestamp = now - datetime.timedelta(minutes=3)
         for index in range(0, old_inquiry_count):
             self._create_inquiry(ttl=2, timestamp=timestamp)
 
         # Insert some mock Inquiries with TTL set to a "disabled" value
         disabled_inquiry_count = 3
-        timestamp = (now - datetime.timedelta(minutes=3))
+        timestamp = now - datetime.timedelta(minutes=3)
         for index in range(0, disabled_inquiry_count):
             self._create_inquiry(ttl=0, timestamp=timestamp)
 
         # Insert some mock Inquiries with start_timestamp < TTL
         new_inquiry_count = 5
-        timestamp = (now - datetime.timedelta(minutes=3))
+        timestamp = now - datetime.timedelta(minutes=3)
         for index in range(0, new_inquiry_count):
             self._create_inquiry(ttl=15, timestamp=timestamp)
 
-        filters = {
-            'status': action_constants.LIVEACTION_STATUS_PENDING
-        }
+        filters = {'status': action_constants.LIVEACTION_STATUS_PENDING}
         inquiries = list(ActionExecution.query(**filters))
-        self.assertEqual(len(inquiries),
-                         (old_inquiry_count + new_inquiry_count + disabled_inquiry_count))
+        self.assertEqual(
+            len(inquiries), (old_inquiry_count + new_inquiry_count + disabled_inquiry_count)
+        )
 
         # Start garbage collector
         process = self._start_garbage_collector()
@@ -255,7 +271,12 @@ class GarbageCollectorServiceTestCase(IntegrationTestCase, CleanDbTestCase):
         executions.create_execution_object(liveaction_db)
 
     def _start_garbage_collector(self):
-        process = subprocess.Popen(CMD_INQUIRY, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   shell=False, preexec_fn=os.setsid)
+        process = subprocess.Popen(
+            CMD_INQUIRY,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+            preexec_fn=os.setsid,
+        )
         self.add_process(process=process)
         return process

@@ -31,7 +31,6 @@ LOG = logging.getLogger(__name__)
 
 
 class TestInteractive(unittest2.TestCase):
-
     def assertPromptMessage(self, prompt_mock, message, msg=None):
         self.assertEqual(prompt_mock.call_args[0], (message,), msg)
 
@@ -52,11 +51,7 @@ class TestInteractive(unittest2.TestCase):
         Reader = mock.MagicMock(return_value=reader)
         Reader.condition = mock.MagicMock(return_value=True)
 
-        schema = {
-            'string': {
-                'type': 'string'
-            }
-        }
+        schema = {'string': {'type': 'string'}}
 
         with mock.patch.object(interactive.InteractiveForm, 'readers', [Reader]):
             interactive.InteractiveForm(schema).initiate_dialog()
@@ -69,11 +64,7 @@ class TestInteractive(unittest2.TestCase):
         Reader = mock.MagicMock(return_value=reader)
         Reader.condition = mock.MagicMock(return_value=False)
 
-        schema = {
-            'string': {
-                'type': 'string'
-            }
-        }
+        schema = {'string': {'type': 'string'}}
 
         with mock.patch.object(interactive.InteractiveForm, 'readers', [Reader]):
             interactive.InteractiveForm(schema).initiate_dialog()
@@ -88,11 +79,7 @@ class TestInteractive(unittest2.TestCase):
         Reader.condition = mock.MagicMock(return_value=True)
         reader.read = mock.MagicMock(side_effect=KeyboardInterrupt)
 
-        schema = {
-            'string': {
-                'type': 'string'
-            }
-        }
+        schema = {'string': {'type': 'string'}}
 
         with mock.patch.object(interactive.InteractiveForm, 'readers', [Reader]):
             interactive.InteractiveForm(schema).initiate_dialog()
@@ -105,22 +92,17 @@ class TestInteractive(unittest2.TestCase):
         Reader.condition = mock.MagicMock(return_value=True)
         reader.read = mock.MagicMock(side_effect=KeyboardInterrupt)
 
-        schema = {
-            'string': {
-                'type': 'string'
-            }
-        }
+        schema = {'string': {'type': 'string'}}
 
         with mock.patch.object(interactive.InteractiveForm, 'readers', [Reader]):
-            self.assertRaises(interactive.DialogInterrupted,
-                              interactive.InteractiveForm(schema, reraise=True).initiate_dialog)
+            self.assertRaises(
+                interactive.DialogInterrupted,
+                interactive.InteractiveForm(schema, reraise=True).initiate_dialog,
+            )
 
     @mock.patch.object(interactive, 'prompt')
     def test_stringreader(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': 'hey'
-        }
+        spec = {'description': 'some description', 'default': 'hey'}
         Reader = interactive.StringReader('some', spec)
 
         prompt_mock.return_value = 'stuff'
@@ -139,10 +121,7 @@ class TestInteractive(unittest2.TestCase):
 
     @mock.patch.object(interactive, 'prompt')
     def test_booleanreader(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': False
-        }
+        spec = {'description': 'some description', 'default': False}
         Reader = interactive.BooleanReader('some', spec)
 
         prompt_mock.return_value = 'y'
@@ -152,8 +131,12 @@ class TestInteractive(unittest2.TestCase):
         self.assertPromptMessage(prompt_mock, 'some (boolean) [n]: ')
         self.assertPromptDescription(prompt_mock, 'some description')
         self.assertPromptValidate(prompt_mock, 'y')
-        self.assertRaises(prompt_toolkit.validation.ValidationError,
-                          self.assertPromptValidate, prompt_mock, 'some')
+        self.assertRaises(
+            prompt_toolkit.validation.ValidationError,
+            self.assertPromptValidate,
+            prompt_mock,
+            'some',
+        )
 
         prompt_mock.return_value = ''
         result = Reader.read()
@@ -163,10 +146,7 @@ class TestInteractive(unittest2.TestCase):
 
     @mock.patch.object(interactive, 'prompt')
     def test_numberreader(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': 3.2
-        }
+        spec = {'description': 'some description', 'default': 3.2}
         Reader = interactive.NumberReader('some', spec)
 
         prompt_mock.return_value = '5.3'
@@ -176,8 +156,12 @@ class TestInteractive(unittest2.TestCase):
         self.assertPromptMessage(prompt_mock, 'some (float) [3.2]: ')
         self.assertPromptDescription(prompt_mock, 'some description')
         self.assertPromptValidate(prompt_mock, '5.3')
-        self.assertRaises(prompt_toolkit.validation.ValidationError,
-                          self.assertPromptValidate, prompt_mock, 'some')
+        self.assertRaises(
+            prompt_toolkit.validation.ValidationError,
+            self.assertPromptValidate,
+            prompt_mock,
+            'some',
+        )
 
         prompt_mock.return_value = ''
         result = Reader.read()
@@ -187,10 +171,7 @@ class TestInteractive(unittest2.TestCase):
 
     @mock.patch.object(interactive, 'prompt')
     def test_integerreader(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': 3
-        }
+        spec = {'description': 'some description', 'default': 3}
         Reader = interactive.IntegerReader('some', spec)
 
         prompt_mock.return_value = '5'
@@ -200,8 +181,9 @@ class TestInteractive(unittest2.TestCase):
         self.assertPromptMessage(prompt_mock, 'some (integer) [3]: ')
         self.assertPromptDescription(prompt_mock, 'some description')
         self.assertPromptValidate(prompt_mock, '5')
-        self.assertRaises(prompt_toolkit.validation.ValidationError,
-                          self.assertPromptValidate, prompt_mock, '5.3')
+        self.assertRaises(
+            prompt_toolkit.validation.ValidationError, self.assertPromptValidate, prompt_mock, '5.3'
+        )
 
         prompt_mock.return_value = ''
         result = Reader.read()
@@ -211,10 +193,7 @@ class TestInteractive(unittest2.TestCase):
 
     @mock.patch.object(interactive, 'prompt')
     def test_secretstringreader(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': 'hey'
-        }
+        spec = {'description': 'some description', 'default': 'hey'}
         Reader = interactive.SecretStringReader('some', spec)
 
         prompt_mock.return_value = 'stuff'
@@ -237,7 +216,7 @@ class TestInteractive(unittest2.TestCase):
         spec = {
             'enum': ['some', 'thing', 'else'],
             'description': 'some description',
-            'default': 'thing'
+            'default': 'thing',
         }
         Reader = interactive.EnumReader('some', spec)
 
@@ -249,10 +228,15 @@ class TestInteractive(unittest2.TestCase):
         self.assertPromptMessage(prompt_mock, message)
         self.assertPromptDescription(prompt_mock, 'some description')
         self.assertPromptValidate(prompt_mock, '0')
-        self.assertRaises(prompt_toolkit.validation.ValidationError,
-                          self.assertPromptValidate, prompt_mock, 'some')
-        self.assertRaises(prompt_toolkit.validation.ValidationError,
-                          self.assertPromptValidate, prompt_mock, '5')
+        self.assertRaises(
+            prompt_toolkit.validation.ValidationError,
+            self.assertPromptValidate,
+            prompt_mock,
+            'some',
+        )
+        self.assertRaises(
+            prompt_toolkit.validation.ValidationError, self.assertPromptValidate, prompt_mock, '5'
+        )
 
         prompt_mock.return_value = ''
         result = Reader.read()
@@ -262,10 +246,7 @@ class TestInteractive(unittest2.TestCase):
 
     @mock.patch.object(interactive, 'prompt')
     def test_arrayreader(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': ['a', 'b']
-        }
+        spec = {'description': 'some description', 'default': ['a', 'b']}
         Reader = interactive.ArrayReader('some', spec)
 
         prompt_mock.return_value = 'some,thing,else'
@@ -284,10 +265,7 @@ class TestInteractive(unittest2.TestCase):
 
     @mock.patch.object(interactive, 'prompt')
     def test_arrayreader_ends_with_comma(self, prompt_mock):
-        spec = {
-            'description': 'some description',
-            'default': ['a', 'b']
-        }
+        spec = {'description': 'some description', 'default': ['a', 'b']}
         Reader = interactive.ArrayReader('some', spec)
 
         prompt_mock.return_value = 'some,thing,else,'
@@ -301,11 +279,9 @@ class TestInteractive(unittest2.TestCase):
     @mock.patch.object(interactive, 'prompt')
     def test_arrayenumreader(self, prompt_mock):
         spec = {
-            'items': {
-                'enum': ['a', 'b', 'c', 'd', 'e']
-            },
+            'items': {'enum': ['a', 'b', 'c', 'd', 'e']},
             'description': 'some description',
-            'default': ['a', 'b']
+            'default': ['a', 'b'],
         }
         Reader = interactive.ArrayEnumReader('some', spec)
 
@@ -327,11 +303,9 @@ class TestInteractive(unittest2.TestCase):
     @mock.patch.object(interactive, 'prompt')
     def test_arrayenumreader_ends_with_comma(self, prompt_mock):
         spec = {
-            'items': {
-                'enum': ['a', 'b', 'c', 'd', 'e']
-            },
+            'items': {'enum': ['a', 'b', 'c', 'd', 'e']},
             'description': 'some description',
-            'default': ['a', 'b']
+            'default': ['a', 'b'],
         }
         Reader = interactive.ArrayEnumReader('some', spec)
 
@@ -350,15 +324,9 @@ class TestInteractive(unittest2.TestCase):
             'items': {
                 'type': 'object',
                 'properties': {
-                    'foo': {
-                        'type': 'string',
-                        'description': 'some description',
-                    },
-                    'bar': {
-                        'type': 'string',
-                        'description': 'some description',
-                    }
-                }
+                    'foo': {'type': 'string', 'description': 'some description'},
+                    'bar': {'type': 'string', 'description': 'some description'},
+                },
             },
             'description': 'some description',
         }

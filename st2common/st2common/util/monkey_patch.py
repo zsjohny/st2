@@ -21,11 +21,7 @@ from __future__ import absolute_import
 
 import sys
 
-__all__ = [
-    'monkey_patch',
-    'use_select_poll_workaround',
-    'is_use_debugger_flag_provided'
-]
+__all__ = ['monkey_patch', 'use_select_poll_workaround', 'is_use_debugger_flag_provided']
 
 USE_DEBUGGER_FLAG = '--use-debugger'
 PARENT_ARGS_FLAG = '--parent-args='
@@ -80,7 +76,7 @@ def use_select_poll_workaround(nose_only=True):
     import eventlet
 
     # Work around to get tests to pass with eventlet >= 0.20.0
-    if not nose_only or (nose_only and'nose' in sys.modules.keys()):
+    if not nose_only or (nose_only and 'nose' in sys.modules.keys()):
         # Add back blocking poll() to eventlet monkeypatched select
         original_poll = eventlet.patcher.original('select').poll
         select.poll = original_poll

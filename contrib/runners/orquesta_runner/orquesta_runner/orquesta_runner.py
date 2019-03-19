@@ -34,18 +34,13 @@ from st2common.services import workflows as wf_svc
 from st2common.util import api as api_util
 from st2common.util import ujson
 
-__all__ = [
-    'OrquestaRunner',
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['OrquestaRunner', 'get_runner', 'get_metadata']
 
 
 LOG = logging.getLogger(__name__)
 
 
 class OrquestaRunner(runners.AsyncActionRunner):
-
     @staticmethod
     def get_workflow_definition(entry_point):
         with open(entry_point, 'r') as def_file:
@@ -70,7 +65,7 @@ class OrquestaRunner(runners.AsyncActionRunner):
                 'action_execution_id': str(self.execution.id),
                 'api_url': api_util.get_full_public_api_url(),
                 'user': self.execution.context.get('user', cfg.CONF.system_user.user),
-                'pack': self.execution.context.get('pack', None)
+                'pack': self.execution.context.get('pack', None),
             }
         }
 
@@ -123,8 +118,8 @@ class OrquestaRunner(runners.AsyncActionRunner):
     @staticmethod
     def task_pauseable(ac_ex):
         wf_ex_pauseable = (
-            ac_ex.runner['name'] in ac_const.WORKFLOW_RUNNER_TYPES and
-            ac_ex.status == ac_const.LIVEACTION_STATUS_RUNNING
+            ac_ex.runner['name'] in ac_const.WORKFLOW_RUNNER_TYPES
+            and ac_ex.status == ac_const.LIVEACTION_STATUS_RUNNING
         )
 
         return wf_ex_pauseable
@@ -139,7 +134,7 @@ class OrquestaRunner(runners.AsyncActionRunner):
             if self.task_pauseable(child_ex):
                 ac_svc.request_pause(
                     lv_db_access.LiveAction.get(id=child_ex.liveaction['id']),
-                    self.context.get('user', None)
+                    self.context.get('user', None),
                 )
 
         if wf_ex_db.status == wf_statuses.PAUSING or ac_svc.is_children_active(self.liveaction.id):
@@ -147,17 +142,13 @@ class OrquestaRunner(runners.AsyncActionRunner):
         else:
             status = ac_const.LIVEACTION_STATUS_PAUSED
 
-        return (
-            status,
-            self.liveaction.result,
-            self.liveaction.context
-        )
+        return (status, self.liveaction.result, self.liveaction.context)
 
     @staticmethod
     def task_resumeable(ac_ex):
         wf_ex_resumeable = (
-            ac_ex.runner['name'] in ac_const.WORKFLOW_RUNNER_TYPES and
-            ac_ex.status == ac_const.LIVEACTION_STATUS_PAUSED
+            ac_ex.runner['name'] in ac_const.WORKFLOW_RUNNER_TYPES
+            and ac_ex.status == ac_const.LIVEACTION_STATUS_PAUSED
         )
 
         return wf_ex_resumeable
@@ -172,25 +163,25 @@ class OrquestaRunner(runners.AsyncActionRunner):
             if self.task_resumeable(child_ex):
                 ac_svc.request_resume(
                     lv_db_access.LiveAction.get(id=child_ex.liveaction['id']),
-                    self.context.get('user', None)
+                    self.context.get('user', None),
                 )
 
         return (
             wf_ex_db.status if wf_ex_db else ac_const.LIVEACTION_STATUS_RUNNING,
             self.liveaction.result,
-            self.liveaction.context
+            self.liveaction.context,
         )
 
     @staticmethod
     def task_cancelable(ac_ex):
         wf_ex_cancelable = (
-            ac_ex.runner['name'] in ac_const.WORKFLOW_RUNNER_TYPES and
-            ac_ex.status in ac_const.LIVEACTION_CANCELABLE_STATES
+            ac_ex.runner['name'] in ac_const.WORKFLOW_RUNNER_TYPES
+            and ac_ex.status in ac_const.LIVEACTION_CANCELABLE_STATES
         )
 
         ac_ex_cancelable = (
-            ac_ex.runner['name'] not in ac_const.WORKFLOW_RUNNER_TYPES and
-            ac_ex.status in ac_const.LIVEACTION_DELAYED_STATES
+            ac_ex.runner['name'] not in ac_const.WORKFLOW_RUNNER_TYPES
+            and ac_ex.status in ac_const.LIVEACTION_DELAYED_STATES
         )
 
         return wf_ex_cancelable or ac_ex_cancelable
@@ -205,7 +196,7 @@ class OrquestaRunner(runners.AsyncActionRunner):
             if self.task_cancelable(child_ex):
                 ac_svc.request_cancellation(
                     lv_db_access.LiveAction.get(id=child_ex.liveaction['id']),
-                    self.context.get('user', None)
+                    self.context.get('user', None),
                 )
 
         status = (
@@ -214,11 +205,7 @@ class OrquestaRunner(runners.AsyncActionRunner):
             else ac_const.LIVEACTION_STATUS_CANCELED
         )
 
-        return (
-            status,
-            self.liveaction.result,
-            self.liveaction.context
-        )
+        return (status, self.liveaction.result, self.liveaction.context)
 
 
 def get_runner():

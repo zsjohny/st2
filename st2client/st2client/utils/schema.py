@@ -34,14 +34,9 @@ def _dict_to_schema(item):
     schema = {}
     for key, value in item.iteritems():
         if isinstance(value, dict):
-            schema[key] = {
-                'type': 'object',
-                'parameters': _dict_to_schema(value)
-            }
+            schema[key] = {'type': 'object', 'parameters': _dict_to_schema(value)}
         else:
-            schema[key] = {
-                'type': TYPE_TABLE[type(value)]
-            }
+            schema[key] = {'type': TYPE_TABLE[type(value)]}
 
     return schema
 

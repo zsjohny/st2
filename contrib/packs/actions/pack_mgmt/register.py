@@ -19,9 +19,7 @@ from st2client.client import Client
 from st2client.models.keyvalue import KeyValuePair  # pylint: disable=no-name-in-module
 from st2common.runners.base_action import Action
 
-__all__ = [
-    'St2RegisterAction'
-]
+__all__ = ['St2RegisterAction']
 
 COMPATIBILITY_TRANSFORMATIONS = {
     'runners': 'runner',
@@ -69,16 +67,16 @@ class St2RegisterAction(Action):
             else:
                 types.append(type)
 
-        method_kwargs = {
-            'types': types
-        }
+        method_kwargs = {'types': types}
 
         if packs:
             method_kwargs['packs'] = packs
 
-        result = self._run_client_method(method=self.client.packs.register,
-                                         method_kwargs=method_kwargs,
-                                         format_func=format_result)
+        result = self._run_client_method(
+            method=self.client.packs.register,
+            method_kwargs=method_kwargs,
+            format_func=format_result,
+        )
         # TODO: make sure to return proper model
         return result
 
@@ -91,9 +89,9 @@ class St2RegisterAction(Action):
         if cacert:
             client_kwargs['cacert'] = cacert
 
-        return self._client(base_url=base_url, api_url=api_url,
-                            auth_url=auth_url, token=token,
-                            **client_kwargs)
+        return self._client(
+            base_url=base_url, api_url=api_url, auth_url=auth_url, token=token, **client_kwargs
+        )
 
     def _get_st2_urls(self):
         # First try to use base_url from config.
@@ -143,8 +141,9 @@ class St2RegisterAction(Action):
         # This is a work around since the default values can only be strings
         method_kwargs = filter_none_values(method_kwargs)
         method_name = method.__name__
-        self.logger.debug('Calling client method "%s" with kwargs "%s"' % (method_name,
-                                                                           method_kwargs))
+        self.logger.debug(
+            'Calling client method "%s" with kwargs "%s"' % (method_name, method_kwargs)
+        )
 
         result = method(**method_kwargs)
         result = format_func(result, **format_kwargs or {})

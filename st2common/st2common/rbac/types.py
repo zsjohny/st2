@@ -24,16 +24,13 @@ __all__ = [
     'SystemRole',
     'PermissionType',
     'ResourceType',
-
     'RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP',
     'PERMISION_TYPE_TO_DESCRIPTION_MAP',
-
     'ALL_PERMISSION_TYPES',
     'GLOBAL_PERMISSION_TYPES',
     'GLOBAL_PACK_PERMISSION_TYPES',
     'LIST_PERMISSION_TYPES',
-
-    'get_resource_permission_types_with_descriptions'
+    'get_resource_permission_types_with_descriptions',
 ]
 
 
@@ -230,8 +227,10 @@ class PermissionType(Enum):
         result = getattr(cls, permission_enum, None)
 
         if not result:
-            raise ValueError('Unsupported permission type for type "%s" and name "%s"' %
-                             (resource_type, permission_name))
+            raise ValueError(
+                'Unsupported permission type for type "%s" and name "%s"'
+                % (resource_type, permission_name)
+            )
 
         return result
 
@@ -240,6 +239,7 @@ class ResourceType(Enum):
     """
     Resource types on which permissions can be granted.
     """
+
     RUNNER = SystemResourceType.RUNNER_TYPE
 
     PACK = SystemResourceType.PACK
@@ -266,6 +266,7 @@ class SystemRole(Enum):
     """
     Default system roles which can't be manipulated (modified or removed).
     """
+
     SYSTEM_ADMIN = 'system_admin'  # Special role which can't be revoked.
     ADMIN = 'admin'
     OBSERVER = 'observer'
@@ -292,35 +293,31 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.PACK_SEARCH,
         PermissionType.PACK_VIEWS_INDEX_HEALTH,
         PermissionType.PACK_ALL,
-
         PermissionType.SENSOR_VIEW,
         PermissionType.SENSOR_MODIFY,
         PermissionType.SENSOR_ALL,
-
         PermissionType.ACTION_VIEW,
         PermissionType.ACTION_CREATE,
         PermissionType.ACTION_MODIFY,
         PermissionType.ACTION_DELETE,
         PermissionType.ACTION_EXECUTE,
         PermissionType.ACTION_ALL,
-
         PermissionType.ACTION_ALIAS_VIEW,
         PermissionType.ACTION_ALIAS_CREATE,
         PermissionType.ACTION_ALIAS_MODIFY,
         PermissionType.ACTION_ALIAS_DELETE,
         PermissionType.ACTION_ALIAS_ALL,
-
         PermissionType.RULE_VIEW,
         PermissionType.RULE_CREATE,
         PermissionType.RULE_MODIFY,
         PermissionType.RULE_DELETE,
-        PermissionType.RULE_ALL
+        PermissionType.RULE_ALL,
     ],
     ResourceType.SENSOR: [
         PermissionType.SENSOR_LIST,
         PermissionType.SENSOR_VIEW,
         PermissionType.SENSOR_MODIFY,
-        PermissionType.SENSOR_ALL
+        PermissionType.SENSOR_ALL,
     ],
     ResourceType.ACTION: [
         PermissionType.ACTION_LIST,
@@ -329,7 +326,7 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.ACTION_MODIFY,
         PermissionType.ACTION_DELETE,
         PermissionType.ACTION_EXECUTE,
-        PermissionType.ACTION_ALL
+        PermissionType.ACTION_ALL,
     ],
     ResourceType.ACTION_ALIAS: [
         PermissionType.ACTION_ALIAS_LIST,
@@ -339,7 +336,7 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.ACTION_ALIAS_MATCH,
         PermissionType.ACTION_ALIAS_HELP,
         PermissionType.ACTION_ALIAS_DELETE,
-        PermissionType.ACTION_ALIAS_ALL
+        PermissionType.ACTION_ALIAS_ALL,
     ],
     ResourceType.RULE: [
         PermissionType.RULE_LIST,
@@ -347,7 +344,7 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.RULE_CREATE,
         PermissionType.RULE_MODIFY,
         PermissionType.RULE_DELETE,
-        PermissionType.RULE_ALL
+        PermissionType.RULE_ALL,
     ],
     ResourceType.RULE_ENFORCEMENT: [
         PermissionType.RULE_ENFORCEMENT_LIST,
@@ -364,7 +361,7 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
     ResourceType.KEY_VALUE_PAIR: [
         PermissionType.KEY_VALUE_VIEW,
         PermissionType.KEY_VALUE_SET,
-        PermissionType.KEY_VALUE_DELETE
+        PermissionType.KEY_VALUE_DELETE,
     ],
     ResourceType.WEBHOOK: [
         PermissionType.WEBHOOK_LIST,
@@ -372,12 +369,12 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.WEBHOOK_CREATE,
         PermissionType.WEBHOOK_SEND,
         PermissionType.WEBHOOK_DELETE,
-        PermissionType.WEBHOOK_ALL
+        PermissionType.WEBHOOK_ALL,
     ],
     ResourceType.TIMER: [
         PermissionType.TIMER_LIST,
         PermissionType.TIMER_VIEW,
-        PermissionType.TIMER_ALL
+        PermissionType.TIMER_ALL,
     ],
     ResourceType.API_KEY: [
         PermissionType.API_KEY_LIST,
@@ -385,17 +382,17 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.API_KEY_CREATE,
         PermissionType.API_KEY_MODIFY,
         PermissionType.API_KEY_DELETE,
-        PermissionType.API_KEY_ALL
+        PermissionType.API_KEY_ALL,
     ],
     ResourceType.TRACE: [
         PermissionType.TRACE_LIST,
         PermissionType.TRACE_VIEW,
-        PermissionType.TRACE_ALL
+        PermissionType.TRACE_ALL,
     ],
     ResourceType.TRIGGER: [
         PermissionType.TRIGGER_LIST,
         PermissionType.TRIGGER_VIEW,
-        PermissionType.TRIGGER_ALL
+        PermissionType.TRIGGER_ALL,
     ],
     ResourceType.POLICY_TYPE: [
         PermissionType.POLICY_TYPE_LIST,
@@ -415,13 +412,14 @@ RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP = {
         PermissionType.INQUIRY_VIEW,
         PermissionType.INQUIRY_RESPOND,
         PermissionType.INQUIRY_ALL,
-    ]
+    ],
 }
 
 ALL_PERMISSION_TYPES = list(RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP.values())
 ALL_PERMISSION_TYPES = list(itertools.chain(*ALL_PERMISSION_TYPES))
-LIST_PERMISSION_TYPES = [permission_type for permission_type in ALL_PERMISSION_TYPES if
-                         permission_type.endswith('_list')]
+LIST_PERMISSION_TYPES = [
+    permission_type for permission_type in ALL_PERMISSION_TYPES if permission_type.endswith('_list')
+]
 
 # List of global permissions (ones which don't apply to a specific resource)
 GLOBAL_PERMISSION_TYPES = [
@@ -433,32 +431,28 @@ GLOBAL_PERMISSION_TYPES = [
     PermissionType.PACK_CONFIG,
     PermissionType.PACK_SEARCH,
     PermissionType.PACK_VIEWS_INDEX_HEALTH,
-
     # Action alias global permission types
     PermissionType.ACTION_ALIAS_MATCH,
     PermissionType.ACTION_ALIAS_HELP,
-
     # API key global permission types
     PermissionType.API_KEY_CREATE,
-
     # Policy global permission types
     PermissionType.POLICY_CREATE,
-
     # Execution
     PermissionType.EXECUTION_VIEWS_FILTERS_LIST,
-
     # Stream
     PermissionType.STREAM_VIEW,
-
     # Inquiry
     PermissionType.INQUIRY_LIST,
     PermissionType.INQUIRY_RESPOND,
-    PermissionType.INQUIRY_VIEW
-
+    PermissionType.INQUIRY_VIEW,
 ] + LIST_PERMISSION_TYPES
 
-GLOBAL_PACK_PERMISSION_TYPES = [permission_type for permission_type in GLOBAL_PERMISSION_TYPES if
-                                permission_type.startswith('pack_')]
+GLOBAL_PACK_PERMISSION_TYPES = [
+    permission_type
+    for permission_type in GLOBAL_PERMISSION_TYPES
+    if permission_type.startswith('pack_')
+]
 
 
 # Maps a permission type to the corresponding description
@@ -474,128 +468,141 @@ PERMISION_TYPE_TO_DESCRIPTION_MAP = {
     PermissionType.PACK_CONFIG: 'Ability to configure a pack.',
     PermissionType.PACK_SEARCH: 'Ability to query registry and search packs.',
     PermissionType.PACK_VIEWS_INDEX_HEALTH: 'Ability to query health of pack registries.',
-    PermissionType.PACK_ALL: ('Ability to perform all the supported operations on a particular '
-                              'pack.'),
-
+    PermissionType.PACK_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'pack.'
+    ),
     PermissionType.SENSOR_LIST: 'Ability to list (view all) sensors.',
     PermissionType.SENSOR_VIEW: 'Ability to view a sensor',
-    PermissionType.SENSOR_MODIFY: ('Ability to modify (update) an existing sensor. Also implies '
-                                   '"sensor_type_view" permission.'),
-    PermissionType.SENSOR_ALL: ('Ability to perform all the supported operations on a particular '
-                                'sensor.'),
-
+    PermissionType.SENSOR_MODIFY: (
+        'Ability to modify (update) an existing sensor. Also implies '
+        '"sensor_type_view" permission.'
+    ),
+    PermissionType.SENSOR_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'sensor.'
+    ),
     PermissionType.ACTION_LIST: 'Ability to list (view all) actions.',
     PermissionType.ACTION_VIEW: 'Ability to view an action.',
-    PermissionType.ACTION_CREATE: ('Ability to create a new action. Also implies "action_view" '
-                                   'permission.'),
-    PermissionType.ACTION_MODIFY: ('Ability to modify (update) an existing action. Also implies '
-                                   '"action_view" permission.'),
-    PermissionType.ACTION_DELETE: ('Ability to delete an existing action. Also implies '
-                                   '"action_view" permission.'),
-    PermissionType.ACTION_EXECUTE: ('Ability to execute (run) an action. Also implies '
-                                    '"action_view" permission.'),
-    PermissionType.ACTION_ALL: ('Ability to perform all the supported operations on a particular '
-                                'action.'),
-
+    PermissionType.ACTION_CREATE: (
+        'Ability to create a new action. Also implies "action_view" ' 'permission.'
+    ),
+    PermissionType.ACTION_MODIFY: (
+        'Ability to modify (update) an existing action. Also implies ' '"action_view" permission.'
+    ),
+    PermissionType.ACTION_DELETE: (
+        'Ability to delete an existing action. Also implies ' '"action_view" permission.'
+    ),
+    PermissionType.ACTION_EXECUTE: (
+        'Ability to execute (run) an action. Also implies ' '"action_view" permission.'
+    ),
+    PermissionType.ACTION_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'action.'
+    ),
     PermissionType.ACTION_ALIAS_LIST: 'Ability to list (view all) action aliases.',
     PermissionType.ACTION_ALIAS_VIEW: 'Ability to view an action alias.',
-    PermissionType.ACTION_ALIAS_CREATE: ('Ability to create a new action alias. Also implies'
-                                         ' "action_alias_view" permission.'),
-    PermissionType.ACTION_ALIAS_MODIFY: ('Ability to modify (update) an existing action alias. '
-                                         'Also implies "action_alias_view" permission.'),
+    PermissionType.ACTION_ALIAS_CREATE: (
+        'Ability to create a new action alias. Also implies' ' "action_alias_view" permission.'
+    ),
+    PermissionType.ACTION_ALIAS_MODIFY: (
+        'Ability to modify (update) an existing action alias. '
+        'Also implies "action_alias_view" permission.'
+    ),
     PermissionType.ACTION_ALIAS_MATCH: ('Ability to use action alias match API endpoint.'),
     PermissionType.ACTION_ALIAS_HELP: ('Ability to use action alias help API endpoint.'),
-    PermissionType.ACTION_ALIAS_DELETE: ('Ability to delete an existing action alias. Also '
-                                         'implies "action_alias_view" permission.'),
-    PermissionType.ACTION_ALIAS_ALL: ('Ability to perform all the supported operations on a '
-                                      'particular action alias.'),
-
+    PermissionType.ACTION_ALIAS_DELETE: (
+        'Ability to delete an existing action alias. Also '
+        'implies "action_alias_view" permission.'
+    ),
+    PermissionType.ACTION_ALIAS_ALL: (
+        'Ability to perform all the supported operations on a ' 'particular action alias.'
+    ),
     PermissionType.EXECUTION_LIST: 'Ability to list (view all) executions.',
     PermissionType.EXECUTION_VIEW: 'Ability to view an execution.',
     PermissionType.EXECUTION_RE_RUN: 'Ability to create a new action.',
     PermissionType.EXECUTION_STOP: 'Ability to stop (cancel) a running execution.',
-    PermissionType.EXECUTION_ALL: ('Ability to perform all the supported operations on a '
-                                   'particular execution.'),
-    PermissionType.EXECUTION_VIEWS_FILTERS_LIST: ('Ability view all the distinct execution '
-                                                  'filters.'),
-
+    PermissionType.EXECUTION_ALL: (
+        'Ability to perform all the supported operations on a ' 'particular execution.'
+    ),
+    PermissionType.EXECUTION_VIEWS_FILTERS_LIST: (
+        'Ability view all the distinct execution ' 'filters.'
+    ),
     PermissionType.RULE_LIST: 'Ability to list (view all) rules.',
     PermissionType.RULE_VIEW: 'Ability to view a rule.',
-    PermissionType.RULE_CREATE: ('Ability to create a new rule. Also implies "rule_view" '
-                                 'permission'),
-    PermissionType.RULE_MODIFY: ('Ability to modify (update) an existing rule. Also implies '
-                                 '"rule_view" permission.'),
-    PermissionType.RULE_DELETE: ('Ability to delete an existing rule. Also implies "rule_view" '
-                                 'permission.'),
-    PermissionType.RULE_ALL: ('Ability to perform all the supported operations on a particular '
-                              'rule.'),
-
+    PermissionType.RULE_CREATE: (
+        'Ability to create a new rule. Also implies "rule_view" ' 'permission'
+    ),
+    PermissionType.RULE_MODIFY: (
+        'Ability to modify (update) an existing rule. Also implies ' '"rule_view" permission.'
+    ),
+    PermissionType.RULE_DELETE: (
+        'Ability to delete an existing rule. Also implies "rule_view" ' 'permission.'
+    ),
+    PermissionType.RULE_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'rule.'
+    ),
     PermissionType.RULE_ENFORCEMENT_LIST: 'Ability to list (view all) rule enforcements.',
     PermissionType.RULE_ENFORCEMENT_VIEW: 'Ability to view a rule enforcement.',
-
     PermissionType.RUNNER_LIST: 'Ability to list (view all) runners.',
     PermissionType.RUNNER_VIEW: 'Ability to view a runner.',
-    PermissionType.RUNNER_MODIFY: ('Ability to modify (update) an existing runner. Also implies '
-                                   '"runner_type_view" permission.'),
-    PermissionType.RUNNER_ALL: ('Ability to perform all the supported operations on a particular '
-                                'runner.'),
-
+    PermissionType.RUNNER_MODIFY: (
+        'Ability to modify (update) an existing runner. Also implies '
+        '"runner_type_view" permission.'
+    ),
+    PermissionType.RUNNER_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'runner.'
+    ),
     PermissionType.WEBHOOK_LIST: 'Ability to list (view all) webhooks.',
     PermissionType.WEBHOOK_VIEW: ('Ability to view a webhook.'),
     PermissionType.WEBHOOK_CREATE: ('Ability to create a new webhook.'),
     PermissionType.WEBHOOK_SEND: ('Ability to send / POST data to an existing webhook.'),
     PermissionType.WEBHOOK_DELETE: ('Ability to delete an existing webhook.'),
-    PermissionType.WEBHOOK_ALL: ('Ability to perform all the supported operations on a particular '
-                                 'webhook.'),
-
+    PermissionType.WEBHOOK_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'webhook.'
+    ),
     PermissionType.TIMER_LIST: 'Ability to list (view all) timers.',
     PermissionType.TIMER_VIEW: ('Ability to view a timer.'),
     PermissionType.TIMER_ALL: ('Ability to perform all the supported operations on timers'),
-
     PermissionType.API_KEY_LIST: 'Ability to list (view all) API keys.',
     PermissionType.API_KEY_VIEW: ('Ability to view an API Key.'),
     PermissionType.API_KEY_CREATE: ('Ability to create a new API Key.'),
-    PermissionType.API_KEY_MODIFY: ('Ability to modify (update) an existing API key. Also implies '
-                                    '"api_key_view" permission.'),
+    PermissionType.API_KEY_MODIFY: (
+        'Ability to modify (update) an existing API key. Also implies ' '"api_key_view" permission.'
+    ),
     PermissionType.API_KEY_DELETE: ('Ability to delete an existing API Keys.'),
     PermissionType.API_KEY_ALL: ('Ability to perform all the supported operations on an API Key.'),
-
     PermissionType.KEY_VALUE_VIEW: ('Ability to view Key-Value Pairs.'),
     PermissionType.KEY_VALUE_SET: ('Ability to set a Key-Value Pair.'),
     PermissionType.KEY_VALUE_DELETE: ('Ability to delete an existing Key-Value Pair.'),
-
     PermissionType.TRACE_LIST: ('Ability to list (view all) traces.'),
     PermissionType.TRACE_VIEW: ('Ability to view a trace.'),
     PermissionType.TRACE_ALL: ('Ability to perform all the supported operations on traces.'),
-
     PermissionType.TRIGGER_LIST: ('Ability to list (view all) triggers.'),
     PermissionType.TRIGGER_VIEW: ('Ability to view a trigger.'),
     PermissionType.TRIGGER_ALL: ('Ability to perform all the supported operations on triggers.'),
-
     PermissionType.POLICY_TYPE_LIST: ('Ability to list (view all) policy types.'),
     PermissionType.POLICY_TYPE_VIEW: ('Ability to view a policy types.'),
-    PermissionType.POLICY_TYPE_ALL: ('Ability to perform all the supported operations on policy'
-                                     ' types.'),
-
+    PermissionType.POLICY_TYPE_ALL: (
+        'Ability to perform all the supported operations on policy' ' types.'
+    ),
     PermissionType.POLICY_LIST: 'Ability to list (view all) policies.',
     PermissionType.POLICY_VIEW: ('Ability to view a policy.'),
     PermissionType.POLICY_CREATE: ('Ability to create a new policy.'),
     PermissionType.POLICY_MODIFY: ('Ability to modify an existing policy.'),
     PermissionType.POLICY_DELETE: ('Ability to delete an existing policy.'),
-    PermissionType.POLICY_ALL: ('Ability to perform all the supported operations on a particular '
-                                'policy.'),
-
-    PermissionType.STREAM_VIEW: ('Ability to view / listen to the events on the stream API '
-                                 'endpoint.'),
-
+    PermissionType.POLICY_ALL: (
+        'Ability to perform all the supported operations on a particular ' 'policy.'
+    ),
+    PermissionType.STREAM_VIEW: (
+        'Ability to view / listen to the events on the stream API ' 'endpoint.'
+    ),
     PermissionType.INQUIRY_LIST: 'Ability to list existing Inquiries',
     PermissionType.INQUIRY_VIEW: 'Ability to view an existing Inquiry. Also implies '
-                                 '"inquiry_respond" permission.',
+    '"inquiry_respond" permission.',
     PermissionType.INQUIRY_RESPOND: 'Ability to respond to an existing Inquiry (in general - user '
-                                    'still needs access per specific inquiry parameters). Also '
-                                    'implies "inquiry_view" permission.',
-    PermissionType.INQUIRY_ALL: ('Ability to perform all supported operations on a particular '
-                                 'Inquiry.')
+    'still needs access per specific inquiry parameters). Also '
+    'implies "inquiry_view" permission.',
+    PermissionType.INQUIRY_ALL: (
+        'Ability to perform all supported operations on a particular ' 'Inquiry.'
+    ),
 }
 
 
@@ -610,7 +617,8 @@ def get_resource_permission_types_with_descriptions():
     for resource_type, permission_types in six.iteritems(RESOURCE_TYPE_TO_PERMISSION_TYPES_MAP):
         result[resource_type] = {}
         for permission_type in permission_types:
-            result[resource_type][permission_type] = \
-                PERMISION_TYPE_TO_DESCRIPTION_MAP[permission_type]
+            result[resource_type][permission_type] = PERMISION_TYPE_TO_DESCRIPTION_MAP[
+                permission_type
+            ]
 
     return result

@@ -31,9 +31,7 @@ from st2common.models.api.action import ActionAPI
 from st2common.rbac.resolvers import ActionPermissionsResolver
 from tests.unit.test_rbac_resolvers import BasePermissionsResolverTestCase
 
-__all__ = [
-    'ActionPermissionsResolverTestCase'
-]
+__all__ = ['ActionPermissionsResolverTestCase']
 
 
 class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
@@ -82,39 +80,56 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
         self.users['custom_role_action_list_grant'] = user_10_db
 
         # Create some mock resources on which permissions can be granted
-        action_1_db = ActionDB(pack='test_pack_1', name='action1', entry_point='',
-                               runner_type={'name': 'local-shell-cmd'})
+        action_1_db = ActionDB(
+            pack='test_pack_1',
+            name='action1',
+            entry_point='',
+            runner_type={'name': 'local-shell-cmd'},
+        )
         action_1_db = Action.add_or_update(action_1_db)
         self.resources['action_1'] = action_1_db
 
-        action_2_db = ActionDB(pack='test_pack_1', name='action2', entry_point='',
-                               runner_type={'name': 'local-shell-cmd'})
+        action_2_db = ActionDB(
+            pack='test_pack_1',
+            name='action2',
+            entry_point='',
+            runner_type={'name': 'local-shell-cmd'},
+        )
         action_2_db = Action.add_or_update(action_1_db)
         self.resources['action_2'] = action_2_db
 
-        action_3_db = ActionDB(pack='test_pack_2', name='action3', entry_point='',
-                               runner_type={'name': 'local-shell-cmd'})
+        action_3_db = ActionDB(
+            pack='test_pack_2',
+            name='action3',
+            entry_point='',
+            runner_type={'name': 'local-shell-cmd'},
+        )
         action_3_db = Action.add_or_update(action_3_db)
         self.resources['action_3'] = action_3_db
 
         # Create some mock roles with associated permission grants
         # Custom role 2 - one grant on parent pack
         # "action_view" on pack_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['pack_1'].get_uid(),
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_VIEW])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['pack_1'].get_uid(),
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_VIEW],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_3_db = RoleDB(name='custom_role_action_pack_grant',
-                           permission_grants=permission_grants)
+        role_3_db = RoleDB(
+            name='custom_role_action_pack_grant', permission_grants=permission_grants
+        )
         role_3_db = Role.add_or_update(role_3_db)
         self.roles['custom_role_action_pack_grant'] = role_3_db
 
         # Custom role 4 - one grant on action
         # "action_view" on action_3
-        grant_db = PermissionGrantDB(resource_uid=self.resources['action_3'].get_uid(),
-                                     resource_type=ResourceType.ACTION,
-                                     permission_types=[PermissionType.ACTION_VIEW])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['action_3'].get_uid(),
+            resource_type=ResourceType.ACTION,
+            permission_types=[PermissionType.ACTION_VIEW],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_4_db = RoleDB(name='custom_role_action_grant', permission_grants=permission_grants)
@@ -122,20 +137,25 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
         self.roles['custom_role_action_grant'] = role_4_db
 
         # Custom role - "action_all" grant on a parent action pack
-        grant_db = PermissionGrantDB(resource_uid=self.resources['pack_1'].get_uid(),
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_ALL])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['pack_1'].get_uid(),
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_ALL],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_4_db = RoleDB(name='custom_role_pack_action_all_grant',
-                           permission_grants=permission_grants)
+        role_4_db = RoleDB(
+            name='custom_role_pack_action_all_grant', permission_grants=permission_grants
+        )
         role_4_db = Role.add_or_update(role_4_db)
         self.roles['custom_role_pack_action_all_grant'] = role_4_db
 
         # Custom role - "action_all" grant on action
-        grant_db = PermissionGrantDB(resource_uid=self.resources['action_1'].get_uid(),
-                                     resource_type=ResourceType.ACTION,
-                                     permission_types=[PermissionType.ACTION_ALL])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['action_1'].get_uid(),
+            resource_type=ResourceType.ACTION,
+            permission_types=[PermissionType.ACTION_ALL],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_4_db = RoleDB(name='custom_role_action_all_grant', permission_grants=permission_grants)
@@ -143,130 +163,160 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
         self.roles['custom_role_action_all_grant'] = role_4_db
 
         # Custom role - "action_execute" on action_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['action_1'].get_uid(),
-                                     resource_type=ResourceType.ACTION,
-                                     permission_types=[PermissionType.ACTION_EXECUTE])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['action_1'].get_uid(),
+            resource_type=ResourceType.ACTION,
+            permission_types=[PermissionType.ACTION_EXECUTE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_5_db = RoleDB(name='custom_role_action_execute_grant',
-                           permission_grants=permission_grants)
+        role_5_db = RoleDB(
+            name='custom_role_action_execute_grant', permission_grants=permission_grants
+        )
         role_5_db = Role.add_or_update(role_5_db)
         self.roles['custom_role_action_execute_grant'] = role_5_db
 
         # Custom role - "action_create" grant on pack_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['pack_1'].get_uid(),
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_CREATE])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['pack_1'].get_uid(),
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_CREATE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_6_db = RoleDB(name='action_pack_action_create_grant',
-                           permission_grants=permission_grants)
+        role_6_db = RoleDB(
+            name='action_pack_action_create_grant', permission_grants=permission_grants
+        )
         role_6_db = Role.add_or_update(role_6_db)
         self.roles['action_pack_action_create_grant'] = role_6_db
 
         # Custom role - "action_all" grant on pack_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['pack_1'].get_uid(),
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_ALL])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['pack_1'].get_uid(),
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_ALL],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_7_db = RoleDB(name='action_pack_action_all_grant',
-                           permission_grants=permission_grants)
+        role_7_db = RoleDB(name='action_pack_action_all_grant', permission_grants=permission_grants)
         role_7_db = Role.add_or_update(role_7_db)
         self.roles['action_pack_action_all_grant'] = role_7_db
 
         # Custom role - "action_create" grant on action_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['action_1'].get_uid(),
-                                     resource_type=ResourceType.ACTION,
-                                     permission_types=[PermissionType.ACTION_CREATE])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['action_1'].get_uid(),
+            resource_type=ResourceType.ACTION,
+            permission_types=[PermissionType.ACTION_CREATE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_8_db = RoleDB(name='action_action_create_grant',
-                           permission_grants=permission_grants)
+        role_8_db = RoleDB(name='action_action_create_grant', permission_grants=permission_grants)
         role_8_db = Role.add_or_update(role_8_db)
         self.roles['action_action_create_grant'] = role_8_db
 
         # Custom role - "action_all" grant on action_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['action_1'].get_uid(),
-                                     resource_type=ResourceType.ACTION,
-                                     permission_types=[PermissionType.ACTION_ALL])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['action_1'].get_uid(),
+            resource_type=ResourceType.ACTION,
+            permission_types=[PermissionType.ACTION_ALL],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_9_db = RoleDB(name='action_action_all_grant',
-                           permission_grants=permission_grants)
+        role_9_db = RoleDB(name='action_action_all_grant', permission_grants=permission_grants)
         role_9_db = Role.add_or_update(role_9_db)
         self.roles['action_action_all_grant'] = role_9_db
 
         # Custom role - "action_list" grant
-        grant_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=None,
-                                     permission_types=[PermissionType.ACTION_LIST])
+        grant_db = PermissionGrantDB(
+            resource_uid=None, resource_type=None, permission_types=[PermissionType.ACTION_LIST]
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
-        role_10_db = RoleDB(name='custom_role_action_list_grant',
-                           permission_grants=permission_grants)
+        role_10_db = RoleDB(
+            name='custom_role_action_list_grant', permission_grants=permission_grants
+        )
         role_10_db = Role.add_or_update(role_10_db)
         self.roles['custom_role_action_list_grant'] = role_10_db
 
         # Create some mock role assignments
         user_db = self.users['custom_role_action_pack_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_action_pack_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_action_pack_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['custom_role_action_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_action_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_action_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['custom_role_pack_action_all_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_pack_action_all_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_pack_action_all_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['custom_role_action_all_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_action_all_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_action_all_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['custom_role_action_execute_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_action_execute_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_action_execute_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['action_pack_action_create_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['action_pack_action_create_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['action_pack_action_create_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['action_pack_action_all_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['action_pack_action_all_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['action_pack_action_all_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['action_action_create_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['action_action_create_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['action_action_create_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['action_action_all_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['action_action_all_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['action_action_all_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['custom_role_action_list_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_action_list_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_action_list_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_user_has_permission(self):
@@ -274,33 +324,33 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
 
         # Admin user, should always return true
         user_db = self.users['admin']
-        self.assertUserHasPermission(resolver=resolver,
-                                     user_db=user_db,
-                                     permission_type=PermissionType.ACTION_LIST)
+        self.assertUserHasPermission(
+            resolver=resolver, user_db=user_db, permission_type=PermissionType.ACTION_LIST
+        )
 
         # Observer, should always return true for VIEW permissions
         user_db = self.users['observer']
-        self.assertUserHasPermission(resolver=resolver,
-                                     user_db=user_db,
-                                     permission_type=PermissionType.ACTION_LIST)
+        self.assertUserHasPermission(
+            resolver=resolver, user_db=user_db, permission_type=PermissionType.ACTION_LIST
+        )
 
         # No roles, should return false for everything
         user_db = self.users['no_roles']
-        self.assertUserDoesntHavePermission(resolver=resolver,
-                                            user_db=user_db,
-                                            permission_type=PermissionType.ACTION_LIST)
+        self.assertUserDoesntHavePermission(
+            resolver=resolver, user_db=user_db, permission_type=PermissionType.ACTION_LIST
+        )
 
         # Custom role with no permission grants, should return false for everything
         user_db = self.users['1_custom_role_no_permissions']
-        self.assertUserDoesntHavePermission(resolver=resolver,
-                                            user_db=user_db,
-                                            permission_type=PermissionType.ACTION_LIST)
+        self.assertUserDoesntHavePermission(
+            resolver=resolver, user_db=user_db, permission_type=PermissionType.ACTION_LIST
+        )
 
         # Custom role with "action_list" grant
         user_db = self.users['custom_role_action_list_grant']
-        self.assertUserHasPermission(resolver=resolver,
-                                     user_db=user_db,
-                                     permission_type=PermissionType.ACTION_LIST)
+        self.assertUserHasPermission(
+            resolver=resolver, user_db=user_db, permission_type=PermissionType.ACTION_LIST
+        )
 
     def test_user_has_resource_api_permission(self):
         resolver = ActionPermissionsResolver()
@@ -314,7 +364,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # Observer, should return false
         user_db = self.users['observer']
@@ -325,7 +376,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # No roles, should return false
         user_db = self.users['no_roles']
@@ -336,7 +388,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # Custom role with no permission grants, should return false
         user_db = self.users['1_custom_role_no_permissions']
@@ -347,7 +400,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # Custom role with "action_create" grant on parent pack
         user_db = self.users['action_pack_action_create_grant']
@@ -358,7 +412,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # Custom role with "action_all" grant on the parent pack
         user_db = self.users['action_pack_action_all_grant']
@@ -369,7 +424,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # Custom role with "action_create" grant directly on the resource
         user_db = self.users['action_action_create_grant']
@@ -380,7 +436,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
         # Custom role with "action_all" grant directly on the resource
         user_db = self.users['action_action_all_grant']
@@ -391,12 +448,14 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_api=resource_api,
-            permission_type=PermissionType.ACTION_CREATE)
+            permission_type=PermissionType.ACTION_CREATE,
+        )
 
     def test_user_has_resource_db_permission(self):
         resolver = ActionPermissionsResolver()
         all_permission_types = PermissionType.get_valid_permissions_for_resource_type(
-            ResourceType.ACTION)
+            ResourceType.ACTION
+        )
 
         # Admin user, should always return true
         resource_db = self.resources['action_1']
@@ -406,7 +465,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=all_permission_types)
+            permission_types=all_permission_types,
+        )
 
         # Observer, should always return true for VIEW permission
         user_db = self.users['observer']
@@ -414,23 +474,27 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_1'],
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_2'],
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
 
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_1'],
-            permission_type=PermissionType.ACTION_MODIFY)
+            permission_type=PermissionType.ACTION_MODIFY,
+        )
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_2'],
-            permission_type=PermissionType.ACTION_DELETE)
+            permission_type=PermissionType.ACTION_DELETE,
+        )
 
         # No roles, should return false for everything
         user_db = self.users['no_roles']
@@ -438,7 +502,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=all_permission_types)
+            permission_types=all_permission_types,
+        )
 
         # Custom role with no permission grants, should return false for everything
         user_db = self.users['1_custom_role_no_permissions']
@@ -446,7 +511,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=all_permission_types)
+            permission_types=all_permission_types,
+        )
 
         # Custom role with unrelated permission grant to parent pack
         user_db = self.users['custom_role_pack_grant']
@@ -454,12 +520,14 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_1'],
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_1'],
-            permission_type=PermissionType.ACTION_EXECUTE)
+            permission_type=PermissionType.ACTION_EXECUTE,
+        )
 
         # Custom role with with grant on the parent pack
         user_db = self.users['custom_role_action_pack_grant']
@@ -467,18 +535,21 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_1'],
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_2'],
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
 
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_2'],
-            permission_type=PermissionType.ACTION_EXECUTE)
+            permission_type=PermissionType.ACTION_EXECUTE,
+        )
 
         # Custom role with a direct grant on action
         user_db = self.users['custom_role_action_grant']
@@ -486,18 +557,21 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_3'],
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
 
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_2'],
-            permission_type=PermissionType.ACTION_EXECUTE)
+            permission_type=PermissionType.ACTION_EXECUTE,
+        )
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=self.resources['action_3'],
-            permission_type=PermissionType.ACTION_EXECUTE)
+            permission_type=PermissionType.ACTION_EXECUTE,
+        )
 
         # Custom role - "action_all" grant on the action parent pack
         user_db = self.users['custom_role_pack_action_all_grant']
@@ -506,7 +580,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=all_permission_types)
+            permission_types=all_permission_types,
+        )
 
         # Custom role - "action_all" grant on the action
         user_db = self.users['custom_role_action_all_grant']
@@ -515,7 +590,8 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=all_permission_types)
+            permission_types=all_permission_types,
+        )
 
         # Custom role - "action_execute" grant on action_1
         user_db = self.users['custom_role_action_execute_grant']
@@ -524,22 +600,25 @@ class ActionPermissionsResolverTestCase(BasePermissionsResolverTestCase):
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_type=PermissionType.ACTION_EXECUTE)
+            permission_type=PermissionType.ACTION_EXECUTE,
+        )
 
         # "execute" also grants "view"
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_type=PermissionType.ACTION_VIEW)
+            permission_type=PermissionType.ACTION_VIEW,
+        )
 
         permission_types = [
             PermissionType.ACTION_CREATE,
             PermissionType.ACTION_MODIFY,
-            PermissionType.ACTION_DELETE
+            PermissionType.ACTION_DELETE,
         ]
         self.assertUserDoesntHaveResourceDbPermissions(
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=permission_types)
+            permission_types=permission_types,
+        )

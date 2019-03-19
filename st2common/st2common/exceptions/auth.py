@@ -29,7 +29,7 @@ __all__ = [
     'NoNicknameOriginProvidedError',
     'UserNotFoundError',
     'AmbiguousUserError',
-    'NotServiceUserError'
+    'NotServiceUserError',
 ]
 
 

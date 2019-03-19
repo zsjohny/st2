@@ -22,7 +22,6 @@ from st2common import __version__
 __all__ = [
     'VERSION_STRING',
     'DEFAULT_CONFIG_FILE_PATH',
-
     'API_URL_ENV_VARIABLE_NAME',
     'AUTH_TOKEN_ENV_VARIABLE_NAME',
 ]

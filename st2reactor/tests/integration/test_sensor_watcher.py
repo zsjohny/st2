@@ -21,19 +21,15 @@ from pyrabbit.api import Client
 from st2common.services.sensor_watcher import SensorWatcher
 from st2tests.base import IntegrationTestCase
 
-__all__ = [
-    'SensorWatcherTestCase'
-]
+__all__ = ['SensorWatcherTestCase']
 
 
 class SensorWatcherTestCase(IntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(SensorWatcherTestCase, cls).setUpClass()
 
     def test_sensor_watch_queue_gets_deleted_on_stop(self):
-
         def create_handler(sensor_db):
             pass
 
@@ -43,8 +39,9 @@ class SensorWatcherTestCase(IntegrationTestCase):
         def delete_handler(sensor_db):
             pass
 
-        sensor_watcher = SensorWatcher(create_handler, update_handler, delete_handler,
-                                       queue_suffix='covfefe')
+        sensor_watcher = SensorWatcher(
+            create_handler, update_handler, delete_handler, queue_suffix='covfefe'
+        )
         sensor_watcher.start()
         sw_queues = self._get_sensor_watcher_amqp_queues(queue_name='st2.sensor.watch.covfefe')
 

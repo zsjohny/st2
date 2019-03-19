@@ -23,73 +23,64 @@ from st2common.persistence.rbac import UserRoleAssignment
 from st2common.rbac import utils as rbac_utils
 from st2common.router import exc
 
-__all__ = [
-    'RolesController',
-    'RoleAssignmentsController',
-    'PermissionTypesController'
-]
+__all__ = ['RolesController', 'RoleAssignmentsController', 'PermissionTypesController']
 
 
 class RolesController(ResourceController):
     model = RoleAPI
     access = Role
-    supported_filters = {
-        'name': 'name',
-        'system': 'system'
-    }
+    supported_filters = {'name': 'name', 'system': 'system'}
 
-    query_options = {
-        'sort': ['name']
-    }
+    query_options = {'sort': ['name']}
 
     def get_one(self, name_or_id, requester_user):
         rbac_utils.assert_user_is_admin(user_db=requester_user)
 
-        return self._get_one_by_name_or_id(name_or_id=name_or_id,
-                                           permission_type=None,
-                                           requester_user=requester_user)
+        return self._get_one_by_name_or_id(
+            name_or_id=name_or_id, permission_type=None, requester_user=requester_user
+        )
 
     def get_all(self, requester_user, sort=None, offset=0, limit=None, **raw_filters):
         rbac_utils.assert_user_is_admin(user_db=requester_user)
-        return self._get_all(sort=sort,
-                             offset=offset,
-                             limit=limit,
-                             raw_filters=raw_filters,
-                             requester_user=requester_user)
+        return self._get_all(
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
 
 class RoleAssignmentsController(ResourceController):
     """
     Meta controller for listing role assignments.
     """
+
     model = UserRoleAssignmentAPI
     access = UserRoleAssignment
-    supported_filters = {
-        'user': 'user',
-        'role': 'role',
-        'source': 'source',
-        'remote': 'is_remote'
-    }
+    supported_filters = {'user': 'user', 'role': 'role', 'source': 'source', 'remote': 'is_remote'}
 
     def get_all(self, requester_user, sort=None, offset=0, limit=None, **raw_filters):
         user = raw_filters.get('user', None)
-        rbac_utils.assert_user_is_admin_or_operating_on_own_resource(user_db=requester_user,
-                                                                     user=user)
+        rbac_utils.assert_user_is_admin_or_operating_on_own_resource(
+            user_db=requester_user, user=user
+        )
 
-        return self._get_all(sort=sort,
-                             offset=offset,
-                             limit=limit,
-                             raw_filters=raw_filters,
-                             requester_user=requester_user)
+        return self._get_all(
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, id, requester_user):
-        result = self._get_one_by_id(id,
-                                   requester_user=requester_user,
-                                   permission_type=None)
+        result = self._get_one_by_id(id, requester_user=requester_user, permission_type=None)
         user = getattr(result, 'user', None)
 
-        rbac_utils.assert_user_is_admin_or_operating_on_own_resource(user_db=requester_user,
-                                                                     user=user)
+        rbac_utils.assert_user_is_admin_or_operating_on_own_resource(
+            user_db=requester_user, user=user
+        )
 
         return result
 

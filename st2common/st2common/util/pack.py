@@ -30,13 +30,10 @@ from st2common.persistence.pack import Pack
 __all__ = [
     'get_pack_ref_from_metadata',
     'get_pack_metadata',
-
     'get_pack_common_libs_path_for_pack_ref',
     'get_pack_common_libs_path_for_pack_db',
-
     'validate_config_against_schema',
-
-    'normalize_pack_version'
+    'normalize_pack_version',
 ]
 
 
@@ -64,10 +61,12 @@ def get_pack_ref_from_metadata(metadata, pack_directory_name=None):
         if re.match(PACK_REF_WHITELIST_REGEX, metadata['name']):
             pack_ref = metadata['name']
         else:
-            msg = ('Pack name "%s" contains invalid characters and "ref" attribute is not '
-                   'available. You either need to add "ref" attribute which contains only word '
-                   'characters to the pack metadata file or update name attribute to contain only'
-                   'word characters.')
+            msg = (
+                'Pack name "%s" contains invalid characters and "ref" attribute is not '
+                'available. You either need to add "ref" attribute which contains only word '
+                'characters to the pack metadata file or update name attribute to contain only'
+                'word characters.'
+            )
             raise ValueError(msg % (metadata['name']))
 
     return pack_ref
@@ -92,8 +91,7 @@ def get_pack_metadata(pack_dir):
     return content
 
 
-def validate_config_against_schema(config_schema, config_object, config_path,
-                                  pack_name=None):
+def validate_config_against_schema(config_schema, config_object, config_path, pack_name=None):
     """
     Validate provided config dictionary against the provided config schema
     dictionary.
@@ -103,14 +101,19 @@ def validate_config_against_schema(config_schema, config_object, config_path,
 
     pack_name = pack_name or 'unknown'
 
-    schema = util_schema.get_schema_for_resource_parameters(parameters_schema=config_schema,
-                                                            allow_additional_properties=True)
+    schema = util_schema.get_schema_for_resource_parameters(
+        parameters_schema=config_schema, allow_additional_properties=True
+    )
     instance = config_object
 
     try:
-        cleaned = util_schema.validate(instance=instance, schema=schema,
-                                       cls=util_schema.CustomValidator, use_default=True,
-                                       allow_default_none=True)
+        cleaned = util_schema.validate(
+            instance=instance,
+            schema=schema,
+            cls=util_schema.CustomValidator,
+            use_default=True,
+            allow_default_none=True,
+        )
     except jsonschema.ValidationError as e:
         attribute = getattr(e, 'path', [])
 
@@ -120,8 +123,12 @@ def validate_config_against_schema(config_schema, config_object, config_path,
         else:
             attribute = str(attribute)
 
-        msg = ('Failed validating attribute "%s" in config for pack "%s" (%s): %s' %
-               (attribute, pack_name, config_path, six.text_type(e)))
+        msg = 'Failed validating attribute "%s" in config for pack "%s" (%s): %s' % (
+            attribute,
+            pack_name,
+            config_path,
+            six.text_type(e),
+        )
         raise jsonschema.ValidationError(msg)
 
     return cleaned

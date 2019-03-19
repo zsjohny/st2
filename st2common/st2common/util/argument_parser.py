@@ -16,9 +16,7 @@
 from __future__ import absolute_import
 import argparse
 
-__all__ = [
-    'generate_argument_parser_for_metadata'
-]
+__all__ = ['generate_argument_parser_for_metadata']
 
 
 def generate_argument_parser_for_metadata(metadata):

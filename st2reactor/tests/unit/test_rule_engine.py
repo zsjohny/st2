@@ -18,9 +18,9 @@ import mock
 from mongoengine import NotUniqueError
 
 from st2common.models.api.rule import RuleAPI
-from st2common.models.db.trigger import (TriggerDB, TriggerTypeDB)
+from st2common.models.db.trigger import TriggerDB, TriggerTypeDB
 from st2common.persistence.rule import Rule
-from st2common.persistence.trigger import (TriggerType, Trigger)
+from st2common.persistence.trigger import TriggerType, Trigger
 from st2common.util import date as date_utils
 import st2reactor.container.utils as container_utils
 from st2reactor.rules.enforcer import RuleEnforcer
@@ -29,7 +29,6 @@ from st2tests.base import DbTestCase
 
 
 class RuleEngineTest(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(RuleEngineTest, cls).setUpClass()
@@ -40,19 +39,19 @@ class RuleEngineTest(DbTestCase):
         trigger_instance_1 = container_utils.create_trigger_instance(
             'dummy_pack_1.st2.test.trigger1',
             {'k1': 't1_p_v', 'k2': 'v2'},
-            date_utils.get_datetime_utc_now()
+            date_utils.get_datetime_utc_now(),
         )
 
         trigger_instance_2 = container_utils.create_trigger_instance(
             'dummy_pack_1.st2.test.trigger1',
             {'k1': 't1_p_v', 'k2': 'v2', 'k3': 'v3'},
-            date_utils.get_datetime_utc_now()
+            date_utils.get_datetime_utc_now(),
         )
 
         trigger_instance_3 = container_utils.create_trigger_instance(
             'dummy_pack_1.st2.test.trigger2',
             {'k1': 't1_p_v', 'k2': 'v2', 'k3': 'v3'},
-            date_utils.get_datetime_utc_now()
+            date_utils.get_datetime_utc_now(),
         )
         instances = [trigger_instance_1, trigger_instance_2, trigger_instance_3]
         rules_engine = RulesEngine()
@@ -63,9 +62,9 @@ class RuleEngineTest(DbTestCase):
         trigger = {'type': 'dummy_pack_1.st2.test.trigger4', 'parameters': {'url': 'sample'}}
         payload = {'k1': 't1_p_v', 'k2': 'v2', 'k3': 'v3'}
         occurrence_time = date_utils.get_datetime_utc_now()
-        trigger_instance = container_utils.create_trigger_instance(trigger=trigger,
-                                                                   payload=payload,
-                                                                   occurrence_time=occurrence_time)
+        trigger_instance = container_utils.create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
         self.assertTrue(trigger_instance)
         self.assertEqual(trigger_instance.trigger, trigger['type'])
         self.assertEqual(trigger_instance.payload, payload)
@@ -73,7 +72,8 @@ class RuleEngineTest(DbTestCase):
     def test_get_matching_rules_filters_disabled_rules(self):
         trigger_instance = container_utils.create_trigger_instance(
             'dummy_pack_1.st2.test.trigger1',
-            {'k1': 't1_p_v', 'k2': 'v2'}, date_utils.get_datetime_utc_now()
+            {'k1': 't1_p_v', 'k2': 'v2'},
+            date_utils.get_datetime_utc_now(),
         )
         rules_engine = RulesEngine()
         matching_rules = rules_engine.get_matching_rules_for_trigger(trigger_instance)
@@ -85,7 +85,7 @@ class RuleEngineTest(DbTestCase):
         trigger_instance = container_utils.create_trigger_instance(
             'dummy_pack_1.st2.test.trigger3',
             {'k1': 't1_p_v', 'k2': 'v2'},
-            date_utils.get_datetime_utc_now()
+            date_utils.get_datetime_utc_now(),
         )
         rules_engine = RulesEngine()
         rules_engine.handle_trigger_instance(trigger_instance)  # should not throw.
@@ -96,14 +96,21 @@ class RuleEngineTest(DbTestCase):
         RuleEngineTest._setup_sample_rules()
 
     @classmethod
-    def _setup_sample_triggers(self, names=['st2.test.trigger1', 'st2.test.trigger2',
-                                            'st2.test.trigger3', 'st2.test.trigger4']):
+    def _setup_sample_triggers(
+        self,
+        names=['st2.test.trigger1', 'st2.test.trigger2', 'st2.test.trigger3', 'st2.test.trigger4'],
+    ):
         trigger_dbs = []
         for name in names:
             trigtype = None
             try:
-                trigtype = TriggerTypeDB(pack='dummy_pack_1', name=name, description='',
-                                         payload_schema={}, parameters_schema={})
+                trigtype = TriggerTypeDB(
+                    pack='dummy_pack_1',
+                    name=name,
+                    description='',
+                    payload_schema={},
+                    parameters_schema={},
+                )
                 try:
                     trigtype = TriggerType.get_by_name(name)
                 except:
@@ -111,8 +118,9 @@ class RuleEngineTest(DbTestCase):
             except NotUniqueError:
                 pass
 
-            created = TriggerDB(pack='dummy_pack_1', name=name, description='',
-                                type=trigtype.get_reference().ref)
+            created = TriggerDB(
+                pack='dummy_pack_1', name=name, description='', type=trigtype.get_reference().ref
+            )
 
             if name in ['st2.test.trigger4']:
                 created.parameters = {'url': 'sample'}
@@ -133,52 +141,37 @@ class RuleEngineTest(DbTestCase):
             'enabled': True,
             'name': 'st2.test.rule1',
             'pack': 'sixpack',
-            'trigger': {
-                'type': 'dummy_pack_1.st2.test.trigger1'
-            },
+            'trigger': {'type': 'dummy_pack_1.st2.test.trigger1'},
             'criteria': {
-                'k1': {                     # Missing prefix 'trigger'. This rule won't match.
+                'k1': {  # Missing prefix 'trigger'. This rule won't match.
                     'pattern': 't1_p_v',
-                    'type': 'equals'
+                    'type': 'equals',
                 }
             },
             'action': {
                 'ref': 'sixpack.st2.test.action',
-                'parameters': {
-                    'ip2': '{{rule.k1}}',
-                    'ip1': '{{trigger.t1_p}}'
-                }
+                'parameters': {'ip2': '{{rule.k1}}', 'ip1': '{{trigger.t1_p}}'},
             },
             'id': '23',
-            'description': ''
+            'description': '',
         }
         rule_api = RuleAPI(**RULE_1)
         rule_db = RuleAPI.to_model(rule_api)
         rule_db = Rule.add_or_update(rule_db)
         rules.append(rule_db)
 
-        RULE_2 = {                      # Rule should match.
+        RULE_2 = {  # Rule should match.
             'enabled': True,
             'name': 'st2.test.rule2',
             'pack': 'sixpack',
-            'trigger': {
-                'type': 'dummy_pack_1.st2.test.trigger1'
-            },
-            'criteria': {
-                'trigger.k1': {
-                    'pattern': 't1_p_v',
-                    'type': 'equals'
-                }
-            },
+            'trigger': {'type': 'dummy_pack_1.st2.test.trigger1'},
+            'criteria': {'trigger.k1': {'pattern': 't1_p_v', 'type': 'equals'}},
             'action': {
                 'ref': 'sixpack.st2.test.action',
-                'parameters': {
-                    'ip2': '{{rule.k1}}',
-                    'ip1': '{{trigger.t1_p}}'
-                }
+                'parameters': {'ip2': '{{rule.k1}}', 'ip1': '{{trigger.t1_p}}'},
             },
             'id': '23',
-            'description': ''
+            'description': '',
         }
         rule_api = RuleAPI(**RULE_2)
         rule_db = RuleAPI.to_model(rule_api)
@@ -186,27 +179,17 @@ class RuleEngineTest(DbTestCase):
         rules.append(rule_db)
 
         RULE_3 = {
-            'enabled': False,         # Disabled rule shouldn't match.
+            'enabled': False,  # Disabled rule shouldn't match.
             'name': 'st2.test.rule3',
             'pack': 'sixpack',
-            'trigger': {
-                'type': 'dummy_pack_1.st2.test.trigger1'
-            },
-            'criteria': {
-                'trigger.k1': {
-                    'pattern': 't1_p_v',
-                    'type': 'equals'
-                }
-            },
+            'trigger': {'type': 'dummy_pack_1.st2.test.trigger1'},
+            'criteria': {'trigger.k1': {'pattern': 't1_p_v', 'type': 'equals'}},
             'action': {
                 'ref': 'sixpack.st2.test.action',
-                'parameters': {
-                    'ip2': '{{rule.k1}}',
-                    'ip1': '{{trigger.t1_p}}'
-                }
+                'parameters': {'ip2': '{{rule.k1}}', 'ip1': '{{trigger.t1_p}}'},
             },
             'id': '23',
-            'description': ''
+            'description': '',
         }
         rule_api = RuleAPI(**RULE_3)
         rule_db = RuleAPI.to_model(rule_api)
@@ -218,24 +201,14 @@ class RuleEngineTest(DbTestCase):
             'enabled': True,
             'name': 'st2.test.rule4',
             'pack': 'sixpack',
-            'trigger': {
-                'type': 'dummy_pack_1.st2.test.trigger2'
-            },
-            'criteria': {
-                'trigger.k1': {
-                    'pattern': 't1_p_v',
-                    'type': 'equals'
-                }
-            },
+            'trigger': {'type': 'dummy_pack_1.st2.test.trigger2'},
+            'criteria': {'trigger.k1': {'pattern': 't1_p_v', 'type': 'equals'}},
             'action': {
                 'ref': 'sixpack.st2.test.action',
-                'parameters': {
-                    'ip2': '{{rule.k1}}',
-                    'ip1': '{{trigger.t1_p}}'
-                }
+                'parameters': {'ip2': '{{rule.k1}}', 'ip1': '{{trigger.t1_p}}'},
             },
             'id': '23',
-            'description': ''
+            'description': '',
         }
         rule_api = RuleAPI(**RULE_4)
         rule_db = RuleAPI.to_model(rule_api)

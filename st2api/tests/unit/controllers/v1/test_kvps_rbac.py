@@ -28,9 +28,7 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'KeyValuesControllerRBACTestCase'
-]
+__all__ = ['KeyValuesControllerRBACTestCase']
 
 
 class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
@@ -49,15 +47,20 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.users['user_2'] = user_2_db
 
         # Insert mock kvp objects
-        kvp_api = KeyValuePairSetAPI(name='test_system_scope', value='value1',
-                                     scope=FULL_SYSTEM_SCOPE)
+        kvp_api = KeyValuePairSetAPI(
+            name='test_system_scope', value='value1', scope=FULL_SYSTEM_SCOPE
+        )
         kvp_db = KeyValuePairSetAPI.to_model(kvp_api)
         kvp_db = KeyValuePair.add_or_update(kvp_db)
         kvp_db = KeyValuePairAPI.from_model(kvp_db)
         self.kvps['kvp_1'] = kvp_db
 
-        kvp_api = KeyValuePairSetAPI(name='test_system_scope_secret', value='value_secret',
-                                     scope=FULL_SYSTEM_SCOPE, secret=True)
+        kvp_api = KeyValuePairSetAPI(
+            name='test_system_scope_secret',
+            value='value_secret',
+            scope=FULL_SYSTEM_SCOPE,
+            secret=True,
+        )
         kvp_db = KeyValuePairSetAPI.to_model(kvp_api)
         kvp_db = KeyValuePair.add_or_update(kvp_db)
         kvp_db = KeyValuePairAPI.from_model(kvp_db)
@@ -70,8 +73,9 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.kvps['kvp_3'] = kvp_db
 
         name = get_key_reference(scope=FULL_USER_SCOPE, name='test_user_scope_2', user='user1')
-        kvp_api = KeyValuePairSetAPI(name=name, value='user_secret', scope=FULL_USER_SCOPE,
-                                     secret=True)
+        kvp_api = KeyValuePairSetAPI(
+            name=name, value='user_secret', scope=FULL_USER_SCOPE, secret=True
+        )
         kvp_db = KeyValuePairSetAPI.to_model(kvp_api)
         kvp_db = KeyValuePair.add_or_update(kvp_db)
         kvp_db = KeyValuePairAPI.from_model(kvp_db)
@@ -85,10 +89,7 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         self.system_scoped_items_count = 2
         self.user_scoped_items_count = 3
-        self.user_scoped_items_per_user_count = {
-            'user1': 2,
-            'user2': 1
-        }
+        self.user_scoped_items_per_user_count = {'user1': 2, 'user2': 1}
 
     def test_get_all_system_scope_success(self):
         # Regular user, should be able to view all the system scoped items
@@ -178,7 +179,7 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         resp = self.app.get('/v1/keys?scope=all&decrypt=True')
         self.assertEqual(resp.status_int, 200)
-        expected_count = (self.system_scoped_items_count + self.user_scoped_items_count)
+        expected_count = self.system_scoped_items_count + self.user_scoped_items_count
         self.assertEqual(len(resp.json), expected_count)
 
         # Verify second item is decrypted
@@ -197,7 +198,7 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         resp = self.app.get('/v1/keys?scope=all&decrypt=True&limit=-1')
         self.assertEqual(resp.status_int, 200)
-        expected_count = (self.system_scoped_items_count + self.user_scoped_items_count)
+        expected_count = self.system_scoped_items_count + self.user_scoped_items_count
         self.assertEqual(len(resp.json), expected_count)
 
     def test_get_all_non_admin_decrypt_failure(self):
@@ -234,9 +235,7 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         # User can request decrypted value of the item scoped to themselves
         self.use_user(self.users['user_1'])
 
-        resp = self.app.get(
-            '/v1/keys/%s?scope=st2kv.user&decrypt=True' % (self.kvps['kvp_4'].name)
-        )
+        resp = self.app.get('/v1/keys/%s?scope=st2kv.user&decrypt=True' % (self.kvps['kvp_4'].name))
         self.assertEqual(resp.json['scope'], FULL_USER_SCOPE)
         self.assertEqual(resp.json['user'], 'user1')
         self.assertTrue(resp.json['secret'])
@@ -247,8 +246,9 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(self.users['user_1'])
 
         # This item is scoped to user2
-        resp = self.app.get('/v1/keys/%s?scope=st2kv.user' % (self.kvps['kvp_5'].name),
-                            expect_errors=True)
+        resp = self.app.get(
+            '/v1/keys/%s?scope=st2kv.user' % (self.kvps['kvp_5'].name), expect_errors=True
+        )
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
         # Should work fine for other user
@@ -263,8 +263,9 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         # items which are scoped to themselves.
         self.use_user(self.users['user_1'])
 
-        resp = self.app.get('/v1/keys/%s?decrypt=True' % (self.kvps['kvp_1'].name),
-                            expect_errors=True)
+        resp = self.app.get(
+            '/v1/keys/%s?decrypt=True' % (self.kvps['kvp_1'].name), expect_errors=True
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertTrue('Decrypt option requires administrator access' in resp.json['faultstring'])
 
@@ -276,7 +277,7 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
             'name': 'test_new_key_1',
             'value': 'testvalue1',
             'scope': FULL_USER_SCOPE,
-            'user': 'user2'
+            'user': 'user2',
         }
         resp = self.app.put_json('/v1/keys/test_new_key_1', data)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -296,19 +297,16 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
             'name': 'test_new_key_2',
             'value': 'testvalue2',
             'scope': FULL_USER_SCOPE,
-            'user': 'user2'
+            'user': 'user2',
         }
         resp = self.app.put_json('/v1/keys/test_new_key_2', data, expect_errors=True)
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
-        self.assertTrue('"user" attribute can only be provided by admins' in
-                        resp.json['faultstring'])
+        self.assertTrue(
+            '"user" attribute can only be provided by admins' in resp.json['faultstring']
+        )
 
         # But setting user scoped item for themselves should work
-        data = {
-            'name': 'test_new_key_3',
-            'value': 'testvalue3',
-            'scope': FULL_USER_SCOPE
-        }
+        data = {'name': 'test_new_key_3', 'value': 'testvalue3', 'scope': FULL_USER_SCOPE}
         resp = self.app.put_json('/v1/keys/test_new_key_3', data)
         self.assertEqual(resp.status_code, http_client.OK)
 
@@ -343,8 +341,9 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
         # But unable to delete item scoped to other user (user2)
-        resp = self.app.delete('/v1/keys/%s?scope=st2kv.user' % (self.kvps['kvp_5'].name),
-                               expect_errors=True)
+        resp = self.app.delete(
+            '/v1/keys/%s?scope=st2kv.user' % (self.kvps['kvp_5'].name), expect_errors=True
+        )
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
     def test_delete_user_scope_item_aribrary_user_admin_success(self):
@@ -367,23 +366,26 @@ class KeyValuesControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         resp = self.app.delete(
             '/v1/keys/%s?scope=st2kv.user&user=user1' % (self.kvps['kvp_3'].name),
-            expect_errors=True
+            expect_errors=True,
         )
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         resp = self.app.delete(
             '/v1/keys/%s?scope=st2kv.user&user=user2' % (self.kvps['kvp_5'].name),
-            expect_errors=True
+            expect_errors=True,
         )
 
     def test_delete_user_scope_item_non_admin_failure(self):
         # Non admin user can't delete user-scoped items which are not scoped to them
         self.use_user(self.users['user_1'])
 
-        resp = self.app.get('/v1/keys/%s?scope=st2kv.user&user=user2' % (self.kvps['kvp_5'].name),
-                            expect_errors=True)
+        resp = self.app.get(
+            '/v1/keys/%s?scope=st2kv.user&user=user2' % (self.kvps['kvp_5'].name),
+            expect_errors=True,
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
-        self.assertTrue('"user" attribute can only be provided by admins' in
-                        resp.json['faultstring'])
+        self.assertTrue(
+            '"user" attribute can only be provided by admins' in resp.json['faultstring']
+        )
 
     def test_get_all_limit_minus_one(self):
         user_db = self.users['observer']

@@ -23,10 +23,7 @@ from oslo_config import cfg
 from st2common.util import mongoescape as util_mongodb
 from st2common import log as logging
 
-__all__ = [
-    'BaseAPI',
-    'APIUIDMixin'
-]
+__all__ = ['BaseAPI', 'APIUIDMixin']
 
 
 LOG = logging.getLogger(__name__)
@@ -68,9 +65,13 @@ class BaseAPI(object):
         schema = getattr(self, 'schema', {})
         attributes = vars(self)
 
-        cleaned = util_schema.validate(instance=attributes, schema=schema,
-                                       cls=util_schema.CustomValidator, use_default=True,
-                                       allow_default_none=True)
+        cleaned = util_schema.validate(
+            instance=attributes,
+            schema=schema,
+            cls=util_schema.CustomValidator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
         # Note: We use type() instead of self.__class__ since self.__class__ confuses pylint
         return type(self)(**cleaned)
@@ -141,9 +142,11 @@ class APIUIDMixin(object):
 
 def cast_argument_value(value_type, value):
     if value_type == bool:
+
         def cast_func(value):
             value = str(value)
             return value.lower() in ['1', 'true']
+
     else:
         cast_func = value_type
 

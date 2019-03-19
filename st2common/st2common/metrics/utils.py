@@ -16,10 +16,7 @@
 import six
 from oslo_config import cfg
 
-__all__ = [
-    'get_full_key_name',
-    'check_key'
-]
+__all__ = ['get_full_key_name', 'check_key']
 
 
 def get_full_key_name(key):

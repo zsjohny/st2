@@ -25,10 +25,7 @@ from st2common.constants.meta import ALLOWED_EXTS
 from st2common.constants.meta import PARSER_FUNCS
 from st2common.constants.pack import MANIFEST_FILE_NAME
 
-__all__ = [
-    'ContentPackLoader',
-    'MetaLoader'
-]
+__all__ = ['ContentPackLoader', 'MetaLoader']
 
 LOG = logging.getLogger(__name__)
 
@@ -41,14 +38,7 @@ class ContentPackLoader(object):
     # TODO: Rename "get_content" methods since they don't actually return
     # content - they just return a path
 
-    ALLOWED_CONTENT_TYPES = [
-        'triggers',
-        'sensors',
-        'actions',
-        'rules',
-        'aliases',
-        'policies'
-    ]
+    ALLOWED_CONTENT_TYPES = ['triggers', 'sensors', 'actions', 'rules', 'aliases', 'policies']
 
     def get_packs(self, base_dirs):
         """
@@ -102,8 +92,10 @@ class ContentPackLoader(object):
             for pack_name, pack_content in six.iteritems(dir_content):
                 if pack_name in content:
                     pack_dir = pack_to_dir_map[pack_name]
-                    LOG.warning('Pack "%s" already found in "%s", ignoring content from "%s"' %
-                                (pack_name, pack_dir, base_dir))
+                    LOG.warning(
+                        'Pack "%s" already found in "%s", ignoring content from "%s"'
+                        % (pack_name, pack_dir, base_dir)
+                    )
                 else:
                     content[pack_name] = pack_content
                     pack_to_dir_map[pack_name] = base_dir
@@ -128,8 +120,7 @@ class ContentPackLoader(object):
         if not os.path.isdir(pack_dir):
             raise ValueError('Directory "%s" doesn\'t exist' % (pack_dir))
 
-        content = self._get_content_from_pack_dir(pack_dir=pack_dir,
-                                                  content_type=content_type)
+        content = self._get_content_from_pack_dir(pack_dir=pack_dir, content_type=content_type)
         return content
 
     def _get_packs_from_dir(self, base_dir):
@@ -151,8 +142,9 @@ class ContentPackLoader(object):
 
             # Ignore missing or non directories
             try:
-                pack_content = self._get_content_from_pack_dir(pack_dir=pack_dir,
-                                                               content_type=content_type)
+                pack_content = self._get_content_from_pack_dir(
+                    pack_dir=pack_dir, content_type=content_type
+                )
             except ValueError:
                 continue
             else:
@@ -167,7 +159,7 @@ class ContentPackLoader(object):
             actions=self._get_actions,
             rules=self._get_rules,
             aliases=self._get_aliases,
-            policies=self._get_policies
+            policies=self._get_policies,
         )
 
         get_func = content_types.get(content_type)
@@ -230,8 +222,10 @@ class MetaLoader(object):
         file_name, file_ext = os.path.splitext(file_path)
 
         if file_ext not in ALLOWED_EXTS:
-            raise Exception('Unsupported meta type %s, file %s. Allowed: %s' %
-                            (file_ext, file_path, ALLOWED_EXTS))
+            raise Exception(
+                'Unsupported meta type %s, file %s. Allowed: %s'
+                % (file_ext, file_path, ALLOWED_EXTS)
+            )
 
         result = self._load(PARSER_FUNCS[file_ext], file_path)
 

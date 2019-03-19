@@ -19,7 +19,7 @@ from st2stream import app
 
 config = {
     'is_gunicorn': True,
-    'config_args': ['--config-file', os.environ.get('ST2_CONFIG_PATH', '/etc/st2/st2.conf')]
+    'config_args': ['--config-file', os.environ.get('ST2_CONFIG_PATH', '/etc/st2/st2.conf')],
 }
 
 application = app.setup_app(config)

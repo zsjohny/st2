@@ -17,10 +17,7 @@ from st2stream import app
 from st2tests.api import BaseFunctionalTest
 from st2tests.api import BaseAPIControllerWithRBACTestCase
 
-__all__ = [
-    'FunctionalTest',
-    'APIControllerWithRBACTestCase'
-]
+__all__ = ['FunctionalTest', 'APIControllerWithRBACTestCase']
 
 
 class FunctionalTest(BaseFunctionalTest):

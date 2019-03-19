@@ -34,9 +34,7 @@ from st2common.util.misc import compare_path_file_name
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'RBACDefinitionsLoader'
-]
+__all__ = ['RBACDefinitionsLoader']
 
 
 class RBACDefinitionsLoader(object):
@@ -133,7 +131,8 @@ class RBACDefinitionsLoader(object):
         for file_path in file_paths:
             LOG.debug('Loading group to role mapping from: %s' % (file_path))
             group_to_role_map_api = self.load_group_to_role_map_assignment_from_file(
-                file_path=file_path)
+                file_path=file_path
+            )
 
             group_name = group_to_role_map_api.group
             result[group_name] = group_to_role_map_api
@@ -153,7 +152,7 @@ class RBACDefinitionsLoader(object):
         content = self._meta_loader.load(file_path)
 
         if not content:
-            msg = ('Role definition file "%s" is empty and invalid' % file_path)
+            msg = 'Role definition file "%s" is empty and invalid' % file_path
             raise ValueError(msg)
 
         role_definition_api = RoleDefinitionFileFormatAPI(**content)
@@ -174,11 +173,11 @@ class RBACDefinitionsLoader(object):
         content = self._meta_loader.load(file_path)
 
         if not content:
-            msg = ('Role assignment file "%s" is empty and invalid' % file_path)
+            msg = 'Role assignment file "%s" is empty and invalid' % file_path
             raise ValueError(msg)
 
         user_role_assignment_api = UserRoleAssignmentFileFormatAPI(**content)
-        user_role_assignment_api.file_path = file_path[file_path.rfind('assignments/'):]
+        user_role_assignment_api.file_path = file_path[file_path.rfind('assignments/') :]
         user_role_assignment_api = user_role_assignment_api.validate()
 
         return user_role_assignment_api
@@ -187,11 +186,11 @@ class RBACDefinitionsLoader(object):
         content = self._meta_loader.load(file_path)
 
         if not content:
-            msg = ('Group to role map assignment file "%s" is empty and invalid' % (file_path))
+            msg = 'Group to role map assignment file "%s" is empty and invalid' % (file_path)
             raise ValueError(msg)
 
         group_to_role_map_api = AuthGroupToRoleMapAssignmentFileFormatAPI(**content)
-        group_to_role_map_api.file_path = file_path[file_path.rfind('mappings/'):]
+        group_to_role_map_api.file_path = file_path[file_path.rfind('mappings/') :]
         group_to_role_map_api = group_to_role_map_api.validate()
 
         return group_to_role_map_api

@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = [
-    'DEFAULT_API_VERSION'
-]
+__all__ = ['DEFAULT_API_VERSION']
 
 
 DEFAULT_API_VERSION = 'v1'

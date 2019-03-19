@@ -27,8 +27,7 @@ from st2auth.backends import get_available_backends
 
 
 def parse_args(args=None):
-    cfg.CONF(args=args, version=VERSION_STRING,
-             default_config_files=[DEFAULT_CONFIG_FILE_PATH])
+    cfg.CONF(args=args, version=VERSION_STRING, default_config_files=[DEFAULT_CONFIG_FILE_PATH])
 
 
 def register_opts():
@@ -47,38 +46,38 @@ def _register_common_opts():
 def _register_app_opts():
     available_backends = get_available_backends()
     auth_opts = [
+        cfg.StrOpt('host', default='127.0.0.1', help='Host on which the service should listen on.'),
+        cfg.IntOpt('port', default=9100, help='Port on which the service should listen on.'),
+        cfg.BoolOpt('use_ssl', default=False, help='Specify to enable SSL / TLS mode'),
         cfg.StrOpt(
-            'host', default='127.0.0.1',
-            help='Host on which the service should listen on.'),
-        cfg.IntOpt(
-            'port', default=9100,
-            help='Port on which the service should listen on.'),
-        cfg.BoolOpt(
-            'use_ssl', default=False,
-            help='Specify to enable SSL / TLS mode'),
+            'cert',
+            default='/etc/apache2/ssl/mycert.crt',
+            help='Path to the SSL certificate file. Only used when "use_ssl" is specified.',
+        ),
         cfg.StrOpt(
-            'cert', default='/etc/apache2/ssl/mycert.crt',
-            help='Path to the SSL certificate file. Only used when "use_ssl" is specified.'),
+            'key',
+            default='/etc/apache2/ssl/mycert.key',
+            help='Path to the SSL private key file. Only used when "use_ssl" is specified.',
+        ),
         cfg.StrOpt(
-            'key', default='/etc/apache2/ssl/mycert.key',
-            help='Path to the SSL private key file. Only used when "use_ssl" is specified.'),
+            'logging', default='/etc/st2/logging.auth.conf', help='Path to the logging config.'
+        ),
+        cfg.BoolOpt('debug', default=False, help='Specify to enable debug mode.'),
         cfg.StrOpt(
-            'logging', default='/etc/st2/logging.auth.conf',
-            help='Path to the logging config.'),
-        cfg.BoolOpt(
-            'debug', default=False,
-            help='Specify to enable debug mode.'),
+            'mode', default=DEFAULT_MODE, help='Authentication mode (%s)' % (','.join(VALID_MODES))
+        ),
         cfg.StrOpt(
-            'mode', default=DEFAULT_MODE,
-            help='Authentication mode (%s)' % (','.join(VALID_MODES))),
-        cfg.StrOpt(
-            'backend', default=DEFAULT_BACKEND,
+            'backend',
+            default=DEFAULT_BACKEND,
             help='Authentication backend to use in a standalone mode. Available '
-                 'backends: %s.' % (', '.join(available_backends))),
+            'backends: %s.' % (', '.join(available_backends)),
+        ),
         cfg.StrOpt(
-            'backend_kwargs', default=None,
+            'backend_kwargs',
+            default=None,
             help='JSON serialized arguments which are passed to the authentication '
-                 'backend in a standalone mode.')
+            'backend in a standalone mode.',
+        ),
     ]
 
     cfg.CONF.register_cli_opts(auth_opts, group='auth')

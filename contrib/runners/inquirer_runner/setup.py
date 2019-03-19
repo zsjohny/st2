@@ -47,9 +47,5 @@ setup(
     packages=find_packages(exclude=['setuptools', 'tests']),
     package_data={'inquirer_runner': ['runner.yaml']},
     scripts=[],
-    entry_points={
-        'st2common.runners.runner': [
-            'inquirer = inquirer_runner.inquirer_runner',
-        ],
-    }
+    entry_points={'st2common.runners.runner': ['inquirer = inquirer_runner.inquirer_runner']},
 )

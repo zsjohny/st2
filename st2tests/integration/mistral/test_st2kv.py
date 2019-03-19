@@ -37,23 +37,13 @@ class CustomKeyValuePairTest(base.TestWorkflowExecution):
 
     @classmethod
     def set_kvp(cls, name, value, scope='system', secret=False):
-        kvp = models.KeyValuePair(
-            id=name,
-            name=name,
-            value=value,
-            scope=scope,
-            secret=secret
-        )
+        kvp = models.KeyValuePair(id=name, name=name, value=value, scope=scope, secret=secret)
 
         cls.st2client.keys.update(kvp)
 
     @classmethod
     def del_kvp(cls, name, scope='system'):
-        kvp = models.KeyValuePair(
-            id=name,
-            name=name,
-            scope=scope
-        )
+        kvp = models.KeyValuePair(id=name, name=name, scope=scope)
 
         cls.st2client.keys.delete(kvp)
 

@@ -25,10 +25,9 @@ from st2api.controllers.resource import ResourceController
 
 __all__ = [
     'RuleEnforcementController',
-
     'SUPPORTED_FILTERS',
     'QUERY_OPTIONS',
-    'FILTER_TRANSFORM_FUNCTIONS'
+    'FILTER_TRANSFORM_FUNCTIONS',
 ]
 
 
@@ -44,17 +43,15 @@ SUPPORTED_FILTERS = {
     'trigger_instance': 'trigger_instance_id',
     'enforced_at': 'enforced_at',
     'enforced_at_gt': 'enforced_at.gt',
-    'enforced_at_lt': 'enforced_at.lt'
+    'enforced_at_lt': 'enforced_at.lt',
 }
 
-QUERY_OPTIONS = {
-    'sort': ['-enforced_at', 'rule.ref']
-}
+QUERY_OPTIONS = {'sort': ['-enforced_at', 'rule.ref']}
 
 FILTER_TRANSFORM_FUNCTIONS = {
     'enforced_at': lambda value: isotime.parse(value=value),
     'enforced_at_gt': lambda value: isotime.parse(value=value),
-    'enforced_at_lt': lambda value: isotime.parse(value=value)
+    'enforced_at_lt': lambda value: isotime.parse(value=value),
 }
 
 
@@ -69,20 +66,30 @@ class RuleEnforcementController(ResourceController):
     supported_filters = SUPPORTED_FILTERS
     filter_transform_functions = FILTER_TRANSFORM_FUNCTIONS
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
-        return super(RuleEnforcementController, self)._get_all(exclude_fields=exclude_attributes,
-                                                               include_fields=include_attributes,
-                                                               sort=sort,
-                                                               offset=offset,
-                                                               limit=limit,
-                                                               raw_filters=raw_filters,
-                                                               requester_user=requester_user)
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
+        return super(RuleEnforcementController, self)._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, id, requester_user):
-        return super(RuleEnforcementController,
-                     self)._get_one_by_id(id, requester_user=requester_user,
-                                          permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
+        return super(RuleEnforcementController, self)._get_one_by_id(
+            id, requester_user=requester_user, permission_type=PermissionType.RULE_ENFORCEMENT_VIEW
+        )
 
 
 rule_enforcements_controller = RuleEnforcementController()

@@ -32,13 +32,7 @@ from st2common import triggers
 from st2common.logging.filters import LogLevelFilter
 from st2common.transport.bootstrap_utils import register_exchanges_with_retry
 
-__all__ = [
-    'setup',
-    'teardown',
-
-    'db_setup',
-    'db_teardown'
-]
+__all__ = ['setup', 'teardown', 'db_setup', 'db_teardown']
 
 LOG = logging.getLogger(__name__)
 
@@ -50,8 +44,7 @@ def register_common_cli_options():
     cfg.CONF.register_cli_opt(cfg.BoolOpt('verbose', short='v', default=False))
 
 
-def setup(config, setup_db=True, register_mq_exchanges=True,
-          register_internal_trigger_types=False):
+def setup(config, setup_db=True, register_mq_exchanges=True, register_internal_trigger_types=False):
     """
     Common setup function.
 

@@ -16,6 +16,7 @@
 import six
 import uuid
 from six.moves.urllib import parse as urlparse  # pylint: disable=import-error
+
 urljoin = urlparse.urljoin
 
 from st2common import log as logging
@@ -43,6 +44,7 @@ class HooksHolder(object):
     """
     Maintains a hook to TriggerDB mapping.
     """
+
     def __init__(self):
         self._triggers_by_hook = {}
 
@@ -87,12 +89,14 @@ class WebhooksController(object):
 
         self._trigger_dispatcher_service = TriggerDispatcherService(LOG)
         queue_suffix = self.__class__.__name__
-        self._trigger_watcher = TriggerWatcher(create_handler=self._handle_create_trigger,
-                                               update_handler=self._handle_update_trigger,
-                                               delete_handler=self._handle_delete_trigger,
-                                               trigger_types=self._trigger_types,
-                                               queue_suffix=queue_suffix,
-                                               exclusive=True)
+        self._trigger_watcher = TriggerWatcher(
+            create_handler=self._handle_create_trigger,
+            update_handler=self._handle_update_trigger,
+            delete_handler=self._handle_delete_trigger,
+            trigger_types=self._trigger_types,
+            queue_suffix=queue_suffix,
+            exclusive=True,
+        )
         self._trigger_watcher.start()
         self._register_webhook_trigger_types()
 
@@ -108,9 +112,9 @@ class WebhooksController(object):
             return
 
         permission_type = PermissionType.WEBHOOK_VIEW
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=WebhookDB(name=url),
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=WebhookDB(name=url), permission_type=permission_type
+        )
 
         # For demonstration purpose return 1st
         return triggers[0]
@@ -119,21 +123,24 @@ class WebhooksController(object):
         body = webhook_body_api.data
 
         permission_type = PermissionType.WEBHOOK_SEND
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=WebhookDB(name=hook),
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user,
+            resource_db=WebhookDB(name=hook),
+            permission_type=permission_type,
+        )
 
         headers = self._get_headers_as_dict(headers)
 
         # If webhook contains a trace-tag use that else create create a unique trace-tag.
-        trace_context = self._create_trace_context(trace_tag=headers.pop(TRACE_TAG_HEADER, None),
-                                                   hook=hook)
+        trace_context = self._create_trace_context(
+            trace_tag=headers.pop(TRACE_TAG_HEADER, None), hook=hook
+        )
 
         if hook == 'st2' or hook == 'st2/':
             # When using st2 or system webhook, body needs to always be a dict
             if not isinstance(body, dict):
                 type_string = get_json_type_for_python_value(body)
-                msg = ('Webhook body needs to be an object, got: %s' % (type_string))
+                msg = 'Webhook body needs to be an object, got: %s' % (type_string)
                 raise ValueError(msg)
 
             trigger = body.get('trigger', None)
@@ -143,10 +150,12 @@ class WebhooksController(object):
                 msg = 'Trigger not specified.'
                 return abort(http_client.BAD_REQUEST, msg)
 
-            self._trigger_dispatcher_service.dispatch_with_context(trigger=trigger,
-                   payload=payload,
-                   trace_context=trace_context,
-                   throw_on_validation_error=True)
+            self._trigger_dispatcher_service.dispatch_with_context(
+                trigger=trigger,
+                payload=payload,
+                trace_context=trace_context,
+                throw_on_validation_error=True,
+            )
         else:
             if not self._is_valid_hook(hook):
                 self._log_request('Invalid hook.', headers, body)
@@ -163,10 +172,12 @@ class WebhooksController(object):
             for trigger_dict in triggers:
                 # TODO: Instead of dispatching the whole dict we should just
                 # dispatch TriggerDB.ref or similar
-                self._trigger_dispatcher_service.dispatch_with_context(trigger=trigger_dict,
-                   payload=payload,
-                   trace_context=trace_context,
-                   throw_on_validation_error=True)
+                self._trigger_dispatcher_service.dispatch_with_context(
+                    trigger=trigger_dict,
+                    payload=payload,
+                    trace_context=trace_context,
+                    throw_on_validation_error=True,
+                )
 
         return Response(json=body, status=http_client.ACCEPTED)
 

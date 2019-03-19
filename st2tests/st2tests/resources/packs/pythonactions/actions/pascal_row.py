@@ -36,12 +36,17 @@ class PascalRowAction(Action):
         elif row_index == 'e':
             return [1, 2]
         elif row_index == 5:
-            return [math.factorial(row_index) /
-                    (math.factorial(i) * math.factorial(row_index - i))
-                    for i in range(row_index + 1)]
+            return [
+                math.factorial(row_index) / (math.factorial(i) * math.factorial(row_index - i))
+                for i in range(row_index + 1)
+            ]
         elif row_index == 'f':
             raise ValueError('Duplicate traceback test')
         else:
-            return True, [math.factorial(row_index) /
-                          (math.factorial(i) * math.factorial(row_index - i))
-                          for i in range(row_index + 1)]
+            return (
+                True,
+                [
+                    math.factorial(row_index) / (math.factorial(i) * math.factorial(row_index - i))
+                    for i in range(row_index + 1)
+                ],
+            )

@@ -32,10 +32,7 @@ from st2common.models.api.base import BaseAPI
 from st2common.models.system.keyvalue import UserKeyReference
 from st2common.models.db.keyvalue import KeyValuePairDB
 
-__all__ = [
-    'KeyValuePairAPI',
-    'KeyValuePairSetAPI'
-]
+__all__ = ['KeyValuePairAPI', 'KeyValuePairSetAPI']
 
 LOG = logging.getLogger(__name__)
 
@@ -46,48 +43,20 @@ class KeyValuePairAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string'
-            },
-            "uid": {
-                "type": "string"
-            },
-            'name': {
-                'type': 'string'
-            },
-            'description': {
-                'type': 'string'
-            },
-            'value': {
-                'type': 'string',
-                'required': True
-            },
-            'secret': {
-                'type': 'boolean',
-                'required': False,
-                'default': False
-            },
-            'encrypted': {
-                'type': 'boolean',
-                'required': False,
-                'default': False
-            },
-            'scope': {
-                'type': 'string',
-                'required': False,
-                'default': FULL_SYSTEM_SCOPE
-            },
-            'expire_timestamp': {
-                'type': 'string',
-                'pattern': isotime.ISO8601_UTC_REGEX
-            },
+            'id': {'type': 'string'},
+            "uid": {"type": "string"},
+            'name': {'type': 'string'},
+            'description': {'type': 'string'},
+            'value': {'type': 'string', 'required': True},
+            'secret': {'type': 'boolean', 'required': False, 'default': False},
+            'encrypted': {'type': 'boolean', 'required': False, 'default': False},
+            'scope': {'type': 'string', 'required': False, 'default': FULL_SYSTEM_SCOPE},
+            'expire_timestamp': {'type': 'string', 'pattern': isotime.ISO8601_UTC_REGEX},
             # Note: Those values are only used for input
             # TODO: Improve
-            'ttl': {
-                'type': 'integer'
-            }
+            'ttl': {'type': 'integer'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @staticmethod
@@ -101,14 +70,19 @@ class KeyValuePairAPI(BaseAPI):
         LOG.debug('Encryption enabled? : %s', KeyValuePairAPI.is_encryption_enabled)
         if KeyValuePairAPI.is_encryption_enabled:
             KeyValuePairAPI.crypto_key_path = cfg.CONF.keyvalue.encryption_key_path
-            LOG.info('Encryption enabled. Looking for key in path %s',
-                     KeyValuePairAPI.crypto_key_path)
+            LOG.info(
+                'Encryption enabled. Looking for key in path %s', KeyValuePairAPI.crypto_key_path
+            )
             if not os.path.exists(KeyValuePairAPI.crypto_key_path):
-                msg = ('Encryption key file does not exist in path %s.' %
-                       KeyValuePairAPI.crypto_key_path)
+                msg = (
+                    'Encryption key file does not exist in path %s.'
+                    % KeyValuePairAPI.crypto_key_path
+                )
                 LOG.exception(msg)
-                LOG.info('All API requests will now send out BAD_REQUEST ' +
-                         'if you ask to store secrets in key value store.')
+                LOG.info(
+                    'All API requests will now send out BAD_REQUEST '
+                    + 'if you ask to store secrets in key value store.'
+                )
                 KeyValuePairAPI.crypto_key = None
             else:
                 KeyValuePairAPI.crypto_key = read_crypto_key(
@@ -161,8 +135,9 @@ class KeyValuePairAPI(BaseAPI):
         secret = False
 
         if getattr(kvp, 'ttl', None):
-            expire_timestamp = (date_utils.get_datetime_utc_now() +
-                                datetime.timedelta(seconds=kvp.ttl))
+            expire_timestamp = date_utils.get_datetime_utc_now() + datetime.timedelta(
+                seconds=kvp.ttl
+            )
         else:
             expire_timestamp = None
 
@@ -182,9 +157,10 @@ class KeyValuePairAPI(BaseAPI):
             try:
                 symmetric_decrypt(KeyValuePairAPI.crypto_key, value)
             except Exception:
-                msg = ('Failed to verify the integrity of the provided value for key "%s". Ensure '
-                       'that the value is encrypted with the correct key and not corrupted.' %
-                       (name))
+                msg = (
+                    'Failed to verify the integrity of the provided value for key "%s". Ensure '
+                    'that the value is encrypted with the correct key and not corrupted.' % (name)
+                )
                 raise ValueError(msg)
 
             # Additional safety check to ensure that the value hasn't been decrypted
@@ -197,27 +173,36 @@ class KeyValuePairAPI(BaseAPI):
         scope = getattr(kvp, 'scope', FULL_SYSTEM_SCOPE)
 
         if scope not in ALLOWED_SCOPES:
-            raise InvalidScopeException('Invalid scope "%s"! Allowed scopes are %s.' % (
-                scope, ALLOWED_SCOPES)
+            raise InvalidScopeException(
+                'Invalid scope "%s"! Allowed scopes are %s.' % (scope, ALLOWED_SCOPES)
             )
 
         # NOTE: For security reasons, encrypted always implies secret=True. See comment
         # above for explanation.
         if encrypted and not secret:
-            raise ValueError('encrypted option can only be used in combination with secret '
-                             'option')
+            raise ValueError(
+                'encrypted option can only be used in combination with secret ' 'option'
+            )
 
-        model = cls.model(id=kvp_id, name=name, description=description, value=value,
-                          secret=secret, scope=scope,
-                          expire_timestamp=expire_timestamp)
+        model = cls.model(
+            id=kvp_id,
+            name=name,
+            description=description,
+            value=value,
+            secret=secret,
+            scope=scope,
+            expire_timestamp=expire_timestamp,
+        )
 
         return model
 
     @classmethod
     def _verif_key_is_set_up(cls, name):
         if not KeyValuePairAPI.crypto_key:
-            msg = ('Crypto key not found in %s. Unable to encrypt / decrypt value for key %s.' %
-                   (KeyValuePairAPI.crypto_key_path, name))
+            msg = 'Crypto key not found in %s. Unable to encrypt / decrypt value for key %s.' % (
+                KeyValuePairAPI.crypto_key_path,
+                name,
+            )
             raise CryptoKeyNotSetupException(msg)
 
 
@@ -227,13 +212,11 @@ class KeyValuePairSetAPI(KeyValuePairAPI):
     """
 
     schema = copy.deepcopy(KeyValuePairAPI.schema)
-    schema['properties']['ttl'] = {
-        'description': 'Items TTL',
-        'type': 'integer'
-    }
+    schema['properties']['ttl'] = {'description': 'Items TTL', 'type': 'integer'}
     schema['properties']['user'] = {
-        'description': ('User to which the value should be scoped to. Only applicable to '
-                        'scope == user'),
+        'description': (
+            'User to which the value should be scoped to. Only applicable to ' 'scope == user'
+        ),
         'type': 'string',
-        'default': None
+        'default': None,
     }

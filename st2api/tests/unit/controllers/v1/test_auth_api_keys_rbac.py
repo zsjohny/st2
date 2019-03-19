@@ -34,14 +34,10 @@ tests_config.parse_args()
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'ApiKeyControllerRBACTestCase'
-]
+__all__ = ['ApiKeyControllerRBACTestCase']
 
 FIXTURES_PACK = 'generic'
-TEST_FIXTURES = {
-    'apikeys': ['apikey1.yaml', 'apikey2.yaml'],
-}
+TEST_FIXTURES = {'apikeys': ['apikey1.yaml', 'apikey2.yaml']}
 
 
 class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
@@ -49,18 +45,19 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
 
     def setUp(self):
         super(ApiKeyControllerRBACTestCase, self).setUp()
-        self.models = self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                               fixtures_dict=TEST_FIXTURES)
+        self.models = self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
         file_name = 'apikey1.yaml'
         ApiKeyControllerRBACTestCase.API_KEY_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'apikeys': [file_name]})['apikeys'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'apikeys': [file_name]}
+        )['apikeys'][file_name]
 
         file_name = 'apikey2.yaml'
         ApiKeyControllerRBACTestCase.API_KEY_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'apikeys': [file_name]})['apikeys'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'apikeys': [file_name]}
+        )['apikeys'][file_name]
 
         # Insert mock users, roles and assignments
 
@@ -79,9 +76,11 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # Roles
         # api_key_list
-        grant_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=ResourceType.API_KEY,
-                                     permission_types=[PermissionType.API_KEY_LIST])
+        grant_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.API_KEY,
+            permission_types=[PermissionType.API_KEY_LIST],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='api_key_list', permission_grants=permission_grants)
@@ -91,9 +90,11 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         # api_key_view on apikey1
         api_key_uid = self.models['apikeys']['apikey1.yaml'].get_uid()
 
-        grant_db = PermissionGrantDB(resource_uid=api_key_uid,
-                                     resource_type=ResourceType.API_KEY,
-                                     permission_types=[PermissionType.API_KEY_VIEW])
+        grant_db = PermissionGrantDB(
+            resource_uid=api_key_uid,
+            resource_type=ResourceType.API_KEY,
+            permission_types=[PermissionType.API_KEY_VIEW],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='api_key_view', permission_grants=permission_grants)
@@ -101,9 +102,11 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.roles['api_key_view'] = role_1_db
 
         # api_key_list
-        grant_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=ResourceType.API_KEY,
-                                     permission_types=[PermissionType.API_KEY_CREATE])
+        grant_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.API_KEY,
+            permission_types=[PermissionType.API_KEY_CREATE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='api_key_create', permission_grants=permission_grants)
@@ -114,19 +117,22 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['api_key_list'].name,
             role=self.roles['api_key_list'].name,
-            source='assignments/%s.yaml' % self.users['api_key_list'].name)
+            source='assignments/%s.yaml' % self.users['api_key_list'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['api_key_view'].name,
             role=self.roles['api_key_view'].name,
-            source='assignments/%s.yaml' % self.users['api_key_view'].name)
+            source='assignments/%s.yaml' % self.users['api_key_view'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['api_key_create'].name,
             role=self.roles['api_key_create'].name,
-            source='assignments/%s.yaml' % self.users['api_key_create'].name)
+            source='assignments/%s.yaml' % self.users['api_key_create'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_get_all_no_permissions(self):
@@ -134,7 +140,7 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.app.get('/v1/apikeys', expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "api_key_list"')
+        expected_msg = 'User "no_permissions" doesn\'t have required permission "api_key_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -145,8 +151,10 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         api_key_id = self.models['apikeys']['apikey1.yaml'].id
         api_key_uid = self.models['apikeys']['apikey1.yaml'].get_uid()
         resp = self.app.get('/v1/apikeys/%s' % (api_key_id), expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "api_key_view"'
-                        ' on resource "%s"' % (api_key_uid))
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission "api_key_view"'
+            ' on resource "%s"' % (api_key_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -162,8 +170,10 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         api_key_id = self.models['apikeys']['apikey1.yaml'].id
         api_key_uid = self.models['apikeys']['apikey1.yaml'].get_uid()
         resp = self.app.get('/v1/apikeys/%s' % (api_key_id), expect_errors=True)
-        expected_msg = ('User "api_key_list" doesn\'t have required permission "api_key_view"'
-                        ' on resource "%s"' % (api_key_uid))
+        expected_msg = (
+            'User "api_key_list" doesn\'t have required permission "api_key_view"'
+            ' on resource "%s"' % (api_key_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -179,7 +189,7 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.assertEqual(resp.json['user'], self.models['apikeys']['apikey1.yaml'].user)
 
         resp = self.app.get('/v1/apikeys', expect_errors=True)
-        expected_msg = ('User "api_key_view" doesn\'t have required permission "api_key_list"')
+        expected_msg = 'User "api_key_view" doesn\'t have required permission "api_key_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -188,7 +198,7 @@ class ApiKeyControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.app.post('/v1/apikeys', {}, expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "api_key_create"')
+        expected_msg = 'User "no_permissions" doesn\'t have required permission "api_key_create"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 

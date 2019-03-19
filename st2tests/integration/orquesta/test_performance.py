@@ -26,7 +26,6 @@ from st2common.constants import action as ac_const
 
 
 class WiringTest(base.TestWorkflowExecution):
-
     def test_concurrent_load(self):
         load_count = 3
         delay_poll = load_count * 5

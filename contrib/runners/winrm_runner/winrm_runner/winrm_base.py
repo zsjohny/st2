@@ -28,9 +28,7 @@ from st2common.util import jsonify
 from winrm import Session, Response
 from winrm.exceptions import WinRMOperationTimeoutError
 
-__all__ = [
-    'WinRmBaseRunner',
-]
+__all__ = ['WinRmBaseRunner']
 
 LOG = logging.getLogger(__name__)
 
@@ -66,28 +64,28 @@ RESULT_KEYS_TO_TRANSFORM = ["stdout", "stderr"]
 # Compiled list from the following sources:
 # https://ss64.com/ps/syntax-esc.html
 # https://www.techotopia.com/index.php/Windows_PowerShell_1.0_String_Quoting_and_Escape_Sequences#PowerShell_Special_Escape_Sequences
-PS_ESCAPE_SEQUENCES = {'\n': '`n',
-                       '\r': '`r',
-                       '\t': '`t',
-                       '\a': '`a',
-                       '\b': '`b',
-                       '\f': '`f',
-                       '\v': '`v',
-                       '"': '`"',
-                       '\'': '`\'',
-                       '`': '``',
-                       '\0': '`0',
-                       '$': '`$'}
+PS_ESCAPE_SEQUENCES = {
+    '\n': '`n',
+    '\r': '`r',
+    '\t': '`t',
+    '\a': '`a',
+    '\b': '`b',
+    '\f': '`f',
+    '\v': '`v',
+    '"': '`"',
+    '\'': '`\'',
+    '`': '``',
+    '\0': '`0',
+    '$': '`$',
+}
 
 
 class WinRmRunnerTimoutError(Exception):
-
     def __init__(self, response):
         self.response = response
 
 
 class WinRmBaseRunner(ActionRunner):
-
     def pre_run(self):
         super(WinRmBaseRunner, self).pre_run()
 
@@ -124,12 +122,14 @@ class WinRmBaseRunner(ActionRunner):
     def _create_session(self):
         # create the session
         LOG.info("Connecting via WinRM to url: {}".format(self._winrm_url))
-        session = Session(self._winrm_url,
-                          auth=(self._username, self._password),
-                          transport=self._transport,
-                          server_cert_validation=self._server_cert_validation,
-                          operation_timeout_sec=self._timeout,
-                          read_timeout_sec=self._read_timeout)
+        session = Session(
+            self._winrm_url,
+            auth=(self._username, self._password),
+            transport=self._transport,
+            server_cert_validation=self._server_cert_validation,
+            operation_timeout_sec=self._timeout,
+            read_timeout_sec=self._read_timeout,
+        )
         return session
 
     def _winrm_get_command_output(self, protocol, shell_id, command_id):
@@ -142,16 +142,19 @@ class WinRmBaseRunner(ActionRunner):
         while not command_done:
             # check if we need to timeout (StackStorm custom)
             current_time = time.time()
-            elapsed_time = (current_time - start_time)
+            elapsed_time = current_time - start_time
             if self._timeout and (elapsed_time > self._timeout):
-                raise WinRmRunnerTimoutError(Response((b''.join(stdout_buffer),
-                                                       b''.join(stderr_buffer),
-                                                       WINRM_TIMEOUT_EXIT_CODE)))
+                raise WinRmRunnerTimoutError(
+                    Response(
+                        (b''.join(stdout_buffer), b''.join(stderr_buffer), WINRM_TIMEOUT_EXIT_CODE)
+                    )
+                )
             # end stackstorm custom
 
             try:
-                stdout, stderr, return_code, command_done = \
-                    protocol._raw_get_command_output(shell_id, command_id)
+                stdout, stderr, return_code, command_done = protocol._raw_get_command_output(
+                    shell_id, command_id
+                )
                 stdout_buffer.append(stdout)
                 stderr_buffer.append(stderr)
             except WinRMOperationTimeoutError:
@@ -165,14 +168,11 @@ class WinRmBaseRunner(ActionRunner):
         # passing env and working_directory from the Session.run_cmd.
         # It also doesn't support timeouts. All of these things have been
         # added
-        shell_id = session.protocol.open_shell(env_vars=env,
-                                               working_directory=cwd)
+        shell_id = session.protocol.open_shell(env_vars=env, working_directory=cwd)
         command_id = session.protocol.run_command(shell_id, command, args)
         # try/catch is for custom timeout handing (StackStorm custom)
         try:
-            rs = Response(self._winrm_get_command_output(session.protocol,
-                                                         shell_id,
-                                                         command_id))
+            rs = Response(self._winrm_get_command_output(session.protocol, shell_id, command_id))
             rs.timeout = False
         except WinRmRunnerTimoutError as e:
             rs = e.response
@@ -186,10 +186,9 @@ class WinRmBaseRunner(ActionRunner):
         # NOTE: this is copied from pywinrm because it doesn't support
         # passing env and working_directory from the Session.run_ps
         encoded_ps = b64encode(script.encode('utf_16_le')).decode('ascii')
-        rs = self._winrm_run_cmd(session,
-                                 'powershell -encodedcommand {0}'.format(encoded_ps),
-                                 env=env,
-                                 cwd=cwd)
+        rs = self._winrm_run_cmd(
+            session, 'powershell -encodedcommand {0}'.format(encoded_ps), env=env, cwd=cwd
+        )
         if len(rs.std_err):
             # if there was an error message, clean it it up and make it human
             # readable
@@ -202,7 +201,7 @@ class WinRmBaseRunner(ActionRunner):
 
     def _translate_response(self, response):
         # check exit status for errors
-        succeeded = (response.status_code == exit_code_constants.SUCCESS_EXIT_CODE)
+        succeeded = response.status_code == exit_code_constants.SUCCESS_EXIT_CODE
         status = action_constants.LIVEACTION_STATUS_SUCCEEDED
         status_code = response.status_code
         if response.timeout:
@@ -217,7 +216,7 @@ class WinRmBaseRunner(ActionRunner):
             'succeeded': succeeded,
             'return_code': status_code,
             'stdout': response.std_out,
-            'stderr': response.std_err
+            'stderr': response.std_err,
         }
 
         # automatically convert result stdout/stderr from JSON strings to
@@ -275,8 +274,12 @@ class WinRmBaseRunner(ActionRunner):
             ps_str += ")"
         elif isinstance(param, dict):
             ps_str = "@{"
-            ps_str += "; ".join([(self._param_to_ps(k) + ' = ' + self._param_to_ps(v))
-                                 for k, v in six.iteritems(param)])
+            ps_str += "; ".join(
+                [
+                    (self._param_to_ps(k) + ' = ' + self._param_to_ps(v))
+                    for k, v in six.iteritems(param)
+                ]
+            )
             ps_str += "}"
         else:
             ps_str = str(param)
@@ -295,12 +298,11 @@ class WinRmBaseRunner(ActionRunner):
 
     def create_ps_params_string(self, positional_args, named_args):
         # convert the script parameters into powershell strings
-        positional_args, named_args = self._transform_params_to_ps(positional_args,
-                                                                   named_args)
+        positional_args, named_args = self._transform_params_to_ps(positional_args, named_args)
         # concatenate them into a long string
         ps_params_str = ""
         if named_args:
-            ps_params_str += " " .join([(k + " " + v) for k, v in six.iteritems(named_args)])
+            ps_params_str += " ".join([(k + " " + v) for k, v in six.iteritems(named_args)])
             ps_params_str += " "
         if positional_args:
             ps_params_str += " ".join(positional_args)

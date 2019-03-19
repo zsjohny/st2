@@ -28,9 +28,7 @@ from st2common.models.api.pack import ConfigAPI
 from st2common.persistence.pack import Config
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 
-__all__ = [
-    'ConfigsRegistrar'
-]
+__all__ = ['ConfigsRegistrar']
 
 
 LOG = logging.getLogger(__name__)
@@ -44,11 +42,18 @@ class ConfigsRegistrar(ResourceRegistrar):
 
     ALLOWED_EXTENSIONS = ALLOWED_EXTS
 
-    def __init__(self, use_pack_cache=True, use_runners_cache=False, fail_on_failure=False,
-                 validate_configs=True):
-        super(ConfigsRegistrar, self).__init__(use_pack_cache=use_pack_cache,
-                                               use_runners_cache=use_runners_cache,
-                                               fail_on_failure=fail_on_failure)
+    def __init__(
+        self,
+        use_pack_cache=True,
+        use_runners_cache=False,
+        fail_on_failure=False,
+        validate_configs=True,
+    ):
+        super(ConfigsRegistrar, self).__init__(
+            use_pack_cache=use_pack_cache,
+            use_runners_cache=use_runners_cache,
+            fail_on_failure=fail_on_failure,
+        )
 
         self._validate_configs = validate_configs
 
@@ -68,21 +73,27 @@ class ConfigsRegistrar(ResourceRegistrar):
 
             if not os.path.isfile(config_path):
                 # Config for that pack doesn't exist
-                LOG.debug('No config found for pack "%s" (file "%s" is not present).', pack_name,
-                          config_path)
+                LOG.debug(
+                    'No config found for pack "%s" (file "%s" is not present).',
+                    pack_name,
+                    config_path,
+                )
                 continue
 
             try:
                 self._register_config_for_pack(pack=pack_name, config_path=config_path)
             except Exception as e:
                 if self._fail_on_failure:
-                    msg = ('Failed to register config "%s" for pack "%s": %s' % (config_path,
-                                                                                 pack_name,
-                                                                                 six.text_type(e)))
+                    msg = 'Failed to register config "%s" for pack "%s": %s' % (
+                        config_path,
+                        pack_name,
+                        six.text_type(e),
+                    )
                     raise ValueError(msg)
 
-                LOG.exception('Failed to register config for pack "%s": %s', pack_name,
-                              six.text_type(e))
+                LOG.exception(
+                    'Failed to register config for pack "%s": %s', pack_name, six.text_type(e)
+                )
             else:
                 registered_count += 1
 
@@ -145,8 +156,13 @@ class ConfigsRegistrar(ResourceRegistrar):
         return config_db
 
 
-def register_configs(packs_base_paths=None, pack_dir=None, use_pack_cache=True,
-                     fail_on_failure=False, validate_configs=True):
+def register_configs(
+    packs_base_paths=None,
+    pack_dir=None,
+    use_pack_cache=True,
+    fail_on_failure=False,
+    validate_configs=True,
+):
 
     if packs_base_paths:
         assert isinstance(packs_base_paths, list)
@@ -154,9 +170,11 @@ def register_configs(packs_base_paths=None, pack_dir=None, use_pack_cache=True,
     if not packs_base_paths:
         packs_base_paths = content_utils.get_packs_base_paths()
 
-    registrar = ConfigsRegistrar(use_pack_cache=use_pack_cache,
-                                 fail_on_failure=fail_on_failure,
-                                 validate_configs=validate_configs)
+    registrar = ConfigsRegistrar(
+        use_pack_cache=use_pack_cache,
+        fail_on_failure=fail_on_failure,
+        validate_configs=validate_configs,
+    )
 
     if pack_dir:
         result = registrar.register_from_pack(pack_dir=pack_dir)

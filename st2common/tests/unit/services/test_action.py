@@ -45,18 +45,17 @@ RUNNER = {
     'runner_parameters': {
         'hosts': {'type': 'string'},
         'cmd': {'type': 'string'},
-        'sudo': {'type': 'boolean', 'default': False}
+        'sudo': {'type': 'boolean', 'default': False},
     },
-    'runner_module': 'remoterunner'
+    'runner_module': 'remoterunner',
 }
 
 RUNNER_ACTION_CHAIN = {
     'name': 'action-chain',
     'description': 'AC runner.',
     'enabled': True,
-    'runner_parameters': {
-    },
-    'runner_module': 'remoterunner'
+    'runner_parameters': {},
+    'runner_module': 'remoterunner',
 }
 
 ACTION = {
@@ -67,19 +66,15 @@ ACTION = {
     'pack': 'default',
     'runner_type': 'local-shell-script',
     'parameters': {
-        'arg_default_value': {
-            'type': 'string',
-            'default': 'abc'
-        },
-        'arg_default_type': {
-        }
+        'arg_default_value': {'type': 'string', 'default': 'abc'},
+        'arg_default_type': {},
     },
     'notify': {
         'on-complete': {
             'message': 'My awesome action is complete. Party time!!!',
-            'routes': ['notify.slack']
+            'routes': ['notify.slack'],
         }
-    }
+    },
 }
 
 ACTION_WORKFLOW = {
@@ -88,7 +83,7 @@ ACTION_WORKFLOW = {
     'enabled': True,
     'entry_point': '/tmp/test/action.sh',
     'pack': 'default',
-    'runner_type': 'action-chain'
+    'runner_type': 'action-chain',
 }
 
 ACTION_OVR_PARAM = {
@@ -98,11 +93,7 @@ ACTION_OVR_PARAM = {
     'entry_point': '/tmp/test/action.sh',
     'pack': 'default',
     'runner_type': 'local-shell-script',
-    'parameters': {
-        'sudo': {
-            'default': True
-        }
-    }
+    'parameters': {'sudo': {'default': True}},
 }
 
 ACTION_OVR_PARAM_MUTABLE = {
@@ -112,11 +103,7 @@ ACTION_OVR_PARAM_MUTABLE = {
     'entry_point': '/tmp/test/action.sh',
     'pack': 'default',
     'runner_type': 'local-shell-script',
-    'parameters': {
-        'sudo': {
-            'immutable': False
-        }
-    }
+    'parameters': {'sudo': {'immutable': False}},
 }
 
 ACTION_OVR_PARAM_IMMUTABLE = {
@@ -126,11 +113,7 @@ ACTION_OVR_PARAM_IMMUTABLE = {
     'entry_point': '/tmp/test/action.sh',
     'pack': 'default',
     'runner_type': 'local-shell-script',
-    'parameters': {
-        'sudo': {
-            'immutable': True
-        }
-    }
+    'parameters': {'sudo': {'immutable': True}},
 }
 
 ACTION_OVR_PARAM_BAD_ATTR = {
@@ -140,11 +123,7 @@ ACTION_OVR_PARAM_BAD_ATTR = {
     'entry_point': '/tmp/test/action.sh',
     'pack': 'default',
     'runner_type': 'local-shell-script',
-    'parameters': {
-        'sudo': {
-            'type': 'number'
-        }
-    }
+    'parameters': {'sudo': {'type': 'number'}},
 }
 
 ACTION_OVR_PARAM_BAD_ATTR_NOOP = {
@@ -154,11 +133,7 @@ ACTION_OVR_PARAM_BAD_ATTR_NOOP = {
     'entry_point': '/tmp/test/action.sh',
     'pack': 'default',
     'runner_type': 'local-shell-script',
-    'parameters': {
-        'sudo': {
-            'type': 'boolean'
-        }
-    }
+    'parameters': {'sudo': {'type': 'boolean'}},
 }
 
 PACK = 'default'
@@ -169,7 +144,8 @@ ACTION_OVR_PARAM_MUTABLE_REF = ResourceReference(name='my.sudo.mutable.action', 
 ACTION_OVR_PARAM_IMMUTABLE_REF = ResourceReference(name='my.sudo.immutable.action', pack=PACK).ref
 ACTION_OVR_PARAM_BAD_ATTR_REF = ResourceReference(name='my.sudo.invalid.action', pack=PACK).ref
 ACTION_OVR_PARAM_BAD_ATTR_NOOP_REF = ResourceReference(
-    name='my.sudo.invalid.noop.action', pack=PACK).ref
+    name='my.sudo.invalid.noop.action', pack=PACK
+).ref
 
 USERNAME = 'stanley'
 
@@ -177,7 +153,6 @@ USERNAME = 'stanley'
 @mock.patch.object(runners_utils, 'invoke_post_run', mock.MagicMock(return_value=None))
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
 class TestActionExecutionService(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestActionExecutionService, cls).setUpClass()
@@ -194,11 +169,13 @@ class TestActionExecutionService(DbTestCase):
             ACTION_OVR_PARAM_MUTABLE['name']: ActionAPI(**ACTION_OVR_PARAM_MUTABLE),
             ACTION_OVR_PARAM_IMMUTABLE['name']: ActionAPI(**ACTION_OVR_PARAM_IMMUTABLE),
             ACTION_OVR_PARAM_BAD_ATTR['name']: ActionAPI(**ACTION_OVR_PARAM_BAD_ATTR),
-            ACTION_OVR_PARAM_BAD_ATTR_NOOP['name']: ActionAPI(**ACTION_OVR_PARAM_BAD_ATTR_NOOP)
+            ACTION_OVR_PARAM_BAD_ATTR_NOOP['name']: ActionAPI(**ACTION_OVR_PARAM_BAD_ATTR_NOOP),
         }
 
-        cls.actiondbs = {name: Action.add_or_update(ActionAPI.to_model(action))
-                         for name, action in six.iteritems(cls.actions)}
+        cls.actiondbs = {
+            name: Action.add_or_update(ActionAPI.to_model(action))
+            for name, action in six.iteritems(cls.actions)
+        }
 
         cls.container = RunnerContainer()
 
@@ -264,11 +241,7 @@ class TestActionExecutionService(DbTestCase):
             child_liveaction_db = LiveActionDB()
             child_liveaction_db.status = action_constants.LIVEACTION_STATUS_PAUSED
             child_liveaction_db.action = action
-            child_liveaction_db.context = {
-                "parent": {
-                    "execution_id": last_id
-                }
-            }
+            child_liveaction_db.context = {"parent": {"execution_id": last_id}}
             child_liveaction_db = LiveAction.add_or_update(child_liveaction_db)
             parent_ex = executions.create_execution_object(child_liveaction_db)
             last_id = parent_ex.id
@@ -289,8 +262,10 @@ class TestActionExecutionService(DbTestCase):
         self.assertEqual(ex.status, action_constants.LIVEACTION_STATUS_REQUESTED)
         self.assertTrue(ex.notify is not None)
         # mongoengine DateTimeField stores datetime only up to milliseconds
-        self.assertEqual(isotime.format(ex.start_timestamp, usec=False),
-                         isotime.format(req.start_timestamp, usec=False))
+        self.assertEqual(
+            isotime.format(ex.start_timestamp, usec=False),
+            isotime.format(req.start_timestamp, usec=False),
+        )
 
     def test_req_workflow_action(self):
         actiondb = self.actiondbs[ACTION_WORKFLOW['name']]
@@ -335,8 +310,10 @@ class TestActionExecutionService(DbTestCase):
         with self.assertRaises(action_exc.InvalidActionParameterException) as ex_ctx:
             req, _ = action_service.request(req)
 
-        expected = ('The attribute "type" for the runner parameter "sudo" in '
-                    'action "default.my.sudo.invalid.action" cannot be overridden.')
+        expected = (
+            'The attribute "type" for the runner parameter "sudo" in '
+            'action "default.my.sudo.invalid.action" cannot be overridden.'
+        )
         self.assertEqual(str(ex_ctx.exception), expected)
 
     def test_req_override_runner_parameter_type_attribute_no_value_changed(self):
@@ -434,11 +411,7 @@ class TestActionExecutionService(DbTestCase):
         self.assertEqual(ex.status, action_constants.LIVEACTION_STATUS_RUNNING)
 
         # Request pause.
-        self.assertRaises(
-            runner_exc.InvalidActionRunnerOperationError,
-            self._submit_pause,
-            ex
-        )
+        self.assertRaises(runner_exc.InvalidActionRunnerOperationError, self._submit_pause, ex)
 
     def test_req_pause(self):
         # Add the runner type to the list of runners that support pause and resume.
@@ -473,9 +446,7 @@ class TestActionExecutionService(DbTestCase):
 
             # Request pause.
             self.assertRaises(
-                runner_exc.UnexpectedActionExecutionStatusError,
-                self._submit_pause,
-                ex
+                runner_exc.UnexpectedActionExecutionStatusError, self._submit_pause, ex
             )
         finally:
             action_constants.WORKFLOW_RUNNER_TYPES.remove(ACTION['runner_type'])
@@ -519,11 +490,7 @@ class TestActionExecutionService(DbTestCase):
         self.assertEqual(ex.status, action_constants.LIVEACTION_STATUS_RUNNING)
 
         # Request resume.
-        self.assertRaises(
-            runner_exc.InvalidActionRunnerOperationError,
-            self._submit_resume,
-            ex
-        )
+        self.assertRaises(runner_exc.InvalidActionRunnerOperationError, self._submit_resume, ex)
 
     def test_req_resume(self):
         # Add the runner type to the list of runners that support pause and resume.
@@ -576,9 +543,7 @@ class TestActionExecutionService(DbTestCase):
 
             # Request resume.
             self.assertRaises(
-                runner_exc.UnexpectedActionExecutionStatusError,
-                self._submit_resume,
-                ex
+                runner_exc.UnexpectedActionExecutionStatusError, self._submit_resume, ex
             )
         finally:
             action_constants.WORKFLOW_RUNNER_TYPES.remove(ACTION['runner_type'])

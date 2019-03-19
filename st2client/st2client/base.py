@@ -38,9 +38,7 @@ from st2client.config import get_config
 from st2client.utils.date import parse as parse_isotime
 from st2client.utils.misc import merge_dicts
 
-__all__ = [
-    'BaseCLIApp'
-]
+__all__ = ['BaseCLIApp']
 
 # Fix for "os.getlogin()) OSError: [Errno 2] No such file or directory"
 os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
@@ -58,7 +56,7 @@ CONFIG_OPTION_TO_CLIENT_KWARGS_MAP = {
     'api_version': ['general', 'api_version'],
     'api_key': ['credentials', 'api_key'],
     'cacert': ['general', 'cacert'],
-    'debug': ['cli', 'debug']
+    'debug': ['cli', 'debug'],
 }
 
 
@@ -138,8 +136,9 @@ class BaseCLIApp(object):
         if username:
             # Credentials are provided, try to authenticate agaist the API
             try:
-                token = self._get_auth_token(client=client, username=username, password=password,
-                                             cache_token=cache_token)
+                token = self._get_auth_token(
+                    client=client, username=username, password=password, cache_token=cache_token
+                )
             except requests.exceptions.ConnectionError as e:
                 self.LOG.warn('Auth API server is not available, skipping authentication.')
                 self.LOG.exception(e)
@@ -161,7 +160,8 @@ class BaseCLIApp(object):
         :rtype: ``dict``
         """
         rc_options = self._parse_config_file(
-            args=args, validate_config_permissions=validate_config_permissions)
+            args=args, validate_config_permissions=validate_config_permissions
+        )
         result = {}
         for kwarg_name, (section, option) in six.iteritems(CONFIG_OPTION_TO_CLIENT_KWARGS_MAP):
             result[kwarg_name] = rc_options.get(section, {}).get(option, None)
@@ -171,10 +171,12 @@ class BaseCLIApp(object):
     def _parse_config_file(self, args, validate_config_permissions=False):
         config_file_path = self._get_config_file_path(args=args)
 
-        parser = CLIConfigParser(config_file_path=config_file_path,
-                                 validate_config_exists=False,
-                                 validate_config_permissions=validate_config_permissions,
-                                 log=self.LOG)
+        parser = CLIConfigParser(
+            config_file_path=config_file_path,
+            validate_config_exists=False,
+            validate_config_permissions=validate_config_permissions,
+            log=self.LOG,
+        )
         result = parser.parse()
         return result
 
@@ -207,15 +209,14 @@ class BaseCLIApp(object):
         :rtype: ``str``
         """
         if cache_token:
-            token = self._get_cached_auth_token(client=client, username=username,
-                                                password=password)
+            token = self._get_cached_auth_token(client=client, username=username, password=password)
         else:
             token = None
         if not token:
             # Token is either expired or not available
-            token_obj = self._authenticate_and_retrieve_auth_token(client=client,
-                                                                   username=username,
-                                                                   password=password)
+            token_obj = self._authenticate_and_retrieve_auth_token(
+                client=client, username=username, password=password
+            )
 
             self._cache_auth_token(token_obj=token_obj)
             token = token_obj.token
@@ -238,10 +239,11 @@ class BaseCLIApp(object):
 
         if not os.access(ST2_CONFIG_DIRECTORY, os.R_OK):
             # We don't have read access to the file with a cached token
-            message = ('Unable to retrieve cached token from "%s" (user %s doesn\'t have read '
-                       'access to the parent directory). Subsequent requests won\'t use a '
-                       'cached token meaning they may be slower.' % (cached_token_path,
-                                                                     os.getlogin()))
+            message = (
+                'Unable to retrieve cached token from "%s" (user %s doesn\'t have read '
+                'access to the parent directory). Subsequent requests won\'t use a '
+                'cached token meaning they may be slower.' % (cached_token_path, os.getlogin())
+            )
             self.LOG.warn(message)
             return None
 
@@ -250,9 +252,11 @@ class BaseCLIApp(object):
 
         if not os.access(cached_token_path, os.R_OK):
             # We don't have read access to the file with a cached token
-            message = ('Unable to retrieve cached token from "%s" (user %s doesn\'t have read '
-                       'access to this file). Subsequent requests won\'t use a cached token '
-                       'meaning they may be slower.' % (cached_token_path, os.getlogin()))
+            message = (
+                'Unable to retrieve cached token from "%s" (user %s doesn\'t have read '
+                'access to this file). Subsequent requests won\'t use a cached token '
+                'meaning they may be slower.' % (cached_token_path, os.getlogin())
+            )
             self.LOG.warn(message)
             return None
 
@@ -262,9 +266,11 @@ class BaseCLIApp(object):
 
         if others_st_mode >= 2:
             # Every user has access to this file which is dangerous
-            message = ('Permissions (%s) for cached token file "%s" are too permissive. Please '
-                       'restrict the permissions and make sure only your own user can read '
-                       'from or write to the file.' % (file_st_mode, cached_token_path))
+            message = (
+                'Permissions (%s) for cached token file "%s" are too permissive. Please '
+                'restrict the permissions and make sure only your own user can read '
+                'from or write to the file.' % (file_st_mode, cached_token_path)
+            )
             self.LOG.warn(message)
 
         with open(cached_token_path) as fp:
@@ -276,8 +282,10 @@ class BaseCLIApp(object):
             token = data['token']
             expire_timestamp = data['expire_timestamp']
         except Exception as e:
-            msg = ('File "%s" with cached token is corrupted or invalid (%s). Please delete '
-                   ' this file' % (cached_token_path, six.text_type(e)))
+            msg = (
+                'File "%s" with cached token is corrupted or invalid (%s). Please delete '
+                ' this file' % (cached_token_path, six.text_type(e))
+            )
             raise ValueError(msg)
 
         now = int(time.time())
@@ -307,19 +315,21 @@ class BaseCLIApp(object):
 
         if not os.access(ST2_CONFIG_DIRECTORY, os.W_OK):
             # We don't have write access to the file with a cached token
-            message = ('Unable to write token to "%s" (user %s doesn\'t have write '
-                       'access to the parent directory). Subsequent requests won\'t use a '
-                       'cached token meaning they may be slower.' % (cached_token_path,
-                                                                     os.getlogin()))
+            message = (
+                'Unable to write token to "%s" (user %s doesn\'t have write '
+                'access to the parent directory). Subsequent requests won\'t use a '
+                'cached token meaning they may be slower.' % (cached_token_path, os.getlogin())
+            )
             self.LOG.warn(message)
             return None
 
         if os.path.isfile(cached_token_path) and not os.access(cached_token_path, os.W_OK):
             # We don't have write access to the file with a cached token
-            message = ('Unable to write token to "%s" (user %s doesn\'t have write '
-                       'access to this file). Subsequent requests won\'t use a '
-                       'cached token meaning they may be slower.' % (cached_token_path,
-                                                                     os.getlogin()))
+            message = (
+                'Unable to write token to "%s" (user %s doesn\'t have write '
+                'access to this file). Subsequent requests won\'t use a '
+                'cached token meaning they may be slower.' % (cached_token_path, os.getlogin())
+            )
             self.LOG.warn(message)
             return None
 
@@ -345,8 +355,9 @@ class BaseCLIApp(object):
         return True
 
     def _authenticate_and_retrieve_auth_token(self, client, username, password):
-        manager = models.ResourceManager(models.Token, client.endpoints['auth'],
-                                         cacert=client.cacert, debug=client.debug)
+        manager = models.ResourceManager(
+            models.Token, client.endpoints['auth'], cacert=client.cacert, debug=client.debug
+        )
         instance = models.Token()
         instance = manager.create(instance, auth=(username, password))
         return instance

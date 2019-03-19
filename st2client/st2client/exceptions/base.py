@@ -19,4 +19,5 @@ class StackStormCLIBaseException(Exception):
         The root of the exception class hierarchy for all
         StackStorm CLI exceptions.
     """
+
     pass

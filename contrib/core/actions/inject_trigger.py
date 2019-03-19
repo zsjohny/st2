@@ -17,9 +17,7 @@ from __future__ import absolute_import
 
 from st2common.runners.base_action import Action
 
-__all__ = [
-    'InjectTriggerAction'
-]
+__all__ = ['InjectTriggerAction']
 
 
 class InjectTriggerAction(Action):
@@ -35,7 +33,8 @@ class InjectTriggerAction(Action):
         # inside rulesengine service and could fail due to the user providing an invalid trigger
         # reference or similar.
         self.logger.debug('Injecting trigger "%s" with payload="%s"' % (trigger, str(payload)))
-        result = client.webhooks.post_generic_webhook(trigger=trigger, payload=payload,
-                                                      trace_tag=trace_tag)
+        result = client.webhooks.post_generic_webhook(
+            trigger=trigger, payload=payload, trace_tag=trace_tag
+        )
 
         return result

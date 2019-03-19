@@ -64,7 +64,7 @@ def format_inspection_result(result):
         'context': 'context',
         'expressions': 'expression',
         'semantics': 'semantic',
-        'syntax': 'syntax'
+        'syntax': 'syntax',
     }
 
     # For context and expression errors, rename the attribute from type to language.
@@ -128,7 +128,7 @@ def inspect_task_contents(wf_spec):
                 'type': 'content',
                 'message': 'The action reference "%s" is not formatted correctly.' % action_ref,
                 'spec_path': action_spec_path,
-                'schema_path': action_schema_path
+                'schema_path': action_schema_path,
             }
 
             result.append(entry)
@@ -140,7 +140,7 @@ def inspect_task_contents(wf_spec):
                 'type': 'content',
                 'message': 'The action "%s" is not registered in the database.' % action_ref,
                 'spec_path': action_spec_path,
-                'schema_path': action_schema_path
+                'schema_path': action_schema_path,
             }
 
             result.append(entry)
@@ -161,7 +161,7 @@ def inspect_task_contents(wf_spec):
                 'type': 'content',
                 'message': message,
                 'spec_path': action_input_spec_path,
-                'schema_path': action_input_schema_path
+                'schema_path': action_input_schema_path,
             }
 
             result.append(entry)
@@ -173,7 +173,7 @@ def inspect_task_contents(wf_spec):
                 'type': 'content',
                 'message': message,
                 'spec_path': action_input_spec_path + '.' + param,
-                'schema_path': action_input_schema_path + '.patternProperties.^\\w+$'
+                'schema_path': action_input_schema_path + '.patternProperties.^\\w+$',
             }
 
             result.append(entry)
@@ -207,7 +207,7 @@ def request(wf_def, ac_ex_db, st2_ctx, notify_cfg=None):
         runner_type_db.runner_parameters,
         action_db.parameters,
         ac_ex_db.parameters,
-        ac_ex_db.context
+        ac_ex_db.context,
     )
 
     # Instantiate the workflow conductor.
@@ -227,7 +227,7 @@ def request(wf_def, ac_ex_db, st2_ctx, notify_cfg=None):
         state=data['state'],
         status=data['state']['status'],
         output=data['output'],
-        errors=data['errors']
+        errors=data['errors'],
     )
 
     # Inspect that the list of tasks in the notify parameter exist in the workflow spec.
@@ -243,10 +243,7 @@ def request(wf_def, ac_ex_db, st2_ctx, notify_cfg=None):
     # Write notify instruction to record.
     if notify_cfg:
         # Set up the notify instruction in the workflow execution record.
-        wf_ex_db.notify = {
-            'config': notify_cfg,
-            'tasks': runner_params.get('notify')
-        }
+        wf_ex_db.notify = {'config': notify_cfg, 'tasks': runner_params.get('notify')}
 
     # Insert new record into the database and do not publish to the message bus yet.
     wf_ex_db = wf_db_access.WorkflowExecution.insert(wf_ex_db, publish=False)
@@ -422,11 +419,14 @@ def request_task_execution(wf_ex_db, st2_ctx, task_ex_req):
         workflow_execution=str(wf_ex_db.id),
         task_id=task_id,
         task_route=task_route,
-        order_by=['-start_timestamp']
+        order_by=['-start_timestamp'],
     )
 
-    if (len(task_ex_dbs) > 0 and task_ex_dbs[0].itemized and
-            task_ex_dbs[0].status == ac_const.LIVEACTION_STATUS_RUNNING):
+    if (
+        len(task_ex_dbs) > 0
+        and task_ex_dbs[0].itemized
+        and task_ex_dbs[0].status == ac_const.LIVEACTION_STATUS_RUNNING
+    ):
         task_ex_db = task_ex_dbs[0]
         task_ex_id = str(task_ex_db.id)
         msg = '[%s] Task execution "%s" retrieved for task "%s", route "%s".'
@@ -444,7 +444,7 @@ def request_task_execution(wf_ex_db, st2_ctx, task_ex_req):
             items_count=task_ex_req.get('items_count'),
             items_concurrency=task_ex_req.get('concurrency'),
             context=task_ctx,
-            status=statuses.REQUESTED
+            status=statuses.REQUESTED,
         )
 
         # Prepare the result format for itemized task execution.
@@ -561,8 +561,8 @@ def request_action_execution(wf_ex_db, task_ex_db, st2_ctx, ac_ex_req, delay=Non
             'task_execution_id': str(task_ex_db.id),
             'task_name': task_ex_db.task_name,
             'task_id': task_ex_db.task_id,
-            'task_route': task_ex_db.task_route
-        }
+            'task_route': task_ex_db.task_route,
+        },
     }
 
     if st2_ctx.get('api_user'):
@@ -576,7 +576,7 @@ def request_action_execution(wf_ex_db, task_ex_db, st2_ctx, ac_ex_req, delay=Non
         runner_type_db.runner_parameters or {},
         action_db.parameters or {},
         action_input or {},
-        ac_ex_ctx
+        ac_ex_ctx,
     )
 
     # The delay spec is in seconds and scheduler expects milliseconds.
@@ -590,12 +590,16 @@ def request_action_execution(wf_ex_db, task_ex_db, st2_ctx, ac_ex_req, delay=Non
         task_execution=str(task_ex_db.id),
         delay=delay,
         context=ac_ex_ctx,
-        parameters=ac_ex_params
+        parameters=ac_ex_params,
     )
 
     # Set notification if instructed.
-    if (wf_ex_db.notify and wf_ex_db.notify.get('config') and
-            wf_ex_db.notify.get('tasks') and task_ex_db.task_name in wf_ex_db.notify['tasks']):
+    if (
+        wf_ex_db.notify
+        and wf_ex_db.notify.get('config')
+        and wf_ex_db.notify.get('tasks')
+        and task_ex_db.task_name in wf_ex_db.notify['tasks']
+    ):
         lv_ac_db.notify = notify_api_models.NotificationsHelper.to_model(wf_ex_db.notify['config'])
 
     # Set the task execution to running first otherwise a race can occur
@@ -629,8 +633,13 @@ def handle_action_execution_pending(ac_ex_db):
     task_ex_db = wf_db_access.TaskExecution.get_by_id(task_ex_id)
 
     msg = '[%s] Handling pending of action execution "%s" for task "%s", route "%s".'
-    LOG.info(msg, wf_ex_db.action_execution, str(ac_ex_db.id),
-             task_ex_db.task_id, str(task_ex_db.task_route))
+    LOG.info(
+        msg,
+        wf_ex_db.action_execution,
+        str(ac_ex_db.id),
+        task_ex_db.task_id,
+        str(task_ex_db.task_route),
+    )
 
     # Updat task execution
     update_task_execution(task_ex_id, ac_ex_db.status, ac_ex_ctx=ac_ex_db.context)
@@ -661,8 +670,13 @@ def handle_action_execution_pause(ac_ex_db):
         return
 
     msg = '[%s] Handling pause of action execution "%s" for task "%s", route "%s".'
-    LOG.info(msg, wf_ex_db.action_execution, str(ac_ex_db.id),
-             task_ex_db.task_id, str(task_ex_db.task_route))
+    LOG.info(
+        msg,
+        wf_ex_db.action_execution,
+        str(ac_ex_db.id),
+        task_ex_db.task_id,
+        str(task_ex_db.task_route),
+    )
 
     # Updat task execution
     update_task_execution(task_ex_id, ac_ex_db.status, ac_ex_ctx=ac_ex_db.context)
@@ -688,8 +702,13 @@ def handle_action_execution_resume(ac_ex_db):
     task_ex_db = wf_db_access.TaskExecution.get_by_id(task_ex_id)
 
     msg = '[%s] Handling resume of action execution "%s" for task "%s", route "%s".'
-    LOG.info(msg, wf_ex_db.action_execution, str(ac_ex_db.id),
-             task_ex_db.task_id, str(task_ex_db.task_route))
+    LOG.info(
+        msg,
+        wf_ex_db.action_execution,
+        str(ac_ex_db.id),
+        task_ex_db.task_id,
+        str(task_ex_db.task_route),
+    )
 
     # Updat task execution to running.
     resume_task_execution(task_ex_id)
@@ -707,7 +726,8 @@ def handle_action_execution_resume(ac_ex_db):
             action_utils.update_liveaction_status(
                 liveaction_id=parent_ac_ex_db.liveaction['id'],
                 status=ac_const.LIVEACTION_STATUS_RUNNING,
-                publish=False)
+                publish=False,
+            )
 
         # If there are grand parents, handle the resume of the parent action execution.
         if 'orquesta' in parent_ac_ex_db.context and 'parent' in parent_ac_ex_db.context:
@@ -732,10 +752,18 @@ def handle_action_execution_completion(ac_ex_db):
         wf_ex_db = wf_db_access.WorkflowExecution.get_by_id(wf_ex_id)
         task_ex_db = wf_db_access.TaskExecution.get_by_id(task_ex_id)
 
-        msg = ('[%s] Handling completion of action execution "%s" '
-               'in status "%s" for task "%s", route "%s".')
-        LOG.info(msg, wf_ex_db.action_execution, str(ac_ex_db.id), ac_ex_db.status,
-                 task_ex_db.task_id, str(task_ex_db.task_route))
+        msg = (
+            '[%s] Handling completion of action execution "%s" '
+            'in status "%s" for task "%s", route "%s".'
+        )
+        LOG.info(
+            msg,
+            wf_ex_db.action_execution,
+            str(ac_ex_db.id),
+            ac_ex_db.status,
+            task_ex_db.task_id,
+            str(task_ex_db.task_route),
+        )
 
         # If task is currently paused and the action execution is skipped to
         # completion, then transition task status to running first.
@@ -750,7 +778,7 @@ def handle_action_execution_completion(ac_ex_db):
             task_ex_id,
             ac_ex_db.status,
             ac_ex_result=ac_ex_db.result,
-            ac_ex_ctx=ac_ex_db.context.get('orquesta')
+            ac_ex_ctx=ac_ex_db.context.get('orquesta'),
         )
 
         # Request the next set of tasks if workflow execution is not complete.
@@ -768,7 +796,7 @@ def deserialize_conductor(wf_ex_db):
         'context': wf_ex_db.context,
         'state': wf_ex_db.state,
         'output': wf_ex_db.output,
-        'errors': wf_ex_db.errors
+        'errors': wf_ex_db.errors,
     }
 
     return conducting.WorkflowConductor.deserialize(data)
@@ -784,10 +812,10 @@ def refresh_conductor(wf_ex_id):
 @retrying.retry(retry_on_exception=wf_exc.retry_on_exceptions)
 def update_task_state(task_ex_id, ac_ex_status, ac_ex_result=None, ac_ex_ctx=None, publish=True):
     # Return if action execution status is not in the list of statuses to process.
-    statuses_to_process = (
-        copy.copy(ac_const.LIVEACTION_COMPLETED_STATES) +
-        [ac_const.LIVEACTION_STATUS_PAUSED, ac_const.LIVEACTION_STATUS_PENDING]
-    )
+    statuses_to_process = copy.copy(ac_const.LIVEACTION_COMPLETED_STATES) + [
+        ac_const.LIVEACTION_STATUS_PAUSED,
+        ac_const.LIVEACTION_STATUS_PENDING,
+    ]
 
     if ac_ex_status not in statuses_to_process:
         return
@@ -818,7 +846,7 @@ def update_task_state(task_ex_id, ac_ex_status, ac_ex_result=None, ac_ex_ctx=Non
         conductor,
         update_lv_ac_on_statuses=statuses_to_process,
         pub_lv_ac=publish,
-        pub_ac_ex=publish
+        pub_ac_ex=publish,
     )
 
 
@@ -916,7 +944,7 @@ def request_next_tasks(wf_ex_db, task_ex_id=None):
                 st2_ctx = {
                     'execution_id': wf_ac_ex_id,
                     'user': root_st2_ctx.get('user'),
-                    'pack': root_st2_ctx.get('pack')
+                    'pack': root_st2_ctx.get('pack'),
                 }
                 if root_st2_ctx.get('api_user'):
                     st2_ctx['api_user'] = root_st2_ctx.get('api_user')
@@ -964,8 +992,9 @@ def update_task_execution(task_ex_id, ac_ex_status, ac_ex_result=None, ac_ex_ctx
         item_id = ac_ex_ctx['orquesta']['item_id']
 
         msg = '[%s] Processing action execution for task "%s", route "%s", item "%s".'
-        LOG.debug(msg, wf_ex_db.action_execution, task_ex_db.task_id,
-                  str(task_ex_db.task_route), item_id)
+        LOG.debug(
+            msg, wf_ex_db.action_execution, task_ex_db.task_id, str(task_ex_db.task_route), item_id
+        )
 
         task_ex_db.result['items'][item_id] = {'status': ac_ex_status, 'result': ac_ex_result}
 
@@ -1052,15 +1081,21 @@ def fail_workflow_execution(wf_ex_id, exception, task=None):
     update_execution_records(wf_ex_db, conductor)
 
 
-def update_execution_records(wf_ex_db, conductor, update_lv_ac_on_statuses=None,
-                             pub_wf_ex=False, pub_lv_ac=True, pub_ac_ex=True):
+def update_execution_records(
+    wf_ex_db,
+    conductor,
+    update_lv_ac_on_statuses=None,
+    pub_wf_ex=False,
+    pub_lv_ac=True,
+    pub_ac_ex=True,
+):
 
     wf_ac_ex_id = wf_ex_db.action_execution
 
     # Determine if workflow status has changed.
     wf_old_status = wf_ex_db.status
     wf_ex_db.status = conductor.get_workflow_status()
-    status_changed = (wf_old_status != wf_ex_db.status)
+    status_changed = wf_old_status != wf_ex_db.status
 
     if status_changed:
         msg = '[%s] Updating workflow execution from status "%s" to "%s".'
@@ -1079,8 +1114,10 @@ def update_execution_records(wf_ex_db, conductor, update_lv_ac_on_statuses=None,
     wf_ex_db = wf_db_access.WorkflowExecution.update(wf_ex_db, publish=pub_wf_ex)
 
     # Return if workflow execution status is not specified in update_lv_ac_on_statuses.
-    if (isinstance(update_lv_ac_on_statuses, list) and
-            wf_ex_db.status not in update_lv_ac_on_statuses):
+    if (
+        isinstance(update_lv_ac_on_statuses, list)
+        and wf_ex_db.status not in update_lv_ac_on_statuses
+    ):
         return
 
     # Update the corresponding liveaction and action execution for the workflow.
@@ -1099,7 +1136,7 @@ def update_execution_records(wf_ex_db, conductor, update_lv_ac_on_statuses=None,
 
     # Sync update with corresponding liveaction and action execution.
     if pub_lv_ac or pub_ac_ex:
-        pub_lv_ac = (wf_lv_ac_db.status != wf_ex_db.status)
+        pub_lv_ac = wf_lv_ac_db.status != wf_ex_db.status
         pub_ac_ex = pub_lv_ac
 
     if wf_lv_ac_db.status != wf_ex_db.status:
@@ -1115,7 +1152,8 @@ def update_execution_records(wf_ex_db, conductor, update_lv_ac_on_statuses=None,
         result=result,
         end_timestamp=wf_ex_db.end_timestamp,
         liveaction_db=wf_lv_ac_db,
-        publish=pub_lv_ac)
+        publish=pub_lv_ac,
+    )
 
     ex_svc.update_execution(wf_lv_ac_db, publish=pub_ac_ex)
 

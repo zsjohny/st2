@@ -24,16 +24,15 @@ from st2common.fields import ComplexDateTimeField
 from st2common.util import date as date_utils
 from st2common.constants.types import ResourceType
 
-__all__ = [
-    'ActionExecutionSchedulingQueueItemDB',
-]
+__all__ = ['ActionExecutionSchedulingQueueItemDB']
 
 
 LOG = logging.getLogger(__name__)
 
 
-class ActionExecutionSchedulingQueueItemDB(stormbase.StormFoundationDB,
-        stormbase.ChangeRevisionFieldMixin):
+class ActionExecutionSchedulingQueueItemDB(
+    stormbase.StormFoundationDB, stormbase.ChangeRevisionFieldMixin
+):
     """
     A model which represents a request for execution to be scheduled.
 
@@ -44,22 +43,21 @@ class ActionExecutionSchedulingQueueItemDB(stormbase.StormFoundationDB,
     RESOURCE_TYPE = ResourceType.EXECUTION_REQUEST
     UID_FIELDS = ['id']
 
-    liveaction_id = me.StringField(required=True,
-        help_text='Foreign key to the LiveActionDB which is to be scheduled')
+    liveaction_id = me.StringField(
+        required=True, help_text='Foreign key to the LiveActionDB which is to be scheduled'
+    )
     scheduled_start_timestamp = ComplexDateTimeField(
         default=date_utils.get_datetime_utc_now,
-        help_text='The timestamp when the liveaction was created.')
+        help_text='The timestamp when the liveaction was created.',
+    )
     delay = me.IntField()
-    handling = me.BooleanField(default=False,
+    handling = me.BooleanField(
+        default=False,
         help_text='Flag indicating if this item is currently being handled / '
-                   'processed by a scheduler service')
+        'processed by a scheduler service',
+    )
 
-    meta = {
-        'indexes': [
-            {'fields': ['liveaction_id']},
-            {'fields': ['scheduled_start_timestamp']},
-        ]
-    }
+    meta = {'indexes': [{'fields': ['liveaction_id']}, {'fields': ['scheduled_start_timestamp']}]}
 
 
 MODELS = [ActionExecutionSchedulingQueueItemDB]

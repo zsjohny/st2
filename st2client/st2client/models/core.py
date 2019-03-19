@@ -38,6 +38,7 @@ def add_auth_token_to_kwargs_from_env(func):
             kwargs['api_key'] = os.environ.get('ST2_API_KEY')
 
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -79,8 +80,11 @@ class Resource(object):
         exclude_attributes = exclude_attributes or []
 
         attributes = list(self.__dict__.keys())
-        attributes = [attr for attr in attributes if not attr.startswith('__') and
-                      attr not in exclude_attributes]
+        attributes = [
+            attr
+            for attr in attributes
+            if not attr.startswith('__') and attr not in exclude_attributes
+        ]
 
         result = {}
         for attribute in attributes:
@@ -100,15 +104,14 @@ class Resource(object):
     @classmethod
     def get_plural_name(cls):
         if not cls._plural:
-            raise Exception('The %s class is missing class attributes '
-                            'in its definition.' % cls.__name__)
+            raise Exception(
+                'The %s class is missing class attributes ' 'in its definition.' % cls.__name__
+            )
         return cls._plural
 
     @classmethod
     def get_plural_display_name(cls):
-        return (cls._plural_display_name
-                if cls._plural_display_name
-                else cls._plural)
+        return cls._plural_display_name if cls._plural_display_name else cls._plural
 
     @classmethod
     def get_url_path_name(cls):
@@ -118,9 +121,7 @@ class Resource(object):
         return cls.get_plural_name().lower()
 
     def serialize(self):
-        return dict((k, v)
-                    for k, v in six.iteritems(self.__dict__)
-                    if not k.startswith('_'))
+        return dict((k, v) for k, v in six.iteritems(self.__dict__) if not k.startswith('_'))
 
     @classmethod
     def deserialize(cls, doc):
@@ -147,7 +148,6 @@ class Resource(object):
 
 
 class ResourceManager(object):
-
     def __init__(self, resource, endpoint, cacert=None, debug=False):
         self.resource = resource
         self.debug = debug
@@ -161,8 +161,10 @@ class ResourceManager(object):
             if fault:
                 response.reason += '\nMESSAGE: %s' % fault
         except Exception as e:
-            response.reason += ('\nUnable to retrieve detailed message '
-                                'from the HTTP response. %s\n' % six.text_type(e))
+            response.reason += (
+                '\nUnable to retrieve detailed message '
+                'from the HTTP response. %s\n' % six.text_type(e)
+            )
         response.raise_for_status()
 
     @add_auth_token_to_kwargs_from_env
@@ -191,8 +193,7 @@ class ResourceManager(object):
         response = self.client.get(url=url, params=params, **kwargs)
         if response.status_code != http_client.OK:
             self.handle_error(response)
-        return [self.resource.deserialize(item)
-                for item in response.json()]
+        return [self.resource.deserialize(item) for item in response.json()]
 
     @add_auth_token_to_kwargs_from_env
     def get_by_id(self, id, **kwargs):
@@ -216,8 +217,12 @@ class ResourceManager(object):
         api_key = kwargs.pop('api_key', None)
 
         if kwargs:
-            url = '/%s/%s/%s/?%s' % (self.resource.get_url_path_name(), id_, property_name,
-                                     urllib.parse.urlencode(kwargs))
+            url = '/%s/%s/%s/?%s' % (
+                self.resource.get_url_path_name(),
+                id_,
+                property_name,
+                urllib.parse.urlencode(kwargs),
+            )
         else:
             url = '/%s/%s/%s/' % (self.resource.get_url_path_name(), id_, property_name)
 
@@ -255,8 +260,7 @@ class ResourceManager(object):
             if k not in ['token', 'api_key', 'params']:
                 params[k] = v
 
-        url = '/%s/?%s' % (self.resource.get_url_path_name(),
-                           urllib.parse.urlencode(params))
+        url = '/%s/?%s' % (self.resource.get_url_path_name(), urllib.parse.urlencode(params))
 
         if token:
             response = self.client.get(url, token=token)
@@ -294,8 +298,10 @@ class ResourceManager(object):
             return None
         else:
             if len(instances) > 1:
-                raise Exception('More than one %s named "%s" are found.' %
-                                (self.resource.__name__.lower(), name))
+                raise Exception(
+                    'More than one %s named "%s" are found.'
+                    % (self.resource.__name__.lower(), name)
+                )
             return instances[0]
 
     @add_auth_token_to_kwargs_from_env
@@ -321,9 +327,11 @@ class ResourceManager(object):
         url = '/%s/%s' % (self.resource.get_url_path_name(), instance.id)
         response = self.client.delete(url, **kwargs)
 
-        if response.status_code not in [http_client.OK,
-                                        http_client.NO_CONTENT,
-                                        http_client.NOT_FOUND]:
+        if response.status_code not in [
+            http_client.OK,
+            http_client.NO_CONTENT,
+            http_client.NOT_FOUND,
+        ]:
             self.handle_error(response)
             return False
 
@@ -333,9 +341,11 @@ class ResourceManager(object):
     def delete_by_id(self, instance_id, **kwargs):
         url = '/%s/%s' % (self.resource.get_url_path_name(), instance_id)
         response = self.client.delete(url, **kwargs)
-        if response.status_code not in [http_client.OK,
-                                        http_client.NO_CONTENT,
-                                        http_client.NOT_FOUND]:
+        if response.status_code not in [
+            http_client.OK,
+            http_client.NO_CONTENT,
+            http_client.NOT_FOUND,
+        ]:
             self.handle_error(response)
             return False
         try:
@@ -390,7 +400,7 @@ class ExecutionResourceManager(ResourceManager):
             'parameters': parameters or {},
             'tasks': tasks,
             'reset': list(set(tasks) - set(no_reset)),
-            'delay': delay
+            'delay': delay,
         }
 
         response = self.client.post(url, data, **kwargs)
@@ -455,7 +465,6 @@ class ExecutionResourceManager(ResourceManager):
 
 
 class InquiryResourceManager(ResourceManager):
-
     @add_auth_token_to_kwargs_from_env
     def respond(self, inquiry_id, inquiry_response, **kwargs):
         """
@@ -464,10 +473,7 @@ class InquiryResourceManager(ResourceManager):
         """
         url = '/%s/%s' % (self.resource.get_url_path_name(), inquiry_id)
 
-        payload = {
-            "id": inquiry_id,
-            "response": inquiry_response
-        }
+        payload = {"id": inquiry_id, "response": inquiry_response}
 
         response = self.client.put(url, payload, **kwargs)
 
@@ -495,11 +501,7 @@ class PackResourceManager(ResourceManager):
     @add_auth_token_to_kwargs_from_env
     def install(self, packs, force=False, python3=False, **kwargs):
         url = '/%s/install' % (self.resource.get_url_path_name())
-        payload = {
-            'packs': packs,
-            'force': force,
-            'python3': python3
-        }
+        payload = {'packs': packs, 'force': force, 'python3': python3}
         response = self.client.post(url, payload, **kwargs)
         if response.status_code != http_client.OK:
             self.handle_error(response)
@@ -573,10 +575,7 @@ class WebhookManager(ResourceManager):
         url = '/webhooks/st2'
 
         headers = {}
-        data = {
-            'trigger': trigger,
-            'payload': payload or {}
-        }
+        data = {'trigger': trigger, 'payload': payload or {}}
 
         if trace_tag:
             headers['St2-Trace-Tag'] = trace_tag
@@ -706,7 +705,6 @@ class ServiceRegistryGroupsManager(ResourceManager):
 
 
 class ServiceRegistryMembersManager(ResourceManager):
-
     @add_auth_token_to_kwargs_from_env
     def list(self, group_id, **kwargs):
         url = '/service_registry/groups/%s/members' % (group_id)
@@ -724,7 +722,7 @@ class ServiceRegistryMembersManager(ResourceManager):
             data = {
                 'group_id': group_id,
                 'member_id': member['member_id'],
-                'capabilities': member['capabilities']
+                'capabilities': member['capabilities'],
             }
             item = self.resource.deserialize(data)
             result.append(item)

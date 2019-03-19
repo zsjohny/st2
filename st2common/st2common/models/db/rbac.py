@@ -25,10 +25,9 @@ __all__ = [
     'UserRoleAssignmentDB',
     'PermissionGrantDB',
     'GroupToRoleMappingDB',
-
     'role_access',
     'user_role_assignment_access',
-    'permission_grant_access'
+    'permission_grant_access',
 ]
 
 
@@ -43,17 +42,13 @@ class RoleDB(stormbase.StormFoundationDB):
         permission_grants: A list of IDs to the permission grant which apply to this
         role.
     """
+
     name = me.StringField(required=True, unique=True)
     description = me.StringField()
     system = me.BooleanField(default=False)
     permission_grants = me.ListField(field=me.StringField())
 
-    meta = {
-        'indexes': [
-            {'fields': ['name']},
-            {'fields': ['system']},
-        ]
-    }
+    meta = {'indexes': [{'fields': ['name']}, {'fields': ['system']}]}
 
 
 class UserRoleAssignmentDB(stormbase.StormFoundationDB):
@@ -67,6 +62,7 @@ class UserRoleAssignmentDB(stormbase.StormFoundationDB):
                 and "API" for API assignments.
         description: Optional assigment description.
     """
+
     user = me.StringField(required=True)
     role = me.StringField(required=True, unique_with=['user', 'source'])
     source = me.StringField(required=True, unique_with=['user', 'role'])
@@ -98,15 +94,12 @@ class PermissionGrantDB(stormbase.StormFoundationDB):
         convenience and to allow for more efficient queries.
         permission_types: A list of permission type granted to that resources.
     """
+
     resource_uid = me.StringField(required=False)
     resource_type = me.StringField(required=False)
     permission_types = me.ListField(field=me.StringField())
 
-    meta = {
-        'indexes': [
-            {'fields': ['resource_uid']},
-        ]
-    }
+    meta = {'indexes': [{'fields': ['resource_uid']}]}
 
 
 class GroupToRoleMappingDB(stormbase.StormFoundationDB):
@@ -120,12 +113,14 @@ class GroupToRoleMappingDB(stormbase.StormFoundationDB):
                 and "API" for API assignments.
         description: Optional description for this mapping.
     """
+
     group = me.StringField(required=True, unique=True)
     roles = me.ListField(field=me.StringField())
     source = me.StringField()
     description = me.StringField()
-    enabled = me.BooleanField(required=True, default=True,
-                              help_text='A flag indicating whether the mapping is enabled.')
+    enabled = me.BooleanField(
+        required=True, default=True, help_text='A flag indicating whether the mapping is enabled.'
+    )
 
 
 # Specialized access objects

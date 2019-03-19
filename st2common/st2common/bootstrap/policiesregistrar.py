@@ -30,11 +30,7 @@ from st2common.exceptions.db import StackStormDBObjectNotFoundError
 from st2common.util import loader
 
 
-__all__ = [
-    'PolicyRegistrar',
-    'register_policy_types',
-    'register_policies'
-]
+__all__ = ['PolicyRegistrar', 'register_policy_types', 'register_policies']
 
 
 LOG = logging.getLogger(__name__)
@@ -55,8 +51,7 @@ class PolicyRegistrar(ResourceRegistrar):
         self.register_packs(base_dirs=base_dirs)
 
         registered_count = 0
-        content = self._pack_loader.get_content(base_dirs=base_dirs,
-                                                content_type='policies')
+        content = self._pack_loader.get_content(base_dirs=base_dirs, content_type='policies')
 
         for pack, policies_dir in six.iteritems(content):
             if not policies_dir:
@@ -85,8 +80,9 @@ class PolicyRegistrar(ResourceRegistrar):
         pack_dir = pack_dir[:-1] if pack_dir.endswith('/') else pack_dir
         _, pack = os.path.split(pack_dir)
 
-        policies_dir = self._pack_loader.get_content_from_pack(pack_dir=pack_dir,
-                                                               content_type='policies')
+        policies_dir = self._pack_loader.get_content_from_pack(
+            pack_dir=pack_dir, content_type='policies'
+        )
 
         # Register pack first
         self.register_pack(pack_name=pack, pack_dir=pack_dir)
@@ -121,8 +117,11 @@ class PolicyRegistrar(ResourceRegistrar):
                 self._register_policy(pack=pack, policy=policy)
             except Exception as e:
                 if self._fail_on_failure:
-                    msg = ('Failed to register policy "%s" from pack "%s": %s' % (policy, pack,
-                                                                                  six.text_type(e)))
+                    msg = 'Failed to register policy "%s" from pack "%s": %s' % (
+                        policy,
+                        pack,
+                        six.text_type(e),
+                    )
                     raise ValueError(msg)
 
                 LOG.exception('Unable to register policy: %s', policy)
@@ -139,14 +138,15 @@ class PolicyRegistrar(ResourceRegistrar):
             content['pack'] = pack
             pack_field = pack
         if pack_field != pack:
-            raise Exception('Model is in pack "%s" but field "pack" is different: %s' %
-                            (pack, pack_field))
+            raise Exception(
+                'Model is in pack "%s" but field "pack" is different: %s' % (pack, pack_field)
+            )
 
         # Add in "metadata_file" attribute which stores path to the pack metadata file relative to
         # the pack directory
-        metadata_file = content_utils.get_relative_path_to_pack_file(pack_ref=pack,
-                                                                     file_path=policy,
-                                                                     use_pack_cache=True)
+        metadata_file = content_utils.get_relative_path_to_pack_file(
+            pack_ref=pack, file_path=policy, use_pack_cache=True
+        )
         content['metadata_file'] = metadata_file
 
         policy_api = PolicyAPI(**content)
@@ -189,8 +189,7 @@ def register_policy_types(module):
                 if existing_entry:
                     policy_type_db.id = existing_entry.id
             except StackStormDBObjectNotFoundError:
-                LOG.debug('Policy type "%s" is not found. Creating new entry.',
-                          policy_type_db.ref)
+                LOG.debug('Policy type "%s" is not found. Creating new entry.', policy_type_db.ref)
 
             policy_type_db = PolicyType.add_or_update(policy_type_db)
             extra = {'policy_type_db': policy_type_db}
@@ -203,16 +202,16 @@ def register_policy_types(module):
     return registered_count
 
 
-def register_policies(packs_base_paths=None, pack_dir=None, use_pack_cache=True,
-                     fail_on_failure=False):
+def register_policies(
+    packs_base_paths=None, pack_dir=None, use_pack_cache=True, fail_on_failure=False
+):
     if packs_base_paths:
         assert isinstance(packs_base_paths, list)
 
     if not packs_base_paths:
         packs_base_paths = content_utils.get_packs_base_paths()
 
-    registrar = PolicyRegistrar(use_pack_cache=use_pack_cache,
-                                fail_on_failure=fail_on_failure)
+    registrar = PolicyRegistrar(use_pack_cache=use_pack_cache, fail_on_failure=fail_on_failure)
 
     if pack_dir:
         result = registrar.register_from_pack(pack_dir=pack_dir)

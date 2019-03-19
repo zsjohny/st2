@@ -37,16 +37,23 @@ from st2common.util.pack_management import apply_pack_owner_group
 from st2common.content.utils import get_packs_base_paths
 from st2common.content.utils import get_pack_directory
 
-__all__ = [
-    'setup_pack_virtualenv'
-]
+__all__ = ['setup_pack_virtualenv']
 
 LOG = logging.getLogger(__name__)
 
 
-def setup_pack_virtualenv(pack_name, update=False, logger=None, include_pip=True,
-                          include_setuptools=True, include_wheel=True, proxy_config=None,
-                          use_python3=False, no_download=True, force_owner_group=True):
+def setup_pack_virtualenv(
+    pack_name,
+    update=False,
+    logger=None,
+    include_pip=True,
+    include_setuptools=True,
+    include_wheel=True,
+    proxy_config=None,
+    use_python3=False,
+    no_download=True,
+    force_owner_group=True,
+):
 
     """
     Setup virtual environment for the provided pack.
@@ -93,34 +100,49 @@ def setup_pack_virtualenv(pack_name, update=False, logger=None, include_pip=True
 
         # 1. Create virtual environment
         logger.debug('Creating virtualenv for pack "%s" in "%s"' % (pack_name, virtualenv_path))
-        create_virtualenv(virtualenv_path=virtualenv_path, logger=logger, include_pip=include_pip,
-                          include_setuptools=include_setuptools, include_wheel=include_wheel,
-                          use_python3=use_python3, no_download=no_download)
+        create_virtualenv(
+            virtualenv_path=virtualenv_path,
+            logger=logger,
+            include_pip=include_pip,
+            include_setuptools=include_setuptools,
+            include_wheel=include_wheel,
+            use_python3=use_python3,
+            no_download=no_download,
+        )
 
     # 2. Install base requirements which are common to all the packs
     logger.debug('Installing base requirements')
     for requirement in BASE_PACK_REQUIREMENTS:
-        install_requirement(virtualenv_path=virtualenv_path, requirement=requirement,
-                            proxy_config=proxy_config, logger=logger)
+        install_requirement(
+            virtualenv_path=virtualenv_path,
+            requirement=requirement,
+            proxy_config=proxy_config,
+            logger=logger,
+        )
 
     # 3. Install base Python 3 requirements which are common to all the packs
     if use_python3:
         logger.debug('Installing base Python 3 requirements')
         for requirement in BASE_PACK_PYTHON3_REQUIREMENTS:
-            install_requirement(virtualenv_path=virtualenv_path, requirement=requirement,
-                                proxy_config=proxy_config, logger=logger)
+            install_requirement(
+                virtualenv_path=virtualenv_path,
+                requirement=requirement,
+                proxy_config=proxy_config,
+                logger=logger,
+            )
 
     # 4. Install pack-specific requirements
     requirements_file_path = os.path.join(pack_path, 'requirements.txt')
     has_requirements = os.path.isfile(requirements_file_path)
 
     if has_requirements:
-        logger.debug('Installing pack specific requirements from "%s"' %
-                     (requirements_file_path))
-        install_requirements(virtualenv_path=virtualenv_path,
-                             requirements_file_path=requirements_file_path,
-                             proxy_config=proxy_config,
-                             logger=logger)
+        logger.debug('Installing pack specific requirements from "%s"' % (requirements_file_path))
+        install_requirements(
+            virtualenv_path=virtualenv_path,
+            requirements_file_path=requirements_file_path,
+            proxy_config=proxy_config,
+            logger=logger,
+        )
     else:
         logger.debug('No pack specific requirements found')
 
@@ -129,12 +151,20 @@ def setup_pack_virtualenv(pack_name, update=False, logger=None, include_pip=True
         apply_pack_owner_group(pack_path=virtualenv_path)
 
     action = 'updated' if update else 'created'
-    logger.debug('Virtualenv for pack "%s" successfully %s in "%s"' %
-                 (pack_name, action, virtualenv_path))
+    logger.debug(
+        'Virtualenv for pack "%s" successfully %s in "%s"' % (pack_name, action, virtualenv_path)
+    )
 
 
-def create_virtualenv(virtualenv_path, logger=None, include_pip=True, include_setuptools=True,
-                      include_wheel=True, use_python3=False, no_download=True):
+def create_virtualenv(
+    virtualenv_path,
+    logger=None,
+    include_pip=True,
+    include_setuptools=True,
+    include_wheel=True,
+    use_python3=False,
+    no_download=True,
+):
     """
     :param include_pip: Include pip binary and package in the newely created virtual environment.
     :type include_pip: ``bool``
@@ -167,14 +197,17 @@ def create_virtualenv(virtualenv_path, logger=None, include_pip=True, include_se
     if not os.path.isfile(virtualenv_binary):
         raise Exception('Virtualenv binary "%s" doesn\'t exist.' % (virtualenv_binary))
 
-    logger.debug('Creating virtualenv in "%s" using Python binary "%s"' %
-                 (virtualenv_path, python_binary))
+    logger.debug(
+        'Creating virtualenv in "%s" using Python binary "%s"' % (virtualenv_path, python_binary)
+    )
 
     cmd = [virtualenv_binary]
 
     if use_python3 and not python3_binary:
-        msg = ('Requested to use Python 3, but python3 binary not found on the system or '
-               'actionrunner.python3 config option is not configured correctly.')
+        msg = (
+            'Requested to use Python 3, but python3 binary not found on the system or '
+            'actionrunner.python3 config option is not configured correctly.'
+        )
         raise ValueError(msg)
 
     if use_python3:
@@ -202,12 +235,10 @@ def create_virtualenv(virtualenv_path, logger=None, include_pip=True, include_se
     try:
         exit_code, _, stderr = run_command(cmd=cmd)
     except OSError as e:
-        raise Exception('Error executing command %s. %s.' % (' '.join(cmd),
-                                                             six.text_type(e)))
+        raise Exception('Error executing command %s. %s.' % (' '.join(cmd), six.text_type(e)))
 
     if exit_code != 0:
-        raise Exception('Failed to create virtualenv in "%s": %s' %
-                        (virtualenv_path, stderr))
+        raise Exception('Failed to create virtualenv in "%s": %s' % (virtualenv_path, stderr))
 
     return True
 
@@ -257,16 +288,21 @@ def install_requirements(virtualenv_path, requirements_file_path, proxy_config=N
     cmd.extend(['install', '-U', '-r', requirements_file_path])
     env = get_env_for_subprocess_command()
 
-    logger.debug('Installing requirements from file %s with command %s.',
-                 requirements_file_path, ' '.join(cmd))
+    logger.debug(
+        'Installing requirements from file %s with command %s.',
+        requirements_file_path,
+        ' '.join(cmd),
+    )
     exit_code, stdout, stderr = run_command(cmd=cmd, env=env)
 
     if exit_code != 0:
         stdout = to_ascii(stdout)
         stderr = to_ascii(stderr)
 
-        raise Exception('Failed to install requirements from "%s": %s (stderr: %s)' %
-                        (requirements_file_path, stdout, stderr))
+        raise Exception(
+            'Failed to install requirements from "%s": %s (stderr: %s)'
+            % (requirements_file_path, stdout, stderr)
+        )
 
     return True
 
@@ -297,13 +333,11 @@ def install_requirement(virtualenv_path, requirement, proxy_config=None, logger=
 
     cmd.extend(['install', requirement])
     env = get_env_for_subprocess_command()
-    logger.debug('Installing requirement %s with command %s.',
-                 requirement, ' '.join(cmd))
+    logger.debug('Installing requirement %s with command %s.', requirement, ' '.join(cmd))
     exit_code, stdout, stderr = run_command(cmd=cmd, env=env)
 
     if exit_code != 0:
-        raise Exception('Failed to install requirement "%s": %s' %
-                        (requirement, stdout))
+        raise Exception('Failed to install requirement "%s": %s' % (requirement, stdout))
 
     return True
 

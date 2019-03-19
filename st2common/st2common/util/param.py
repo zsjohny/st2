@@ -38,17 +38,14 @@ from st2common.util import jinja as jinja_utils
 LOG = logging.getLogger(__name__)
 ENV = jinja_utils.get_jinja_environment()
 
-__all__ = [
-    'render_live_params',
-    'render_final_params',
-]
+__all__ = ['render_live_params', 'render_final_params']
 
 
 def _split_params(runner_parameters, action_parameters, mixed_params):
     def pf(params, skips):
-        result = {k: v for k, v in six.iteritems(mixed_params)
-                  if k in params and k not in skips}
+        result = {k: v for k, v in six.iteritems(mixed_params) if k in params and k not in skips}
         return result
+
     return (pf(runner_parameters, {}), pf(action_parameters, runner_parameters))
 
 
@@ -91,8 +88,10 @@ def _create_graph(action_context, config):
     if not user:
         # When no user is not specified, this selects system-user's scope by default.
         user = cfg.CONF.system_user.user
-        LOG.info('Unable to retrieve user / api_user value from action_context. Falling back '
-                 'to and using system_user (%s).' % (user))
+        LOG.info(
+            'Unable to retrieve user / api_user value from action_context. Falling back '
+            'to and using system_user (%s).' % (user)
+        )
 
     system_keyvalue_context[USER_SCOPE] = UserKeyValueLookup(scope=FULL_USER_SCOPE, user=user)
     G.add_node(DATASTORE_PARENT_SCOPE, value=system_keyvalue_context)
@@ -114,10 +113,8 @@ def _process(G, name, value):
     if isinstance(value, list) or isinstance(value, dict):
         complex_value_str = str(value)
 
-    is_jinja_expr = (
-        jinja_utils.is_jinja_expression(value) or jinja_utils.is_jinja_expression(
-            complex_value_str
-        )
+    is_jinja_expr = jinja_utils.is_jinja_expression(value) or jinja_utils.is_jinja_expression(
+        complex_value_str
     )
 
     if is_jinja_expr:
@@ -173,8 +170,10 @@ def _validate(G):
             variable_names.append(variable_name)
 
         variable_names = ', '.join(sorted(variable_names))
-        msg = ('Cyclic dependency found in the following variables: %s. Likely the variable is '
-               'referencing itself' % (variable_names))
+        msg = (
+            'Cyclic dependency found in the following variables: %s. Likely the variable is '
+            'referencing itself' % (variable_names)
+        )
         raise ParamException(msg)
 
 
@@ -192,8 +191,7 @@ def _render(node, render_context):
             # so types are honored. If it doesn't follow that syntax then it's
             # rendered as a string.
             node['template'] = re.sub(
-                r'"{{([A-z0-9_-]+)}}"', r'{{\1 | to_complex}}',
-                node['template']
+                r'"{{([A-z0-9_-]+)}}"', r'{{\1 | to_complex}}', node['template']
             )
             LOG.debug('Rendering complex type: %s', node['template'])
             complex_type = True
@@ -263,8 +261,10 @@ def _cast_params_from(params, context, schemas):
 
             # Skip if the parameter doesn't have a default, or if the
             # value in the context is identical to the default
-            if 'default' not in param_details or \
-                    param_details.get('default') == context[param_name]:
+            if (
+                'default' not in param_details
+                or param_details.get('default') == context[param_name]
+            ):
                 continue
 
             # Skip if the default value isn't a Jinja expression
@@ -280,8 +280,9 @@ def _cast_params_from(params, context, schemas):
     return result
 
 
-def render_live_params(runner_parameters, action_parameters, params, action_context,
-                       additional_contexts=None):
+def render_live_params(
+    runner_parameters, action_parameters, params, action_context, additional_contexts=None
+):
     '''
     Renders list of parameters. Ensures that there's no cyclic or missing dependencies. Returns a
     dict of plain rendered parameters.
@@ -294,8 +295,9 @@ def render_live_params(runner_parameters, action_parameters, params, action_cont
     try:
         config = get_config(pack, user)
     except Exception as e:
-        LOG.info('Failed to retrieve config for pack %s and user %s: %s' % (pack, user,
-                 six.text_type(e)))
+        LOG.info(
+            'Failed to retrieve config for pack %s and user %s: %s' % (pack, user, six.text_type(e))
+        )
         config = {}
 
     G = _create_graph(action_context, config)
@@ -336,13 +338,16 @@ def render_final_params(runner_parameters, action_parameters, params, action_con
     return _split_params(runner_parameters, action_parameters, context)
 
 
-def get_finalized_params(runnertype_parameter_info, action_parameter_info, liveaction_parameters,
-                         action_context):
+def get_finalized_params(
+    runnertype_parameter_info, action_parameter_info, liveaction_parameters, action_context
+):
     '''
     Left here to keep tests running. Later we would need to split tests so they start testing each
     function separately.
     '''
-    params = render_live_params(runnertype_parameter_info, action_parameter_info,
-                                liveaction_parameters, action_context)
-    return render_final_params(runnertype_parameter_info, action_parameter_info, params,
-                               action_context)
+    params = render_live_params(
+        runnertype_parameter_info, action_parameter_info, liveaction_parameters, action_context
+    )
+    return render_final_params(
+        runnertype_parameter_info, action_parameter_info, params, action_context
+    )

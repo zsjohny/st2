@@ -23,9 +23,7 @@ from st2common.metrics.base import get_driver
 
 LOG = logging.getLogger('st2reactor.rules.RulesEngine')
 
-__all__ = [
-    'RulesEngine'
-]
+__all__ = ['RulesEngine']
 
 
 class RulesEngine(object):
@@ -53,18 +51,22 @@ class RulesEngine(object):
 
         rules = get_rules_given_trigger(trigger=trigger)
 
-        LOG.info('Found %d rules defined for trigger %s', len(rules),
-                 trigger_db.get_reference().ref)
+        LOG.info(
+            'Found %d rules defined for trigger %s', len(rules), trigger_db.get_reference().ref
+        )
 
         if len(rules) < 1:
             return rules
 
-        matcher = RulesMatcher(trigger_instance=trigger_instance,
-                               trigger=trigger_db, rules=rules)
+        matcher = RulesMatcher(trigger_instance=trigger_instance, trigger=trigger_db, rules=rules)
 
         matching_rules = matcher.get_matching_rules()
-        LOG.info('Matched %s rule(s) for trigger_instance %s (trigger=%s)', len(matching_rules),
-                 trigger_instance['id'], trigger_db.ref)
+        LOG.info(
+            'Matched %s rule(s) for trigger_instance %s (trigger=%s)',
+            len(matching_rules),
+            trigger_instance['id'],
+            trigger_db.ref,
+        )
         return matching_rules
 
     def create_rule_enforcers(self, trigger_instance, matching_rules):

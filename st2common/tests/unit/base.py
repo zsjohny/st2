@@ -25,12 +25,10 @@ from st2common.exceptions.db import StackStormDBObjectNotFoundError
 
 __all__ = [
     'BaseDBModelCRUDTestCase',
-
     'FakeModel',
     'FakeModelDB',
-
     'ChangeRevFakeModel',
-    'ChangeRevFakeModelDB'
+    'ChangeRevFakeModelDB',
 ]
 
 
@@ -68,8 +66,9 @@ class BaseDBModelCRUDTestCase(object):
 
         # 3. Test delete
         self.persistance_class.delete(model_db)
-        self.assertRaises(StackStormDBObjectNotFoundError, self.persistance_class.get_by_id,
-                          model_db.id)
+        self.assertRaises(
+            StackStormDBObjectNotFoundError, self.persistance_class.get_by_id, model_db.id
+        )
 
 
 class FakeModelDB(stormbase.StormBaseDB):

@@ -20,7 +20,6 @@ from st2common.util import jinja as jinja_utils
 
 
 class JinjaUtilsRegexFilterTestCase(unittest2.TestCase):
-
     def test_filters_regex_match(self):
         env = jinja_utils.get_jinja_environment()
 

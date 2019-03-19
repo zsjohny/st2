@@ -39,22 +39,17 @@ __all__ = [
     'get_all_role_assignments',
     'get_role_assignments_for_user',
     'get_role_by_name',
-
     'create_role',
     'delete_role',
-
     'assign_role_to_user',
     'revoke_role_from_user',
-
     'get_all_permission_grants_for_user',
     'create_permission_grant',
     'create_permission_grant_for_resource_db',
     'remove_permission_grant_for_resource_db',
-
     'get_all_group_to_role_maps',
     'create_group_to_role_map',
-
-    'validate_roles_exists'
+    'validate_roles_exists',
 ]
 
 
@@ -102,8 +97,7 @@ def get_roles_for_user(user_db, include_remote=True):
     else:
         # when upgrading from pre v2.3.0 when this field didn't exist yet
         # Note: We also include None for pre v2.3 when this field didn't exist yet
-        queryset_filter = (Q(user=user_db.name) &
-                           (Q(is_remote=False) | Q(is_remote__exists=False)))
+        queryset_filter = Q(user=user_db.name) & (Q(is_remote=False) | Q(is_remote__exists=False))
         queryset = UserRoleAssignmentDB.objects(queryset_filter)
 
     role_names = queryset.only('role').scalar('role')
@@ -125,7 +119,7 @@ def get_all_role_assignments(include_remote=True):
     else:
         # Note: We also include documents with no "is_remote" field so it also works correctly
         # when upgrading from pre v2.3.0 when this field didn't exist yet
-        queryset_filter = (Q(is_remote=False) | Q(is_remote__exists=False))
+        queryset_filter = Q(is_remote=False) | Q(is_remote__exists=False)
         result = UserRoleAssignmentDB.objects(queryset_filter)
 
     return result
@@ -148,8 +142,7 @@ def get_role_assignments_for_user(user_db, include_remote=True):
     else:
         # Note: We also include documents with no "is_remote" field so it also works correctly
         # when upgrading from pre v2.3.0 when this field didn't exist yet
-        queryset_filter = (Q(user=user_db.name) &
-                           (Q(is_remote=False) | Q(is_remote__exists=False)))
+        queryset_filter = Q(user=user_db.name) & (Q(is_remote=False) | Q(is_remote__exists=False))
         result = UserRoleAssignmentDB.objects(queryset_filter)
 
     return result
@@ -189,8 +182,14 @@ def delete_role(name):
     return result
 
 
-def assign_role_to_user(role_db, user_db, description=None, is_remote=False, source=None,
-                        ignore_already_exists_error=False):
+def assign_role_to_user(
+    role_db,
+    user_db,
+    description=None,
+    is_remote=False,
+    source=None,
+    ignore_already_exists_error=False,
+):
     """
     Assign role to a user.
 
@@ -213,8 +212,13 @@ def assign_role_to_user(role_db, user_db, description=None, is_remote=False, sou
     :param: ignore_already_exists_error: True to ignore error if an assignment already exists.
     :type ignore_already_exists_error: ``bool``
     """
-    role_assignment_db = UserRoleAssignmentDB(user=user_db.name, role=role_db.name, source=source,
-                                              description=description, is_remote=is_remote)
+    role_assignment_db = UserRoleAssignmentDB(
+        user=user_db.name,
+        role=role_db.name,
+        source=source,
+        description=description,
+        is_remote=is_remote,
+    )
 
     try:
         role_assignment_db = UserRoleAssignment.add_or_update(role_assignment_db)
@@ -222,9 +226,9 @@ def assign_role_to_user(role_db, user_db, description=None, is_remote=False, sou
         if not ignore_already_exists_error:
             raise e
 
-        role_assignment_db = UserRoleAssignment.query(user=user_db.name, role=role_db.name,
-                                                      source=source,
-                                                      description=description).first()
+        role_assignment_db = UserRoleAssignment.query(
+            user=user_db.name, role=role_db.name, source=source, description=description
+        ).first()
 
     return role_assignment_db
 
@@ -245,8 +249,9 @@ def revoke_role_from_user(role_db, user_db):
         UserRoleAssignment.delete(role_assignment_db)
 
 
-def get_all_permission_grants_for_user(user_db, resource_uid=None, resource_types=None,
-                                       permission_types=None):
+def get_all_permission_grants_for_user(
+    user_db, resource_uid=None, resource_types=None, permission_types=None
+):
     """
     Retrieve all the permission grants for a particular user optionally filtering on:
 
@@ -289,15 +294,19 @@ def create_permission_grant_for_resource_db(role_db, resource_db, permission_typ
     :param resource_db: Resource to create the permission assignment for.
     :type resource_db: :class:`StormFoundationDB`
     """
-    permission_types = _validate_permission_types(resource_db=resource_db,
-                                                  permission_types=permission_types)
+    permission_types = _validate_permission_types(
+        resource_db=resource_db, permission_types=permission_types
+    )
 
     resource_uid = resource_db.get_uid()
     resource_type = resource_db.get_resource_type()
 
-    result = create_permission_grant(role_db=role_db, resource_uid=resource_uid,
-                                     resource_type=resource_type,
-                                     permission_types=permission_types)
+    result = create_permission_grant(
+        role_db=role_db,
+        resource_uid=resource_uid,
+        resource_type=resource_type,
+        permission_types=permission_types,
+    )
     return result
 
 
@@ -309,9 +318,9 @@ def create_permission_grant(role_db, resource_uid, resource_type, permission_typ
     :type role_db: :class:`RoleDB`
     """
     # Create or update the PermissionGrantDB
-    permission_grant_db = PermissionGrantDB(resource_uid=resource_uid,
-                                            resource_type=resource_type,
-                                            permission_types=permission_types)
+    permission_grant_db = PermissionGrantDB(
+        resource_uid=resource_uid, resource_type=resource_type, permission_types=permission_types
+    )
     permission_grant_db = PermissionGrant.add_or_update(permission_grant_db)
 
     # Add assignment to the role
@@ -330,13 +339,14 @@ def remove_permission_grant_for_resource_db(role_db, resource_db, permission_typ
     :param resource_db: Resource to remove the permission assignment from.
     :type resource_db: :class:`StormFoundationDB`
     """
-    permission_types = _validate_permission_types(resource_db=resource_db,
-                                                  permission_types=permission_types)
+    permission_types = _validate_permission_types(
+        resource_db=resource_db, permission_types=permission_types
+    )
     resource_uid = resource_db.get_uid()
     resource_type = resource_db.get_resource_type()
-    permission_grant_db = PermissionGrant.get(resource_uid=resource_uid,
-                                              resource_type=resource_type,
-                                              permission_types=permission_types)
+    permission_grant_db = PermissionGrant.get(
+        resource_uid=resource_uid, resource_type=resource_type, permission_types=permission_types
+    )
 
     # Remove assignment from a role
     role_db.update(pull__permission_grants=str(permission_grant_db.id))
@@ -350,11 +360,9 @@ def get_all_group_to_role_maps():
 
 
 def create_group_to_role_map(group, roles, description=None, enabled=True, source=None):
-    group_to_role_map_db = GroupToRoleMappingDB(group=group,
-                                                roles=roles,
-                                                source=source,
-                                                description=description,
-                                                enabled=enabled)
+    group_to_role_map_db = GroupToRoleMappingDB(
+        group=group, roles=roles, source=source, description=description, enabled=enabled
+    )
 
     group_to_role_map_db = GroupToRoleMapping.add_or_update(group_to_role_map_db)
 
@@ -384,8 +392,9 @@ def _validate_resource_type(resource_db):
     valid_resource_types = ResourceType.get_valid_values()
 
     if resource_type not in valid_resource_types:
-        raise ValueError('Permissions cannot be manipulated for a resource of type: %s' %
-                         (resource_type))
+        raise ValueError(
+            'Permissions cannot be manipulated for a resource of type: %s' % (resource_type)
+        )
 
     return resource_db
 

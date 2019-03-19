@@ -39,7 +39,7 @@ __all__ = [
     'is_property_nullable',
     'is_attribute_type_array',
     'is_attribute_type_object',
-    'validate'
+    'validate',
 ]
 
 # https://github.com/json-schema/json-schema/blob/master/draft-04/schema
@@ -51,10 +51,9 @@ PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 SCHEMAS = {
     'draft4': jsonify.load_file(os.path.join(PATH, 'draft4.json')),
     'custom': jsonify.load_file(os.path.join(PATH, 'custom.json')),
-
     # Custom schema for action params which doesn't allow parameter "type" attribute to be array
     'action_params': jsonify.load_file(os.path.join(PATH, 'action_params.json')),
-    'action_output_schema': jsonify.load_file(os.path.join(PATH, 'action_output_schema.json'))
+    'action_output_schema': jsonify.load_file(os.path.join(PATH, 'action_output_schema.json')),
 }
 
 SCHEMA_ANY_TYPE = {
@@ -64,17 +63,11 @@ SCHEMA_ANY_TYPE = {
         {"type": "integer"},
         {"type": "number"},
         {"type": "object"},
-        {"type": "string"}
+        {"type": "string"},
     ]
 }
 
-RUNNER_PARAM_OVERRIDABLE_ATTRS = [
-    'default',
-    'description',
-    'enum',
-    'immutable',
-    'required'
-]
+RUNNER_PARAM_OVERRIDABLE_ATTRS = ['default', 'description', 'enum', 'immutable', 'required']
 
 
 def get_draft_schema(version='custom', additional_properties=False):
@@ -89,8 +82,7 @@ def get_action_output_schema(additional_properties=True):
     Return a generic schema which is used for validating action output.
     """
     return get_draft_schema(
-        version='action_output_schema',
-        additional_properties=additional_properties
+        version='action_output_schema', additional_properties=additional_properties
     )
 
 
@@ -135,15 +127,18 @@ CustomValidator = create(
 
 
 def is_property_type_single(property_schema):
-    return (isinstance(property_schema, dict) and
-            'anyOf' not in list(property_schema.keys()) and
-            'oneOf' not in list(property_schema.keys()) and
-            not isinstance(property_schema.get('type', 'string'), list))
+    return (
+        isinstance(property_schema, dict)
+        and 'anyOf' not in list(property_schema.keys())
+        and 'oneOf' not in list(property_schema.keys())
+        and not isinstance(property_schema.get('type', 'string'), list)
+    )
 
 
 def is_property_type_list(property_schema):
-    return (isinstance(property_schema, dict) and
-            isinstance(property_schema.get('type', 'string'), list))
+    return isinstance(property_schema, dict) and isinstance(
+        property_schema.get('type', 'string'), list
+    )
 
 
 def is_property_type_anyof(property_schema):
@@ -157,22 +152,36 @@ def is_property_type_oneof(property_schema):
 def is_property_nullable(property_type_schema):
     # For anyOf and oneOf, the property_schema is a list of types.
     if isinstance(property_type_schema, list):
-        return len([t for t in property_type_schema
-                    if ((isinstance(t, six.string_types) and t == 'null') or
-                        (isinstance(t, dict) and t.get('type', 'string') == 'null'))]) > 0
+        return (
+            len(
+                [
+                    t
+                    for t in property_type_schema
+                    if (
+                        (isinstance(t, six.string_types) and t == 'null')
+                        or (isinstance(t, dict) and t.get('type', 'string') == 'null')
+                    )
+                ]
+            )
+            > 0
+        )
 
-    return (isinstance(property_type_schema, dict) and
-            property_type_schema.get('type', 'string') == 'null')
+    return (
+        isinstance(property_type_schema, dict)
+        and property_type_schema.get('type', 'string') == 'null'
+    )
 
 
 def is_attribute_type_array(attribute_type):
-    return (attribute_type == 'array' or
-            (isinstance(attribute_type, list) and 'array' in attribute_type))
+    return attribute_type == 'array' or (
+        isinstance(attribute_type, list) and 'array' in attribute_type
+    )
 
 
 def is_attribute_type_object(attribute_type):
-    return (attribute_type == 'object' or
-            (isinstance(attribute_type, list) and 'object' in attribute_type))
+    return attribute_type == 'object' or (
+        isinstance(attribute_type, list) and 'object' in attribute_type
+    )
 
 
 def assign_default_values(instance, schema):
@@ -207,15 +216,19 @@ def assign_default_values(instance, schema):
         schema_items = property_data.get('items', {})
 
         # Array
-        if (is_attribute_type_array(attribute_type) and
-                schema_items and schema_items.get('properties', {})):
+        if (
+            is_attribute_type_array(attribute_type)
+            and schema_items
+            and schema_items.get('properties', {})
+        ):
             array_instance = instance.get(property_name, None)
             array_schema = schema['properties'][property_name]['items']
 
             if array_instance is not None:
                 # Note: We don't perform subschema assignment if no value is provided
-                instance[property_name] = assign_default_values(instance=array_instance,
-                                                                schema=array_schema)
+                instance[property_name] = assign_default_values(
+                    instance=array_instance, schema=array_schema
+                )
 
         # Object
         if is_attribute_type_object(attribute_type) and property_data.get('properties', {}):
@@ -224,8 +237,9 @@ def assign_default_values(instance, schema):
 
             if object_instance is not None:
                 # Note: We don't perform subschema assignment if no value is provided
-                instance[property_name] = assign_default_values(instance=object_instance,
-                                                                schema=object_schema)
+                instance[property_name] = assign_default_values(
+                    instance=object_instance, schema=object_schema
+                )
 
     return instance
 
@@ -246,17 +260,21 @@ def modify_schema_allow_default_none(schema):
 
         if (has_default_value or is_optional) and default_value is None:
             # If property is anyOf and oneOf then it has to be process differently.
-            if (is_property_type_anyof(property_schema) and
-                    not is_property_nullable(property_schema['anyOf'])):
+            if is_property_type_anyof(property_schema) and not is_property_nullable(
+                property_schema['anyOf']
+            ):
                 property_schema['anyOf'].append({'type': 'null'})
-            elif (is_property_type_oneof(property_schema) and
-                    not is_property_nullable(property_schema['oneOf'])):
+            elif is_property_type_oneof(property_schema) and not is_property_nullable(
+                property_schema['oneOf']
+            ):
                 property_schema['oneOf'].append({'type': 'null'})
-            elif (is_property_type_list(property_schema) and
-                    not is_property_nullable(property_schema.get('type'))):
+            elif is_property_type_list(property_schema) and not is_property_nullable(
+                property_schema.get('type')
+            ):
                 property_schema['type'].append('null')
-            elif (is_property_type_single(property_schema) and
-                    not is_property_nullable(property_schema.get('type'))):
+            elif is_property_type_single(property_schema) and not is_property_nullable(
+                property_schema.get('type')
+            ):
                 property_schema['type'] = [property_schema.get('type', 'string'), 'null']
 
         # Support for nested properties (array and object)
@@ -264,8 +282,11 @@ def modify_schema_allow_default_none(schema):
         schema_items = property_data.get('items', {})
 
         # Array
-        if (is_attribute_type_array(attribute_type) and
-                schema_items and schema_items.get('properties', {})):
+        if (
+            is_attribute_type_array(attribute_type)
+            and schema_items
+            and schema_items.get('properties', {})
+        ):
             array_schema = schema_items
             array_schema = modify_schema_allow_default_none(schema=array_schema)
             schema['properties'][property_name]['items'] = array_schema
@@ -279,8 +300,9 @@ def modify_schema_allow_default_none(schema):
     return schema
 
 
-def validate(instance, schema, cls=None, use_default=True, allow_default_none=False, *args,
-             **kwargs):
+def validate(
+    instance, schema, cls=None, use_default=True, allow_default_none=False, *args, **kwargs
+):
     """
     Custom validate function which supports default arguments combined with the "required"
     property.
@@ -307,10 +329,7 @@ def validate(instance, schema, cls=None, use_default=True, allow_default_none=Fa
     return instance
 
 
-VALIDATORS = {
-    'draft4': jsonschema.Draft4Validator,
-    'custom': CustomValidator
-}
+VALIDATORS = {'draft4': jsonschema.Draft4Validator, 'custom': CustomValidator}
 
 
 def get_validator(version='custom'):
@@ -318,17 +337,19 @@ def get_validator(version='custom'):
     return validator
 
 
-def validate_runner_parameter_attribute_override(action_ref, param_name, attr_name,
-                                                 runner_param_attr_value, action_param_attr_value):
+def validate_runner_parameter_attribute_override(
+    action_ref, param_name, attr_name, runner_param_attr_value, action_param_attr_value
+):
     """
     Validate that the provided parameter from the action schema can override the
     runner parameter.
     """
     param_values_are_the_same = action_param_attr_value == runner_param_attr_value
-    if (attr_name not in RUNNER_PARAM_OVERRIDABLE_ATTRS and not param_values_are_the_same):
+    if attr_name not in RUNNER_PARAM_OVERRIDABLE_ATTRS and not param_values_are_the_same:
         raise InvalidActionParameterException(
             'The attribute "%s" for the runner parameter "%s" in action "%s" '
-            'cannot be overridden.' % (attr_name, param_name, action_ref))
+            'cannot be overridden.' % (attr_name, param_name, action_ref)
+        )
 
     return True
 
@@ -341,6 +362,7 @@ def get_schema_for_action_parameters(action_db, runnertype_db=None):
     """
     if not runnertype_db:
         from st2common.util.action_db import get_runnertype_by_name
+
         runnertype_db = get_runnertype_by_name(action_db.runner_type['name'])
 
     # Note: We need to perform a deep merge because user can only specify a single parameter
@@ -359,11 +381,13 @@ def get_schema_for_action_parameters(action_db, runnertype_db=None):
 
         for attribute, value in six.iteritems(schema):
             runner_param_value = runnertype_db.runner_parameters[name].get(attribute)
-            validate_runner_parameter_attribute_override(action_ref=action_db.ref,
-                                                         param_name=name,
-                                                         attr_name=attribute,
-                                                         runner_param_attr_value=runner_param_value,
-                                                         action_param_attr_value=value)
+            validate_runner_parameter_attribute_override(
+                action_ref=action_db.ref,
+                param_name=name,
+                attr_name=attribute,
+                runner_param_attr_value=runner_param_value,
+                action_param_attr_value=value,
+            )
 
     schema = get_schema_for_resource_parameters(parameters_schema=parameters_schema)
 
@@ -379,6 +403,7 @@ def get_schema_for_resource_parameters(parameters_schema, allow_additional_prope
     """
     Dynamically construct JSON schema for the provided resource from the parameters metadata.
     """
+
     def normalize(x):
         return {k: v if v else SCHEMA_ANY_TYPE for k, v in six.iteritems(x)}
 

@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = [
-    'MASKED_ATTRIBUTES_BLACKLIST',
-    'MASKED_ATTRIBUTE_VALUE'
-]
+__all__ = ['MASKED_ATTRIBUTES_BLACKLIST', 'MASKED_ATTRIBUTE_VALUE']
 
 # A blacklist of attributes which should be masked in the log messages by default.
 # Note: If an attribute is an object or a dict, we try to recursively process it and mask the
@@ -27,7 +24,7 @@ MASKED_ATTRIBUTES_BLACKLIST = [
     'token',
     'secret',
     'credentials',
-    'st2_auth_token'
+    'st2_auth_token',
 ]
 
 # Value with which the masked attribute values are replaced

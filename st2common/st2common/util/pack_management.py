@@ -47,14 +47,11 @@ from st2common.util.versioning import get_python_version
 
 __all__ = [
     'download_pack',
-
     'get_repo_url',
     'eval_repo_url',
-
     'apply_pack_owner_group',
     'apply_pack_permissions',
-
-    'get_and_set_proxy_config'
+    'get_and_set_proxy_config',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -64,8 +61,16 @@ CURRENT_STACKSTORM_VERSION = get_stackstorm_version()
 CURRENT_PYTHON_VERSION = get_python_version()
 
 
-def download_pack(pack, abs_repo_base='/opt/stackstorm/packs', verify_ssl=True, force=False,
-                  proxy_config=None, force_owner_group=True, force_permissions=True, logger=LOG):
+def download_pack(
+    pack,
+    abs_repo_base='/opt/stackstorm/packs',
+    verify_ssl=True,
+    force=False,
+    proxy_config=None,
+    force_owner_group=True,
+    force_permissions=True,
+    logger=LOG,
+):
     """
     Download the pack and move it to /opt/stackstorm/packs.
 
@@ -118,8 +123,9 @@ def download_pack(pack, abs_repo_base='/opt/stackstorm/packs', verify_ssl=True, 
             abs_local_path = os.path.join(user_home, temp_dir_name)
 
             # 1. Clone / download the repo
-            clone_repo(temp_dir=abs_local_path, repo_url=pack_url, verify_ssl=verify_ssl,
-                       ref=pack_version)
+            clone_repo(
+                temp_dir=abs_local_path, repo_url=pack_url, verify_ssl=verify_ssl, ref=pack_version
+            )
 
             pack_ref = get_pack_ref(pack_dir=abs_local_path)
             result[1] = pack_ref
@@ -129,11 +135,14 @@ def download_pack(pack, abs_repo_base='/opt/stackstorm/packs', verify_ssl=True, 
                 verify_pack_version(pack_dir=abs_local_path)
 
             # 3. Move pack to the final location
-            move_result = move_pack(abs_repo_base=abs_repo_base, pack_name=pack_ref,
-                                    abs_local_path=abs_local_path,
-                                    force_owner_group=force_owner_group,
-                                    force_permissions=force_permissions,
-                                    logger=logger)
+            move_result = move_pack(
+                abs_repo_base=abs_repo_base,
+                pack_name=pack_ref,
+                abs_local_path=abs_local_path,
+                force_owner_group=force_owner_group,
+                force_permissions=force_permissions,
+                logger=logger,
+            )
             result[2] = move_result
         finally:
             cleanup_repo(abs_local_path=abs_local_path)
@@ -225,8 +234,14 @@ def clone_repo(temp_dir, repo_url, verify_ssl=True, ref='master'):
     return temp_dir
 
 
-def move_pack(abs_repo_base, pack_name, abs_local_path, force_owner_group=True,
-             force_permissions=True, logger=LOG):
+def move_pack(
+    abs_repo_base,
+    pack_name,
+    abs_local_path,
+    force_owner_group=True,
+    force_permissions=True,
+    logger=LOG,
+):
     """
     Move pack directory into the final location.
     """
@@ -236,8 +251,7 @@ def move_pack(abs_repo_base, pack_name, abs_local_path, force_owner_group=True,
         to = abs_repo_base
         dest_pack_path = os.path.join(abs_repo_base, pack_name)
         if os.path.exists(dest_pack_path):
-            logger.debug('Removing existing pack %s in %s to replace.', pack_name,
-                         dest_pack_path)
+            logger.debug('Removing existing pack %s in %s to replace.', pack_name, dest_pack_path)
 
             # Ensure to preserve any existing configuration
             old_config_file = os.path.join(dest_pack_path, CONFIG_FILE)
@@ -282,8 +296,10 @@ def apply_pack_owner_group(pack_path):
 
         if exit_code != 0:
             # Non fatal, but we still log it
-            LOG.debug('Failed to change owner group on directory "%s" to "%s": %s' %
-                      (pack_path, pack_group, stderr))
+            LOG.debug(
+                'Failed to change owner group on directory "%s" to "%s": %s'
+                % (pack_path, pack_group, stderr)
+            )
 
     return True
 
@@ -355,14 +371,15 @@ def eval_repo_url(repo_url):
 def is_desired_pack(abs_pack_path, pack_name):
     # path has to exist.
     if not os.path.exists(abs_pack_path):
-        return (False, 'Pack "%s" not found or it\'s missing a "pack.yaml" file.' %
-                (pack_name))
+        return (False, 'Pack "%s" not found or it\'s missing a "pack.yaml" file.' % (pack_name))
 
     # should not include reserved characters
     for character in PACK_RESERVED_CHARACTERS:
         if character in pack_name:
-            return (False, 'Pack name "%s" contains reserved character "%s"' %
-                    (pack_name, character))
+            return (
+                False,
+                'Pack name "%s" contains reserved character "%s"' % (pack_name, character),
+            )
 
     # must contain a manifest file. Empty file is ok for now.
     if not os.path.isfile(os.path.join(abs_pack_path, MANIFEST_FILE_NAME)):
@@ -384,22 +401,28 @@ def verify_pack_version(pack_dir):
     # running version of StackStorm
     if required_stackstorm_version:
         if not complex_semver_match(CURRENT_STACKSTORM_VERSION, required_stackstorm_version):
-            msg = ('Pack "%s" requires StackStorm "%s", but current version is "%s". '
-                   'You can override this restriction by providing the "force" flag, but '
-                   'the pack is not guaranteed to work.' %
-                   (pack_name, required_stackstorm_version, CURRENT_STACKSTORM_VERSION))
+            msg = (
+                'Pack "%s" requires StackStorm "%s", but current version is "%s". '
+                'You can override this restriction by providing the "force" flag, but '
+                'the pack is not guaranteed to work.'
+                % (pack_name, required_stackstorm_version, CURRENT_STACKSTORM_VERSION)
+            )
             raise ValueError(msg)
 
     if supported_python_versions:
         if set(supported_python_versions) == set(['2']) and not six.PY2:
-            msg = ('Pack "%s" requires Python 2.x, but current Python version is "%s". '
-                   'You can override this restriction by providing the "force" flag, but '
-                   'the pack is not guaranteed to work.' % (pack_name, CURRENT_PYTHON_VERSION))
+            msg = (
+                'Pack "%s" requires Python 2.x, but current Python version is "%s". '
+                'You can override this restriction by providing the "force" flag, but '
+                'the pack is not guaranteed to work.' % (pack_name, CURRENT_PYTHON_VERSION)
+            )
             raise ValueError(msg)
         elif set(supported_python_versions) == set(['3']) and not six.PY3:
-            msg = ('Pack "%s" requires Python 3.x, but current Python version is "%s". '
-                   'You can override this restriction by providing the "force" flag, but '
-                   'the pack is not guaranteed to work.' % (pack_name, CURRENT_PYTHON_VERSION))
+            msg = (
+                'Pack "%s" requires Python 3.x, but current Python version is "%s". '
+                'You can override this restriction by providing the "force" flag, but '
+                'the pack is not guaranteed to work.' % (pack_name, CURRENT_PYTHON_VERSION)
+            )
             raise ValueError(msg)
         else:
             # Pack support Python 2.x and 3.x so no check is needed
@@ -441,8 +464,7 @@ def get_pack_ref(pack_dir):
     Read pack reference from the metadata file and sanitize it.
     """
     metadata = get_pack_metadata(pack_dir=pack_dir)
-    pack_ref = get_pack_ref_from_metadata(metadata=metadata,
-                                          pack_directory_name=None)
+    pack_ref = get_pack_ref_from_metadata(metadata=metadata, pack_directory_name=None)
     return pack_ref
 
 
@@ -461,7 +483,7 @@ def get_and_set_proxy_config():
             'https_proxy': https_proxy,
             'http_proxy': http_proxy,
             'proxy_ca_bundle_path': proxy_ca_bundle_path,
-            'no_proxy': no_proxy
+            'no_proxy': no_proxy,
         }
 
     if https_proxy and not os.environ.get('https_proxy', None):

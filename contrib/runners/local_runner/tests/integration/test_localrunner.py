@@ -22,6 +22,7 @@ from oslo_config import cfg
 
 import st2tests.config as tests_config
 from six.moves import range
+
 tests_config.parse_args()
 
 from st2common.constants import action as action_constants
@@ -40,10 +41,7 @@ from local_runner import base as local_runner
 from local_runner.local_shell_command_runner import LocalShellCommandRunner
 from local_runner.local_shell_script_runner import LocalShellScriptRunner
 
-__all__ = [
-    'LocalShellCommandRunnerTestCase',
-    'LocalShellScriptRunnerTestCase'
-]
+__all__ = ['LocalShellCommandRunnerTestCase', 'LocalShellScriptRunnerTestCase']
 
 MOCK_EXECUTION = mock.Mock()
 MOCK_EXECUTION.id = '598dbf0c0640fd54bffc688b'
@@ -60,7 +58,8 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_shell_command_action_basic(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
         runner = self._get_runner(action_db, cmd='echo 10')
@@ -93,7 +92,8 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_timeout(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
         # smaller timeout == faster tests.
         runner = self._get_runner(action_db, cmd='sleep 10', timeout=0.01)
@@ -102,12 +102,11 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         runner.post_run(status, result)
         self.assertEquals(status, action_constants.LIVEACTION_STATUS_TIMED_OUT)
 
-    @mock.patch.object(
-        shell, 'run_command',
-        mock.MagicMock(return_value=(-15, '', '', False)))
+    @mock.patch.object(shell, 'run_command', mock.MagicMock(return_value=(-15, '', '', False)))
     def test_shutdown(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
         runner = self._get_runner(action_db, cmd='sleep 0.1')
         runner.pre_run()
@@ -116,7 +115,8 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_common_st2_env_vars_are_available_to_the_action(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
         runner = self._get_runner(action_db, cmd='echo $ST2_ACTION_API_URL')
@@ -140,7 +140,8 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         # root / non-system user
         # Note: This test will fail if SETENV option is not present in the sudoers file
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
         cmd = 'echo `whoami` ; echo ${VAR1}'
@@ -164,28 +165,24 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         mock_spawn.side_effect = blocking_eventlet_spawn
 
         # No output to stdout and no result (implicit None)
-        mock_stdout = [
-            'stdout line 1\n',
-            'stdout line 2\n',
-        ]
-        mock_stderr = [
-            'stderr line 1\n',
-            'stderr line 2\n',
-            'stderr line 3\n'
-        ]
+        mock_stdout = ['stdout line 1\n', 'stdout line 2\n']
+        mock_stderr = ['stderr line 1\n', 'stderr line 2\n', 'stderr line 3\n']
 
         mock_process = mock.Mock()
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
         mock_process.stdout.closed = False
         mock_process.stderr.closed = False
-        mock_process.stdout.readline = make_mock_stream_readline(mock_process.stdout, mock_stdout,
-                                                                 stop_counter=2)
-        mock_process.stderr.readline = make_mock_stream_readline(mock_process.stderr, mock_stderr,
-                                                                 stop_counter=3)
+        mock_process.stdout.readline = make_mock_stream_readline(
+            mock_process.stdout, mock_stdout, stop_counter=2
+        )
+        mock_process.stderr.readline = make_mock_stream_readline(
+            mock_process.stderr, mock_stderr, stop_counter=3
+        )
 
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
         runner = self._get_runner(action_db, cmd='echo $ST2_ACTION_API_URL')
@@ -213,12 +210,14 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     @mock.patch('st2common.util.green.shell.subprocess.Popen')
     @mock.patch('st2common.util.green.shell.eventlet.spawn')
-    def test_action_stdout_and_stderr_is_stored_in_the_db_short_running_action(self, mock_spawn,
-                                                                               mock_popen):
+    def test_action_stdout_and_stderr_is_stored_in_the_db_short_running_action(
+        self, mock_spawn, mock_popen
+    ):
         # Verify that we correctly retrieve all the output and wait for stdout and stderr reading
         # threads for short running actions.
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
         # Feature is enabled
@@ -229,14 +228,8 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         mock_spawn.side_effect = blocking_eventlet_spawn
 
         # No output to stdout and no result (implicit None)
-        mock_stdout = [
-            'stdout line 1\n',
-            'stdout line 2\n'
-        ]
-        mock_stderr = [
-            'stderr line 1\n',
-            'stderr line 2\n'
-        ]
+        mock_stdout = ['stdout line 1\n', 'stdout line 2\n']
+        mock_stderr = ['stderr line 1\n', 'stderr line 2\n']
 
         # We add a sleep to simulate action process exiting before we finish reading data from
         mock_process = mock.Mock()
@@ -244,11 +237,12 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         mock_popen.return_value = mock_process
         mock_process.stdout.closed = False
         mock_process.stderr.closed = False
-        mock_process.stdout.readline = make_mock_stream_readline(mock_process.stdout, mock_stdout,
-                                                                 stop_counter=2,
-                                                                 sleep_delay=1)
-        mock_process.stderr.readline = make_mock_stream_readline(mock_process.stderr, mock_stderr,
-                                                                 stop_counter=2)
+        mock_process.stdout.readline = make_mock_stream_readline(
+            mock_process.stdout, mock_stdout, stop_counter=2, sleep_delay=1
+        )
+        mock_process.stderr.readline = make_mock_stream_readline(
+            mock_process.stderr, mock_stderr, stop_counter=2
+        )
 
         for index in range(1, 4):
             mock_process.stdout.closed = False
@@ -295,16 +289,13 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
     def test_shell_command_sudo_password_is_passed_to_sudo_binary(self):
         # Verify that sudo password is correctly passed to sudo binary via stdin
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
-        sudo_passwords = [
-            'pass 1',
-            'sudopass',
-            '$sudo p@ss 2'
-        ]
+        sudo_passwords = ['pass 1', 'sudopass', '$sudo p@ss 2']
 
-        cmd = ('{ read sudopass; echo $sudopass; }')
+        cmd = '{ read sudopass; echo $sudopass; }'
 
         # without sudo
         for sudo_password in sudo_passwords:
@@ -314,8 +305,7 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             status, result, _ = runner.run({})
             runner.post_run(status, result)
 
-            self.assertEquals(status,
-                    action_constants.LIVEACTION_STATUS_SUCCEEDED)
+            self.assertEquals(status, action_constants.LIVEACTION_STATUS_SUCCEEDED)
             self.assertEquals(result['stdout'], sudo_password)
 
         # with sudo
@@ -327,8 +317,7 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             status, result, _ = runner.run({})
             runner.post_run(status, result)
 
-            self.assertEquals(status,
-                    action_constants.LIVEACTION_STATUS_SUCCEEDED)
+            self.assertEquals(status, action_constants.LIVEACTION_STATUS_SUCCEEDED)
             self.assertEquals(result['stdout'], sudo_password)
 
         # Verify new process which provides password via stdin to the command is created
@@ -356,46 +345,54 @@ class LocalShellCommandRunnerTestCase(RunnerTestCase, CleanDbTestCase):
     def test_shell_command_invalid_stdout_password(self):
         # Simulate message printed to stderr by sudo when invalid sudo password is provided
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local.yaml']}
+        )
         action_db = models['actions']['local.yaml']
 
-        cmd = ('echo  "[sudo] password for bar: Sorry, try again.\n[sudo] password for bar:'
-               ' Sorry, try again.\n[sudo] password for bar: \nsudo: 2 incorrect password '
-               'attempts" 1>&2; exit 1')
+        cmd = (
+            'echo  "[sudo] password for bar: Sorry, try again.\n[sudo] password for bar:'
+            ' Sorry, try again.\n[sudo] password for bar: \nsudo: 2 incorrect password '
+            'attempts" 1>&2; exit 1'
+        )
         runner = self._get_runner(action_db, cmd=cmd)
         runner.pre_run()
         runner._sudo_password = 'pass'
         status, result, _ = runner.run({})
         runner.post_run(status, result)
 
-        expected_error = ('Invalid sudo password provided or sudo is not configured for this '
-                          'user (bar)')
+        expected_error = (
+            'Invalid sudo password provided or sudo is not configured for this ' 'user (bar)'
+        )
         self.assertEquals(status, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertEqual(result['error'], expected_error)
         self.assertEquals(result['stdout'], '')
 
     @staticmethod
-    def _get_runner(action_db,
-                    entry_point=None,
-                    cmd=None,
-                    on_behalf_user=None,
-                    user=None,
-                    kwarg_op=local_runner.DEFAULT_KWARG_OP,
-                    timeout=LOCAL_RUNNER_DEFAULT_ACTION_TIMEOUT,
-                    sudo=False,
-                    env=None):
+    def _get_runner(
+        action_db,
+        entry_point=None,
+        cmd=None,
+        on_behalf_user=None,
+        user=None,
+        kwarg_op=local_runner.DEFAULT_KWARG_OP,
+        timeout=LOCAL_RUNNER_DEFAULT_ACTION_TIMEOUT,
+        sudo=False,
+        env=None,
+    ):
         runner = LocalShellCommandRunner(uuid.uuid4().hex)
         runner.execution = MOCK_EXECUTION
         runner.action = action_db
         runner.action_name = action_db.name
         runner.liveaction_id = uuid.uuid4().hex
         runner.entry_point = entry_point
-        runner.runner_parameters = {local_runner.RUNNER_COMMAND: cmd,
-                                    local_runner.RUNNER_SUDO: sudo,
-                                    local_runner.RUNNER_ENV: env,
-                                    local_runner.RUNNER_ON_BEHALF_USER: user,
-                                    local_runner.RUNNER_KWARG_OP: kwarg_op,
-                                    local_runner.RUNNER_TIMEOUT: timeout}
+        runner.runner_parameters = {
+            local_runner.RUNNER_COMMAND: cmd,
+            local_runner.RUNNER_SUDO: sudo,
+            local_runner.RUNNER_ENV: env,
+            local_runner.RUNNER_ON_BEHALF_USER: user,
+            local_runner.RUNNER_KWARG_OP: kwarg_op,
+            local_runner.RUNNER_TIMEOUT: timeout,
+        }
         runner.context = dict()
         runner.callback = dict()
         runner.libs_dir_path = None
@@ -415,10 +412,12 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_script_with_parameters_parameter_serialization(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local_script_with_params.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local_script_with_params.yaml']}
+        )
         action_db = models['actions']['local_script_with_params.yaml']
-        entry_point = os.path.join(get_fixtures_base_path(),
-                                   'generic/actions/local_script_with_params.sh')
+        entry_point = os.path.join(
+            get_fixtures_base_path(), 'generic/actions/local_script_with_params.sh'
+        )
 
         action_parameters = {
             'param_string': 'test string',
@@ -426,7 +425,7 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             'param_float': 2.55,
             'param_boolean': True,
             'param_list': ['a', 'b', 'c'],
-            'param_object': {'foo': 'bar'}
+            'param_object': {'foo': 'bar'},
         }
 
         runner = self._get_runner(action_db=action_db, entry_point=entry_point)
@@ -447,7 +446,7 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             'param_float': 2.55,
             'param_boolean': False,
             'param_list': ['a', 'b', 'c'],
-            'param_object': {'foo': 'bar'}
+            'param_object': {'foo': 'bar'},
         }
 
         runner = self._get_runner(action_db=action_db, entry_point=entry_point)
@@ -458,11 +457,7 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         self.assertEqual(status, action_constants.LIVEACTION_STATUS_SUCCEEDED)
         self.assertTrue('PARAM_BOOLEAN=0' in result['stdout'])
 
-        action_parameters = {
-            'param_string': '',
-            'param_integer': None,
-            'param_float': None,
-        }
+        action_parameters = {'param_string': '', 'param_integer': None, 'param_float': None}
 
         runner = self._get_runner(action_db=action_db, entry_point=entry_point)
         runner.pre_run()
@@ -487,7 +482,7 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             'param_float': 2.55,
             'param_boolean': True,
             'param_list': ['a', 'b', 'c'],
-            'param_object': {'foo': 'bar'}
+            'param_object': {'foo': 'bar'},
         }
 
         runner = self._get_runner(action_db=action_db, entry_point=entry_point)
@@ -522,33 +517,28 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         mock_spawn.side_effect = blocking_eventlet_spawn
 
         # No output to stdout and no result (implicit None)
-        mock_stdout = [
-            'stdout line 1\n',
-            'stdout line 2\n',
-            'stdout line 3\n',
-            'stdout line 4\n'
-        ]
-        mock_stderr = [
-            'stderr line 1\n',
-            'stderr line 2\n',
-            'stderr line 3\n'
-        ]
+        mock_stdout = ['stdout line 1\n', 'stdout line 2\n', 'stdout line 3\n', 'stdout line 4\n']
+        mock_stderr = ['stderr line 1\n', 'stderr line 2\n', 'stderr line 3\n']
 
         mock_process = mock.Mock()
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
         mock_process.stdout.closed = False
         mock_process.stderr.closed = False
-        mock_process.stdout.readline = make_mock_stream_readline(mock_process.stdout, mock_stdout,
-                                                                 stop_counter=4)
-        mock_process.stderr.readline = make_mock_stream_readline(mock_process.stderr, mock_stderr,
-                                                                 stop_counter=3)
+        mock_process.stdout.readline = make_mock_stream_readline(
+            mock_process.stdout, mock_stdout, stop_counter=4
+        )
+        mock_process.stderr.readline = make_mock_stream_readline(
+            mock_process.stderr, mock_stderr, stop_counter=3
+        )
 
         models = self.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['local_script_with_params.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['local_script_with_params.yaml']}
+        )
         action_db = models['actions']['local_script_with_params.yaml']
-        entry_point = os.path.join(get_fixtures_base_path(),
-                                   'generic/actions/local_script_with_params.sh')
+        entry_point = os.path.join(
+            get_fixtures_base_path(), 'generic/actions/local_script_with_params.sh'
+        )
 
         action_parameters = {
             'param_string': 'test string',
@@ -556,7 +546,7 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             'param_float': 2.55,
             'param_boolean': True,
             'param_list': ['a', 'b', 'c'],
-            'param_object': {'foo': 'bar'}
+            'param_object': {'foo': 'bar'},
         }
 
         runner = self._get_runner(action_db=action_db, entry_point=entry_point)
@@ -564,8 +554,9 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         status, result, _ = runner.run(action_parameters=action_parameters)
         runner.post_run(status, result)
 
-        self.assertEqual(result['stdout'],
-                         'stdout line 1\nstdout line 2\nstdout line 3\nstdout line 4')
+        self.assertEqual(
+            result['stdout'], 'stdout line 1\nstdout line 2\nstdout line 3\nstdout line 4'
+        )
         self.assertEqual(result['stderr'], 'stderr line 1\nstderr line 2\nstderr line 3')
         self.assertEqual(result['return_code'], 0)
 
@@ -585,10 +576,12 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_shell_script_action(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='localrunner_pack', fixtures_dict={'actions': ['text_gen.yml']})
+            fixtures_pack='localrunner_pack', fixtures_dict={'actions': ['text_gen.yml']}
+        )
         action_db = models['actions']['text_gen.yml']
         entry_point = self.fixtures_loader.get_fixture_file_path_abs(
-            'localrunner_pack', 'actions', 'text_gen.py')
+            'localrunner_pack', 'actions', 'text_gen.py'
+        )
         runner = self._get_runner(action_db, entry_point=entry_point)
         runner.pre_run()
         status, result, _ = runner.run({'chars': 1000})
@@ -598,10 +591,12 @@ class LocalShellScriptRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_large_stdout(self):
         models = self.fixtures_loader.load_models(
-            fixtures_pack='localrunner_pack', fixtures_dict={'actions': ['text_gen.yml']})
+            fixtures_pack='localrunner_pack', fixtures_dict={'actions': ['text_gen.yml']}
+        )
         action_db = models['actions']['text_gen.yml']
         entry_point = self.fixtures_loader.get_fixture_file_path_abs(
-            'localrunner_pack', 'actions', 'text_gen.py')
+            'localrunner_pack', 'actions', 'text_gen.py'
+        )
         runner = self._get_runner(action_db, entry_point=entry_point)
         runner.pre_run()
         char_count = 10 ** 6  # Note 10^7 succeeds but ends up being slow.

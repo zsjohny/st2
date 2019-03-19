@@ -23,17 +23,26 @@ from st2exporter.exporter.json_converter import JsonConverter
 DESCENDANTS_PACK = 'descendants'
 
 DESCENDANTS_FIXTURES = {
-    'executions': ['root_execution.yaml', 'child1_level1.yaml', 'child2_level1.yaml',
-                   'child1_level2.yaml', 'child2_level2.yaml', 'child3_level2.yaml',
-                   'child1_level3.yaml', 'child2_level3.yaml', 'child3_level3.yaml']
+    'executions': [
+        'root_execution.yaml',
+        'child1_level1.yaml',
+        'child2_level1.yaml',
+        'child1_level2.yaml',
+        'child2_level2.yaml',
+        'child3_level2.yaml',
+        'child1_level3.yaml',
+        'child2_level3.yaml',
+        'child3_level3.yaml',
+    ]
 }
 
 
 class TestJsonConverter(unittest2.TestCase):
 
     fixtures_loader = FixturesLoader()
-    loaded_fixtures = fixtures_loader.load_fixtures(fixtures_pack=DESCENDANTS_PACK,
-                                                    fixtures_dict=DESCENDANTS_FIXTURES)
+    loaded_fixtures = fixtures_loader.load_fixtures(
+        fixtures_pack=DESCENDANTS_PACK, fixtures_dict=DESCENDANTS_FIXTURES
+    )
 
     def test_convert(self):
         executions_list = list(self.loaded_fixtures['executions'].values())

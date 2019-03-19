@@ -18,8 +18,7 @@ from __future__ import absolute_import
 import yaml
 
 from st2common import log as logging
-from st2common.exceptions.sensors import SensorNotFoundException, \
-    SensorPartitionMapMissingException
+from st2common.exceptions.sensors import SensorNotFoundException, SensorPartitionMapMissingException
 from st2common.persistence.keyvalue import KeyValuePair
 from st2common.persistence.sensor import SensorType
 
@@ -29,7 +28,7 @@ __all__ = [
     'DefaultPartitioner',
     'KVStorePartitioner',
     'FileBasedPartitioner',
-    'SingleSensorPartitioner'
+    'SingleSensorPartitioner',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -43,7 +42,6 @@ def get_all_enabled_sensors():
 
 
 class DefaultPartitioner(object):
-
     def __init__(self, sensor_node_name):
         self.sensor_node_name = sensor_node_name
 
@@ -78,7 +76,6 @@ class DefaultPartitioner(object):
 
 
 class KVStorePartitioner(DefaultPartitioner):
-
     def __init__(self, sensor_node_name):
         super(KVStorePartitioner, self).__init__(sensor_node_name=sensor_node_name)
         self._supported_sensor_refs = None
@@ -91,8 +88,9 @@ class KVStorePartitioner(DefaultPartitioner):
 
         kvp = KeyValuePair.get_by_name(partition_lookup_key)
         sensor_refs_str = kvp.value if kvp.value else ''
-        self._supported_sensor_refs = set([
-            sensor_ref.strip() for sensor_ref in sensor_refs_str.split(',')])
+        self._supported_sensor_refs = set(
+            [sensor_ref.strip() for sensor_ref in sensor_refs_str.split(',')]
+        )
         return self._supported_sensor_refs
 
     def _get_partition_lookup_key(self, sensor_node_name):
@@ -100,7 +98,6 @@ class KVStorePartitioner(DefaultPartitioner):
 
 
 class FileBasedPartitioner(DefaultPartitioner):
-
     def __init__(self, sensor_node_name, partition_file):
         super(FileBasedPartitioner, self).__init__(sensor_node_name=sensor_node_name)
         self.partition_file = partition_file
@@ -114,15 +111,15 @@ class FileBasedPartitioner(DefaultPartitioner):
             partition_map = yaml.safe_load(f)
             sensor_refs = partition_map.get(self.sensor_node_name, None)
             if sensor_refs is None:
-                raise SensorPartitionMapMissingException('Sensor partition not found for %s in %s.'
-                                                         % (self.sensor_node_name,
-                                                            self.partition_file))
+                raise SensorPartitionMapMissingException(
+                    'Sensor partition not found for %s in %s.'
+                    % (self.sensor_node_name, self.partition_file)
+                )
             self._supported_sensor_refs = set(sensor_refs)
             return self._supported_sensor_refs
 
 
 class SingleSensorPartitioner(object):
-
     def __init__(self, sensor_ref):
         self._sensor_ref = sensor_ref
 

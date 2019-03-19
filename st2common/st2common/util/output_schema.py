@@ -28,11 +28,7 @@ LOG = logging.getLogger(__name__)
 def _validate_runner(runner_schema, result):
     LOG.debug('Validating runner output: %s', runner_schema)
 
-    runner_schema = {
-        "type": "object",
-        "properties": runner_schema,
-        "additionalProperties": False
-    }
+    runner_schema = {"type": "object", "properties": runner_schema, "additionalProperties": False}
 
     schema.validate(result, runner_schema, cls=schema.get_validator('custom'))
 
@@ -42,11 +38,7 @@ def _validate_action(action_schema, result, output_key):
 
     final_result = result[output_key]
 
-    action_schema = {
-        "type": "object",
-        "properties": action_schema,
-        "additionalProperties": False
-    }
+    action_schema = {"type": "object", "properties": action_schema, "additionalProperties": False}
 
     schema.validate(final_result, action_schema, cls=schema.get_validator('custom'))
 

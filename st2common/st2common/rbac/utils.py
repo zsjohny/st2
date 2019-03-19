@@ -37,25 +37,20 @@ from st2common.util import action_db as action_utils
 __all__ = [
     'user_has_rule_trigger_permission',
     'user_has_rule_action_permission',
-
     'assert_user_is_admin',
     'assert_user_is_system_admin',
     'assert_user_is_admin_or_operating_on_own_resource',
     'assert_user_has_permission',
     'assert_user_has_resource_db_permission',
-
     'assert_user_is_admin_if_user_query_param_is_provided',
-
     'assert_user_has_rule_trigger_and_action_permission',
-
     'user_is_admin',
     'user_is_system_admin',
     'user_has_permission',
     'user_has_resource_api_permission',
     'user_has_resource_db_permission',
     'user_has_role',
-
-    'get_user_db_from_request'
+    'get_user_db_from_request',
 ]
 
 
@@ -68,8 +63,7 @@ def assert_user_is_admin(user_db):
     is_admin = user_is_admin(user_db=user_db)
 
     if not is_admin:
-        raise AccessDeniedError(message='Administrator access required',
-                                user_db=user_db)
+        raise AccessDeniedError(message='Administrator access required', user_db=user_db)
 
 
 def assert_user_is_system_admin(user_db):
@@ -81,8 +75,7 @@ def assert_user_is_system_admin(user_db):
     is_system_admin = user_is_system_admin(user_db=user_db)
 
     if not is_system_admin:
-        raise AccessDeniedError(message='System Administrator access required',
-                                user_db=user_db)
+        raise AccessDeniedError(message='System Administrator access required', user_db=user_db)
 
 
 def assert_user_is_admin_or_operating_on_own_resource(user_db, user=None):
@@ -97,8 +90,7 @@ def assert_user_is_admin_or_operating_on_own_resource(user_db, user=None):
     is_self = user is not None and (user_db.name == user)
 
     if not is_admin and not is_self:
-        raise AccessDeniedError(message='Administrator or self access required',
-                                user_db=user_db)
+        raise AccessDeniedError(message='Administrator or self access required', user_db=user_db)
 
 
 def assert_user_has_permission(user_db, permission_type):
@@ -118,14 +110,15 @@ def assert_user_has_resource_api_permission(user_db, resource_api, permission_ty
     Check that currently logged-in user has specified permission for the resource which is to be
     created.
     """
-    has_permission = user_has_resource_api_permission(user_db=user_db,
-                                                      resource_api=resource_api,
-                                                      permission_type=permission_type)
+    has_permission = user_has_resource_api_permission(
+        user_db=user_db, resource_api=resource_api, permission_type=permission_type
+    )
 
     if not has_permission:
         # TODO: Refactor exception
-        raise ResourceAccessDeniedError(user_db=user_db, resource_api_or_db=resource_api,
-                                        permission_type=permission_type)
+        raise ResourceAccessDeniedError(
+            user_db=user_db, resource_api_or_db=resource_api, permission_type=permission_type
+        )
 
 
 def assert_user_has_resource_db_permission(user_db, resource_db, permission_type):
@@ -134,13 +127,14 @@ def assert_user_has_resource_db_permission(user_db, resource_db, permission_type
 
     If user doesn't have a required permission, AccessDeniedError is thrown.
     """
-    has_permission = user_has_resource_db_permission(user_db=user_db,
-                                                     resource_db=resource_db,
-                                                     permission_type=permission_type)
+    has_permission = user_has_resource_db_permission(
+        user_db=user_db, resource_db=resource_db, permission_type=permission_type
+    )
 
     if not has_permission:
-        raise ResourceAccessDeniedError(user_db=user_db, resource_api_or_db=resource_db,
-                                        permission_type=permission_type)
+        raise ResourceAccessDeniedError(
+            user_db=user_db, resource_api_or_db=resource_db, permission_type=permission_type
+        )
 
 
 def user_has_rule_trigger_permission(user_db, trigger):
@@ -152,8 +146,9 @@ def user_has_rule_trigger_permission(user_db, trigger):
         return True
 
     rules_resolver = resolvers.get_resolver_for_resource_type(ResourceType.RULE)
-    has_trigger_permission = rules_resolver.user_has_trigger_permission(user_db=user_db,
-                                                                        trigger=trigger)
+    has_trigger_permission = rules_resolver.user_has_trigger_permission(
+        user_db=user_db, trigger=trigger
+    )
 
     if has_trigger_permission:
         return True
@@ -181,7 +176,8 @@ def user_has_rule_action_permission(user_db, action_ref):
 
     action_resolver = resolvers.get_resolver_for_resource_type(ResourceType.ACTION)
     has_action_permission = action_resolver.user_has_resource_db_permission(
-        user_db=user_db, resource_db=action_db, permission_type=PermissionType.ACTION_EXECUTE)
+        user_db=user_db, resource_db=action_db, permission_type=PermissionType.ACTION_EXECUTE
+    )
 
     if has_action_permission:
         return True
@@ -205,21 +201,25 @@ def assert_user_has_rule_trigger_and_action_permission(user_db, rule_api):
 
     # Check that user has access to the specified trigger - right now we only check for
     # webhook permissions
-    has_trigger_permission = user_has_rule_trigger_permission(user_db=user_db,
-                                                              trigger=trigger)
+    has_trigger_permission = user_has_rule_trigger_permission(user_db=user_db, trigger=trigger)
 
     if not has_trigger_permission:
-        msg = ('User "%s" doesn\'t have required permission (%s) to use trigger %s' %
-               (user_db.name, PermissionType.WEBHOOK_CREATE, trigger_type))
+        msg = 'User "%s" doesn\'t have required permission (%s) to use trigger %s' % (
+            user_db.name,
+            PermissionType.WEBHOOK_CREATE,
+            trigger_type,
+        )
         raise AccessDeniedError(message=msg, user_db=user_db)
 
     # Check that user has access to the specified action
-    has_action_permission = user_has_rule_action_permission(user_db=user_db,
-                                                            action_ref=action_ref)
+    has_action_permission = user_has_rule_action_permission(user_db=user_db, action_ref=action_ref)
 
     if not has_action_permission:
-        msg = ('User "%s" doesn\'t have required (%s) permission to use action %s' %
-               (user_db.name, PermissionType.ACTION_EXECUTE, action_ref))
+        msg = 'User "%s" doesn\'t have required (%s) permission to use action %s' % (
+            user_db.name,
+            PermissionType.ACTION_EXECUTE,
+            action_ref,
+        )
         raise AccessDeniedError(message=msg, user_db=user_db)
 
     return True
@@ -319,8 +319,9 @@ def user_has_resource_api_permission(user_db, resource_api, permission_type):
 
     # TODO Verify permission type for the provided resource type
     resolver = resolvers.get_resolver_for_permission_type(permission_type=permission_type)
-    result = resolver.user_has_resource_api_permission(user_db=user_db, resource_api=resource_api,
-                                                       permission_type=permission_type)
+    result = resolver.user_has_resource_api_permission(
+        user_db=user_db, resource_api=resource_api, permission_type=permission_type
+    )
     return result
 
 
@@ -333,8 +334,9 @@ def user_has_resource_db_permission(user_db, resource_db, permission_type):
 
     # TODO Verify permission type for the provided resource type
     resolver = resolvers.get_resolver_for_permission_type(permission_type=permission_type)
-    result = resolver.user_has_resource_db_permission(user_db=user_db, resource_db=resource_db,
-                                                      permission_type=permission_type)
+    result = resolver.user_has_resource_db_permission(
+        user_db=user_db, resource_db=resource_db, permission_type=permission_type
+    )
     return result
 
 

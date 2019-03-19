@@ -31,7 +31,7 @@ class PackDBModelCRUDTestCase(BaseDBModelCRUDTestCase, DbTestCase):
         'description': 'YOLO CI pack',
         'version': '0.1.0',
         'author': 'Volkswagen',
-        'path': '/opt/stackstorm/packs/yolo_ci/'
+        'path': '/opt/stackstorm/packs/yolo_ci/',
     }
     update_attribute_name = 'author'
 
@@ -41,6 +41,6 @@ class PackDBModelCRUDTestCase(BaseDBModelCRUDTestCase, DbTestCase):
             'ref': 'yolo_ci',
             'description': 'YOLO CI pack',
             'version': '0.1.0',
-            'author': 'Volkswagen'
+            'author': 'Volkswagen',
         }
         super(PackDBModelCRUDTestCase, self).test_crud_operations()

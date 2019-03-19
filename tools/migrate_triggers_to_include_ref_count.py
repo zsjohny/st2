@@ -27,7 +27,6 @@ from st2common.models.db.trigger import TriggerDB
 
 
 class TriggerMigrator(object):
-
     def _get_trigger_with_parameters(self):
         """
         All TriggerDB that has a parameter.

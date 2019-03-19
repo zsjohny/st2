@@ -23,13 +23,14 @@ from st2client.models import Webhook
 class WebhookBranch(resource.ResourceBranch):
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(WebhookBranch, self).__init__(
-            Webhook, description, app, subparsers,
+            Webhook,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             read_only=True,
-            commands={
-                'list': WebhookListCommand,
-                'get': WebhookGetCommand
-            })
+            commands={'list': WebhookListCommand, 'get': WebhookGetCommand},
+        )
 
 
 class WebhookListCommand(resource.ContentPackResourceListCommand):
@@ -44,12 +45,18 @@ class WebhookListCommand(resource.ContentPackResourceListCommand):
         instances = sorted(instances, key=lambda k: k.url)
 
         if args.json or args.yaml:
-            self.print_output(instances, table.MultiColumnTable,
-                              attributes=args.attr, widths=args.width,
-                              json=args.json, yaml=args.yaml)
+            self.print_output(
+                instances,
+                table.MultiColumnTable,
+                attributes=args.attr,
+                widths=args.width,
+                json=args.json,
+                yaml=args.yaml,
+            )
         else:
-            self.print_output(instances, table.MultiColumnTable,
-                              attributes=args.attr, widths=args.width)
+            self.print_output(
+                instances, table.MultiColumnTable, attributes=args.attr, widths=args.width
+            )
 
 
 class WebhookGetCommand(resource.ResourceGetCommand):

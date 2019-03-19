@@ -30,9 +30,7 @@ from st2common.util.templating import render_template_with_system_and_user_conte
 from st2common.util.config_parser import ContentPackConfigParser
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 
-__all__ = [
-    'ContentPackConfigLoader'
-]
+__all__ = ['ContentPackConfigLoader']
 
 LOG = logging.getLogger(__name__)
 
@@ -79,8 +77,7 @@ class ContentPackConfigLoader(object):
 
         # 2. Retrieve values from "global" pack config file (if available) and resolve them if
         # necessary
-        config = self._get_values_for_config(config_schema_db=config_schema_db,
-                                             config_db=config_db)
+        config = self._get_values_for_config(config_schema_db=config_schema_db, config_db=config_db)
         result.update(config)
 
         return result
@@ -131,24 +128,30 @@ class ContentPackConfigLoader(object):
             # Inspect nested object properties
             if is_dictionary:
                 parent_keys += [str(config_item_key)]
-                self._assign_dynamic_config_values(schema=schema_item.get('properties', {}),
-                                                   config=config[config_item_key],
-                                                   parent_keys=parent_keys)
+                self._assign_dynamic_config_values(
+                    schema=schema_item.get('properties', {}),
+                    config=config[config_item_key],
+                    parent_keys=parent_keys,
+                )
             # Inspect nested list items
             elif is_list:
                 parent_keys += [str(config_item_key)]
-                self._assign_dynamic_config_values(schema=schema_item.get('items', {}),
-                                                   config=config[config_item_key],
-                                                   parent_keys=parent_keys)
+                self._assign_dynamic_config_values(
+                    schema=schema_item.get('items', {}),
+                    config=config[config_item_key],
+                    parent_keys=parent_keys,
+                )
             else:
                 is_jinja_expression = jinja_utils.is_jinja_expression(value=config_item_value)
 
                 if is_jinja_expression:
                     # Resolve / render the Jinja template expression
                     full_config_item_key = '.'.join(parent_keys + [str(config_item_key)])
-                    value = self._get_datastore_value_for_expression(key=full_config_item_key,
+                    value = self._get_datastore_value_for_expression(
+                        key=full_config_item_key,
                         value=config_item_value,
-                        config_schema_item=schema_item)
+                        config_schema_item=schema_item,
+                    )
 
                     config[config_item_key] = value
                 else:
@@ -183,8 +186,9 @@ class ContentPackConfigLoader(object):
                 if not config.get(schema_item_key, None):
                     config[schema_item_key] = {}
 
-                self._assign_default_values(schema=schema_item['properties'],
-                                            config=config[schema_item_key])
+                self._assign_default_values(
+                    schema=schema_item['properties'], config=config[schema_item_key]
+                )
 
         return config
 
@@ -201,15 +205,16 @@ class ContentPackConfigLoader(object):
         secret = config_schema_item.get('secret', False)
 
         try:
-            value = render_template_with_system_and_user_context(value=value,
-                                                                 user=self.user)
+            value = render_template_with_system_and_user_context(value=value, user=self.user)
         except Exception as e:
             # Throw a more user-friendly exception on failed render
             exc_class = type(e)
             original_msg = six.text_type(e)
-            msg = ('Failed to render dynamic configuration value for key "%s" with value '
-                   '"%s" for pack "%s" config: %s %s ' % (key, value, self.pack_name,
-                                                          exc_class, original_msg))
+            msg = (
+                'Failed to render dynamic configuration value for key "%s" with value '
+                '"%s" for pack "%s" config: %s %s '
+                % (key, value, self.pack_name, exc_class, original_msg)
+            )
             raise RuntimeError(msg)
 
         if value:
@@ -227,10 +232,7 @@ def get_config(pack, user):
     LOG.debug('Attempting to get config for pack "%s" and user "%s"' % (pack, user))
     if pack and user:
         LOG.debug('Pack and user found. Loading config.')
-        config_loader = ContentPackConfigLoader(
-            pack_name=pack,
-            user=user
-        )
+        config_loader = ContentPackConfigLoader(pack_name=pack, user=user)
 
         config = config_loader.get_config()
 

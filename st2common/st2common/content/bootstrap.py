@@ -38,9 +38,7 @@ import st2common.content.utils as content_utils
 from st2common.metrics.base import Timer
 from st2common.util.virtualenvs import setup_pack_virtualenv
 
-__all__ = [
-    'main'
-]
+__all__ = ['main']
 
 LOG = logging.getLogger('st2common.content.bootstrap')
 
@@ -58,21 +56,28 @@ def register_opts():
         cfg.BoolOpt('aliases', default=False, help='Register aliases.'),
         cfg.BoolOpt('policies', default=False, help='Register policies.'),
         cfg.BoolOpt('configs', default=False, help='Register and load pack configs.'),
-
         cfg.StrOpt('pack', default=None, help='Directory to the pack to register content from.'),
         cfg.StrOpt('runner-dir', default=None, help='Directory to load runners from.'),
-        cfg.BoolOpt('setup-virtualenvs', default=False, help=('Setup Python virtual environments '
-                                                              'all the Python runner actions.')),
-
+        cfg.BoolOpt(
+            'setup-virtualenvs',
+            default=False,
+            help=('Setup Python virtual environments ' 'all the Python runner actions.'),
+        ),
         # General options
         # Note: This value should default to False since we want fail on failure behavior by
         # default.
-        cfg.BoolOpt('no-fail-on-failure', default=False,
-                    help=('Don\'t exit with non-zero if some resource registration fails.')),
+        cfg.BoolOpt(
+            'no-fail-on-failure',
+            default=False,
+            help=('Don\'t exit with non-zero if some resource registration fails.'),
+        ),
         # Note: Fail on failure is now a default behavior. This flag is only left here for backward
         # compatibility reasons, but it's not actually used.
-        cfg.BoolOpt('fail-on-failure', default=True,
-                    help=('Exit with non-zero if some resource registration fails.'))
+        cfg.BoolOpt(
+            'fail-on-failure',
+            default=True,
+            help=('Exit with non-zero if some resource registration fails.'),
+        ),
     ]
     try:
         cfg.CONF.register_cli_opts(content_opts, group='register')
@@ -116,8 +121,9 @@ def setup_virtualenvs():
             setup_pack_virtualenv(pack_name=pack_name, update=True, logger=LOG)
         except Exception as e:
             exc_info = not fail_on_failure
-            LOG.warning('Failed to setup virtualenv for pack "%s": %s', pack_name, e,
-                        exc_info=exc_info)
+            LOG.warning(
+                'Failed to setup virtualenv for pack "%s": %s', pack_name, e, exc_info=exc_info
+            )
 
             if fail_on_failure:
                 raise e
@@ -139,8 +145,7 @@ def register_triggers():
         LOG.info('=========================================================')
         with Timer(key='st2.register.triggers'):
             registered_count = triggers_registrar.register_triggers(
-                pack_dir=pack_dir,
-                fail_on_failure=fail_on_failure
+                pack_dir=pack_dir, fail_on_failure=fail_on_failure
             )
     except Exception as e:
         exc_info = not fail_on_failure
@@ -164,8 +169,7 @@ def register_sensors():
         LOG.info('=========================================================')
         with Timer(key='st2.register.sensors'):
             registered_count = sensors_registrar.register_sensors(
-                pack_dir=pack_dir,
-                fail_on_failure=fail_on_failure
+                pack_dir=pack_dir, fail_on_failure=fail_on_failure
             )
     except Exception as e:
         exc_info = not fail_on_failure
@@ -189,8 +193,7 @@ def register_runners():
         LOG.info('=========================================================')
         with Timer(key='st2.register.runners'):
             registered_count = runners_registrar.register_runners(
-                fail_on_failure=fail_on_failure,
-                experimental=False
+                fail_on_failure=fail_on_failure, experimental=False
             )
     except Exception as error:
         exc_info = not fail_on_failure
@@ -218,8 +221,7 @@ def register_actions():
         LOG.info('=========================================================')
         with Timer(key='st2.register.actions'):
             registered_count = actions_registrar.register_actions(
-                pack_dir=pack_dir,
-                fail_on_failure=fail_on_failure
+                pack_dir=pack_dir, fail_on_failure=fail_on_failure
             )
     except Exception as e:
         exc_info = not fail_on_failure
@@ -250,8 +252,7 @@ def register_rules():
     try:
         with Timer(key='st2.register.rules'):
             registered_count = rules_registrar.register_rules(
-                pack_dir=pack_dir,
-                fail_on_failure=fail_on_failure
+                pack_dir=pack_dir, fail_on_failure=fail_on_failure
             )
     except Exception as e:
         exc_info = not fail_on_failure
@@ -275,8 +276,7 @@ def register_aliases():
         LOG.info('=========================================================')
         with Timer(key='st2.register.aliases'):
             registered_count = aliases_registrar.register_aliases(
-                pack_dir=pack_dir,
-                fail_on_failure=fail_on_failure
+                pack_dir=pack_dir, fail_on_failure=fail_on_failure
             )
     except Exception as e:
         if fail_on_failure:
@@ -310,8 +310,9 @@ def register_policies():
         LOG.info('=========================================================')
         LOG.info('############## Registering policies #####################')
         LOG.info('=========================================================')
-        registered_count = policies_registrar.register_policies(pack_dir=pack_dir,
-                                                                fail_on_failure=fail_on_failure)
+        registered_count = policies_registrar.register_policies(
+            pack_dir=pack_dir, fail_on_failure=fail_on_failure
+        )
     except Exception as e:
         exc_info = not fail_on_failure
         LOG.warning('Failed to register policies: %s', e, exc_info=exc_info)
@@ -334,9 +335,7 @@ def register_configs():
         LOG.info('=========================================================')
         with Timer(key='st2.register.configs'):
             registered_count = configs_registrar.register_configs(
-                pack_dir=pack_dir,
-                fail_on_failure=fail_on_failure,
-                validate_configs=True
+                pack_dir=pack_dir, fail_on_failure=fail_on_failure, validate_configs=True
             )
     except Exception as e:
         exc_info = not fail_on_failure
@@ -395,8 +394,12 @@ def register_content():
 
 
 def setup(argv):
-    common_setup(config=config, setup_db=True, register_mq_exchanges=True,
-                 register_internal_trigger_types=True)
+    common_setup(
+        config=config,
+        setup_db=True,
+        register_mq_exchanges=True,
+        register_internal_trigger_types=True,
+    )
 
 
 def teardown():

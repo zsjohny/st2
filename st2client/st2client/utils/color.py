@@ -16,11 +16,7 @@
 from __future__ import absolute_import
 import os
 
-__all__ = [
-    'DisplayColors',
-
-    'format_status'
-]
+__all__ = ['DisplayColors', 'format_status']
 
 
 TERMINAL_SUPPORTS_ANSI_CODES = [
@@ -29,7 +25,7 @@ TERMINAL_SUPPORTS_ANSI_CODES = [
     'screen',
     'vt100',
     'vt100-color',
-    'xterm-256color'
+    'xterm-256color',
 ]
 
 DISABLED = os.environ.get('ST2_COLORIZE', '')
@@ -67,7 +63,7 @@ STATUS_LOOKUP = {
     'delayed': DisplayColors.BLUE,
     'failed': DisplayColors.RED,
     'timeout': DisplayColors.BROWN,
-    'running': DisplayColors.YELLOW
+    'running': DisplayColors.YELLOW,
 }
 
 

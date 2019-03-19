@@ -24,8 +24,7 @@ def get_ref_from_model(model):
     model_id = getattr(model, 'id', None)
     if model_id is None:
         raise db.StackStormDBObjectMalformedError('model %s must contain id.' % str(model))
-    reference = {'id': str(model_id),
-                 'name': getattr(model, 'name', None)}
+    reference = {'id': str(model_id), 'name': getattr(model, 'name', None)}
     return reference
 
 
@@ -71,8 +70,9 @@ def get_resource_ref_from_model(model):
         name = model.name
         pack = model.pack
     except AttributeError:
-        raise Exception('Cannot build ResourceReference for model: %s. Name or pack missing.'
-                        % model)
+        raise Exception(
+            'Cannot build ResourceReference for model: %s. Name or pack missing.' % model
+        )
     return ResourceReference(name=name, pack=pack)
 
 

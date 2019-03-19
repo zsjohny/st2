@@ -33,55 +33,34 @@ class PolicyTypeAPI(BaseAPI, APIUIDMixin):
         "title": "Policy Type",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string",
-                "default": None
-            },
-            'uid': {
-                'type': 'string'
-            },
-            "name": {
-                "type": "string",
-                "required": True
-            },
-            "resource_type": {
-                "enum": ["action"],
-                "required": True
-            },
-            "ref": {
-                "type": "string"
-            },
-            "description": {
-                "type": "string"
-            },
-            "enabled": {
-                "type": "boolean",
-                "default": True
-            },
-            "module": {
-                "type": "string",
-                "required": True
-            },
+            "id": {"type": "string", "default": None},
+            'uid': {'type': 'string'},
+            "name": {"type": "string", "required": True},
+            "resource_type": {"enum": ["action"], "required": True},
+            "ref": {"type": "string"},
+            "description": {"type": "string"},
+            "enabled": {"type": "boolean", "default": True},
+            "module": {"type": "string", "required": True},
             "parameters": {
                 "type": "object",
-                "patternProperties": {
-                    r"^\w+$": util_schema.get_draft_schema()
-                },
-                'additionalProperties': False
-            }
+                "patternProperties": {r"^\w+$": util_schema.get_draft_schema()},
+                'additionalProperties': False,
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
     def to_model(cls, instance):
-        return cls.model(name=str(instance.name),
-                         description=getattr(instance, 'description', None),
-                         resource_type=str(instance.resource_type),
-                         ref=getattr(instance, 'ref', None),
-                         enabled=getattr(instance, 'enabled', None),
-                         module=str(instance.module),
-                         parameters=getattr(instance, 'parameters', dict()))
+        return cls.model(
+            name=str(instance.name),
+            description=getattr(instance, 'description', None),
+            resource_type=str(instance.resource_type),
+            ref=getattr(instance, 'ref', None),
+            enabled=getattr(instance, 'enabled', None),
+            module=str(instance.module),
+            parameters=getattr(instance, 'parameters', dict()),
+        )
 
 
 class PolicyAPI(BaseAPI, APIUIDMixin):
@@ -90,38 +69,15 @@ class PolicyAPI(BaseAPI, APIUIDMixin):
         "title": "Policy",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string",
-                "default": None
-            },
-            'uid': {
-                'type': 'string'
-            },
-            "name": {
-                "type": "string",
-                "required": True
-            },
-            "pack": {
-                "type": "string"
-            },
-            "ref": {
-                "type": "string"
-            },
-            "description": {
-                "type": "string"
-            },
-            "enabled": {
-                "type": "boolean",
-                "default": True
-            },
-            "resource_ref": {
-                "type": "string",
-                "required": True
-            },
-            "policy_type": {
-                "type": "string",
-                "required": True
-            },
+            "id": {"type": "string", "default": None},
+            'uid': {'type': 'string'},
+            "name": {"type": "string", "required": True},
+            "pack": {"type": "string"},
+            "ref": {"type": "string"},
+            "description": {"type": "string"},
+            "enabled": {"type": "boolean", "default": True},
+            "resource_ref": {"type": "string", "required": True},
+            "policy_type": {"type": "string", "required": True},
             "parameters": {
                 "type": "object",
                 "patternProperties": {
@@ -132,20 +88,19 @@ class PolicyAPI(BaseAPI, APIUIDMixin):
                             {"type": "integer"},
                             {"type": "number"},
                             {"type": "object"},
-                            {"type": "string"}
+                            {"type": "string"},
                         ]
                     }
                 },
-                'additionalProperties': False
-
+                'additionalProperties': False,
             },
             "metadata_file": {
                 "description": "Path to the metadata file relative to the pack directory.",
                 "type": "string",
-                "default": ""
-            }
+                "default": "",
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     def validate(self):
@@ -160,11 +115,11 @@ class PolicyAPI(BaseAPI, APIUIDMixin):
 
         parameters_schema = policy_type_db.parameters
         parameters = getattr(cleaned, 'parameters', {})
-        schema = util_schema.get_schema_for_resource_parameters(
-            parameters_schema=parameters_schema)
+        schema = util_schema.get_schema_for_resource_parameters(parameters_schema=parameters_schema)
         validator = util_schema.get_validator()
-        cleaned_parameters = util_schema.validate(parameters, schema, validator, use_default=True,
-                                                  allow_default_none=True)
+        cleaned_parameters = util_schema.validate(
+            parameters, schema, validator, use_default=True, allow_default_none=True
+        )
 
         cleaned.parameters = cleaned_parameters
 
@@ -172,13 +127,15 @@ class PolicyAPI(BaseAPI, APIUIDMixin):
 
     @classmethod
     def to_model(cls, instance):
-        return cls.model(id=getattr(instance, 'id', None),
-                         name=str(instance.name),
-                         description=getattr(instance, 'description', None),
-                         pack=str(instance.pack),
-                         ref=getattr(instance, 'ref', None),
-                         enabled=getattr(instance, 'enabled', None),
-                         resource_ref=str(instance.resource_ref),
-                         policy_type=str(instance.policy_type),
-                         parameters=getattr(instance, 'parameters', dict()),
-                         metadata_file=getattr(instance, 'metadata_file', None))
+        return cls.model(
+            id=getattr(instance, 'id', None),
+            name=str(instance.name),
+            description=getattr(instance, 'description', None),
+            pack=str(instance.pack),
+            ref=getattr(instance, 'ref', None),
+            enabled=getattr(instance, 'enabled', None),
+            resource_ref=str(instance.resource_ref),
+            policy_type=str(instance.policy_type),
+            parameters=getattr(instance, 'parameters', dict()),
+            metadata_file=getattr(instance, 'metadata_file', None),
+        )

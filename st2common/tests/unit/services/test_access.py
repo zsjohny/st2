@@ -32,7 +32,6 @@ USERNAME = 'manas'
 
 
 class AccessServiceTest(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(AccessServiceTest, cls).setUpClass()
@@ -86,7 +85,7 @@ class AccessServiceTest(DbTestCase):
         self.assertLess(isotime.parse(token.expiry), expected_expiry)
 
     def test_create_token_service_token_can_use_arbitrary_ttl(self):
-        ttl = (10000 * 24 * 24)
+        ttl = 10000 * 24 * 24
 
         # Service token should support arbitrary TTL
         token = access.create_token(USERNAME, ttl=ttl, service=True)
@@ -98,5 +97,6 @@ class AccessServiceTest(DbTestCase):
         self.assertLess(isotime.parse(token.expiry), expected_expiry)
 
         # Non service token should throw on TTL which is too large
-        self.assertRaises(TTLTooLargeException, access.create_token, USERNAME, ttl=ttl,
-                          service=False)
+        self.assertRaises(
+            TTLTooLargeException, access.create_token, USERNAME, ttl=ttl, service=False
+        )

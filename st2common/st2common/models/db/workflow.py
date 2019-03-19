@@ -24,10 +24,7 @@ from st2common.models.db import stormbase
 from st2common.util import date as date_utils
 
 
-__all__ = [
-    'WorkflowExecutionDB',
-    'TaskExecutionDB'
-]
+__all__ = ['WorkflowExecutionDB', 'TaskExecutionDB']
 
 
 LOG = logging.getLogger(__name__)
@@ -49,11 +46,7 @@ class WorkflowExecutionDB(stormbase.StormFoundationDB, stormbase.ChangeRevisionF
     start_timestamp = db_field_types.ComplexDateTimeField(default=date_utils.get_datetime_utc_now)
     end_timestamp = db_field_types.ComplexDateTimeField()
 
-    meta = {
-        'indexes': [
-            {'fields': ['action_execution']}
-        ]
-    }
+    meta = {'indexes': [{'fields': ['action_execution']}]}
 
 
 class TaskExecutionDB(stormbase.StormFoundationDB, stormbase.ChangeRevisionFieldMixin):
@@ -80,12 +73,9 @@ class TaskExecutionDB(stormbase.StormFoundationDB, stormbase.ChangeRevisionField
             {'fields': ['task_id']},
             {'fields': ['task_id', 'task_route']},
             {'fields': ['workflow_execution', 'task_id']},
-            {'fields': ['workflow_execution', 'task_id', 'task_route']}
+            {'fields': ['workflow_execution', 'task_id', 'task_route']},
         ]
     }
 
 
-MODELS = [
-    WorkflowExecutionDB,
-    TaskExecutionDB
-]
+MODELS = [WorkflowExecutionDB, TaskExecutionDB]

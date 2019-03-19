@@ -40,7 +40,7 @@ class Migrate_0_13_x_to_1_1_0(object):
         # Split to multiple queues in 1.1
         reactor.get_trigger_cud_queue('st2.trigger.watch.sensorwrapper', routing_key='#'),
         # Name changed in 1.1
-        reactor.get_trigger_cud_queue('st2.trigger.watch.webhooks', routing_key='#')
+        reactor.get_trigger_cud_queue('st2.trigger.watch.webhooks', routing_key='#'),
     ]
 
     def migrate(self):

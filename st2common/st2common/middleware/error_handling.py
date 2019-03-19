@@ -86,7 +86,7 @@ class ErrorHandlingMiddleware(object):
             extra = {
                 'exception_class': e.__class__.__name__,
                 'exception_message': six.text_type(e),
-                'exception_data': e.__dict__
+                'exception_data': e.__dict__,
             }
 
             if is_internal_server_error:
@@ -102,7 +102,7 @@ class ErrorHandlingMiddleware(object):
             response_body = json_encode(body)
             headers = {
                 'Content-Type': 'application/json',
-                'Content-Length': str(len(response_body))
+                'Content-Length': str(len(response_body)),
             }
 
             resp = Response(response_body, status=status_code, headers=headers)

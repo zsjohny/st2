@@ -31,9 +31,7 @@ INQUIRY_RESULT = {
     'roles': [],
     'route': 'developers',
     'ttl': 1440,
-    'response': {
-        'secondfactor': 'supersecretvalue'
-    },
+    'response': {'secondfactor': 'supersecretvalue'},
     'schema': {
         'type': 'object',
         'properties': {
@@ -41,10 +39,10 @@ INQUIRY_RESULT = {
                 'secret': True,
                 'required': True,
                 'type': 'string',
-                'description': 'Please enter second factor for authenticating to "foo" service'
+                'description': 'Please enter second factor for authenticating to "foo" service',
             }
-        }
-    }
+        },
+    },
 }
 
 INQUIRY_LIVEACTION = {
@@ -57,21 +55,17 @@ INQUIRY_LIVEACTION = {
                     'secret': True,
                     'required': True,
                     'type': u'string',
-                    'description': 'Please enter second factor for authenticating to "foo" service'
+                    'description': 'Please enter second factor for authenticating to "foo" service',
                 }
-            }
-        }
+            },
+        },
     },
-    'action': 'core.ask'
+    'action': 'core.ask',
 }
 
 RESPOND_LIVEACTION = {
-    'parameters': {
-        'response': {
-            'secondfactor': 'omgsupersecret',
-        }
-    },
-    'action': 'st2.inquiry.respond'
+    'parameters': {'response': {'secondfactor': 'omgsupersecret'}},
+    'action': 'st2.inquiry.respond',
 }
 
 ACTIONEXECUTIONS = {
@@ -80,26 +74,20 @@ ACTIONEXECUTIONS = {
         'status': 'succeeded',
         'runner': {'name': 'inquirer'},
         'liveaction': INQUIRY_LIVEACTION,
-        'result': INQUIRY_RESULT
+        'result': INQUIRY_RESULT,
     },
     "execution_2": {
         'action': {'uid': 'action:st2:inquiry.respond'},
         'status': 'succeeded',
         'runner': {'name': 'python-script'},
         'liveaction': RESPOND_LIVEACTION,
-        'result': {
-            'exit_code': 0,
-            'result': None,
-            'stderr': '',
-            'stdout': ''
-        }
-    }
+        'result': {'exit_code': 0, 'result': None, 'stderr': '', 'stdout': ''},
+    },
 }
 
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
 class ActionExecutionModelTest(DbTestCase):
-
     def setUp(self):
 
         self.executions = {}
@@ -115,8 +103,7 @@ class ActionExecutionModelTest(DbTestCase):
 
             saved = ActionExecutionModelTest._save_execution(created)
             retrieved = ActionExecution.get_by_id(saved.id)
-            self.assertEqual(saved.action, retrieved.action,
-                             'Same action was not returned.')
+            self.assertEqual(saved.action, retrieved.action, 'Same action was not returned.')
 
             self.executions[name] = retrieved
 
@@ -153,8 +140,7 @@ class ActionExecutionModelTest(DbTestCase):
         )
         self.assertEqual(masked['result']['response']['secondfactor'], MASKED_ATTRIBUTE_VALUE)
         self.assertEqual(
-            self.executions['execution_1'].result['response']['secondfactor'],
-            "supersecretvalue"
+            self.executions['execution_1'].result['response']['secondfactor'], "supersecretvalue"
         )
 
     def test_execution_inquiry_response_action(self):

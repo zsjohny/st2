@@ -18,13 +18,12 @@ from st2api.controllers.v1.runnertypes import RunnerTypesController
 from tests.base import FunctionalTest
 from tests.base import APIControllerWithIncludeAndExcludeFilterTestCase
 
-__all__ = [
-    'RunnerTypesControllerTestCase'
-]
+__all__ = ['RunnerTypesControllerTestCase']
 
 
-class RunnerTypesControllerTestCase(FunctionalTest,
-                                    APIControllerWithIncludeAndExcludeFilterTestCase):
+class RunnerTypesControllerTestCase(
+    FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase
+):
     get_all_path = '/v1/runnertypes'
     controller_cls = RunnerTypesController
     include_attribute_field_name = 'runner_package'
@@ -39,8 +38,9 @@ class RunnerTypesControllerTestCase(FunctionalTest,
         resp = self.app.get('/v1/runnertypes/%s' % runnertype_id)
         retrieved_id = RunnerTypesControllerTestCase.__get_runnertype_id(resp.json)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(retrieved_id, runnertype_id,
-                         '/v1/runnertypes returned incorrect runnertype.')
+        self.assertEqual(
+            retrieved_id, runnertype_id, '/v1/runnertypes returned incorrect runnertype.'
+        )
 
     def test_get_all(self):
         resp = self.app.get('/v1/runnertypes')
@@ -76,8 +76,9 @@ class RunnerTypesControllerTestCase(FunctionalTest,
         self.assertTrue(put_resp.json['enabled'])
 
     def __do_put(self, runner_type_id, runner_type):
-        return self.app.put_json('/v1/runnertypes/%s' % runner_type_id, runner_type,
-                                expect_errors=True)
+        return self.app.put_json(
+            '/v1/runnertypes/%s' % runner_type_id, runner_type, expect_errors=True
+        )
 
     @staticmethod
     def __get_runnertype_id(resp_json):

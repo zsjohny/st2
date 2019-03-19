@@ -26,24 +26,21 @@ from st2common.util.crypto import read_crypto_key, symmetric_encrypt
 
 
 class JinjaUtilsDecryptTestCase(CleanDbTestCase):
-
     def test_filter_decrypt_kv(self):
         secret = 'Build a wall'
         crypto_key_path = cfg.CONF.keyvalue.encryption_key_path
         crypto_key = read_crypto_key(key_path=crypto_key_path)
         secret_value = symmetric_encrypt(encrypt_key=crypto_key, plaintext=secret)
-        KeyValuePair.add_or_update(KeyValuePairDB(name='k8', value=secret_value,
-                                                  scope=FULL_SYSTEM_SCOPE,
-                                                  secret=True))
+        KeyValuePair.add_or_update(
+            KeyValuePairDB(name='k8', value=secret_value, scope=FULL_SYSTEM_SCOPE, secret=True)
+        )
         env = jinja_utils.get_jinja_environment()
 
         context = {}
         context.update({SYSTEM_SCOPE: KeyValueLookup(scope=SYSTEM_SCOPE)})
-        context.update({
-            DATASTORE_PARENT_SCOPE: {
-                SYSTEM_SCOPE: KeyValueLookup(scope=FULL_SYSTEM_SCOPE)
-            }
-        })
+        context.update(
+            {DATASTORE_PARENT_SCOPE: {SYSTEM_SCOPE: KeyValueLookup(scope=FULL_SYSTEM_SCOPE)}}
+        )
 
         template = '{{st2kv.system.k8 | decrypt_kv}}'
         actual = env.from_string(template).render(context)

@@ -23,7 +23,6 @@ from st2common.constants import action as ac_const
 
 
 class InquiryWiringTest(base.TestWorkflowExecution):
-
     def test_basic_inquiry(self):
         # Launch the workflow. The workflow will paused at the pending task.
         ex = self._execute_workflow('examples.orquesta-ask-basic')
@@ -86,9 +85,7 @@ class InquiryWiringTest(base.TestWorkflowExecution):
 
         # Respond to the inquiry in the subworkflow.
         t2_t2_ac_exs = self._wait_for_task(
-            ac_exs[0],
-            'get_approval',
-            ac_const.LIVEACTION_STATUS_PENDING
+            ac_exs[0], 'get_approval', ac_const.LIVEACTION_STATUS_PENDING
         )
 
         self.st2client.inquiries.respond(t2_t2_ac_exs[0].id, {'approved': True})

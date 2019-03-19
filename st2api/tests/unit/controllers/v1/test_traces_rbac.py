@@ -30,14 +30,15 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'TraceControllerRBACTestCase'
-]
+__all__ = ['TraceControllerRBACTestCase']
 
 FIXTURES_PACK = 'generic'
 TEST_FIXTURES = {
-    'traces': ['trace_for_test_enforce.yaml', 'trace_for_test_enforce_2.yaml',
-               'trace_for_test_enforce_3.yaml'],
+    'traces': [
+        'trace_for_test_enforce.yaml',
+        'trace_for_test_enforce_2.yaml',
+        'trace_for_test_enforce_3.yaml',
+    ]
 }
 
 
@@ -46,23 +47,24 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
 
     def setUp(self):
         super(TraceControllerRBACTestCase, self).setUp()
-        self.models = self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                               fixtures_dict=TEST_FIXTURES)
+        self.models = self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
         file_name = 'trace_for_test_enforce.yaml'
         TraceControllerRBACTestCase.TRACE_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'traces': [file_name]})['traces'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'traces': [file_name]}
+        )['traces'][file_name]
 
         file_name = 'trace_for_test_enforce_2.yaml'
         TraceControllerRBACTestCase.TRACE_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'traces': [file_name]})['traces'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'traces': [file_name]}
+        )['traces'][file_name]
 
         file_name = 'trace_for_test_enforce_3.yaml'
         TraceControllerRBACTestCase.TRACE_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'traces': [file_name]})['traces'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'traces': [file_name]}
+        )['traces'][file_name]
 
         # Insert mock users, roles and assignments
 
@@ -77,9 +79,11 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # Roles
         # trace_list
-        grant_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=ResourceType.TRACE,
-                                     permission_types=[PermissionType.TRACE_LIST])
+        grant_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.TRACE,
+            permission_types=[PermissionType.TRACE_LIST],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='trace_list', permission_grants=permission_grants)
@@ -88,9 +92,11 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # trace_view on trace 1
         trace_uid = self.models['traces']['trace_for_test_enforce.yaml'].get_uid()
-        grant_db = PermissionGrantDB(resource_uid=trace_uid,
-                                     resource_type=ResourceType.TRACE,
-                                     permission_types=[PermissionType.TRACE_VIEW])
+        grant_db = PermissionGrantDB(
+            resource_uid=trace_uid,
+            resource_type=ResourceType.TRACE,
+            permission_types=[PermissionType.TRACE_VIEW],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='trace_view', permission_grants=permission_grants)
@@ -101,13 +107,15 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['trace_list'].name,
             role=self.roles['trace_list'].name,
-            source='assignments/%s.yaml' % self.users['trace_list'].name)
+            source='assignments/%s.yaml' % self.users['trace_list'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['trace_view'].name,
             role=self.roles['trace_view'].name,
-            source='assignments/%s.yaml' % self.users['trace_view'].name)
+            source='assignments/%s.yaml' % self.users['trace_view'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_get_all_no_permissions(self):
@@ -115,7 +123,7 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.app.get('/v1/traces', expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "trace_list"')
+        expected_msg = 'User "no_permissions" doesn\'t have required permission "trace_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -126,8 +134,10 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
         trace_id = self.models['traces']['trace_for_test_enforce.yaml'].id
         trace_uid = self.models['traces']['trace_for_test_enforce.yaml'].get_uid()
         resp = self.app.get('/v1/traces/%s' % (trace_id), expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "trace_view"'
-                        ' on resource "%s"' % (trace_uid))
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission "trace_view"'
+            ' on resource "%s"' % (trace_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -143,8 +153,10 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
         trace_id = self.models['traces']['trace_for_test_enforce.yaml'].id
         trace_uid = self.models['traces']['trace_for_test_enforce.yaml'].get_uid()
         resp = self.app.get('/v1/traces/%s' % (trace_id), expect_errors=True)
-        expected_msg = ('User "trace_list" doesn\'t have required permission "trace_view"'
-                        ' on resource "%s"' % (trace_uid))
+        expected_msg = (
+            'User "trace_list" doesn\'t have required permission "trace_view"'
+            ' on resource "%s"' % (trace_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -161,6 +173,6 @@ class TraceControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.assertEqual(resp.json['uid'], trace_uid)
 
         resp = self.app.get('/v1/traces', expect_errors=True)
-        expected_msg = ('User "trace_view" doesn\'t have required permission "trace_list"')
+        expected_msg = 'User "trace_view" doesn\'t have required permission "trace_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)

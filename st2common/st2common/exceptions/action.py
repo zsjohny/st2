@@ -19,7 +19,7 @@ from st2common.exceptions import StackStormBaseException
 __all__ = [
     'ParameterRenderingFailedException',
     'InvalidActionReferencedException',
-    'InvalidActionParameterException'
+    'InvalidActionParameterException',
 ]
 
 

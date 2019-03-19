@@ -21,9 +21,7 @@ import six
 from st2common.runners.base_action import Action
 from st2common.util.pack_management import download_pack
 
-__all__ = [
-    'DownloadGitRepoAction'
-]
+__all__ = ['DownloadGitRepoAction']
 
 
 class DownloadGitRepoAction(Action):
@@ -33,21 +31,21 @@ class DownloadGitRepoAction(Action):
         self.https_proxy = os.environ.get('https_proxy', self.config.get('https_proxy', None))
         self.http_proxy = os.environ.get('http_proxy', self.config.get('http_proxy', None))
         self.proxy_ca_bundle_path = os.environ.get(
-            'proxy_ca_bundle_path',
-            self.config.get('proxy_ca_bundle_path', None)
+            'proxy_ca_bundle_path', self.config.get('proxy_ca_bundle_path', None)
         )
         self.no_proxy = os.environ.get('no_proxy', self.config.get('no_proxy', None))
 
         self.proxy_config = None
 
         if self.http_proxy or self.https_proxy:
-            self.logger.debug('Using proxy %s',
-                              self.http_proxy if self.http_proxy else self.https_proxy)
+            self.logger.debug(
+                'Using proxy %s', self.http_proxy if self.http_proxy else self.https_proxy
+            )
             self.proxy_config = {
                 'https_proxy': self.https_proxy,
                 'http_proxy': self.http_proxy,
                 'proxy_ca_bundle_path': self.proxy_ca_bundle_path,
-                'no_proxy': self.no_proxy
+                'no_proxy': self.no_proxy,
             }
 
         # This is needed for git binary to work with a proxy
@@ -67,11 +65,15 @@ class DownloadGitRepoAction(Action):
         result = {}
 
         for pack in packs:
-            pack_result = download_pack(pack=pack, abs_repo_base=abs_repo_base,
-                                        verify_ssl=verifyssl, force=force,
-                                        proxy_config=self.proxy_config,
-                                        force_permissions=True,
-                                        logger=self.logger)
+            pack_result = download_pack(
+                pack=pack,
+                abs_repo_base=abs_repo_base,
+                verify_ssl=verifyssl,
+                force=force,
+                proxy_config=self.proxy_config,
+                force_permissions=True,
+                logger=self.logger,
+            )
             pack_url, pack_ref, pack_result = pack_result
             result[pack_ref] = pack_result
 

@@ -47,6 +47,7 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
         Implements the RESTful web endpoint that handles
         the lifecycle of Rules in the system.
     """
+
     views = RuleViewController()
 
     model = RuleAPI
@@ -57,36 +58,45 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
         'action': 'action.ref',
         'trigger': 'trigger',
         'enabled': 'enabled',
-        'user': 'context.user'
+        'user': 'context.user',
     }
 
-    filter_transform_functions = {
-        'enabled': transform_to_bool
-    }
+    filter_transform_functions = {'enabled': transform_to_bool}
 
-    query_options = {
-        'sort': ['pack', 'name']
-    }
+    query_options = {'sort': ['pack', 'name']}
 
     mandatory_include_fields_retrieve = ['pack', 'name', 'trigger']
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
         from_model_kwargs = {'ignore_missing_trigger': True}
-        return super(RuleController, self)._get_all(exclude_fields=exclude_attributes,
-                                                    include_fields=include_attributes,
-                                                    from_model_kwargs=from_model_kwargs,
-                                                    sort=sort,
-                                                    offset=offset,
-                                                    limit=limit,
-                                                    raw_filters=raw_filters,
-                                                    requester_user=requester_user)
+        return super(RuleController, self)._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            from_model_kwargs=from_model_kwargs,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, ref_or_id, requester_user):
         from_model_kwargs = {'ignore_missing_trigger': True}
-        return super(RuleController, self)._get_one(ref_or_id, from_model_kwargs=from_model_kwargs,
-                                                    requester_user=requester_user,
-                                                    permission_type=PermissionType.RULE_VIEW)
+        return super(RuleController, self)._get_one(
+            ref_or_id,
+            from_model_kwargs=from_model_kwargs,
+            requester_user=requester_user,
+            permission_type=PermissionType.RULE_VIEW,
+        )
 
     def post(self, rule, requester_user):
         """
@@ -97,17 +107,16 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
         """
 
         permission_type = PermissionType.RULE_CREATE
-        rbac_utils.assert_user_has_resource_api_permission(user_db=requester_user,
-                                                           resource_api=rule,
-                                                           permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_api_permission(
+            user_db=requester_user, resource_api=rule, permission_type=permission_type
+        )
 
         if not requester_user:
             requester_user = UserDB(cfg.CONF.system_user.user)
 
         # Validate that the authenticated user is admin if user query param is provided
         user = requester_user.name
-        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user,
-                                                             user=user)
+        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user, user=user)
 
         if not hasattr(rule, 'context'):
             rule.context = dict()
@@ -121,8 +130,9 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
             # Check referenced trigger and action permissions
             # Note: This needs to happen after "to_model" call since to_model performs some
             # validation (trigger exists, etc.)
-            assert_user_has_rule_trigger_and_action_permission(user_db=requester_user,
-                                                               rule_api=rule)
+            assert_user_has_rule_trigger_and_action_permission(
+                user_db=requester_user, rule_api=rule
+            )
 
             rule_db = Rule.add_or_update(rule_db)
             # After the rule has been added modify the ref_count. This way a failure to add
@@ -137,8 +147,10 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
             abort(http_client.BAD_REQUEST, six.text_type(e))
             return
         except TriggerDoesNotExistException as e:
-            msg = ('Trigger "%s" defined in the rule does not exist in system or it\'s missing '
-                   'required "parameters" attribute' % (rule.trigger['type']))
+            msg = (
+                'Trigger "%s" defined in the rule does not exist in system or it\'s missing '
+                'required "parameters" attribute' % (rule.trigger['type'])
+            )
             LOG.exception(msg)
             abort(http_client.BAD_REQUEST, msg)
             return
@@ -153,9 +165,9 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
         rule_db = self._get_by_ref_or_id(rule_ref_or_id)
 
         permission_type = PermissionType.RULE_MODIFY
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=rule,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=rule, permission_type=permission_type
+        )
 
         LOG.debug('PUT /rules/ lookup with id=%s found object: %s', rule_ref_or_id, rule_db)
 
@@ -163,8 +175,7 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
             requester_user = UserDB(cfg.CONF.system_user.user)
         # Validate that the authenticated user is admin if user query param is provided
         user = requester_user.name
-        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user,
-                                                             user=user)
+        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user, user=user)
 
         if not hasattr(rule, 'context'):
             rule.context = dict()
@@ -172,8 +183,11 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
 
         try:
             if rule.id is not None and rule.id is not '' and rule.id != rule_ref_or_id:
-                LOG.warning('Discarding mismatched id=%s found in payload and using uri_id=%s.',
-                            rule.id, rule_ref_or_id)
+                LOG.warning(
+                    'Discarding mismatched id=%s found in payload and using uri_id=%s.',
+                    rule.id,
+                    rule_ref_or_id,
+                )
             old_rule_db = rule_db
 
             try:
@@ -185,8 +199,9 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
             # Check referenced trigger and action permissions
             # Note: This needs to happen after "to_model" call since to_model performs some
             # validation (trigger exists, etc.)
-            assert_user_has_rule_trigger_and_action_permission(user_db=requester_user,
-                                                               rule_api=rule)
+            assert_user_has_rule_trigger_and_action_permission(
+                user_db=requester_user, rule_api=rule
+            )
 
             rule_db.id = rule_ref_or_id
             rule_db = Rule.add_or_update(rule_db)
@@ -217,16 +232,17 @@ class RuleController(BaseResourceIsolationControllerMixin, ContentPackResourceCo
         rule_db = self._get_by_ref_or_id(ref_or_id=rule_ref_or_id)
 
         permission_type = PermissionType.RULE_DELETE
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=rule_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=rule_db, permission_type=permission_type
+        )
 
         LOG.debug('DELETE /rules/ lookup with id=%s found object: %s', rule_ref_or_id, rule_db)
         try:
             Rule.delete(rule_db)
         except Exception as e:
-            LOG.exception('Database delete encountered exception during delete of id="%s".',
-                          rule_ref_or_id)
+            LOG.exception(
+                'Database delete encountered exception during delete of id="%s".', rule_ref_or_id
+            )
             abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
             return
 

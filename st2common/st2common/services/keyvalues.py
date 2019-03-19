@@ -24,13 +24,7 @@ from st2common.exceptions.keyvalue import InvalidScopeException, InvalidUserExce
 from st2common.models.system.keyvalue import UserKeyReference
 from st2common.persistence.keyvalue import KeyValuePair
 
-__all__ = [
-    'get_kvp_for_name',
-    'get_values_for_names',
-
-    'KeyValueLookup',
-    'UserKeyValueLookup'
-]
+__all__ = ['get_kvp_for_name', 'get_values_for_names', 'KeyValueLookup', 'UserKeyValueLookup']
 
 LOG = logging.getLogger(__name__)
 
@@ -67,7 +61,6 @@ def get_values_for_names(names, default_value=None):
 
 
 class KeyValueLookup(object):
-
     def __init__(self, prefix=None, key_prefix=None, cache=None, scope=FULL_SYSTEM_SCOPE):
         if not scope:
             scope = FULL_SYSTEM_SCOPE
@@ -113,8 +106,9 @@ class KeyValueLookup(object):
         # the lookup is for 'key_base.key_value' it is likely that the calling code, e.g. Jinja,
         # will expect to do a dictionary style lookup for key_base and key_value as subsequent
         # calls. Saving the value in cache avoids extra DB calls.
-        return KeyValueLookup(prefix=self._prefix, key_prefix=key, cache=self._value_cache,
-                              scope=self._scope)
+        return KeyValueLookup(
+            prefix=self._prefix, key_prefix=key, cache=self._value_cache, scope=self._scope
+        )
 
     def _get_kv(self, key):
         scope = self._scope
@@ -126,7 +120,6 @@ class KeyValueLookup(object):
 
 
 class UserKeyValueLookup(object):
-
     def __init__(self, user, prefix=None, key_prefix=None, cache=None, scope=FULL_USER_SCOPE):
         if not scope:
             scope = FULL_USER_SCOPE
@@ -167,8 +160,13 @@ class UserKeyValueLookup(object):
         # the lookup is for 'key_base.key_value' it is likely that the calling code, e.g. Jinja,
         # will expect to do a dictionary style lookup for key_base and key_value as subsequent
         # calls. Saving the value in cache avoids extra DB calls.
-        return UserKeyValueLookup(prefix=self._prefix, user=self._user, key_prefix=key,
-                                  cache=self._value_cache, scope=self._scope)
+        return UserKeyValueLookup(
+            prefix=self._prefix,
+            user=self._user,
+            key_prefix=key,
+            cache=self._value_cache,
+            scope=self._scope,
+        )
 
     def _get_kv(self, key):
         scope = self._scope
@@ -189,12 +187,13 @@ def get_key_reference(scope, name, user=None):
 
     :rtype: ``str``
     """
-    if (scope == SYSTEM_SCOPE or scope == FULL_SYSTEM_SCOPE):
+    if scope == SYSTEM_SCOPE or scope == FULL_SYSTEM_SCOPE:
         return name
-    elif (scope == USER_SCOPE or scope == FULL_USER_SCOPE):
+    elif scope == USER_SCOPE or scope == FULL_USER_SCOPE:
         if not user:
             raise InvalidUserException('A valid user must be specified for user key ref.')
         return UserKeyReference(name=name, user=user).ref
     else:
-        raise InvalidScopeException('Scope "%s" is not valid. Allowed scopes are %s.' %
-                                    (scope, ALLOWED_SCOPES))
+        raise InvalidScopeException(
+            'Scope "%s" is not valid. Allowed scopes are %s.' % (scope, ALLOWED_SCOPES)
+        )

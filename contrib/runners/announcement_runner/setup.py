@@ -48,8 +48,6 @@ setup(
     package_data={'announcement_runner': ['runner.yaml']},
     scripts=[],
     entry_points={
-        'st2common.runners.runner': [
-            'announcement = announcement_runner.announcement_runner',
-        ],
-    }
+        'st2common.runners.runner': ['announcement = announcement_runner.announcement_runner']
+    },
 )

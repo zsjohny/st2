@@ -24,10 +24,7 @@ from st2common.persistence import policy as policy_access
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'ResourcePolicyApplicator',
-    'get_driver'
-]
+__all__ = ['ResourcePolicyApplicator', 'get_driver']
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -88,5 +85,5 @@ def get_driver(policy_ref, policy_type, **parameters):
             # interested in
             continue
 
-        if (issubclass(obj, ResourcePolicyApplicator) and not obj.__name__.startswith('Base')):
+        if issubclass(obj, ResourcePolicyApplicator) and not obj.__name__.startswith('Base'):
             return obj(policy_ref, policy_type, **parameters)

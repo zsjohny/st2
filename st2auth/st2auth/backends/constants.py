@@ -19,9 +19,7 @@ Auth backend related constants.
 
 from st2common.util.enum import Enum
 
-__all__ = [
-    'AuthBackendCapability'
-]
+__all__ = ['AuthBackendCapability']
 
 
 class AuthBackendCapability(Enum):

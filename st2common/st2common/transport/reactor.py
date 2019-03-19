@@ -24,12 +24,10 @@ from st2common.transport import publishers
 __all__ = [
     'TriggerCUDPublisher',
     'TriggerInstancePublisher',
-
     'TriggerDispatcher',
-
     'get_sensor_cud_queue',
     'get_trigger_cud_queue',
-    'get_trigger_instances_queue'
+    'get_trigger_instances_queue',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -96,11 +94,7 @@ class TriggerDispatcher(object):
         assert isinstance(payload, (type(None), dict))
         assert isinstance(trace_context, (type(None), TraceContext))
 
-        payload = {
-            'trigger': trigger,
-            'payload': payload,
-            TRACE_CONTEXT: trace_context
-        }
+        payload = {'trigger': trigger, 'payload': payload, TRACE_CONTEXT: trace_context}
         routing_key = 'trigger_instance'
 
         self._logger.debug('Dispatching trigger (trigger=%s,payload=%s)', trigger, payload)

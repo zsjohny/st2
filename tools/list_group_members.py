@@ -62,9 +62,7 @@ def do_register_cli_opts(opts, ignore_errors=False):
 
 if __name__ == '__main__':
     cli_opts = [
-        cfg.StrOpt('group-id', default=None,
-                   help='If provided, only list members for that group.'),
-
+        cfg.StrOpt('group-id', default=None, help='If provided, only list members for that group.')
     ]
     do_register_cli_opts(cli_opts)
     config.parse_args()

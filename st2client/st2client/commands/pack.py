@@ -49,20 +49,21 @@ LIVEACTION_COMPLETED_STATES = [
     LIVEACTION_STATUS_FAILED,
     LIVEACTION_STATUS_TIMED_OUT,
     LIVEACTION_STATUS_CANCELED,
-    LIVEACTION_STATUS_ABANDONED
+    LIVEACTION_STATUS_ABANDONED,
 ]
 
 
 class PackBranch(resource.ResourceBranch):
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(PackBranch, self).__init__(
-            Pack, description, app, subparsers,
+            Pack,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             read_only=True,
-            commands={
-                'list': PackListCommand,
-                'get': PackGetCommand
-            })
+            commands={'list': PackListCommand, 'get': PackGetCommand},
+        )
 
         self.commands['show'] = PackShowCommand(self.resource, self.app, self.subparsers)
         self.commands['search'] = PackSearchCommand(self.resource, self.app, self.subparsers)
@@ -78,8 +79,13 @@ class PackResourceCommand(resource.ResourceCommand):
             instance = self.run(args, **kwargs)
             if not instance:
                 raise resource.ResourceNotFoundError("No matching items found")
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=['all'], json=args.json, yaml=args.yaml)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=['all'],
+                json=args.json,
+                yaml=args.yaml,
+            )
         except resource.ResourceNotFoundError:
             print("No matching items found")
         except Exception as e:
@@ -92,17 +98,32 @@ class PackAsyncCommand(ActionRunCommandMixin, resource.ResourceCommand):
     def __init__(self, *args, **kwargs):
         super(PackAsyncCommand, self).__init__(*args, **kwargs)
 
-        self.parser.add_argument('-w', '--width', nargs='+', type=int, default=None,
-                                       help='Set the width of columns in output.')
+        self.parser.add_argument(
+            '-w',
+            '--width',
+            nargs='+',
+            type=int,
+            default=None,
+            help='Set the width of columns in output.',
+        )
 
         detail_arg_grp = self.parser.add_mutually_exclusive_group()
-        detail_arg_grp.add_argument('--attr', nargs='+',
-                                    default=['name', 'description', 'version', 'author'],
-                                    help=('List of attributes to include in the '
-                                          'output. "all" or unspecified will '
-                                          'return all attributes.'))
-        detail_arg_grp.add_argument('-d', '--detail', action='store_true',
-                                    help='Display full detail of the execution in table format.')
+        detail_arg_grp.add_argument(
+            '--attr',
+            nargs='+',
+            default=['name', 'description', 'version', 'author'],
+            help=(
+                'List of attributes to include in the '
+                'output. "all" or unspecified will '
+                'return all attributes.'
+            ),
+        )
+        detail_arg_grp.add_argument(
+            '-d',
+            '--detail',
+            action='store_true',
+            help='Display full detail of the execution in table format.',
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run_and_print(self, args, **kwargs):
@@ -121,8 +142,7 @@ class PackAsyncCommand(ActionRunCommandMixin, resource.ResourceCommand):
             for event in stream_mgr.listen(events, **kwargs):
                 execution = Execution(**event)
 
-                if execution.id == parent_id \
-                        and execution.status in LIVEACTION_COMPLETED_STATES:
+                if execution.id == parent_id and execution.status in LIVEACTION_COMPLETED_STATES:
                     break
 
                 # Suppress intermediate output in case output formatter is requested
@@ -162,14 +182,15 @@ class PackGetCommand(resource.ResourceGetCommand):
 
 class PackShowCommand(PackResourceCommand):
     def __init__(self, resource, *args, **kwargs):
-        help_string = ('Get information about an available %s from the index.' %
-                       resource.get_display_name().lower())
-        super(PackShowCommand, self).__init__(resource, 'show', help_string,
-                                              *args, **kwargs)
+        help_string = (
+            'Get information about an available %s from the index.'
+            % resource.get_display_name().lower()
+        )
+        super(PackShowCommand, self).__init__(resource, 'show', help_string, *args, **kwargs)
 
-        self.parser.add_argument('pack',
-                                 help='Name of the %s to show.' %
-                                 resource.get_display_name().lower())
+        self.parser.add_argument(
+            'pack', help='Name of the %s to show.' % resource.get_display_name().lower()
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -178,23 +199,30 @@ class PackShowCommand(PackResourceCommand):
 
 class PackInstallCommand(PackAsyncCommand):
     def __init__(self, resource, *args, **kwargs):
-        super(PackInstallCommand, self).__init__(resource, 'install', 'Install new %s.'
-                                                 % resource.get_plural_display_name().lower(),
-                                                 *args, **kwargs)
+        super(PackInstallCommand, self).__init__(
+            resource,
+            'install',
+            'Install new %s.' % resource.get_plural_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('packs',
-                                 nargs='+',
-                                 metavar='pack',
-                                 help='Name of the %s in Exchange, or a git repo URL.' %
-                                 resource.get_plural_display_name().lower())
-        self.parser.add_argument('--python3',
-                                 action='store_true',
-                                 default=False,
-                                 help='Use Python 3 binary for pack virtual environment.')
-        self.parser.add_argument('--force',
-                                 action='store_true',
-                                 default=False,
-                                 help='Force pack installation.')
+        self.parser.add_argument(
+            'packs',
+            nargs='+',
+            metavar='pack',
+            help='Name of the %s in Exchange, or a git repo URL.'
+            % resource.get_plural_display_name().lower(),
+        )
+        self.parser.add_argument(
+            '--python3',
+            action='store_true',
+            default=False,
+            help='Use Python 3 binary for pack virtual environment.',
+        )
+        self.parser.add_argument(
+            '--force', action='store_true', default=False, help='Force pack installation.'
+        )
 
     def run(self, args, **kwargs):
         is_structured_output = args.json or args.yaml
@@ -249,8 +277,10 @@ class PackInstallCommand(PackAsyncCommand):
 
     @staticmethod
     def _print_pack_content(pack_name, pack_content):
-        print('\nFor the "%s" %s, the following content will be registered:\n'
-              % (', '.join(pack_name), 'pack' if len(pack_name) == 1 else 'packs'))
+        print(
+            '\nFor the "%s" %s, the following content will be registered:\n'
+            % (', '.join(pack_name), 'pack' if len(pack_name) == 1 else 'packs')
+        )
         for item, count in pack_content.items():
             print('%-10s|  %s' % (item, count))
         print('\nInstallation may take a while for packs with many items.')
@@ -263,9 +293,14 @@ class PackInstallCommand(PackAsyncCommand):
 
         if len(packs) == 1:
             pack_instance = self.app.client.managers['Pack'].get_by_ref_or_id(packs[0], **kwargs)
-            self.print_output(pack_instance, table.PropertyValueTable,
-                              attributes=args.attr, json=args.json, yaml=args.yaml,
-                              attribute_display_order=self.attribute_display_order)
+            self.print_output(
+                pack_instance,
+                table.PropertyValueTable,
+                attributes=args.attr,
+                json=args.json,
+                yaml=args.yaml,
+                attribute_display_order=self.attribute_display_order,
+            )
         else:
             all_pack_instances = self.app.client.managers['Pack'].get_all(**kwargs)
             pack_instances = []
@@ -274,22 +309,32 @@ class PackInstallCommand(PackAsyncCommand):
                 if pack.name in packs:
                     pack_instances.append(pack)
 
-            self.print_output(pack_instances, table.MultiColumnTable,
-                              attributes=args.attr, widths=args.width,
-                              json=args.json, yaml=args.yaml)
+            self.print_output(
+                pack_instances,
+                table.MultiColumnTable,
+                attributes=args.attr,
+                widths=args.width,
+                json=args.json,
+                yaml=args.yaml,
+            )
 
 
 class PackRemoveCommand(PackAsyncCommand):
     def __init__(self, resource, *args, **kwargs):
-        super(PackRemoveCommand, self).__init__(resource, 'remove', 'Remove %s.'
-                                                % resource.get_plural_display_name().lower(),
-                                                *args, **kwargs)
+        super(PackRemoveCommand, self).__init__(
+            resource,
+            'remove',
+            'Remove %s.' % resource.get_plural_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('packs',
-                                 nargs='+',
-                                 metavar='pack',
-                                 help='Name of the %s to remove.' %
-                                 resource.get_plural_display_name().lower())
+        self.parser.add_argument(
+            'packs',
+            nargs='+',
+            metavar='pack',
+            help='Name of the %s to remove.' % resource.get_plural_display_name().lower(),
+        )
 
     def run(self, args, **kwargs):
         return self.manager.remove(args.packs, **kwargs)
@@ -308,12 +353,18 @@ class PackRemoveCommand(PackAsyncCommand):
             if pack_instance:
                 raise OperationFailureException('Pack %s has not been removed properly' % packs[0])
 
-            removed_pack_instance = next((pack for pack in all_pack_instances
-                                         if pack.name == packs[0]), None)
+            removed_pack_instance = next(
+                (pack for pack in all_pack_instances if pack.name == packs[0]), None
+            )
 
-            self.print_output(removed_pack_instance, table.PropertyValueTable,
-                              attributes=args.attr, json=args.json, yaml=args.yaml,
-                              attribute_display_order=self.attribute_display_order)
+            self.print_output(
+                removed_pack_instance,
+                table.PropertyValueTable,
+                attributes=args.attr,
+                json=args.json,
+                yaml=args.yaml,
+                attribute_display_order=self.attribute_display_order,
+            )
         else:
             remaining_pack_instances = self.app.client.managers['Pack'].get_all(**kwargs)
             pack_instances = []
@@ -322,30 +373,38 @@ class PackRemoveCommand(PackAsyncCommand):
                 if pack.name in packs:
                     pack_instances.append(pack)
                 if pack in remaining_pack_instances:
-                    raise OperationFailureException('Pack %s has not been removed properly'
-                                                    % pack.name)
+                    raise OperationFailureException(
+                        'Pack %s has not been removed properly' % pack.name
+                    )
 
-            self.print_output(pack_instances, table.MultiColumnTable,
-                              attributes=args.attr, widths=args.width,
-                              json=args.json, yaml=args.yaml)
+            self.print_output(
+                pack_instances,
+                table.MultiColumnTable,
+                attributes=args.attr,
+                widths=args.width,
+                json=args.json,
+                yaml=args.yaml,
+            )
 
 
 class PackRegisterCommand(PackResourceCommand):
     def __init__(self, resource, *args, **kwargs):
-        super(PackRegisterCommand, self).__init__(resource, 'register',
-                                                  'Register %s(s): sync all file changes with DB.'
-                                                  % resource.get_display_name().lower(),
-                                                  *args, **kwargs)
+        super(PackRegisterCommand, self).__init__(
+            resource,
+            'register',
+            'Register %s(s): sync all file changes with DB.' % resource.get_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('packs',
-                                 nargs='*',
-                                 metavar='pack',
-                                 help='Name of the %s(s) to register.' %
-                                 resource.get_display_name().lower())
+        self.parser.add_argument(
+            'packs',
+            nargs='*',
+            metavar='pack',
+            help='Name of the %s(s) to register.' % resource.get_display_name().lower(),
+        )
 
-        self.parser.add_argument('--types',
-                                 nargs='+',
-                                 help='Types of content to register.')
+        self.parser.add_argument('--types', nargs='+', help='Types of content to register.')
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -357,14 +416,17 @@ class PackSearchCommand(resource.ResourceTableCommand):
     attribute_display_order = ['name', 'description', 'version', 'author']
 
     def __init__(self, resource, *args, **kwargs):
-        super(PackSearchCommand, self).__init__(resource, 'search',
-                                                'Search the index for a %s with any attribute \
+        super(PackSearchCommand, self).__init__(
+            resource,
+            'search',
+            'Search the index for a %s with any attribute \
                                                 matching the query.'
-                                                % resource.get_display_name().lower(),
-                                                *args, **kwargs)
+            % resource.get_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('query',
-                                 help='Search query.')
+        self.parser.add_argument('query', help='Search query.')
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -373,14 +435,17 @@ class PackSearchCommand(resource.ResourceTableCommand):
 
 class PackConfigCommand(resource.ResourceCommand):
     def __init__(self, resource, *args, **kwargs):
-        super(PackConfigCommand, self).__init__(resource, 'config',
-                                                'Configure a %s based on config schema.'
-                                                % resource.get_display_name().lower(),
-                                                *args, **kwargs)
+        super(PackConfigCommand, self).__init__(
+            resource,
+            'config',
+            'Configure a %s based on config schema.' % resource.get_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('name',
-                                 help='Name of the %s(s) to configure.' %
-                                      resource.get_display_name().lower())
+        self.parser.add_argument(
+            'name', help='Name of the %s(s) to configure.' % resource.get_display_name().lower()
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -388,15 +453,15 @@ class PackConfigCommand(resource.ResourceCommand):
 
         if not schema:
             msg = '%s "%s" doesn\'t exist or doesn\'t have a config schema defined.'
-            raise resource.ResourceNotFoundError(msg % (self.resource.get_display_name(),
-                                                        args.name))
+            raise resource.ResourceNotFoundError(
+                msg % (self.resource.get_display_name(), args.name)
+            )
 
         config = interactive.InteractiveForm(schema.attributes).initiate_dialog()
 
         message = '---\nDo you want to preview the config in an editor before saving?'
         description = 'Secrets will be shown in plain text.'
-        preview_dialog = interactive.Question(message, {'default': 'y',
-                                                        'description': description})
+        preview_dialog = interactive.Question(message, {'default': 'y', 'description': description})
         if preview_dialog.read() == 'y':
             try:
                 contents = yaml.safe_dump(config, indent=4, default_flow_style=False)
@@ -420,8 +485,13 @@ class PackConfigCommand(resource.ResourceCommand):
             instance = self.run(args, **kwargs)
             if not instance:
                 raise Exception("Configuration failed")
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=['all'], json=args.json, yaml=args.yaml)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=['all'],
+                json=args.json,
+                yaml=args.yaml,
+            )
         except (KeyboardInterrupt, SystemExit):
             raise OperationFailureException('Interrupted')
         except Exception as e:

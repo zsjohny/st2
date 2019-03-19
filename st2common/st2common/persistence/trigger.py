@@ -19,13 +19,9 @@ from st2common import log as logging
 from st2common import transport
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 from st2common.models.db.trigger import triggertype_access, trigger_access, triggerinstance_access
-from st2common.persistence.base import (Access, ContentPackResource)
+from st2common.persistence.base import Access, ContentPackResource
 
-__all__ = [
-    'TriggerType',
-    'Trigger',
-    'TriggerInstance'
-]
+__all__ = ['TriggerType', 'Trigger', 'TriggerInstance']
 
 LOG = logging.getLogger(__name__)
 

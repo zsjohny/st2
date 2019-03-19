@@ -37,8 +37,7 @@ class SystemInfoTestCase(unittest2.TestCase):
         st2debug.utils.system_info.MEMORY_INFO_PATH = orig_mem_info
 
     def test_get_cpu_info_success(self):
-        st2debug.utils.system_info.CPU_INFO_PATH = os.path.join(FIXTURES_DIR,
-                                                                'proc_cpuinfo')
+        st2debug.utils.system_info.CPU_INFO_PATH = os.path.join(FIXTURES_DIR, 'proc_cpuinfo')
 
         cpu_info = get_cpu_info()
         self.assertEqual(len(cpu_info), 4)
@@ -51,8 +50,7 @@ class SystemInfoTestCase(unittest2.TestCase):
         self.assertEqual(cpu_info, {})
 
     def test_get_memory_info_success(self):
-        st2debug.utils.system_info.MEMORY_INFO_PATH = os.path.join(FIXTURES_DIR,
-                                                                   'proc_meminfo')
+        st2debug.utils.system_info.MEMORY_INFO_PATH = os.path.join(FIXTURES_DIR, 'proc_meminfo')
 
         memory_info = get_memory_info()
         self.assertEqual(memory_info['MemTotal'], 16313772)

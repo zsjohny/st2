@@ -30,17 +30,13 @@ from st2common.services import triggers as trigger_service
 from st2common.services.triggerwatcher import TriggerWatcher
 from st2common.router import abort
 
-__all__ = [
-    'TimersController',
-    'TimersHolder'
-]
+__all__ = ['TimersController', 'TimersHolder']
 
 
 LOG = logging.getLogger(__name__)
 
 
 class TimersHolder(object):
-
     def __init__(self):
         self._timers = {}
 
@@ -64,32 +60,32 @@ class TimersController(resource.ContentPackResourceController):
     model = TriggerAPI
     access = Trigger
 
-    supported_filters = {
-        'type': 'type',
-    }
+    supported_filters = {'type': 'type'}
 
-    query_options = {
-        'sort': ['type']
-    }
+    query_options = {'sort': ['type']}
 
     def __init__(self):
         self._timers = TimersHolder()
         self._trigger_types = TIMER_TRIGGER_TYPES.keys()
         queue_suffix = self.__class__.__name__
-        self._trigger_watcher = TriggerWatcher(create_handler=self._handle_create_trigger,
-                                               update_handler=self._handle_update_trigger,
-                                               delete_handler=self._handle_delete_trigger,
-                                               trigger_types=self._trigger_types,
-                                               queue_suffix=queue_suffix,
-                                               exclusive=True)
+        self._trigger_watcher = TriggerWatcher(
+            create_handler=self._handle_create_trigger,
+            update_handler=self._handle_update_trigger,
+            delete_handler=self._handle_delete_trigger,
+            trigger_types=self._trigger_types,
+            queue_suffix=queue_suffix,
+            exclusive=True,
+        )
         self._trigger_watcher.start()
         self._register_timer_trigger_types()
         self._allowed_timer_types = TIMER_TRIGGER_TYPES.keys()
 
     def get_all(self, timer_type=None):
         if timer_type and timer_type not in self._allowed_timer_types:
-            msg = 'Timer type %s not in supported types - %s.' % (timer_type,
-                                                                  self._allowed_timer_types)
+            msg = 'Timer type %s not in supported types - %s.' % (
+                timer_type,
+                self._allowed_timer_types,
+            )
             abort(http_client.BAD_REQUEST, msg)
 
         t_all = self._timers.get_all(timer_type=timer_type)
@@ -106,9 +102,9 @@ class TimersController(resource.ContentPackResourceController):
 
         permission_type = PermissionType.TIMER_VIEW
         resource_db = TimerDB(pack=trigger_db.pack, name=trigger_db.name)
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=resource_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=resource_db, permission_type=permission_type
+        )
 
         result = self.model.from_model(trigger_db)
         return result

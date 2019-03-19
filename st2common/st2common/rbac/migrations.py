@@ -23,11 +23,7 @@ from st2common.exceptions.db import StackStormDBObjectConflictError
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'run_all',
-
-    'insert_system_roles'
-]
+__all__ = ['run_all', 'insert_system_roles']
 
 
 def run_all():

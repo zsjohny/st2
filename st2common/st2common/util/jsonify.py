@@ -25,13 +25,7 @@ except ImportError:
 import six
 
 
-__all__ = [
-    'json_encode',
-    'json_loads',
-    'try_loads',
-
-    'get_json_type_for_python_value'
-]
+__all__ = ['json_encode', 'json_loads', 'try_loads', 'get_json_type_for_python_value']
 
 
 class GenericJSON(JSONEncoder):

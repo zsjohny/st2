@@ -40,14 +40,16 @@ __all__ = [
     'add_or_update_given_trace_db',
     'get_trace_component_for_action_execution',
     'get_trace_component_for_rule',
-    'get_trace_component_for_trigger_instance'
+    'get_trace_component_for_trigger_instance',
 ]
 
 
 ACTION_SENSOR_TRIGGER_REF = ResourceReference.to_string_reference(
-    pack=ACTION_SENSOR_TRIGGER['pack'], name=ACTION_SENSOR_TRIGGER['name'])
+    pack=ACTION_SENSOR_TRIGGER['pack'], name=ACTION_SENSOR_TRIGGER['name']
+)
 NOTIFY_TRIGGER_REF = ResourceReference.to_string_reference(
-    pack=NOTIFY_TRIGGER['pack'], name=NOTIFY_TRIGGER['name'])
+    pack=NOTIFY_TRIGGER['pack'], name=NOTIFY_TRIGGER['name']
+)
 
 
 def _get_valid_trace_context(trace_context):
@@ -74,7 +76,8 @@ def _get_single_trace_by_component(**component_filter):
         return None
     elif len(traces) > 1:
         raise UniqueTraceNotFoundException(
-            'More than 1 trace matching %s found.' % component_filter)
+            'More than 1 trace matching %s found.' % component_filter
+        )
     return traces[0]
 
 
@@ -117,10 +120,12 @@ def get_trace(trace_context, ignore_trace_tag=False):
         try:
             return Trace.get_by_id(trace_context.id_)
         except (ValidationError, ValueError):
-            LOG.warning('Database lookup for Trace with id="%s" failed.',
-                        trace_context.id_, exc_info=True)
+            LOG.warning(
+                'Database lookup for Trace with id="%s" failed.', trace_context.id_, exc_info=True
+            )
             raise StackStormDBObjectNotFoundError(
-                'Unable to find Trace with id="%s"' % trace_context.id_)
+                'Unable to find Trace with id="%s"' % trace_context.id_
+            )
 
     if ignore_trace_tag:
         return None
@@ -130,7 +135,8 @@ def get_trace(trace_context, ignore_trace_tag=False):
     # Assume this method only handles 1 trace.
     if len(traces) > 1:
         raise UniqueTraceNotFoundException(
-            'More than 1 Trace matching %s found.' % trace_context.trace_tag)
+            'More than 1 Trace matching %s found.' % trace_context.trace_tag
+        )
 
     return traces[0]
 
@@ -174,8 +180,9 @@ def get_trace_db_by_live_action(liveaction):
             # be associated with a Trace.
             trace_db = get_trace_db_by_action_execution(action_execution_id=parent_execution_id)
             if not trace_db:
-                raise StackStormDBObjectNotFoundError('No trace found for execution %s' %
-                                                      parent_execution_id)
+                raise StackStormDBObjectNotFoundError(
+                    'No trace found for execution %s' % parent_execution_id
+                )
             return (created, trace_db)
     # 3. Check if the action_execution associated with liveaction leads to a trace_db
     execution = ActionExecution.get(liveaction__id=str(liveaction.id))
@@ -189,8 +196,9 @@ def get_trace_db_by_live_action(liveaction):
     return (created, trace_db)
 
 
-def add_or_update_given_trace_context(trace_context, action_executions=None, rules=None,
-                                      trigger_instances=None):
+def add_or_update_given_trace_context(
+    trace_context, action_executions=None, rules=None, trigger_instances=None
+):
     """
     Will update an existing Trace or add a new Trace. This method will only look for exact
     Trace as identified by the trace_context. Even if the trace_context contain a trace_tag
@@ -222,14 +230,17 @@ def add_or_update_given_trace_context(trace_context, action_executions=None, rul
         # since trace_db is None need to end up with a valid trace_context
         trace_context = _get_valid_trace_context(trace_context)
         trace_db = TraceDB(trace_tag=trace_context.trace_tag)
-    return add_or_update_given_trace_db(trace_db=trace_db,
-                                        action_executions=action_executions,
-                                        rules=rules,
-                                        trigger_instances=trigger_instances)
+    return add_or_update_given_trace_db(
+        trace_db=trace_db,
+        action_executions=action_executions,
+        rules=rules,
+        trigger_instances=trigger_instances,
+    )
 
 
-def add_or_update_given_trace_db(trace_db, action_executions=None, rules=None,
-                                 trigger_instances=None):
+def add_or_update_given_trace_db(
+    trace_db, action_executions=None, rules=None, trigger_instances=None
+):
     """
     Will update an existing Trace.
 
@@ -255,8 +266,9 @@ def add_or_update_given_trace_db(trace_db, action_executions=None, rules=None,
 
     if not action_executions:
         action_executions = []
-    action_executions = [_to_trace_component_db(component=action_execution)
-                         for action_execution in action_executions]
+    action_executions = [
+        _to_trace_component_db(component=action_execution) for action_execution in action_executions
+    ]
 
     if not rules:
         rules = []
@@ -264,16 +276,19 @@ def add_or_update_given_trace_db(trace_db, action_executions=None, rules=None,
 
     if not trigger_instances:
         trigger_instances = []
-    trigger_instances = [_to_trace_component_db(component=trigger_instance)
-                         for trigger_instance in trigger_instances]
+    trigger_instances = [
+        _to_trace_component_db(component=trigger_instance) for trigger_instance in trigger_instances
+    ]
 
     # If an id exists then this is an update and we do not want to perform
     # an upsert so use push_components which will use the push operator.
     if trace_db.id:
-        return Trace.push_components(trace_db,
-                                     action_executions=action_executions,
-                                     rules=rules,
-                                     trigger_instances=trigger_instances)
+        return Trace.push_components(
+            trace_db,
+            action_executions=action_executions,
+            rules=rules,
+            trigger_instances=trigger_instances,
+        )
 
     trace_db.action_executions = action_executions
     trace_db.rules = rules
@@ -298,7 +313,7 @@ def get_trace_component_for_action_execution(action_execution_db, liveaction_db)
         raise ValueError('action_execution_db expected.')
     trace_component = {
         'id': str(action_execution_db.id),
-        'ref': str(action_execution_db.action.get('ref', ''))
+        'ref': str(action_execution_db.action.get('ref', '')),
     }
     caused_by = {}
     parent_context = executions.get_parent_context(liveaction_db=liveaction_db)
@@ -308,8 +323,10 @@ def get_trace_component_for_action_execution(action_execution_db, liveaction_db)
     elif action_execution_db.rule and action_execution_db.trigger_instance:
         # Once RuleEnforcement is available that can be used instead.
         caused_by['type'] = 'rule'
-        caused_by['id'] = '%s:%s' % (action_execution_db.rule['id'],
-                                     action_execution_db.trigger_instance['id'])
+        caused_by['id'] = '%s:%s' % (
+            action_execution_db.rule['id'],
+            action_execution_db.trigger_instance['id'],
+        )
 
     trace_component['caused_by'] = caused_by
     return trace_component
@@ -348,15 +365,14 @@ def get_trace_component_for_trigger_instance(trigger_instance_db):
     :rtype: ``dict``
     """
     trace_component = {}
-    trace_component = {
-        'id': str(trigger_instance_db.id),
-        'ref': trigger_instance_db.trigger
-    }
+    trace_component = {'id': str(trigger_instance_db.id), 'ref': trigger_instance_db.trigger}
     caused_by = {}
     # Special handling for ACTION_SENSOR_TRIGGER and NOTIFY_TRIGGER where we
     # know how to maintain the links.
-    if trigger_instance_db.trigger == ACTION_SENSOR_TRIGGER_REF or \
-       trigger_instance_db.trigger == NOTIFY_TRIGGER_REF:
+    if (
+        trigger_instance_db.trigger == ACTION_SENSOR_TRIGGER_REF
+        or trigger_instance_db.trigger == NOTIFY_TRIGGER_REF
+    ):
         caused_by['type'] = 'action_execution'
         # For both action trigger and notidy trigger execution_id is stored in the payload.
         caused_by['id'] = trigger_instance_db.payload['execution_id']

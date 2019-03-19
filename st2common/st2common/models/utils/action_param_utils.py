@@ -64,8 +64,9 @@ def get_params_view(action_db=None, runner_db=None, merged_only=False):
 
     merged_params = {}
     for param in parameters:
-        merged_params[param] = _merge_param_meta_values(action_meta=action_params.get(param),
-                                                        runner_meta=runner_params.get(param))
+        merged_params[param] = _merge_param_meta_values(
+            action_meta=action_params.get(param), runner_meta=runner_params.get(param)
+        )
 
     if merged_only:
         return merged_params
@@ -121,8 +122,12 @@ def cast_params(action_ref, params, cast_overrides=None):
         if not cast:
             cast = get_cast(cast_type=parameter_type)
         if not cast:
-            LOG.debug('Will skip cast of param[name: %s, value: %s]. No cast for %s.', k, v,
-                      parameter_type)
+            LOG.debug(
+                'Will skip cast of param[name: %s, value: %s]. No cast for %s.',
+                k,
+                v,
+                parameter_type,
+            )
             continue
         LOG.debug('Casting param: %s of type %s to type: %s', v, type(v), parameter_type)
 
@@ -130,9 +135,11 @@ def cast_params(action_ref, params, cast_overrides=None):
             params[k] = cast(v)
         except Exception as e:
             v_type = type(v).__name__
-            msg = ('Failed to cast value "%s" (type: %s) for parameter "%s" of type "%s": %s. '
-                   'Perhaps the value is of an invalid type?' %
-                   (v, v_type, k, parameter_type, six.text_type(e)))
+            msg = (
+                'Failed to cast value "%s" (type: %s) for parameter "%s" of type "%s": %s. '
+                'Perhaps the value is of an invalid type?'
+                % (v, v_type, k, parameter_type, six.text_type(e))
+            )
             raise ValueError(msg)
 
     return params
@@ -145,8 +152,13 @@ def validate_action_parameters(action_ref, inputs):
     parameters = action_db_util.get_action_parameters_specs(action_ref)
 
     # Check required parameters that have no default defined.
-    required = set([param for param, meta in six.iteritems(parameters)
-                    if meta.get('required', False) and 'default' not in meta])
+    required = set(
+        [
+            param
+            for param, meta in six.iteritems(parameters)
+            if meta.get('required', False) and 'default' not in meta
+        ]
+    )
 
     requires = sorted(required.difference(input_set))
 

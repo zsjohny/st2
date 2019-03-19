@@ -32,13 +32,11 @@ COORDINATOR = None
 
 __all__ = [
     'configured',
-
     'get_coordinator',
     'get_coordinator_if_set',
     'get_member_id',
-
     'coordinator_setup',
-    'coordinator_teardown'
+    'coordinator_teardown',
 ]
 
 
@@ -61,6 +59,7 @@ class NoOpAsyncResult(object):
     In most scenarios, tooz library returns an async result, a future and this
     class wrapper is here to correctly mimic tooz API and behavior.
     """
+
     def __init__(self, result=None):
         self._result = result
 
@@ -168,8 +167,9 @@ def configured():
     :rtype: ``bool``
     """
     backend_configured = cfg.CONF.coordination.url is not None
-    mock_backend = backend_configured and (cfg.CONF.coordination.url.startswith('zake') or
-                                           cfg.CONF.coordination.url.startswith('file'))
+    mock_backend = backend_configured and (
+        cfg.CONF.coordination.url.startswith('zake') or cfg.CONF.coordination.url.startswith('file')
+    )
 
     return backend_configured and not mock_backend
 
@@ -217,8 +217,10 @@ def get_coordinator(start_heart=True, use_cache=True):
     global COORDINATOR
 
     if not configured():
-        LOG.warn('Coordination backend is not configured. Code paths which use coordination '
-                 'service will use best effort approach and race conditions are possible.')
+        LOG.warn(
+            'Coordination backend is not configured. Code paths which use coordination '
+            'service will use best effort approach and race conditions are possible.'
+        )
 
     if not use_cache:
         return coordinator_setup(start_heart=start_heart)

@@ -19,6 +19,7 @@ import uuid
 import mock
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from unittest2 import TestCase
@@ -33,7 +34,8 @@ class TestNoopRunner(TestCase):
 
     def test_noop_command_executes(self):
         models = TestNoopRunner.fixtures_loader.load_models(
-            fixtures_pack='generic', fixtures_dict={'actions': ['noop.yaml']})
+            fixtures_pack='generic', fixtures_dict={'actions': ['noop.yaml']}
+        )
 
         action_db = models['actions']['noop.yaml']
         runner = TestNoopRunner._get_runner(action_db)

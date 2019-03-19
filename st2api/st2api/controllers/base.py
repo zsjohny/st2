@@ -20,9 +20,7 @@ from six.moves.urllib import parse as urlparse  # pylint: disable=import-error
 from st2api.controllers.controller_transforms import transform_to_bool
 from st2common.rbac import utils as rbac_utils
 
-__all__ = [
-    'BaseRestControllerMixin'
-]
+__all__ = ['BaseRestControllerMixin']
 
 
 class BaseRestControllerMixin(object):

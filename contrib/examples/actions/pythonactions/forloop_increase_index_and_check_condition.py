@@ -12,4 +12,4 @@ class IncreaseIndexAndCheckCondition(Action):
         if not index or index == '':
             index = 1
 
-        return(True, int(index) + 1)
+        return (True, int(index) + 1)

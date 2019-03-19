@@ -25,25 +25,25 @@ from st2common.constants.types import ResourceType
 
 from st2common.models.db import MongoDBAccess
 
-__all__ = [
-    'TraceDB',
-    'TraceComponentDB'
-]
+__all__ = ['TraceDB', 'TraceComponentDB']
 
 
 class TraceComponentDB(me.EmbeddedDocument):
     """
     """
+
     object_id = me.StringField()
     ref = me.StringField(default='')
     updated_at = ComplexDateTimeField(
         default=date_utils.get_datetime_utc_now,
-        help_text='The timestamp when the TraceComponent was included.')
+        help_text='The timestamp when the TraceComponent was included.',
+    )
     caused_by = me.DictField(help_text='Causal component.')
 
     def __str__(self):
         return 'TraceComponentDB@(object_id:{}, updated_at:{})'.format(
-            self.object_id, self.updated_at)
+            self.object_id, self.updated_at
+        )
 
 
 class TraceDB(stormbase.StormFoundationDB, stormbase.UIDFieldMixin):
@@ -66,19 +66,26 @@ class TraceDB(stormbase.StormFoundationDB, stormbase.UIDFieldMixin):
 
     RESOURCE_TYPE = ResourceType.TRACE
 
-    trace_tag = me.StringField(required=True,
-                               help_text='A user specified reference to the trace.')
-    trigger_instances = me.ListField(field=me.EmbeddedDocumentField(TraceComponentDB),
-                                     required=False,
-                                     help_text='Associated TriggerInstances.')
-    rules = me.ListField(field=me.EmbeddedDocumentField(TraceComponentDB),
-                         required=False,
-                         help_text='Associated Rules.')
-    action_executions = me.ListField(field=me.EmbeddedDocumentField(TraceComponentDB),
-                                     required=False,
-                                     help_text='Associated ActionExecutions.')
-    start_timestamp = ComplexDateTimeField(default=date_utils.get_datetime_utc_now,
-                                           help_text='The timestamp when the Trace was created.')
+    trace_tag = me.StringField(required=True, help_text='A user specified reference to the trace.')
+    trigger_instances = me.ListField(
+        field=me.EmbeddedDocumentField(TraceComponentDB),
+        required=False,
+        help_text='Associated TriggerInstances.',
+    )
+    rules = me.ListField(
+        field=me.EmbeddedDocumentField(TraceComponentDB),
+        required=False,
+        help_text='Associated Rules.',
+    )
+    action_executions = me.ListField(
+        field=me.EmbeddedDocumentField(TraceComponentDB),
+        required=False,
+        help_text='Associated ActionExecutions.',
+    )
+    start_timestamp = ComplexDateTimeField(
+        default=date_utils.get_datetime_utc_now,
+        help_text='The timestamp when the Trace was created.',
+    )
 
     meta = {
         'indexes': [

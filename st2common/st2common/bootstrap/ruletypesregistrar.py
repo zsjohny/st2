@@ -22,10 +22,7 @@ from st2common.models.api.rule import RuleTypeAPI
 from st2common.persistence.rule import RuleType
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 
-__all__ = [
-    'register_rule_types',
-    'RULE_TYPES'
-]
+__all__ = ['register_rule_types', 'RULE_TYPES']
 
 
 LOG = logging.getLogger(__name__)
@@ -35,15 +32,13 @@ RULE_TYPES = [
         'name': RULE_TYPE_STANDARD,
         'description': 'standard rule that is always applicable.',
         'enabled': True,
-        'parameters': {
-        }
+        'parameters': {},
     },
     {
         'name': RULE_TYPE_BACKSTOP,
         'description': 'Rule that applies when no other rule has matched for a specific Trigger.',
         'enabled': True,
-        'parameters': {
-        }
+        'parameters': {},
     },
 ]
 

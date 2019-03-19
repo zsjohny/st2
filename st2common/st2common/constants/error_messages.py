@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = [
-    'PACK_VIRTUALENV_DOESNT_EXIST',
-    'PACK_VIRTUALENV_USES_PYTHON3'
-]
+__all__ = ['PACK_VIRTUALENV_DOESNT_EXIST', 'PACK_VIRTUALENV_USES_PYTHON3']
 
 PACK_VIRTUALENV_DOESNT_EXIST = '''
 The virtual environment (%(virtualenv_path)s) for pack "%(pack)s" does not exist. Normally this is

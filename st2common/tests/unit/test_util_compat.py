@@ -19,9 +19,7 @@ import unittest2
 
 from st2common.util.compat import to_ascii
 
-__all__ = [
-    'CompatUtilsTestCase'
-]
+__all__ = ['CompatUtilsTestCase']
 
 
 class CompatUtilsTestCase(unittest2.TestCase):
@@ -30,7 +28,7 @@ class CompatUtilsTestCase(unittest2.TestCase):
             ('already ascii', 'already ascii'),
             (u'foo', 'foo'),
             ('٩(̾●̮̮̃̾•̃̾)۶', '()'),
-            ('\xd9\xa9', '')
+            ('\xd9\xa9', ''),
         ]
 
         for input_value, expected_value in expected_values:

@@ -23,6 +23,7 @@ import mock
 import eventlet
 
 from st2common.util.monkey_patch import monkey_patch
+
 monkey_patch()
 
 import st2tests.config as tests_config
@@ -34,9 +35,7 @@ from st2reactor.sensor.base import Sensor, PollingSensor
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 RESOURCES_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '../resources'))
 
-__all__ = [
-    'SensorWrapperTestCase'
-]
+__all__ = ['SensorWrapperTestCase']
 
 
 class SensorWrapperTestCase(unittest2.TestCase):
@@ -50,10 +49,13 @@ class SensorWrapperTestCase(unittest2.TestCase):
         trigger_types = ['trigger1', 'trigger2']
         parent_args = ['--config-file', TESTS_CONFIG_PATH]
 
-        wrapper = SensorWrapper(pack='core', file_path=file_path,
-                                class_name='TestSensor',
-                                trigger_types=trigger_types,
-                                parent_args=parent_args)
+        wrapper = SensorWrapper(
+            pack='core',
+            file_path=file_path,
+            class_name='TestSensor',
+            trigger_types=trigger_types,
+            parent_args=parent_args,
+        )
         self.assertTrue(getattr(wrapper._sensor_instance, 'sensor_service', None) is not None)
         self.assertTrue(getattr(wrapper._sensor_instance, 'config', None) is not None)
 
@@ -63,10 +65,13 @@ class SensorWrapperTestCase(unittest2.TestCase):
         trigger_types = ['trigger1', 'trigger2']
         parent_args = ['--config-file', TESTS_CONFIG_PATH]
 
-        wrapper = SensorWrapper(pack='core', file_path=file_path,
-                                class_name='TestSensor',
-                                trigger_types=trigger_types,
-                                parent_args=parent_args)
+        wrapper = SensorWrapper(
+            pack='core',
+            file_path=file_path,
+            class_name='TestSensor',
+            trigger_types=trigger_types,
+            parent_args=parent_args,
+        )
 
         self.assertEqual(wrapper._trigger_names, {})
 
@@ -103,10 +108,13 @@ class SensorWrapperTestCase(unittest2.TestCase):
         trigger_types = ['trigger1', 'trigger2']
         parent_args = ['--config-file', TESTS_CONFIG_PATH]
 
-        wrapper = SensorWrapper(pack='core', file_path=file_path,
-                                class_name='TestSensor',
-                                trigger_types=trigger_types,
-                                parent_args=parent_args)
+        wrapper = SensorWrapper(
+            pack='core',
+            file_path=file_path,
+            class_name='TestSensor',
+            trigger_types=trigger_types,
+            parent_args=parent_args,
+        )
         self.assertIsInstance(wrapper._sensor_instance, Sensor)
         self.assertIsNotNone(wrapper._sensor_instance)
 
@@ -115,11 +123,14 @@ class SensorWrapperTestCase(unittest2.TestCase):
         trigger_types = ['trigger1', 'trigger2']
         parent_args = ['--config-file', TESTS_CONFIG_PATH]
         poll_interval = 10
-        wrapper = SensorWrapper(pack='core', file_path=file_path,
-                                class_name='TestPollingSensor',
-                                trigger_types=trigger_types,
-                                parent_args=parent_args,
-                                poll_interval=poll_interval)
+        wrapper = SensorWrapper(
+            pack='core',
+            file_path=file_path,
+            class_name='TestPollingSensor',
+            trigger_types=trigger_types,
+            parent_args=parent_args,
+            poll_interval=poll_interval,
+        )
         self.assertIsNotNone(wrapper._sensor_instance)
         self.assertIsInstance(wrapper._sensor_instance, PollingSensor)
         self.assertEquals(wrapper._sensor_instance._poll_interval, poll_interval)
@@ -130,11 +141,16 @@ class SensorWrapperTestCase(unittest2.TestCase):
         parent_args = ['--config-file', TESTS_CONFIG_PATH]
 
         expected_msg = 'Failed to load sensor class from file.*? No such file or directory'
-        self.assertRaisesRegexp(IOError, expected_msg, SensorWrapper,
-                                pack='core', file_path=file_path,
-                                class_name='TestSensor',
-                                trigger_types=trigger_types,
-                                parent_args=parent_args)
+        self.assertRaisesRegexp(
+            IOError,
+            expected_msg,
+            SensorWrapper,
+            pack='core',
+            file_path=file_path,
+            class_name='TestSensor',
+            trigger_types=trigger_types,
+            parent_args=parent_args,
+        )
 
     def test_sensor_init_fails_sensor_code_contains_typo(self):
         file_path = os.path.join(RESOURCES_DIR, 'test_sensor_with_typo.py')
@@ -142,16 +158,26 @@ class SensorWrapperTestCase(unittest2.TestCase):
         parent_args = ['--config-file', TESTS_CONFIG_PATH]
 
         expected_msg = 'Failed to load sensor class from file.*? \'typobar\' is not defined'
-        self.assertRaisesRegexp(NameError, expected_msg, SensorWrapper,
-                                pack='core', file_path=file_path,
-                                class_name='TestSensor',
-                                trigger_types=trigger_types,
-                                parent_args=parent_args)
+        self.assertRaisesRegexp(
+            NameError,
+            expected_msg,
+            SensorWrapper,
+            pack='core',
+            file_path=file_path,
+            class_name='TestSensor',
+            trigger_types=trigger_types,
+            parent_args=parent_args,
+        )
 
         # Verify error message also contains traceback
         try:
-            SensorWrapper(pack='core', file_path=file_path, class_name='TestSensor',
-                          trigger_types=trigger_types, parent_args=parent_args)
+            SensorWrapper(
+                pack='core',
+                file_path=file_path,
+                class_name='TestSensor',
+                trigger_types=trigger_types,
+                parent_args=parent_args,
+            )
         except NameError as e:
             self.assertTrue('Traceback (most recent call last)' in six.text_type(e))
             self.assertTrue('line 5, in <module>' in six.text_type(e))

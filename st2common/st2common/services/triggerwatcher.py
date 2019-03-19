@@ -33,8 +33,15 @@ class TriggerWatcher(ConsumerMixin):
 
     sleep_interval = 0  # sleep to co-operatively yield after processing each message
 
-    def __init__(self, create_handler, update_handler, delete_handler,
-                 trigger_types=None, queue_suffix=None, exclusive=False):
+    def __init__(
+        self,
+        create_handler,
+        update_handler,
+        delete_handler,
+        trigger_types=None,
+        queue_suffix=None,
+        exclusive=False,
+    ):
         """
         :param create_handler: Function which is called on TriggerDB create event.
         :type create_handler: ``callable``
@@ -69,13 +76,15 @@ class TriggerWatcher(ConsumerMixin):
         self._handlers = {
             publishers.CREATE_RK: create_handler,
             publishers.UPDATE_RK: update_handler,
-            publishers.DELETE_RK: delete_handler
+            publishers.DELETE_RK: delete_handler,
         }
 
     def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=[self._trigger_watch_q],
-                         accept=['pickle'],
-                         callbacks=[self.process_task])]
+        return [
+            Consumer(
+                queues=[self._trigger_watch_q], accept=['pickle'], callbacks=[self.process_task]
+            )
+        ]
 
     def process_task(self, body, message):
         LOG.debug('process_task')
@@ -93,15 +102,19 @@ class TriggerWatcher(ConsumerMixin):
 
             trigger_type = getattr(body, 'type', None)
             if self._trigger_types and trigger_type not in self._trigger_types:
-                LOG.debug('Skipping message %s since trigger_type doesn\'t match (type=%s)',
-                          message, trigger_type)
+                LOG.debug(
+                    'Skipping message %s since trigger_type doesn\'t match (type=%s)',
+                    message,
+                    trigger_type,
+                )
                 return
 
             try:
                 handler(body)
             except Exception as e:
-                LOG.exception('Handling failed. Message body: %s. Exception: %s',
-                              body, six.text_type(e))
+                LOG.exception(
+                    'Handling failed. Message body: %s. Exception: %s', body, six.text_type(e)
+                )
         finally:
             message.ack()
 
@@ -128,8 +141,7 @@ class TriggerWatcher(ConsumerMixin):
     # waiting for a message on the queue.
 
     def on_consume_end(self, connection, channel):
-        super(TriggerWatcher, self).on_consume_end(connection=connection,
-                                                   channel=channel)
+        super(TriggerWatcher, self).on_consume_end(connection=connection, channel=channel)
         eventlet.sleep(seconds=self.sleep_interval)
 
     def on_iteration(self):
@@ -144,8 +156,9 @@ class TriggerWatcher(ConsumerMixin):
 
     @staticmethod
     def _get_queue(queue_suffix, exclusive):
-        queue_name = queue_utils.get_queue_name(queue_name_base='st2.trigger.watch',
-                                                queue_name_suffix=queue_suffix,
-                                                add_random_uuid_to_suffix=True
-                                                )
+        queue_name = queue_utils.get_queue_name(
+            queue_name_base='st2.trigger.watch',
+            queue_name_suffix=queue_suffix,
+            add_random_uuid_to_suffix=True,
+        )
         return reactor.get_trigger_cud_queue(queue_name, routing_key='#', exclusive=exclusive)

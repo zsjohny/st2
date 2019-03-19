@@ -23,6 +23,7 @@ import st2tests
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests.unit import base
@@ -46,34 +47,31 @@ from st2tests.mocks import workflow as mock_wf_ex_xport
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state),
+)
 class OrquestaRunnerDelayTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(OrquestaRunnerDelayTest, cls).setUpClass()
@@ -83,8 +81,7 @@ class OrquestaRunnerDelayTest(st2tests.ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -142,8 +139,7 @@ class OrquestaRunnerDelayTest(st2tests.ExecutionDbTestCase):
             self.assertEqual(t1_ac_ex_db.delay, expected_delay_msec)
 
         status = [
-            ac_ex.status == action_constants.LIVEACTION_STATUS_SUCCEEDED
-            for ac_ex in t1_ac_ex_dbs
+            ac_ex.status == action_constants.LIVEACTION_STATUS_SUCCEEDED for ac_ex in t1_ac_ex_dbs
         ]
 
         self.assertTrue(all(status))
@@ -195,8 +191,7 @@ class OrquestaRunnerDelayTest(st2tests.ExecutionDbTestCase):
             self.assertEqual(t1_ac_ex_db.delay, expected_delay_msec)
 
         status = [
-            ac_ex.status == action_constants.LIVEACTION_STATUS_SUCCEEDED
-            for ac_ex in t1_ac_ex_dbs
+            ac_ex.status == action_constants.LIVEACTION_STATUS_SUCCEEDED for ac_ex in t1_ac_ex_dbs
         ]
 
         self.assertTrue(all(status))
@@ -216,17 +211,13 @@ class OrquestaRunnerDelayTest(st2tests.ExecutionDbTestCase):
 
         # Assert delay value is rendered and assigned only to the first set of action executions.
         t1_lv_ac_dbs_delays = [
-            t1_lv_ac_db.delay
-            for t1_lv_ac_db in t1_lv_ac_dbs
-            if t1_lv_ac_db.delay is not None
+            t1_lv_ac_db.delay for t1_lv_ac_db in t1_lv_ac_dbs if t1_lv_ac_db.delay is not None
         ]
 
         self.assertEqual(len(t1_lv_ac_dbs_delays), concurrency)
 
         t1_ac_ex_dbs_delays = [
-            t1_ac_ex_db.delay
-            for t1_ac_ex_db in t1_ac_ex_dbs
-            if t1_ac_ex_db.delay is not None
+            t1_ac_ex_db.delay for t1_ac_ex_db in t1_ac_ex_dbs if t1_ac_ex_db.delay is not None
         ]
 
         self.assertEqual(len(t1_ac_ex_dbs_delays), concurrency)
@@ -235,8 +226,7 @@ class OrquestaRunnerDelayTest(st2tests.ExecutionDbTestCase):
         self.assertEqual(len(t1_ac_ex_dbs), num_items)
 
         status = [
-            ac_ex.status == action_constants.LIVEACTION_STATUS_SUCCEEDED
-            for ac_ex in t1_ac_ex_dbs
+            ac_ex.status == action_constants.LIVEACTION_STATUS_SUCCEEDED for ac_ex in t1_ac_ex_dbs
         ]
 
         self.assertTrue(all(status))

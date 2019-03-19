@@ -26,14 +26,13 @@ MOCK_SENSOR_DB = SensorTypeDB(name='foo', pack='test')
 
 
 class SensorWatcherTests(unittest2.TestCase):
-
     @mock.patch.object(Message, 'ack', mock.MagicMock())
     @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
     def test_assert_handlers_called(self):
         handler_vars = {
             'create_handler_called': False,
             'update_handler_called': False,
-            'delete_handler_called': False
+            'delete_handler_called': False,
         }
 
         def create_handler(sensor_db):

@@ -24,51 +24,28 @@ class SensorTypeAPI(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
-            'ref': {
-                'type': 'string'
-            },
-            'uid': {
-                'type': 'string'
-            },
-            'name': {
-                'type': 'string',
-                'required': True
-            },
-            'pack': {
-                'type': 'string'
-            },
-            'description': {
-                'type': 'string'
-            },
-            'artifact_uri': {
-                'type': 'string',
-            },
-            'entry_point': {
-                'type': 'string',
-            },
+            'id': {'type': 'string', 'default': None},
+            'ref': {'type': 'string'},
+            'uid': {'type': 'string'},
+            'name': {'type': 'string', 'required': True},
+            'pack': {'type': 'string'},
+            'description': {'type': 'string'},
+            'artifact_uri': {'type': 'string'},
+            'entry_point': {'type': 'string'},
             'enabled': {
                 'description': 'Enable or disable the sensor.',
                 'type': 'boolean',
-                'default': True
+                'default': True,
             },
-            'trigger_types': {
-                'type': 'array',
-                'default': []
-            },
-            'poll_interval': {
-                'type': 'number'
-            },
+            'trigger_types': {'type': 'array', 'default': []},
+            'poll_interval': {'type': 'number'},
             "metadata_file": {
                 "description": "Path to the metadata file relative to the pack directory.",
                 "type": "string",
-                "default": ""
-            }
+                "default": "",
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod

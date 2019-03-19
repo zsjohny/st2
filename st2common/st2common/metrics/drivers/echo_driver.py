@@ -16,9 +16,7 @@
 from st2common import log as logging
 from st2common.metrics.base import BaseMetricsDriver
 
-__all__ = [
-    'EchoDriver'
-]
+__all__ = ['EchoDriver']
 
 LOG = logging.getLogger(__name__)
 

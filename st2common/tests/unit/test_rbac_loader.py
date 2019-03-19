@@ -24,9 +24,7 @@ from st2tests import config
 from st2tests.fixturesloader import get_fixtures_base_path
 from st2common.rbac.loader import RBACDefinitionsLoader
 
-__all__ = [
-    'RBACDefinitionsLoaderTestCase'
-]
+__all__ = ['RBACDefinitionsLoaderTestCase']
 
 
 class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
@@ -41,19 +39,25 @@ class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
         role_definition_api = loader.load_role_definition_from_file(file_path=file_path)
 
         self.assertEqual(role_definition_api.name, 'role_three')
-        self.assertTrue('all the pack permissions on pack dummy_pack_1' in
-                        role_definition_api.description)
+        self.assertTrue(
+            'all the pack permissions on pack dummy_pack_1' in role_definition_api.description
+        )
         self.assertEqual(len(role_definition_api.permission_grants), 4)
-        self.assertEqual(role_definition_api.permission_grants[0]['resource_uid'],
-                         'pack:dummy_pack_1')
-        self.assertEqual(role_definition_api.permission_grants[1]['resource_uid'],
-                         'pack:dummy_pack_2')
+        self.assertEqual(
+            role_definition_api.permission_grants[0]['resource_uid'], 'pack:dummy_pack_1'
+        )
+        self.assertEqual(
+            role_definition_api.permission_grants[1]['resource_uid'], 'pack:dummy_pack_2'
+        )
         self.assertTrue('rule_view' in role_definition_api.permission_grants[1]['permission_types'])
-        self.assertEqual(role_definition_api.permission_grants[2]['permission_types'],
-                         ['action_execute'])
+        self.assertEqual(
+            role_definition_api.permission_grants[2]['permission_types'], ['action_execute']
+        )
         self.assertEqual(role_definition_api.permission_grants[3]['resource_uid'], None)
-        self.assertEqual(role_definition_api.permission_grants[3]['permission_types'],
-                         ['action_list', 'rule_list'])
+        self.assertEqual(
+            role_definition_api.permission_grants[3]['permission_types'],
+            ['action_list', 'rule_list'],
+        )
 
     def test_load_role_definition_validation_error(self):
         loader = RBACDefinitionsLoader()
@@ -61,21 +65,29 @@ class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
         # Invalid permission which doesn't apply to the resource in question
         file_path = os.path.join(get_fixtures_base_path(), 'rbac_invalid/roles/role_one.yaml')
         expected_msg = 'Invalid permission type "rule_all" for resource type "action"'
-        self.assertRaisesRegexp(ValueError, expected_msg, loader.load_role_definition_from_file,
-                                file_path=file_path)
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, loader.load_role_definition_from_file, file_path=file_path
+        )
 
         # Invalid permission type which doesn't exist
         file_path = os.path.join(get_fixtures_base_path(), 'rbac_invalid/roles/role_two.yaml')
         expected_msg = '.*Failed validating \'enum\'.*'
-        self.assertRaisesRegexp(jsonschema.ValidationError, expected_msg,
-                                loader.load_role_definition_from_file, file_path=file_path)
+        self.assertRaisesRegexp(
+            jsonschema.ValidationError,
+            expected_msg,
+            loader.load_role_definition_from_file,
+            file_path=file_path,
+        )
 
         # Only list permissions can be used without a resource_uid
         file_path = os.path.join(get_fixtures_base_path(), 'rbac_invalid/roles/role_four.yaml')
-        expected_msg = ('Invalid permission type "action_create". Valid global '
-                        'permission types which can be used without a resource id are:')
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                loader.load_role_definition_from_file, file_path=file_path)
+        expected_msg = (
+            'Invalid permission type "action_create". Valid global '
+            'permission types which can be used without a resource id are:'
+        )
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, loader.load_role_definition_from_file, file_path=file_path
+        )
 
     def test_load_role_definition_with_all_global_permission_types(self):
         loader = RBACDefinitionsLoader()
@@ -140,10 +152,12 @@ class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
 
         # Try to load all the user role assignments from disk where two definitions refer to the
         # same user
-        file_path1 = os.path.join(get_fixtures_base_path(),
-                                  'rbac_invalid/assignments/user_foo1.yaml')
-        file_path2 = os.path.join(get_fixtures_base_path(),
-                                  'rbac_invalid/assignments/user_foo2.yaml')
+        file_path1 = os.path.join(
+            get_fixtures_base_path(), 'rbac_invalid/assignments/user_foo1.yaml'
+        )
+        file_path2 = os.path.join(
+            get_fixtures_base_path(), 'rbac_invalid/assignments/user_foo2.yaml'
+        )
         file_paths = [file_path1, file_path2]
 
         loader._get_role_assiginments_file_paths = mock.Mock()
@@ -168,8 +182,9 @@ class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
     def test_load_user_role_assignments_empty_definition_file(self):
         loader = RBACDefinitionsLoader()
 
-        file_path = os.path.join(get_fixtures_base_path(),
-                                 'rbac_invalid/assignments/user_empty.yaml')
+        file_path = os.path.join(
+            get_fixtures_base_path(), 'rbac_invalid/assignments/user_empty.yaml'
+        )
         file_paths = [file_path]
 
         loader._get_role_assiginments_file_paths = mock.Mock()
@@ -217,21 +232,29 @@ class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
     def test_load_group_to_role_mappings_missing_mandatory_attribute(self):
         loader = RBACDefinitionsLoader()
 
-        file_path = os.path.join(get_fixtures_base_path(),
-                                 'rbac_invalid/mappings/mapping_one_missing_roles.yaml')
+        file_path = os.path.join(
+            get_fixtures_base_path(), 'rbac_invalid/mappings/mapping_one_missing_roles.yaml'
+        )
 
         expected_msg = '\'roles\' is a required property'
-        self.assertRaisesRegexp(jsonschema.ValidationError, expected_msg,
-                                loader.load_group_to_role_map_assignment_from_file,
-                                file_path=file_path)
+        self.assertRaisesRegexp(
+            jsonschema.ValidationError,
+            expected_msg,
+            loader.load_group_to_role_map_assignment_from_file,
+            file_path=file_path,
+        )
 
-        file_path = os.path.join(get_fixtures_base_path(),
-                                 'rbac_invalid/mappings/mapping_two_missing_group.yaml')
+        file_path = os.path.join(
+            get_fixtures_base_path(), 'rbac_invalid/mappings/mapping_two_missing_group.yaml'
+        )
 
         expected_msg = '\'group\' is a required property'
-        self.assertRaisesRegexp(jsonschema.ValidationError, expected_msg,
-                                loader.load_group_to_role_map_assignment_from_file,
-                                file_path=file_path)
+        self.assertRaisesRegexp(
+            jsonschema.ValidationError,
+            expected_msg,
+            loader.load_group_to_role_map_assignment_from_file,
+            file_path=file_path,
+        )
 
     def test_load_group_to_role_mappings_success(self):
         loader = RBACDefinitionsLoader()
@@ -260,15 +283,10 @@ class RBACDefinitionsLoaderTestCase(unittest2.TestCase):
             '/tmp/bar/d.yaml',
             '/tmp/bar/c.yaml',
             '/tmp/foo/a.yaml',
-            '/tmp/a/f.yaml'
+            '/tmp/a/f.yaml',
         ]
 
-        expected_result = [
-            '/tmp/foo/a.yaml',
-            '/tmp/bar/c.yaml',
-            '/tmp/bar/d.yaml',
-            '/tmp/a/f.yaml'
-        ]
+        expected_result = ['/tmp/foo/a.yaml', '/tmp/bar/c.yaml', '/tmp/bar/d.yaml', '/tmp/a/f.yaml']
 
         loader = RBACDefinitionsLoader()
 

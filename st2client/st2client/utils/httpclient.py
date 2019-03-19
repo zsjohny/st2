@@ -31,6 +31,7 @@ def add_ssl_verify_to_kwargs(func):
             cacert = getattr(args[0], 'cacert', None)
             kwargs['verify'] = cacert if cacert is not None else False
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -49,6 +50,7 @@ def add_auth_token_to_headers(func):
             kwargs['headers'] = headers
 
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -59,6 +61,7 @@ def add_json_content_type_to_headers(func):
         headers['content-type'] = content_type
         kwargs['headers'] = headers
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -76,7 +79,6 @@ def get_url_without_trailing_slash(value):
 
 
 class HTTPClient(object):
-
     def __init__(self, root, cacert=None, debug=False):
         self.root = get_url_without_trailing_slash(root)
         self.cacert = cacert

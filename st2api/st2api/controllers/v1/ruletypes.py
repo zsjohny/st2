@@ -68,8 +68,7 @@ class RuleTypesController(object):
                 GET /ruletypes/
         """
         ruletype_dbs = RuleType.get_all()
-        ruletype_apis = [RuleTypeAPI.from_model(runnertype_db)
-                         for runnertype_db in ruletype_dbs]
+        ruletype_apis = [RuleTypeAPI.from_model(runnertype_db) for runnertype_db in ruletype_dbs]
         return ruletype_apis
 
 

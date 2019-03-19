@@ -36,8 +36,10 @@ apply_vagrant_workaround()
 setup(
     name=ST2_COMPONENT,
     version=__version__,
-    description=('Python client library and CLI for the StackStorm (st2) event-driven '
-                 'automation platform.'),
+    description=(
+        'Python client library and CLI for the StackStorm (st2) event-driven '
+        'automation platform.'
+    ),
     author='StackStorm',
     author_email='info@stackstorm.com',
     license='Apache License (2.0)',
@@ -51,7 +53,7 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 2.7',
     ],
     install_requires=install_reqs,
     dependency_links=dep_links,
@@ -59,9 +61,5 @@ setup(
     zip_safe=False,
     include_package_data=True,
     packages=find_packages(exclude=['setuptools', 'tests']),
-    entry_points={
-        'console_scripts': [
-            'st2 = st2client.shell:main'
-        ]
-    }
+    entry_points={'console_scripts': ['st2 = st2client.shell:main']},
 )

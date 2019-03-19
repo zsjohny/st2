@@ -34,7 +34,7 @@ BASE_REGISTER_ACTIONS_CMD_ARGS = BASE_CMD_ARGS + ['--register-actions']
 
 PACKS_PATH = get_fixtures_packs_base_path()
 PACKS_COUNT = len(glob.glob('%s/*/pack.yaml' % (PACKS_PATH)))
-assert(PACKS_COUNT >= 2)
+assert PACKS_COUNT >= 2
 
 
 class ContentRegisterScriptTestCase(IntegrationTestCase):
@@ -46,10 +46,7 @@ class ContentRegisterScriptTestCase(IntegrationTestCase):
         pack_dir = os.path.join(get_fixtures_packs_base_path(), 'dummy_pack_1')
         runner_dirs = os.path.join(get_fixtures_packs_base_path(), 'runners')
 
-        opts = [
-            '--register-pack=%s' % (pack_dir),
-            '--register-runner-dir=%s' % (runner_dirs),
-        ]
+        opts = ['--register-pack=%s' % (pack_dir), '--register-runner-dir=%s' % (runner_dirs)]
         cmd = BASE_REGISTER_ACTIONS_CMD_ARGS + opts
         exit_code, _, stderr = run_command(cmd=cmd)
         self.assertTrue('Registered 1 actions.' in stderr)
@@ -63,7 +60,7 @@ class ContentRegisterScriptTestCase(IntegrationTestCase):
         opts = [
             '--register-pack=%s' % (pack_dir),
             '--register-runner-dir=%s' % (runner_dirs),
-            '--register-no-fail-on-failure'
+            '--register-no-fail-on-failure',
         ]
         cmd = BASE_REGISTER_ACTIONS_CMD_ARGS + opts
         exit_code, _, _ = run_command(cmd=cmd)
@@ -73,7 +70,7 @@ class ContentRegisterScriptTestCase(IntegrationTestCase):
         opts = [
             '--register-pack=%s' % (pack_dir),
             '--register-runner-dir=%s' % (runner_dirs),
-            '--register-fail-on-failure'
+            '--register-fail-on-failure',
         ]
         cmd = BASE_REGISTER_ACTIONS_CMD_ARGS + opts
         exit_code, _, stderr = run_command(cmd=cmd)
@@ -114,14 +111,25 @@ class ContentRegisterScriptTestCase(IntegrationTestCase):
 
         # Note: We want to use a different config which sets fixtures/packs_1/
         # dir as packs_base_paths
-        cmd = [sys.executable, SCRIPT_PATH, '--config-file=conf/st2.tests1.conf', '-v',
-               '--register-sensors']
+        cmd = [
+            sys.executable,
+            SCRIPT_PATH,
+            '--config-file=conf/st2.tests1.conf',
+            '-v',
+            '--register-sensors',
+        ]
         exit_code, _, stderr = run_command(cmd=cmd)
         self.assertTrue('Registered 0 sensors.' in stderr, 'Actual stderr: %s' % (stderr))
         self.assertEqual(exit_code, 0)
 
-        cmd = [sys.executable, SCRIPT_PATH, '--config-file=conf/st2.tests1.conf', '-v',
-               '--register-all', '--register-no-fail-on-failure']
+        cmd = [
+            sys.executable,
+            SCRIPT_PATH,
+            '--config-file=conf/st2.tests1.conf',
+            '-v',
+            '--register-all',
+            '--register-no-fail-on-failure',
+        ]
         exit_code, _, stderr = run_command(cmd=cmd)
         self.assertTrue('Registered 0 actions.' in stderr)
         self.assertTrue('Registered 0 sensors.' in stderr)
@@ -136,7 +144,7 @@ class ContentRegisterScriptTestCase(IntegrationTestCase):
             '--register-pack=%s' % (pack_dir),
             '--register-all',
             '--register-setup-virtualenvs',
-            '--register-no-fail-on-failure'
+            '--register-no-fail-on-failure',
         ]
         exit_code, stdout, stderr = run_command(cmd=cmd)
         self.assertTrue('Registering actions' in stderr, 'Actual stderr: %s' % (stderr))
@@ -148,8 +156,11 @@ class ContentRegisterScriptTestCase(IntegrationTestCase):
         # Single pack
         pack_dir = os.path.join(get_fixtures_packs_base_path(), 'dummy_pack_1')
 
-        cmd = BASE_CMD_ARGS + ['--register-pack=%s' % (pack_dir), '--register-setup-virtualenvs',
-                               '--register-no-fail-on-failure']
+        cmd = BASE_CMD_ARGS + [
+            '--register-pack=%s' % (pack_dir),
+            '--register-setup-virtualenvs',
+            '--register-no-fail-on-failure',
+        ]
         exit_code, stdout, stderr = run_command(cmd=cmd)
 
         self.assertTrue('Setting up virtualenv for pack "dummy_pack_1"' in stderr)

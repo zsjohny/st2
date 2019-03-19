@@ -39,32 +39,38 @@ class SensorTypeController(resource.ContentPackResourceController):
         'name': 'name',
         'pack': 'pack',
         'enabled': 'enabled',
-        'trigger': 'trigger_types'
+        'trigger': 'trigger_types',
     }
 
-    filter_transform_functions = {
-        'enabled': transform_to_bool
-    }
+    filter_transform_functions = {'enabled': transform_to_bool}
 
-    options = {
-        'sort': ['pack', 'name']
-    }
+    options = {'sort': ['pack', 'name']}
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
-        return super(SensorTypeController, self)._get_all(exclude_fields=exclude_attributes,
-                                                          include_fields=include_attributes,
-                                                          sort=sort,
-                                                          offset=offset,
-                                                          limit=limit,
-                                                          raw_filters=raw_filters,
-                                                          requester_user=requester_user)
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
+        return super(SensorTypeController, self)._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, ref_or_id, requester_user):
         permission_type = PermissionType.SENSOR_VIEW
-        return super(SensorTypeController, self)._get_one(ref_or_id,
-                                                          requester_user=requester_user,
-                                                          permission_type=permission_type)
+        return super(SensorTypeController, self)._get_one(
+            ref_or_id, requester_user=requester_user, permission_type=permission_type
+        )
 
     def put(self, sensor_type, ref_or_id, requester_user):
         # Note: Right now this function only supports updating of "enabled"
@@ -75,9 +81,9 @@ class SensorTypeController(resource.ContentPackResourceController):
         sensor_type_db = self._get_by_ref_or_id(ref_or_id=ref_or_id)
 
         permission_type = PermissionType.SENSOR_MODIFY
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=sensor_type_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=sensor_type_db, permission_type=permission_type
+        )
 
         sensor_type_id = sensor_type_db.id
 
@@ -99,10 +105,7 @@ class SensorTypeController(resource.ContentPackResourceController):
             abort(http_client.BAD_REQUEST, six.text_type(e))
             return
 
-        extra = {
-            'old_sensor_type_db': old_sensor_type_db,
-            'new_sensor_type_db': sensor_type_db
-        }
+        extra = {'old_sensor_type_db': old_sensor_type_db, 'new_sensor_type_db': sensor_type_db}
         LOG.audit('Sensor updated. Sensor.id=%s.' % (sensor_type_db.id), extra=extra)
         sensor_type_api = SensorTypeAPI.from_model(sensor_type_db)
 

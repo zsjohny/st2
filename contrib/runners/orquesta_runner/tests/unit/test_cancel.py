@@ -23,6 +23,7 @@ from oslo_config import cfg
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests.unit import base
@@ -47,34 +48,31 @@ from st2tests.mocks import workflow as mock_wf_ex_xport
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state),
+)
 class OrquestaRunnerCancelTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(OrquestaRunnerCancelTest, cls).setUpClass()
@@ -84,8 +82,7 @@ class OrquestaRunnerCancelTest(st2tests.ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -95,9 +92,7 @@ class OrquestaRunnerCancelTest(st2tests.ExecutionDbTestCase):
     def get_runner_class(cls, runner_name):
         return runners.get_runner(runner_name, runner_name).__class__
 
-    @mock.patch.object(
-        ac_svc, 'is_children_active',
-        mock.MagicMock(return_value=True))
+    @mock.patch.object(ac_svc, 'is_children_active', mock.MagicMock(return_value=True))
     def test_cancel(self):
         wf_meta = base.get_wf_fixture_meta_data(TEST_PACK_PATH, 'sequential.yaml')
         lv_ac_db = lv_db_models.LiveActionDB(action=wf_meta['name'])

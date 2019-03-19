@@ -20,9 +20,7 @@ from st2common import log as logging
 from st2common.models.db import MongoDBAccess
 from st2common.models.db import stormbase
 
-__all__ = [
-    'ActionExecutionStateDB',
-]
+__all__ = ['ActionExecutionStateDB']
 
 
 LOG = logging.getLogger(__name__)
@@ -34,20 +32,15 @@ class ActionExecutionStateDB(stormbase.StormFoundationDB):
     """
         Database entity that represents the state of Action execution.
     """
-    execution_id = me.ObjectIdField(
-        required=True,
-        unique=True,
-        help_text='liveaction ID.')
-    query_module = me.StringField(
-        required=True,
-        help_text='Reference to the runner model.')
+
+    execution_id = me.ObjectIdField(required=True, unique=True, help_text='liveaction ID.')
+    query_module = me.StringField(required=True, help_text='Reference to the runner model.')
     query_context = me.DictField(
         required=True,
-        help_text='Context about the action execution that is needed for results query.')
+        help_text='Context about the action execution that is needed for results query.',
+    )
 
-    meta = {
-        'indexes': ['query_module']
-    }
+    meta = {'indexes': ['query_module']}
 
 
 # specialized access objects

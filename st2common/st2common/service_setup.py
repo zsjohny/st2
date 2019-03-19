@@ -51,23 +51,24 @@ from st2common.database_setup import db_teardown
 from st2common.metrics.base import metrics_initialize
 
 
-__all__ = [
-    'setup',
-    'teardown',
-
-    'db_setup',
-    'db_teardown',
-
-    'register_service_in_service_registry'
-]
+__all__ = ['setup', 'teardown', 'db_setup', 'db_teardown', 'register_service_in_service_registry']
 
 LOG = logging.getLogger(__name__)
 
 
-def setup(service, config, setup_db=True, register_mq_exchanges=True,
-          register_signal_handlers=True, register_internal_trigger_types=False,
-          run_migrations=True, register_runners=True, service_registry=False,
-          capabilities=None, config_args=None):
+def setup(
+    service,
+    config,
+    setup_db=True,
+    register_mq_exchanges=True,
+    register_signal_handlers=True,
+    register_internal_trigger_types=False,
+    run_migrations=True,
+    register_runners=True,
+    service_registry=False,
+    capabilities=None,
+    config_args=None,
+):
     """
     Common setup function.
 
@@ -111,11 +112,14 @@ def setup(service, config, setup_db=True, register_mq_exchanges=True,
 
     LOG.debug('Using logging config: %s', logging_config_path)
 
-    is_debug_enabled = (cfg.CONF.debug or cfg.CONF.system.debug)
+    is_debug_enabled = cfg.CONF.debug or cfg.CONF.system.debug
 
     try:
-        logging.setup(logging_config_path, redirect_stderr=cfg.CONF.log.redirect_stderr,
-                      excludes=cfg.CONF.log.excludes)
+        logging.setup(
+            logging_config_path,
+            redirect_stderr=cfg.CONF.log.redirect_stderr,
+            excludes=cfg.CONF.log.excludes,
+        )
     except KeyError as e:
         tb_msg = traceback.format_exc()
         if 'log.setLevel' in tb_msg:
@@ -133,8 +137,9 @@ def setup(service, config, setup_db=True, register_mq_exchanges=True,
         # duplicate "AUDIT" messages in production deployments where default service log level is
         # set to "INFO" and we already log messages with level AUDIT to a special dedicated log
         # file.
-        ignore_audit_log_messages = (handler.level >= stdlib_logging.INFO and
-                                     handler.level < stdlib_logging.AUDIT)
+        ignore_audit_log_messages = (
+            handler.level >= stdlib_logging.INFO and handler.level < stdlib_logging.AUDIT
+        )
         if not is_debug_enabled and ignore_audit_log_messages:
             LOG.debug('Excluding log messages with level "AUDIT" for handler "%s"' % (handler))
             handler.addFilter(LogLevelFilter(log_levels=exclude_log_levels))
@@ -183,8 +188,9 @@ def setup(service, config, setup_db=True, register_mq_exchanges=True,
     # Register service in the service registry
     if service_registry:
         # NOTE: It's important that we pass start_heart=True to start the hearbeat process
-        register_service_in_service_registry(service=service, capabilities=capabilities,
-                                             start_heart=True)
+        register_service_in_service_registry(
+            service=service, capabilities=capabilities, start_heart=True
+        )
 
 
 def teardown():
@@ -231,6 +237,8 @@ def register_service_in_service_registry(service, capabilities=None, start_heart
     capabilities['pid'] = proc_info['pid']
 
     # 1. Join the group as a member
-    LOG.debug('Joining service registry group "%s" as member_id "%s" with capabilities "%s"' %
-              (group_id, member_id, capabilities))
+    LOG.debug(
+        'Joining service registry group "%s" as member_id "%s" with capabilities "%s"'
+        % (group_id, member_id, capabilities)
+    )
     return coordinator.join_group(group_id, capabilities=capabilities).get()

@@ -23,12 +23,7 @@ from __future__ import absolute_import
 import six
 
 
-__all__ = [
-    'mock_open_name',
-
-    'to_unicode',
-    'to_ascii',
-]
+__all__ = ['mock_open_name', 'to_unicode', 'to_ascii']
 
 if six.PY3:
     mock_open_name = 'builtins.open'

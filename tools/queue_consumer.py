@@ -37,9 +37,7 @@ class QueueConsumer(ConsumerMixin):
         self.queue = queue
 
     def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=[self.queue],
-                         accept=['pickle'],
-                         callbacks=[self.process_task])]
+        return [Consumer(queues=[self.queue], accept=['pickle'], callbacks=[self.process_task])]
 
     def process_task(self, body, message):
         print('===================================================')
@@ -57,8 +55,7 @@ class QueueConsumer(ConsumerMixin):
 
 def main(queue, exchange, routing_key='#'):
     exchange = Exchange(exchange, type='topic')
-    queue = Queue(name=queue, exchange=exchange, routing_key=routing_key,
-                  auto_delete=True)
+    queue = Queue(name=queue, exchange=exchange, routing_key=routing_key, auto_delete=True)
 
     with transport_utils.get_connection() as connection:
         connection.connect()
@@ -69,10 +66,8 @@ def main(queue, exchange, routing_key='#'):
 if __name__ == '__main__':
     config.parse_args(args={})
     parser = argparse.ArgumentParser(description='Queue consumer')
-    parser.add_argument('--exchange', required=True,
-                        help='Exchange to listen on')
-    parser.add_argument('--routing-key', default='#',
-                        help='Routing key')
+    parser.add_argument('--exchange', required=True, help='Exchange to listen on')
+    parser.add_argument('--routing-key', default='#', help='Routing key')
     args = parser.parse_args()
 
     queue_name = args.exchange + str(random.randint(1, 10000))

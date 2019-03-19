@@ -25,35 +25,26 @@ TEST_SCHEMA_1 = {
     'description': 'Foo.',
     'type': 'object',
     'properties': {
-        'arg_required_no_default': {
-            'description': 'Foo',
-            'required': True,
-            'type': 'string'
-        },
-        'arg_optional_no_type': {
-            'description': 'Bar'
-        },
+        'arg_required_no_default': {'description': 'Foo', 'required': True, 'type': 'string'},
+        'arg_optional_no_type': {'description': 'Bar'},
         'arg_optional_multi_type': {
             'description': 'Mirror mirror',
-            'type': ['string', 'boolean', 'number']
+            'type': ['string', 'boolean', 'number'],
         },
         'arg_optional_multi_type_none': {
             'description': 'Mirror mirror on the wall',
-            'type': ['string', 'boolean', 'number', 'null']
+            'type': ['string', 'boolean', 'number', 'null'],
         },
-        'arg_optional_type_array': {
-            'description': 'Who''s the fairest?',
-            'type': 'array'
-        },
+        'arg_optional_type_array': {'description': 'Who' 's the fairest?', 'type': 'array'},
         'arg_optional_type_object': {
-            'description': 'Who''s the fairest of them?',
-            'type': 'object'
+            'description': 'Who' 's the fairest of them?',
+            'type': 'object',
         },
         'arg_optional_multi_collection_type': {
-            'description': 'Who''s the fairest of them all?',
-            'type': ['array', 'object']
-        }
-    }
+            'description': 'Who' 's the fairest of them all?',
+            'type': ['array', 'object'],
+        },
+    },
 }
 
 TEST_SCHEMA_2 = {
@@ -66,9 +57,9 @@ TEST_SCHEMA_2 = {
             'default': 'date',
             'description': 'Foo',
             'required': True,
-            'type': 'string'
+            'type': 'string',
         }
-    }
+    },
 }
 
 TEST_SCHEMA_3 = {
@@ -77,21 +68,10 @@ TEST_SCHEMA_3 = {
     'description': 'Foo.',
     'type': 'object',
     'properties': {
-        'arg_optional_default': {
-            'default': 'bar',
-            'description': 'Foo',
-            'type': 'string'
-        },
-        'arg_optional_default_none': {
-            'default': None,
-            'description': 'Foo',
-            'type': 'string'
-        },
-        'arg_optional_no_default': {
-            'description': 'Foo',
-            'type': 'string'
-        }
-    }
+        'arg_optional_default': {'default': 'bar', 'description': 'Foo', 'type': 'string'},
+        'arg_optional_default_none': {'default': None, 'description': 'Foo', 'type': 'string'},
+        'arg_optional_no_default': {'description': 'Foo', 'type': 'string'},
+    },
 }
 
 TEST_SCHEMA_4 = {
@@ -103,35 +83,22 @@ TEST_SCHEMA_4 = {
         'arg_optional_default': {
             'default': 'bar',
             'description': 'Foo',
-            'anyOf': [
-                {'type': 'string'},
-                {'type': 'boolean'}
-            ]
+            'anyOf': [{'type': 'string'}, {'type': 'boolean'}],
         },
         'arg_optional_default_none': {
             'default': None,
             'description': 'Foo',
-            'anyOf': [
-                {'type': 'string'},
-                {'type': 'boolean'}
-            ]
+            'anyOf': [{'type': 'string'}, {'type': 'boolean'}],
         },
         'arg_optional_no_default': {
             'description': 'Foo',
-            'anyOf': [
-                {'type': 'string'},
-                {'type': 'boolean'}
-            ]
+            'anyOf': [{'type': 'string'}, {'type': 'boolean'}],
         },
         'arg_optional_no_default_anyof_none': {
             'description': 'Foo',
-            'anyOf': [
-                {'type': 'string'},
-                {'type': 'boolean'},
-                {'type': 'null'}
-            ]
-        }
-    }
+            'anyOf': [{'type': 'string'}, {'type': 'boolean'}, {'type': 'null'}],
+        },
+    },
 }
 
 TEST_SCHEMA_5 = {
@@ -143,35 +110,22 @@ TEST_SCHEMA_5 = {
         'arg_optional_default': {
             'default': 'bar',
             'description': 'Foo',
-            'oneOf': [
-                {'type': 'string'},
-                {'type': 'boolean'}
-            ]
+            'oneOf': [{'type': 'string'}, {'type': 'boolean'}],
         },
         'arg_optional_default_none': {
             'default': None,
             'description': 'Foo',
-            'oneOf': [
-                {'type': 'string'},
-                {'type': 'boolean'}
-            ]
+            'oneOf': [{'type': 'string'}, {'type': 'boolean'}],
         },
         'arg_optional_no_default': {
             'description': 'Foo',
-            'oneOf': [
-                {'type': 'string'},
-                {'type': 'boolean'}
-            ]
+            'oneOf': [{'type': 'string'}, {'type': 'boolean'}],
         },
         'arg_optional_no_default_oneof_none': {
             'description': 'Foo',
-            'oneOf': [
-                {'type': 'string'},
-                {'type': 'boolean'},
-                {'type': 'null'}
-            ]
-        }
-    }
+            'oneOf': [{'type': 'string'}, {'type': 'boolean'}, {'type': 'null'}],
+        },
+    },
 }
 
 
@@ -182,50 +136,74 @@ class JSONSchemaTestCase(TestCase):
         validator = util_schema.get_validator()
 
         expected_msg = '\'arg_required_no_default\' is a required property'
-        self.assertRaisesRegexp(ValidationError, expected_msg, util_schema.validate,
-                                instance=instance, schema=TEST_SCHEMA_1, cls=validator,
-                                use_default=True)
+        self.assertRaisesRegexp(
+            ValidationError,
+            expected_msg,
+            util_schema.validate,
+            instance=instance,
+            schema=TEST_SCHEMA_1,
+            cls=validator,
+            use_default=True,
+        )
 
         # No default, value provided
         instance = {'arg_required_no_default': 'foo'}
-        util_schema.validate(instance=instance, schema=TEST_SCHEMA_1, cls=validator,
-                             use_default=True)
+        util_schema.validate(
+            instance=instance, schema=TEST_SCHEMA_1, cls=validator, use_default=True
+        )
 
         # default value provided, no value, should pass
         instance = {}
         validator = util_schema.get_validator()
-        util_schema.validate(instance=instance, schema=TEST_SCHEMA_2, cls=validator,
-                             use_default=True)
+        util_schema.validate(
+            instance=instance, schema=TEST_SCHEMA_2, cls=validator, use_default=True
+        )
 
         # default value provided, value provided, should pass
         instance = {'arg_required_default': 'foo'}
         validator = util_schema.get_validator()
-        util_schema.validate(instance=instance, schema=TEST_SCHEMA_2, cls=validator,
-                             use_default=True)
+        util_schema.validate(
+            instance=instance, schema=TEST_SCHEMA_2, cls=validator, use_default=True
+        )
 
     def test_allow_default_none(self):
         # Let validator take care of default
         validator = util_schema.get_validator()
-        util_schema.validate(instance=dict(), schema=TEST_SCHEMA_3, cls=validator,
-                             use_default=True, allow_default_none=True)
+        util_schema.validate(
+            instance=dict(),
+            schema=TEST_SCHEMA_3,
+            cls=validator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
     def test_allow_default_explicit_none(self):
         # Explicitly pass None to arguments
         instance = {
             'arg_optional_default': None,
             'arg_optional_default_none': None,
-            'arg_optional_no_default': None
+            'arg_optional_no_default': None,
         }
 
         validator = util_schema.get_validator()
-        util_schema.validate(instance=instance, schema=TEST_SCHEMA_3, cls=validator,
-                             use_default=True, allow_default_none=True)
+        util_schema.validate(
+            instance=instance,
+            schema=TEST_SCHEMA_3,
+            cls=validator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
     def test_anyof_type_allow_default_none(self):
         # Let validator take care of default
         validator = util_schema.get_validator()
-        util_schema.validate(instance=dict(), schema=TEST_SCHEMA_4, cls=validator,
-                             use_default=True, allow_default_none=True)
+        util_schema.validate(
+            instance=dict(),
+            schema=TEST_SCHEMA_4,
+            cls=validator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
     def test_anyof_allow_default_explicit_none(self):
         # Explicitly pass None to arguments
@@ -233,18 +211,28 @@ class JSONSchemaTestCase(TestCase):
             'arg_optional_default': None,
             'arg_optional_default_none': None,
             'arg_optional_no_default': None,
-            'arg_optional_no_default_anyof_none': None
+            'arg_optional_no_default_anyof_none': None,
         }
 
         validator = util_schema.get_validator()
-        util_schema.validate(instance=instance, schema=TEST_SCHEMA_4, cls=validator,
-                             use_default=True, allow_default_none=True)
+        util_schema.validate(
+            instance=instance,
+            schema=TEST_SCHEMA_4,
+            cls=validator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
     def test_oneof_type_allow_default_none(self):
         # Let validator take care of default
         validator = util_schema.get_validator()
-        util_schema.validate(instance=dict(), schema=TEST_SCHEMA_5, cls=validator,
-                             use_default=True, allow_default_none=True)
+        util_schema.validate(
+            instance=dict(),
+            schema=TEST_SCHEMA_5,
+            cls=validator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
     def test_oneof_allow_default_explicit_none(self):
         # Explicitly pass None to arguments
@@ -252,12 +240,17 @@ class JSONSchemaTestCase(TestCase):
             'arg_optional_default': None,
             'arg_optional_default_none': None,
             'arg_optional_no_default': None,
-            'arg_optional_no_default_oneof_none': None
+            'arg_optional_no_default_oneof_none': None,
         }
 
         validator = util_schema.get_validator()
-        util_schema.validate(instance=instance, schema=TEST_SCHEMA_5, cls=validator,
-                             use_default=True, allow_default_none=True)
+        util_schema.validate(
+            instance=instance,
+            schema=TEST_SCHEMA_5,
+            cls=validator,
+            use_default=True,
+            allow_default_none=True,
+        )
 
     def test_is_property_type_single(self):
         typed_property = TEST_SCHEMA_1['properties']['arg_required_no_default']

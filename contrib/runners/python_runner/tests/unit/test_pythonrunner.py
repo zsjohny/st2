@@ -43,27 +43,41 @@ from st2tests.fixturesloader import assert_submodules_are_checked_out
 import st2tests.base as tests_base
 
 
-PASCAL_ROW_ACTION_PATH = os.path.join(tests_base.get_resources_path(), 'packs',
-                                      'pythonactions/actions/pascal_row.py')
-ECHOER_ACTION_PATH = os.path.join(tests_base.get_resources_path(), 'packs',
-                                  'pythonactions/actions/echoer.py')
-TEST_ACTION_PATH = os.path.join(tests_base.get_resources_path(), 'packs',
-                                'pythonactions/actions/test.py')
-PATHS_ACTION_PATH = os.path.join(tests_base.get_resources_path(), 'packs',
-                                'pythonactions/actions/python_paths.py')
-ACTION_1_PATH = os.path.join(tests_base.get_fixtures_path(),
-                             'packs/dummy_pack_9/actions/list_repos_doesnt_exist.py')
-ACTION_2_PATH = os.path.join(tests_base.get_fixtures_path(),
-                             'packs/dummy_pack_9/actions/invalid_syntax.py')
-NON_SIMPLE_TYPE_ACTION = os.path.join(tests_base.get_resources_path(), 'packs',
-                                      'pythonactions/actions/non_simple_type.py')
-PRINT_VERSION_ACTION = os.path.join(tests_base.get_fixtures_path(), 'packs',
-                                    'test_content_version/actions/print_version.py')
-PRINT_VERSION_LOCAL_MODULE_ACTION = os.path.join(tests_base.get_fixtures_path(), 'packs',
-    'test_content_version/actions/print_version_local_import.py')
+PASCAL_ROW_ACTION_PATH = os.path.join(
+    tests_base.get_resources_path(), 'packs', 'pythonactions/actions/pascal_row.py'
+)
+ECHOER_ACTION_PATH = os.path.join(
+    tests_base.get_resources_path(), 'packs', 'pythonactions/actions/echoer.py'
+)
+TEST_ACTION_PATH = os.path.join(
+    tests_base.get_resources_path(), 'packs', 'pythonactions/actions/test.py'
+)
+PATHS_ACTION_PATH = os.path.join(
+    tests_base.get_resources_path(), 'packs', 'pythonactions/actions/python_paths.py'
+)
+ACTION_1_PATH = os.path.join(
+    tests_base.get_fixtures_path(), 'packs/dummy_pack_9/actions/list_repos_doesnt_exist.py'
+)
+ACTION_2_PATH = os.path.join(
+    tests_base.get_fixtures_path(), 'packs/dummy_pack_9/actions/invalid_syntax.py'
+)
+NON_SIMPLE_TYPE_ACTION = os.path.join(
+    tests_base.get_resources_path(), 'packs', 'pythonactions/actions/non_simple_type.py'
+)
+PRINT_VERSION_ACTION = os.path.join(
+    tests_base.get_fixtures_path(), 'packs', 'test_content_version/actions/print_version.py'
+)
+PRINT_VERSION_LOCAL_MODULE_ACTION = os.path.join(
+    tests_base.get_fixtures_path(),
+    'packs',
+    'test_content_version/actions/print_version_local_import.py',
+)
 
-PRINT_CONFIG_ITEM_ACTION = os.path.join(tests_base.get_resources_path(), 'packs',
-                                        'pythonactions/actions/print_config_item_doesnt_exist.py')
+PRINT_CONFIG_ITEM_ACTION = os.path.join(
+    tests_base.get_resources_path(),
+    'packs',
+    'pythonactions/actions/print_config_item_doesnt_exist.py',
+)
 
 
 # Note: runner inherits parent args which doesn't work with tests since test pass additional
@@ -103,11 +117,13 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         self.assertTrue(output is not None)
 
         if six.PY2:
-            expected_result_re = (r"\[{'a': '1'}, {'h': 3, 'c': 2}, {'e': "
-                                  r"<non_simple_type.Test object at .*?>}\]")
+            expected_result_re = (
+                r"\[{'a': '1'}, {'h': 3, 'c': 2}, {'e': " r"<non_simple_type.Test object at .*?>}\]"
+            )
         else:
-            expected_result_re = (r"\[{'a': '1'}, {'c': 2, 'h': 3}, {'e': "
-                                  r"<non_simple_type.Test object at .*?>}\]")
+            expected_result_re = (
+                r"\[{'a': '1'}, {'c': 2, 'h': 3}, {'e': " r"<non_simple_type.Test object at .*?>}\]"
+            )
 
         match = re.match(expected_result_re, output['result'])
         self.assertTrue(match)
@@ -187,8 +203,7 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         runner = self._get_mock_runner_obj()
         runner.entry_point = PASCAL_ROW_ACTION_PATH
         runner.pre_run()
-        self.assertRaises(ValueError,
-                          runner.run, action_parameters={'row_index': 'd'})
+        self.assertRaises(ValueError, runner.run, action_parameters={'row_index': 'd'})
 
     def test_simple_action_no_status_backward_compatibility(self):
         runner = self._get_mock_runner_obj()
@@ -212,16 +227,18 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         self.assertEqual(runner._config['private_key_path'], None)
 
         # api_secret overriden in the datastore (user scoped value)
-        config_service.set_datastore_value_for_config_key(pack_name='dummy_pack_5',
-                                                          key_name='api_secret',
-                                                          user='joe',
-                                                          value='foosecret',
-                                                          secret=True)
+        config_service.set_datastore_value_for_config_key(
+            pack_name='dummy_pack_5',
+            key_name='api_secret',
+            user='joe',
+            value='foosecret',
+            secret=True,
+        )
 
         # private_key_path overriden in the datastore (global / non-user scoped value)
-        config_service.set_datastore_value_for_config_key(pack_name='dummy_pack_5',
-                                                          key_name='private_key_path',
-                                                          value='foopath')
+        config_service.set_datastore_value_for_config_key(
+            pack_name='dummy_pack_5', key_name='private_key_path', value='foopath'
+        )
 
         runner = self._get_mock_runner_obj_from_container(pack=pack, user=user)
         self.assertEqual(runner._config['api_key'], 'some_api_key')  # static value
@@ -290,23 +307,21 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         mock_stdout = [
             'pre result line 1\n',
             '%(delimiter)sTrue%(delimiter)s' % values,
-            'post result line 1'
+            'post result line 1',
         ]
-        mock_stderr = [
-            'stderr line 1\n',
-            'stderr line 2\n',
-            'stderr line 3\n'
-        ]
+        mock_stderr = ['stderr line 1\n', 'stderr line 2\n', 'stderr line 3\n']
 
         mock_process = mock.Mock()
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
         mock_process.stdout.closed = False
         mock_process.stderr.closed = False
-        mock_process.stdout.readline = make_mock_stream_readline(mock_process.stdout, mock_stdout,
-                                                                 stop_counter=3)
-        mock_process.stderr.readline = make_mock_stream_readline(mock_process.stderr, mock_stderr,
-                                                                 stop_counter=3)
+        mock_process.stdout.readline = make_mock_stream_readline(
+            mock_process.stdout, mock_stdout, stop_counter=3
+        )
+        mock_process.stderr.readline = make_mock_stream_readline(
+            mock_process.stderr, mock_stderr, stop_counter=3
+        )
 
         runner = self._get_mock_runner_obj()
         runner.entry_point = PASCAL_ROW_ACTION_PATH
@@ -329,10 +344,12 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         mock_popen.return_value = mock_process
         mock_process.stdout.closed = False
         mock_process.stderr.closed = False
-        mock_process.stdout.readline = make_mock_stream_readline(mock_process.stdout, mock_stdout,
-                                                                 stop_counter=3)
-        mock_process.stderr.readline = make_mock_stream_readline(mock_process.stderr, mock_stderr,
-                                                                 stop_counter=3)
+        mock_process.stdout.readline = make_mock_stream_readline(
+            mock_process.stdout, mock_stdout, stop_counter=3
+        )
+        mock_process.stderr.readline = make_mock_stream_readline(
+            mock_process.stderr, mock_stderr, stop_counter=3
+        )
 
         runner.pre_run()
         (_, output, _) = runner.run({'row_index': 4})
@@ -362,31 +379,30 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
             'pre result line 1\n',
             'pre result line 2\n',
             '%(delimiter)sTrue%(delimiter)s' % values,
-            'post result line 1'
+            'post result line 1',
         ]
-        mock_stderr = [
-            'stderr line 1\n',
-            'stderr line 2\n',
-            'stderr line 3\n'
-        ]
+        mock_stderr = ['stderr line 1\n', 'stderr line 2\n', 'stderr line 3\n']
 
         mock_process = mock.Mock()
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
         mock_process.stdout.closed = False
         mock_process.stderr.closed = False
-        mock_process.stdout.readline = make_mock_stream_readline(mock_process.stdout, mock_stdout,
-                                                                 stop_counter=4)
-        mock_process.stderr.readline = make_mock_stream_readline(mock_process.stderr, mock_stderr,
-                                                                 stop_counter=3)
+        mock_process.stdout.readline = make_mock_stream_readline(
+            mock_process.stdout, mock_stdout, stop_counter=4
+        )
+        mock_process.stderr.readline = make_mock_stream_readline(
+            mock_process.stderr, mock_stderr, stop_counter=3
+        )
 
         runner = self._get_mock_runner_obj()
         runner.entry_point = PASCAL_ROW_ACTION_PATH
         runner.pre_run()
         (_, output, _) = runner.run({'row_index': 4})
 
-        self.assertEqual(output['stdout'],
-                         'pre result line 1\npre result line 2\npost result line 1')
+        self.assertEqual(
+            output['stdout'], 'pre result line 1\npre result line 2\npost result line 1'
+        )
         self.assertEqual(output['stderr'], 'stderr line 1\nstderr line 2\nstderr line 3\n')
         self.assertEqual(output['result'], 'True')
         self.assertEqual(output['exit_code'], 0)
@@ -547,8 +563,7 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         class Action2(Action):
             # Constructor overriden, but takes action_service argument
             def __init__(self, config, action_service=None):
-                super(Action2, self).__init__(config=config,
-                                              action_service=action_service)
+                super(Action2, self).__init__(config=config, action_service=action_service)
 
             def run(self):
                 pass
@@ -564,18 +579,21 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         config = {'a': 1, 'b': 2}
         action_service = 'ActionService!'
 
-        action1 = get_action_class_instance(action_cls=Action1, config=config,
-                                            action_service=action_service)
+        action1 = get_action_class_instance(
+            action_cls=Action1, config=config, action_service=action_service
+        )
         self.assertEqual(action1.config, config)
         self.assertEqual(action1.action_service, action_service)
 
-        action2 = get_action_class_instance(action_cls=Action2, config=config,
-                                            action_service=action_service)
+        action2 = get_action_class_instance(
+            action_cls=Action2, config=config, action_service=action_service
+        )
         self.assertEqual(action2.config, config)
         self.assertEqual(action2.action_service, action_service)
 
-        action3 = get_action_class_instance(action_cls=Action3, config=config,
-                                            action_service=action_service)
+        action3 = get_action_class_instance(
+            action_cls=Action3, config=config, action_service=action_service
+        )
         self.assertEqual(action3.config, config)
         self.assertEqual(action3.action_service, action_service)
 
@@ -614,27 +632,30 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
     def test_python_action_wrapper_action_script_file_doesnt_exist_friendly_error(self):
         # File in a directory which is not a Python package
-        wrapper = PythonActionWrapper(pack='dummy_pack_5', file_path='/tmp/doesnt.exist',
-                                      user='joe')
+        wrapper = PythonActionWrapper(
+            pack='dummy_pack_5', file_path='/tmp/doesnt.exist', user='joe'
+        )
 
         expected_msg = 'File "/tmp/doesnt.exist" has no action class or the file doesn\'t exist.'
         self.assertRaisesRegexp(Exception, expected_msg, wrapper._get_action_instance)
 
         # File in a directory which is a Python package
-        wrapper = PythonActionWrapper(pack='dummy_pack_5', file_path=ACTION_1_PATH,
-                                      user='joe')
+        wrapper = PythonActionWrapper(pack='dummy_pack_5', file_path=ACTION_1_PATH, user='joe')
 
-        expected_msg = (r'Failed to load action class from file ".*?list_repos_doesnt_exist.py" '
-                       r'\(action file most likely doesn\'t exist or contains invalid syntax\): '
-                       r'\[Errno 2\] No such file or directory')
+        expected_msg = (
+            r'Failed to load action class from file ".*?list_repos_doesnt_exist.py" '
+            r'\(action file most likely doesn\'t exist or contains invalid syntax\): '
+            r'\[Errno 2\] No such file or directory'
+        )
         self.assertRaisesRegexp(Exception, expected_msg, wrapper._get_action_instance)
 
     def test_python_action_wrapper_action_script_file_contains_invalid_syntax_friendly_error(self):
-        wrapper = PythonActionWrapper(pack='dummy_pack_5', file_path=ACTION_2_PATH,
-                                      user='joe')
-        expected_msg = (r'Failed to load action class from file ".*?invalid_syntax.py" '
-                       r'\(action file most likely doesn\'t exist or contains invalid syntax\): '
-                       r'No module named \'?invalid\'?')
+        wrapper = PythonActionWrapper(pack='dummy_pack_5', file_path=ACTION_2_PATH, user='joe')
+        expected_msg = (
+            r'Failed to load action class from file ".*?invalid_syntax.py" '
+            r'\(action file most likely doesn\'t exist or contains invalid syntax\): '
+            r'No module named \'?invalid\'?'
+        )
         self.assertRaisesRegexp(Exception, expected_msg, wrapper._get_action_instance)
 
     def test_simple_action_log_messages_and_log_level_runner_param(self):
@@ -673,15 +694,13 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
 
             lines.append(line)
 
-        msg = ('Expected %s lines, got %s - "%s"' % (expected_count, len(lines), str(lines)))
+        msg = 'Expected %s lines, got %s - "%s"' % (expected_count, len(lines), str(lines))
         self.assertEqual(len(lines), expected_count, msg)
 
         # Only log messages with level info and above should be displayed
         runner = self._get_mock_runner_obj()
         runner.entry_point = PASCAL_ROW_ACTION_PATH
-        runner.runner_parameters = {
-            'log_level': 'info'
-        }
+        runner.runner_parameters = {'log_level': 'info'}
         runner.pre_run()
         (status, output, _) = runner.run({'row_index': 'e'})
         self.assertEqual(status, LIVEACTION_STATUS_SUCCEEDED)
@@ -695,9 +714,7 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         # Only log messages with level error and above should be displayed
         runner = self._get_mock_runner_obj()
         runner.entry_point = PASCAL_ROW_ACTION_PATH
-        runner.runner_parameters = {
-            'log_level': 'error'
-        }
+        runner.runner_parameters = {'log_level': 'error'}
         runner.pre_run()
         (status, output, _) = runner.run({'row_index': 'e'})
         self.assertEqual(status, LIVEACTION_STATUS_SUCCEEDED)
@@ -709,8 +726,7 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         self.assertTrue(expected_msg_5 in output['stderr'])
 
         # Default log level is changed in st2.config
-        cfg.CONF.set_override(name='python_runner_log_level', override='INFO',
-                              group='actionrunner')
+        cfg.CONF.set_override(name='python_runner_log_level', override='INFO', group='actionrunner')
 
         runner = self._get_mock_runner_obj()
         runner.entry_point = PASCAL_ROW_ACTION_PATH
@@ -800,16 +816,19 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         runner.entry_point = PRINT_VERSION_ACTION
         runner.runner_parameters = {'content_version': 'v0.30.0'}
 
-        expected_msg = (r'Failed to create git worktree for pack "test_content_version": '
-                        'Invalid content_version '
-                        '"v0.30.0" provided. Make sure that git repository is up '
-                        'to date and contains that revision.')
+        expected_msg = (
+            r'Failed to create git worktree for pack "test_content_version": '
+            'Invalid content_version '
+            '"v0.30.0" provided. Make sure that git repository is up '
+            'to date and contains that revision.'
+        )
         self.assertRaisesRegexp(ValueError, expected_msg, runner.pre_run)
 
     @mock.patch('python_runner.python_runner.get_sandbox_virtualenv_path')
     @mock.patch('st2common.util.green.shell.subprocess.Popen')
-    def test_content_version_contains_common_libs_config_enabled(self, mock_popen,
-                                                                 mock_get_sandbox_virtualenv_path):
+    def test_content_version_contains_common_libs_config_enabled(
+        self, mock_popen, mock_get_sandbox_virtualenv_path
+    ):
         # Verify that the common libs path correctly reflects directory in git worktree
         mock_get_sandbox_virtualenv_path.return_value = None
 
@@ -833,8 +852,9 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         self.assertTrue(pack_common_lib_path in actual_env['PYTHONPATH'])
 
     @mock.patch('python_runner.python_runner.get_sandbox_virtualenv_path')
-    def test_content_version_success_local_modules_work_fine(self,
-                                                             mock_get_sandbox_virtualenv_path):
+    def test_content_version_success_local_modules_work_fine(
+        self, mock_get_sandbox_virtualenv_path
+    ):
         # Verify that local module import correctly use git worktree directory
         mock_get_sandbox_virtualenv_path.return_value = None
 
@@ -849,8 +869,10 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         self.assertEqual(output['result'], 'v0.2.0')
 
         # Verify local_module has been correctly loaded from git work tree directory
-        expected_stdout = ("<module '?local_module'? from '?%s/actions/local_module.py'?>.*" %
-                           runner.git_worktree_path)
+        expected_stdout = (
+            "<module '?local_module'? from '?%s/actions/local_module.py'?>.*"
+            % runner.git_worktree_path
+        )
         self.assertRegexpMatches(output['stdout'].strip(), expected_stdout)
 
     @mock.patch('st2common.runners.base.run_command')
@@ -866,9 +888,11 @@ git: 'worktree' is not a git command. See 'git --help'.
         runner.entry_point = PASCAL_ROW_ACTION_PATH
         runner.runner_parameters = {'content_version': 'v0.10.0'}
 
-        expected_msg = (r'Failed to create git worktree for pack "core": Installed git version '
-                        'doesn\'t support git worktree command. To be able to utilize this '
-                        'functionality you need to use git >= 2.5.0.')
+        expected_msg = (
+            r'Failed to create git worktree for pack "core": Installed git version '
+            'doesn\'t support git worktree command. To be able to utilize this '
+            'functionality you need to use git >= 2.5.0.'
+        )
         self.assertRaisesRegexp(ValueError, expected_msg, runner.pre_run)
 
     @mock.patch('st2common.runners.base.run_command')
@@ -885,10 +909,12 @@ Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
         runner.entry_point = PASCAL_ROW_ACTION_PATH
         runner.runner_parameters = {'content_version': 'v0.10.0'}
 
-        expected_msg = (r'Failed to create git worktree for pack "core": Pack directory '
-                        '".*" is not a '
-                        'git repository. To utilize this functionality, pack directory needs to '
-                        'be a git repository.')
+        expected_msg = (
+            r'Failed to create git worktree for pack "core": Pack directory '
+            '".*" is not a '
+            'git repository. To utilize this functionality, pack directory needs to '
+            'be a git repository.'
+        )
         self.assertRaisesRegexp(ValueError, expected_msg, runner.pre_run)
 
     @mock.patch('st2common.runners.base.run_command')
@@ -904,9 +930,11 @@ fatal: invalid reference: vinvalid
         runner.entry_point = PASCAL_ROW_ACTION_PATH
         runner.runner_parameters = {'content_version': 'vinvalid'}
 
-        expected_msg = (r'Failed to create git worktree for pack "core": Invalid content_version '
-                        '"vinvalid" provided. Make sure that git repository is up '
-                        'to date and contains that revision.')
+        expected_msg = (
+            r'Failed to create git worktree for pack "core": Invalid content_version '
+            '"vinvalid" provided. Make sure that git repository is up '
+            'to date and contains that revision.'
+        )
         self.assertRaisesRegexp(ValueError, expected_msg, runner.pre_run)
 
     def test_missing_config_item_user_friendly_error(self):
@@ -950,8 +978,9 @@ fatal: invalid reference: vinvalid
         liveaction_db = mock.Mock()
         liveaction_db.id = '123'
         liveaction_db.context = {'user': user}
-        runner = container._get_runner(runner_type_db=runnertype_db, action_db=action_db,
-                                       liveaction_db=liveaction_db)
+        runner = container._get_runner(
+            runner_type_db=runnertype_db, action_db=action_db, liveaction_db=liveaction_db
+        )
         runner.execution = MOCK_EXECUTION
         runner.action = action_db
         runner.runner_parameters = {}
@@ -971,7 +1000,5 @@ fatal: invalid reference: vinvalid
         action.ref = 'dummy.action'
         action.pack = SYSTEM_PACK_NAME
         action.entry_point = 'foo.py'
-        action.runner_type = {
-            'name': 'python-script'
-        }
+        action.runner_type = {'name': 'python-script'}
         return action

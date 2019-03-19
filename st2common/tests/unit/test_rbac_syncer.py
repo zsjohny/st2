@@ -33,17 +33,12 @@ from st2common.services.rbac import create_group_to_role_map
 from st2common.rbac.syncer import RBACDefinitionsDBSyncer
 from st2common.rbac.syncer import RBACRemoteGroupToRoleSyncer
 
-__all__ = [
-    'RBACDefinitionsDBSyncerTestCase',
-    'RBACRemoteGroupToRoleSyncerTestCase'
-]
+__all__ = ['RBACDefinitionsDBSyncerTestCase', 'RBACRemoteGroupToRoleSyncerTestCase']
 
 
 class BaseRBACDefinitionsDBSyncerTestCase(CleanDbTestCase):
     ensure_indexes = True
-    ensure_indexes_models = [
-        UserRoleAssignmentDB
-    ]
+    ensure_indexes_models = [UserRoleAssignmentDB]
 
     def setUp(self):
         super(BaseRBACDefinitionsDBSyncerTestCase, self).setUp()
@@ -91,10 +86,12 @@ class BaseRBACDefinitionsDBSyncerTestCase(CleanDbTestCase):
         db = client['st2-test']
         db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_1'})
         db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_2'})
-        db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_3',
-                                               'is_remote': False})
-        db.user_role_assignment_d_b.insert_one({'user': 'user_5', 'role': 'role_4',
-                                               'is_remote': True})
+        db.user_role_assignment_d_b.insert_one(
+            {'user': 'user_5', 'role': 'role_3', 'is_remote': False}
+        )
+        db.user_role_assignment_d_b.insert_one(
+            {'user': 'user_5', 'role': 'role_4', 'is_remote': True}
+        )
 
         return self.roles
 
@@ -112,8 +109,9 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         syncer = RBACDefinitionsDBSyncer()
 
         # One role with no grants
-        api = RoleDefinitionFileFormatAPI(name='test_role_1', description='test description 1',
-                                          permission_grants=[])
+        api = RoleDefinitionFileFormatAPI(
+            name='test_role_1', description='test description 1', permission_grants=[]
+        )
         created_role_dbs, deleted_role_dbs = syncer.sync_roles(role_definition_apis=[api])
         self.assertEqual(len(created_role_dbs), 1)
         self.assertItemsEqual(deleted_role_dbs, [])
@@ -129,20 +127,15 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # One role with two grants
         permission_grants = [
-            {
-                'resource_uid': 'pack:mapack1',
-                'permission_types': ['pack_all']
-            },
-            {
-                'resource_uid': 'pack:mapack2',
-                'permission_types': ['rule_view', 'action_view']
-            },
-            {
-                'permission_types': ['sensor_list', 'action_list']
-            }
+            {'resource_uid': 'pack:mapack1', 'permission_types': ['pack_all']},
+            {'resource_uid': 'pack:mapack2', 'permission_types': ['rule_view', 'action_view']},
+            {'permission_types': ['sensor_list', 'action_list']},
         ]
-        api = RoleDefinitionFileFormatAPI(name='test_role_2', description='test description 2',
-                                          permission_grants=permission_grants)
+        api = RoleDefinitionFileFormatAPI(
+            name='test_role_2',
+            description='test description 2',
+            permission_grants=permission_grants,
+        )
         created_role_dbs, deleted_role_dbs = syncer.sync_roles(role_definition_apis=[api])
         self.assertEqual(len(created_role_dbs), 1)
         self.assertItemsEqual(deleted_role_dbs, [])
@@ -172,10 +165,12 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         # Initial state, DB is empty, we sync with two roles defined on disk
         self.assertEqual(len(Role.get_all()), 0)
 
-        api1 = RoleDefinitionFileFormatAPI(name='test_role_1', description='test description 1',
-                                           permission_grants=[])
-        api2 = RoleDefinitionFileFormatAPI(name='test_role_2', description='test description 2',
-                                           permission_grants=[])
+        api1 = RoleDefinitionFileFormatAPI(
+            name='test_role_1', description='test description 1', permission_grants=[]
+        )
+        api2 = RoleDefinitionFileFormatAPI(
+            name='test_role_2', description='test description 2', permission_grants=[]
+        )
         created_role_dbs, deleted_role_dbs = syncer.sync_roles(role_definition_apis=[api1, api2])
         self.assertEqual(len(created_role_dbs), 2)
         self.assertItemsEqual(deleted_role_dbs, [])
@@ -205,9 +200,9 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         self.assertItemsEqual(role_dbs, [])
 
         # Do the sync with a single role defined
-        api = UserRoleAssignmentFileFormatAPI(username='user_1',
-                                              roles=['role_1'],
-                                              file_path='assignments/user1.yaml')
+        api = UserRoleAssignmentFileFormatAPI(
+            username='user_1', roles=['role_1'], file_path='assignments/user1.yaml'
+        )
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
         role_dbs = get_roles_for_user(user_db=self.users['user_1'])
@@ -244,9 +239,9 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         self.assertItemsEqual(role_dbs, [])
 
         # Do the sync with two roles defined
-        api = UserRoleAssignmentFileFormatAPI(username='user_2',
-                                              roles=['role_1', 'role_2'],
-                                              file_path='assignments/user2.yaml')
+        api = UserRoleAssignmentFileFormatAPI(
+            username='user_2', roles=['role_1', 'role_2'], file_path='assignments/user2.yaml'
+        )
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
         role_dbs = get_roles_for_user(user_db=self.users['user_2'])
@@ -269,12 +264,19 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with role defined in separate files
         assignment1 = UserRoleAssignmentFileFormatAPI(
-            username='user_2', roles=['doesnt_exist'], file_path='assignments/user2.yaml')
+            username='user_2', roles=['doesnt_exist'], file_path='assignments/user2.yaml'
+        )
 
-        expected_msg = ('Role "doesnt_exist" referenced in assignment file '
-                        '"assignments/user2.yaml" doesn\'t exist')
-        self.assertRaisesRegexp(ValueError, expected_msg, syncer.sync_users_role_assignments,
-                                role_assignment_apis=[assignment1])
+        expected_msg = (
+            'Role "doesnt_exist" referenced in assignment file '
+            '"assignments/user2.yaml" doesn\'t exist'
+        )
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            syncer.sync_users_role_assignments,
+            role_assignment_apis=[assignment1],
+        )
 
     def test_sync_user_assignments_multiple_sources_same_role_assignment(self):
         syncer = RBACDefinitionsDBSyncer()
@@ -287,10 +289,12 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with role defined in separate files
         assignment1 = UserRoleAssignmentFileFormatAPI(
-            username='user_2', roles=['role_1'], file_path='assignments/user2a.yaml')
+            username='user_2', roles=['role_1'], file_path='assignments/user2a.yaml'
+        )
 
         assignment2 = UserRoleAssignmentFileFormatAPI(
-            username='user_2', roles=['role_1'], file_path='assignments/user2b.yaml')
+            username='user_2', roles=['role_1'], file_path='assignments/user2b.yaml'
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[assignment1, assignment2])
 
@@ -329,7 +333,8 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with two roles defined
         api = UserRoleAssignmentFileFormatAPI(
-            username='user_2', roles=['role_1', 'role_2'], file_path='assignments/user2.yaml')
+            username='user_2', roles=['role_1', 'role_2'], file_path='assignments/user2.yaml'
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -340,7 +345,8 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with one role defined (one should be removed from the db)
         api = UserRoleAssignmentFileFormatAPI(
-            username='user_2', roles=['role_2'], file_path='assignments/user2.yaml')
+            username='user_2', roles=['role_2'], file_path='assignments/user2.yaml'
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -364,7 +370,8 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with two roles defined
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=['role_1', 'role_2'], file_path='assignments/foobar.yaml')
+            username=user_db.name, roles=['role_1', 'role_2'], file_path='assignments/foobar.yaml'
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -390,8 +397,10 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with two roles defined
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=['role_1', 'role_2'],
-            file_path='assignments/%s.yaml' % user_db.name)
+            username=user_db.name,
+            roles=['role_1', 'role_2'],
+            file_path='assignments/%s.yaml' % user_db.name,
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -417,8 +426,10 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with three roles defined
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=['role_1', 'role_2', 'role_3'],
-            file_path='assignments/%s.yaml' % user_db.name)
+            username=user_db.name,
+            roles=['role_1', 'role_2', 'role_3'],
+            file_path='assignments/%s.yaml' % user_db.name,
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -433,8 +444,8 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Sync with one role on disk - two roles should be removed
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=['role_3'],
-            file_path='assignments/%s.yaml' % user_db.name)
+            username=user_db.name, roles=['role_3'], file_path='assignments/%s.yaml' % user_db.name
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -457,7 +468,8 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         role_db = self.roles['role_3']
         source = 'assignments/%s.yaml' % user_db.name
         role_assignment_db = assign_role_to_user(
-            role_db=role_db, user_db=user_db, source=source, is_remote=True)
+            role_db=role_db, user_db=user_db, source=source, is_remote=True
+        )
         self.assertTrue(role_assignment_db.is_remote)
 
         # Verify assignment has been created
@@ -467,8 +479,10 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         # Do the sync with two roles defined - verify remote role assignment hasn't been
         # manipulated with.
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=['role_1', 'role_2'],
-            file_path='assignments/%s.yaml' % user_db.name)
+            username=user_db.name,
+            roles=['role_1', 'role_2'],
+            file_path='assignments/%s.yaml' % user_db.name,
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -480,8 +494,8 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do sync with no roles - verify all roles except remote one are removed.
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=[],
-            file_path='assignments/%s.yaml' % user_db.name)
+            username=user_db.name, roles=[], file_path='assignments/%s.yaml' % user_db.name
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -501,8 +515,10 @@ class RBACDefinitionsDBSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Do the sync with two roles defined
         api = UserRoleAssignmentFileFormatAPI(
-            username=user_db.name, roles=['role_1', 'role_2'],
-            file_path='assignments/%s.yaml' % user_db.name)
+            username=user_db.name,
+            roles=['role_1', 'role_2'],
+            file_path='assignments/%s.yaml' % user_db.name,
+        )
 
         syncer.sync_users_role_assignments(role_assignment_apis=[api])
 
@@ -540,7 +556,8 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         user_db = self.users['user_1']
         source = 'assignments/%s.yaml' % user_db.name
         role_assignment_db_1 = assign_role_to_user(
-            role_db=role_db, user_db=user_db, source=source, is_remote=False)
+            role_db=role_db, user_db=user_db, source=source, is_remote=False
+        )
 
         self.roles['mock_local_role_1'] = role_db
         self.role_assignments['assignment_1'] = role_assignment_db_1
@@ -549,7 +566,8 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         user_db = self.users['user_1']
         source = 'assignments/%s.yaml' % user_db.name
         role_assignment_db_2 = assign_role_to_user(
-            role_db=role_db, user_db=user_db, source=source, is_remote=False)
+            role_db=role_db, user_db=user_db, source=source, is_remote=False
+        )
 
         self.roles['mock_local_role_2'] = role_db
         self.role_assignments['assignment_2'] = role_assignment_db_2
@@ -605,9 +623,11 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3" and "mock_remote_role_4"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3', 'mock_remote_role_4'],
-                                 source='mappings/stormers.yaml')
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3', 'mock_remote_role_4'],
+            source='mappings/stormers.yaml',
+        )
 
         # Verify initial state
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
@@ -657,19 +677,23 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_role_7"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_role_7'],
-                                 source='mappings/stormers.yaml')
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_role_7'],
+            source='mappings/stormers.yaml',
+        )
 
         # Create mock mapping which maps CN=testers,OU=groups,DC=stackstorm,DC=net
         # to "mock_role_7"
-        create_group_to_role_map(group='CN=testers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_role_7'],
-                                 source='mappings/testers.yaml')
+        create_group_to_role_map(
+            group='CN=testers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_role_7'],
+            source='mappings/testers.yaml',
+        )
 
         groups = [
             'CN=stormers,OU=groups,DC=stackstorm,DC=net',
-            'CN=testers,OU=groups,DC=stackstorm,DC=net'
+            'CN=testers,OU=groups,DC=stackstorm,DC=net',
         ]
         result = syncer.sync(user_db=self.users['user_6'], groups=groups)
         created_role_assignment_dbs = result[0]
@@ -692,9 +716,7 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         self.assertEqual(role_assignment_dbs[3].source, 'mappings/testers.yaml')
 
         # Remove one remote group - should be 3 left
-        groups = [
-            'CN=stormers,OU=groups,DC=stackstorm,DC=net'
-        ]
+        groups = ['CN=stormers,OU=groups,DC=stackstorm,DC=net']
         result = syncer.sync(user_db=self.users['user_6'], groups=groups)
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
         self.assertEqual(len(role_dbs), 1)
@@ -709,15 +731,19 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3'],
-                                 source='mappings/stormers.yaml')
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3'],
+            source='mappings/stormers.yaml',
+        )
 
         # Create mock mapping which maps CN=testers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3"
-        create_group_to_role_map(group='CN=testers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3'],
-                                 source='mappings/testers.yaml')
+        create_group_to_role_map(
+            group='CN=testers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3'],
+            source='mappings/testers.yaml',
+        )
 
         # Verify initial state
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
@@ -754,9 +780,7 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         self.assertEqual(role_assignment_dbs[3].source, 'mappings/testers.yaml')
 
         # One group removed
-        groups = [
-            'CN=stormers,OU=groups,DC=stackstorm,DC=net'
-        ]
+        groups = ['CN=stormers,OU=groups,DC=stackstorm,DC=net']
 
         result = syncer.sync(user_db=self.users['user_1'], groups=groups)
         created_role_assignment_dbs = result[0]
@@ -780,9 +804,11 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3" and "mock_remote_role_4"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3', 'mock_remote_role_4'],
-                                 source='mappings/stormers.yaml')
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3', 'mock_remote_role_4'],
+            source='mappings/stormers.yaml',
+        )
 
         # Assign existing remote mock_role_5 to the user
         role_db = self.roles['mock_role_5']
@@ -798,7 +824,7 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         groups = [
             'CN=stormers,OU=groups,DC=stackstorm,DC=net',
-            'CN=testers,OU=groups,DC=stackstorm,DC=net'
+            'CN=testers,OU=groups,DC=stackstorm,DC=net',
         ]
         result = syncer.sync(user_db=self.users['user_1'], groups=groups)
         created_role_assignment_dbs = result[0]
@@ -824,9 +850,11 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3" and "mock_remote_role_4"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3', 'mock_remote_role_4'],
-                                 source='mappings/stormers.yaml')
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3', 'mock_remote_role_4'],
+            source='mappings/stormers.yaml',
+        )
 
         # Verify initial state
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
@@ -836,7 +864,7 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         groups = [
             'CN=testers1,OU=groups,DC=stackstorm,DC=net',
-            'CN=testers2,OU=groups,DC=stackstorm,DC=net'
+            'CN=testers2,OU=groups,DC=stackstorm,DC=net',
         ]
 
         # No mappings exist for the groups user is a member of so no new assignments should be
@@ -854,15 +882,19 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3" and CN=testers,OU=groups,DC=stackstorm,DC=net to
         # "mock_remote_role_4"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3'],
-                                 source='mappings/stormers.yaml',
-                                 enabled=True)
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3'],
+            source='mappings/stormers.yaml',
+            enabled=True,
+        )
 
-        create_group_to_role_map(group='CN=testers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_4'],
-                                 source='mappings/testers.yaml',
-                                 enabled=True)
+        create_group_to_role_map(
+            group='CN=testers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_4'],
+            source='mappings/testers.yaml',
+            enabled=True,
+        )
 
         # Verify initial state
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
@@ -872,7 +904,7 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         groups = [
             'CN=stormers,OU=groups,DC=stackstorm,DC=net',
-            'CN=testers,OU=groups,DC=stackstorm,DC=net'
+            'CN=testers,OU=groups,DC=stackstorm,DC=net',
         ]
 
         # Two new remote assignments should have been created
@@ -924,15 +956,19 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
         # Create mock mapping which maps CN=stormers,OU=groups,DC=stackstorm,DC=net
         # to "mock_remote_role_3" and CN=testers,OU=groups,DC=stackstorm,DC=net to
         # "mock_remote_role_4"
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_3'],
-                                 source='mappings/stormers.yaml',
-                                 enabled=True)
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_3'],
+            source='mappings/stormers.yaml',
+            enabled=True,
+        )
 
-        create_group_to_role_map(group='CN=testers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_remote_role_4'],
-                                 source='mappings/testers.yaml',
-                                 enabled=True)
+        create_group_to_role_map(
+            group='CN=testers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_remote_role_4'],
+            source='mappings/testers.yaml',
+            enabled=True,
+        )
 
         # Verify initial state
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
@@ -942,7 +978,7 @@ class RBACRemoteGroupToRoleSyncerTestCase(BaseRBACDefinitionsDBSyncerTestCase):
 
         groups = [
             'CN=stormers,OU=groups,DC=stackstorm,DC=net',
-            'CN=testers,OU=groups,DC=stackstorm,DC=net'
+            'CN=testers,OU=groups,DC=stackstorm,DC=net',
         ]
 
         # Two new remote assignments should have been created

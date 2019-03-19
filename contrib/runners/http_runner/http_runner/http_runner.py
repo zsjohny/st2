@@ -33,14 +33,7 @@ from st2common.constants.action import LIVEACTION_STATUS_TIMED_OUT
 import six
 from six.moves import range
 
-__all__ = [
-    'HttpRunner',
-
-    'HTTPClient',
-
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['HttpRunner', 'HTTPClient', 'get_runner', 'get_metadata']
 
 LOG = logging.getLogger(__name__)
 SUCCESS_STATUS_CODES = [code for code in range(200, 207)]
@@ -67,9 +60,7 @@ FILE_NAME = 'file_name'
 FILE_CONTENT = 'file_content'
 FILE_CONTENT_TYPE = 'file_content_type'
 
-RESPONSE_BODY_PARSE_FUNCTIONS = {
-    'application/json': json.loads
-}
+RESPONSE_BODY_PARSE_FUNCTIONS = {'application/json': json.loads}
 
 
 class HttpRunner(ActionRunner):
@@ -82,8 +73,9 @@ class HttpRunner(ActionRunner):
         super(HttpRunner, self).pre_run()
 
         LOG.debug('Entering HttpRunner.pre_run() for liveaction_id="%s"', self.liveaction_id)
-        self._on_behalf_user = self.runner_parameters.get(RUNNER_ON_BEHALF_USER,
-                                                          self._on_behalf_user)
+        self._on_behalf_user = self.runner_parameters.get(
+            RUNNER_ON_BEHALF_USER, self._on_behalf_user
+        )
         self._url = self.runner_parameters.get(RUNNER_URL, None)
         self._headers = self.runner_parameters.get(RUNNER_HEADERS, {})
 
@@ -130,7 +122,7 @@ class HttpRunner(ActionRunner):
             if file_content_type:
                 value = (file_content, file_content_type)
             else:
-                value = (file_content)
+                value = file_content
 
             files[file_name] = value
         else:
@@ -144,22 +136,50 @@ class HttpRunner(ActionRunner):
         if self._https_proxy:
             proxies['https'] = self._https_proxy
 
-        return HTTPClient(url=self._url, method=method, body=body, params=params,
-                          headers=headers, cookies=self._cookies, auth=auth,
-                          timeout=timeout, allow_redirects=self._allow_redirects,
-                          proxies=proxies, files=files, verify=self._verify_ssl_cert,
-                          username=self._username, password=self._password)
+        return HTTPClient(
+            url=self._url,
+            method=method,
+            body=body,
+            params=params,
+            headers=headers,
+            cookies=self._cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=self._allow_redirects,
+            proxies=proxies,
+            files=files,
+            verify=self._verify_ssl_cert,
+            username=self._username,
+            password=self._password,
+        )
 
     @staticmethod
     def _get_result_status(status_code):
-        return LIVEACTION_STATUS_SUCCEEDED if status_code in SUCCESS_STATUS_CODES \
+        return (
+            LIVEACTION_STATUS_SUCCEEDED
+            if status_code in SUCCESS_STATUS_CODES
             else LIVEACTION_STATUS_FAILED
+        )
 
 
 class HTTPClient(object):
-    def __init__(self, url=None, method=None, body='', params=None, headers=None, cookies=None,
-                 auth=None, timeout=60, allow_redirects=False, proxies=None,
-                 files=None, verify=False, username=None, password=None):
+    def __init__(
+        self,
+        url=None,
+        method=None,
+        body='',
+        params=None,
+        headers=None,
+        cookies=None,
+        auth=None,
+        timeout=60,
+        allow_redirects=False,
+        proxies=None,
+        files=None,
+        verify=False,
+        username=None,
+        password=None,
+    ):
         if url is None:
             raise Exception('URL must be specified.')
 
@@ -223,7 +243,7 @@ class HTTPClient(object):
                 allow_redirects=self.allow_redirects,
                 proxies=self.proxies,
                 files=self.files,
-                verify=self.verify
+                verify=self.verify,
             )
 
             headers = dict(resp.headers)

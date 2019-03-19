@@ -17,23 +17,14 @@ import os
 
 from six.moves.configparser import ConfigParser
 
-__all__ = [
-    'process_st2_config',
-    'process_mistral_config',
-    'process_content_pack_dir'
-]
+__all__ = ['process_st2_config', 'process_mistral_config', 'process_content_pack_dir']
 
 # Options which should be removed from the st2 config
-ST2_CONF_OPTIONS_TO_REMOVE = {
-    'database': ['username', 'password'],
-    'messaging': ['url']
-}
+ST2_CONF_OPTIONS_TO_REMOVE = {'database': ['username', 'password'], 'messaging': ['url']}
 
 
 # Options which should be removed from the st2 config
-MISTRAL_CONF_OPTIONS_TO_REMOVE = {
-    'database': ['connection']
-}
+MISTRAL_CONF_OPTIONS_TO_REMOVE = {'database': ['connection']}
 
 REMOVED_VALUE_NAME = '**removed**'
 

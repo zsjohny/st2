@@ -30,15 +30,14 @@ from st2common.persistence.liveaction import LiveAction
 from st2common.persistence.execution import ActionExecution
 from st2common.persistence.execution import ActionExecutionOutput
 
-__all__ = [
-    'purge_executions',
-    'purge_execution_output_objects'
-]
+__all__ = ['purge_executions', 'purge_execution_output_objects']
 
-DONE_STATES = [action_constants.LIVEACTION_STATUS_SUCCEEDED,
-               action_constants.LIVEACTION_STATUS_FAILED,
-               action_constants.LIVEACTION_STATUS_TIMED_OUT,
-               action_constants.LIVEACTION_STATUS_CANCELED]
+DONE_STATES = [
+    action_constants.LIVEACTION_STATUS_SUCCEEDED,
+    action_constants.LIVEACTION_STATUS_FAILED,
+    action_constants.LIVEACTION_STATUS_TIMED_OUT,
+    action_constants.LIVEACTION_STATUS_CANCELED,
+]
 
 
 def purge_executions(logger, timestamp, action_ref=None, purge_incomplete=False):
@@ -57,8 +56,9 @@ def purge_executions(logger, timestamp, action_ref=None, purge_incomplete=False)
     if not timestamp:
         raise ValueError('Specify a valid timestamp to purge.')
 
-    logger.info('Purging executions older than timestamp: %s' %
-                timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+    logger.info(
+        'Purging executions older than timestamp: %s' % timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    )
 
     filters = {}
 
@@ -82,17 +82,20 @@ def purge_executions(logger, timestamp, action_ref=None, purge_incomplete=False)
     # 1. Delete ActionExecutionDB objects
     try:
         # Note: We call list() on the query set object because it's lazyily evaluated otherwise
-        to_delete_execution_dbs = list(ActionExecution.query(only_fields=['id'],
-                                                             no_dereference=True,
-                                                             **exec_filters))
+        to_delete_execution_dbs = list(
+            ActionExecution.query(only_fields=['id'], no_dereference=True, **exec_filters)
+        )
         deleted_count = ActionExecution.delete_by_query(**exec_filters)
     except InvalidQueryError as e:
-        msg = ('Bad query (%s) used to delete execution instances: %s'
-               'Please contact support.' % (exec_filters, six.text_type(e)))
+        msg = 'Bad query (%s) used to delete execution instances: %s' 'Please contact support.' % (
+            exec_filters,
+            six.text_type(e),
+        )
         raise InvalidQueryError(msg)
     except:
-        logger.exception('Deletion of execution models failed for query with filters: %s.',
-                         exec_filters)
+        logger.exception(
+            'Deletion of execution models failed for query with filters: %s.', exec_filters
+        )
     else:
         logger.info('Deleted %s action execution objects' % (deleted_count))
 
@@ -100,12 +103,15 @@ def purge_executions(logger, timestamp, action_ref=None, purge_incomplete=False)
     try:
         deleted_count = LiveAction.delete_by_query(**liveaction_filters)
     except InvalidQueryError as e:
-        msg = ('Bad query (%s) used to delete liveaction instances: %s'
-               'Please contact support.' % (liveaction_filters, six.text_type(e)))
+        msg = 'Bad query (%s) used to delete liveaction instances: %s' 'Please contact support.' % (
+            liveaction_filters,
+            six.text_type(e),
+        )
         raise InvalidQueryError(msg)
     except:
-        logger.exception('Deletion of liveaction models failed for query with filters: %s.',
-                         liveaction_filters)
+        logger.exception(
+            'Deletion of liveaction models failed for query with filters: %s.', liveaction_filters
+        )
     else:
         logger.info('Deleted %s liveaction objects' % (deleted_count))
 
@@ -117,21 +123,25 @@ def purge_executions(logger, timestamp, action_ref=None, purge_incomplete=False)
     try:
         deleted_count = ActionExecutionOutput.delete_by_query(**output_dbs_filters)
     except InvalidQueryError as e:
-        msg = ('Bad query (%s) used to delete execution output instances: %s'
-               'Please contact support.' % (output_dbs_filters, six.text_type(e)))
+        msg = (
+            'Bad query (%s) used to delete execution output instances: %s'
+            'Please contact support.' % (output_dbs_filters, six.text_type(e))
+        )
         raise InvalidQueryError(msg)
     except:
-        logger.exception('Deletion of execution output models failed for query with filters: %s.',
-                         output_dbs_filters)
+        logger.exception(
+            'Deletion of execution output models failed for query with filters: %s.',
+            output_dbs_filters,
+        )
     else:
         logger.info('Deleted %s execution output objects' % (deleted_count))
 
-    zombie_execution_instances = len(ActionExecution.query(only_fields=['id'],
-                                                           no_dereference=True,
-                                                           **exec_filters))
-    zombie_liveaction_instances = len(LiveAction.query(only_fields=['id'],
-                                                      no_dereference=True,
-                                                       **liveaction_filters))
+    zombie_execution_instances = len(
+        ActionExecution.query(only_fields=['id'], no_dereference=True, **exec_filters)
+    )
+    zombie_liveaction_instances = len(
+        LiveAction.query(only_fields=['id'], no_dereference=True, **liveaction_filters)
+    )
 
     if (zombie_execution_instances > 0) or (zombie_liveaction_instances > 0):
         logger.error('Zombie execution instances left: %d.', zombie_execution_instances)
@@ -154,8 +164,10 @@ def purge_execution_output_objects(logger, timestamp, action_ref=None):
     if not timestamp:
         raise ValueError('Specify a valid timestamp to purge.')
 
-    logger.info('Purging action execution output objects older than timestamp: %s' %
-                timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+    logger.info(
+        'Purging action execution output objects older than timestamp: %s'
+        % timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    )
 
     filters = {}
     filters['timestamp__lt'] = timestamp
@@ -166,11 +178,14 @@ def purge_execution_output_objects(logger, timestamp, action_ref=None):
     try:
         deleted_count = ActionExecutionOutput.delete_by_query(**filters)
     except InvalidQueryError as e:
-        msg = ('Bad query (%s) used to delete execution output instances: %s'
-               'Please contact support.' % (filters, six.text_type(e)))
+        msg = (
+            'Bad query (%s) used to delete execution output instances: %s'
+            'Please contact support.' % (filters, six.text_type(e))
+        )
         raise InvalidQueryError(msg)
     except:
-        logger.exception('Deletion of execution output models failed for query with filters: %s.',
-                         filters)
+        logger.exception(
+            'Deletion of execution output models failed for query with filters: %s.', filters
+        )
     else:
         logger.info('Deleted %s execution output objects' % (deleted_count))

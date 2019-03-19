@@ -21,6 +21,7 @@ A utility script which sends test messages to a queue.
 from __future__ import absolute_import
 import argparse
 import fnmatch
+
 try:
     import simplejson as json
 except ImportError:
@@ -84,10 +85,8 @@ def main(dir_, skip_convert):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='json2yaml converter.')
-    parser.add_argument('--dir', '-d', required=True,
-                        help='The dir to look for json.')
-    parser.add_argument('--skipconvert', '-s', action='store_true',
-                        help='Skip conversion')
+    parser.add_argument('--dir', '-d', required=True, help='The dir to look for json.')
+    parser.add_argument('--skipconvert', '-s', action='store_true', help='Skip conversion')
     args = parser.parse_args()
 
     main(dir_=args.dir, skip_convert=args.skipconvert)

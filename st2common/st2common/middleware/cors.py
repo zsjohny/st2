@@ -71,10 +71,19 @@ class CorsMiddleware(object):
                 origin_allowed = list(origins)[0]
 
             methods_allowed = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-            request_headers_allowed = ['Content-Type', 'Authorization', HEADER_ATTRIBUTE_NAME,
-                                       HEADER_API_KEY_ATTRIBUTE_NAME, REQUEST_ID_HEADER]
-            response_headers_allowed = ['Content-Type', 'X-Limit', 'X-Total-Count',
-                                        REQUEST_ID_HEADER]
+            request_headers_allowed = [
+                'Content-Type',
+                'Authorization',
+                HEADER_ATTRIBUTE_NAME,
+                HEADER_API_KEY_ATTRIBUTE_NAME,
+                REQUEST_ID_HEADER,
+            ]
+            response_headers_allowed = [
+                'Content-Type',
+                'X-Limit',
+                'X-Total-Count',
+                REQUEST_ID_HEADER,
+            ]
 
             headers['Access-Control-Allow-Origin'] = origin_allowed
             headers['Access-Control-Allow-Methods'] = ','.join(methods_allowed)

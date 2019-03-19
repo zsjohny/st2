@@ -20,6 +20,7 @@ import os
 from oslo_config import cfg
 
 from st2common.util.monkey_patch import use_select_poll_workaround
+
 use_select_poll_workaround()
 
 from st2common.content.bootstrap import register_content
@@ -39,9 +40,7 @@ from st2tests import fixturesloader
 
 from pack_mgmt.unload import UnregisterPackAction
 
-__all__ = [
-    'UnloadActionTestCase'
-]
+__all__ = ['UnloadActionTestCase']
 
 PACK_PATH_1 = os.path.join(fixturesloader.get_fixtures_packs_base_path(), 'dummy_pack_1')
 

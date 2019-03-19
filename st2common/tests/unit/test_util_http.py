@@ -13,9 +13,7 @@ import unittest2
 from st2common.util.http import parse_content_type_header
 from six.moves import zip
 
-__all__ = [
-    'HTTPUtilTestCase'
-]
+__all__ = ['HTTPUtilTestCase']
 
 
 class HTTPUtilTestCase(unittest2.TestCase):
@@ -30,7 +28,7 @@ class HTTPUtilTestCase(unittest2.TestCase):
             ('application/json', {}),
             ('foo/bar', {}),
             ('application/json', {'charset': 'utf-8'}),
-            ('application/json', {'charset': 'utf-8', 'foo': 'bar'})
+            ('application/json', {'charset': 'utf-8', 'foo': 'bar'}),
         ]
 
         for value, expected_result in zip(values, expected_results):

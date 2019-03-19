@@ -20,9 +20,7 @@ import sys
 import six
 from gunicorn.workers.sync import SyncWorker
 
-__all__ = [
-    'EventletSyncWorker'
-]
+__all__ = ['EventletSyncWorker']
 
 
 class EventletSyncWorker(SyncWorker):

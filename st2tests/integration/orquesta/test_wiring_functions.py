@@ -19,7 +19,6 @@ from integration.orquesta import base
 
 
 class FunctionsWiringTest(base.TestWorkflowExecution):
-
     def test_data_functions_in_yaql(self):
         wf_name = 'examples.orquesta-test-yaql-data-functions'
 
@@ -35,7 +34,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'data_yaml_str_2': 'foo:\n  bar: foobar\n',
             'data_query_1': ['foobar'],
             'data_none_str': '%*****__%NONE%__*****%',
-            'data_str': 'foobar'
+            'data_str': 'foobar',
         }
 
         expected_result = {'output': expected_output}
@@ -58,7 +57,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'data_query_1': ['foobar'],
             'data_pipe_str_1': '{"foo": {"bar": "foobar"}}',
             'data_none_str': '%*****__%NONE%__*****%',
-            'data_str': 'foobar'
+            'data_str': 'foobar',
         }
 
         expected_result = {'output': expected_output}
@@ -68,10 +67,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
     def test_path_functions_in_yaql(self):
         wf_name = 'examples.orquesta-test-yaql-path-functions'
 
-        expected_output = {
-            'basename': 'file.txt',
-            'dirname': '/path/to/some'
-        }
+        expected_output = {'basename': 'file.txt', 'dirname': '/path/to/some'}
 
         expected_result = {'output': expected_output}
 
@@ -80,10 +76,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
     def test_path_functions_in_jinja(self):
         wf_name = 'examples.orquesta-test-jinja-path-functions'
 
-        expected_output = {
-            'basename': 'file.txt',
-            'dirname': '/path/to/some'
-        }
+        expected_output = {'basename': 'file.txt', 'dirname': '/path/to/some'}
 
         expected_result = {'output': expected_output}
 
@@ -96,7 +89,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'match': True,
             'replace': 'wxyz',
             'search': True,
-            'substring': '668 Infinite Dr'
+            'substring': '668 Infinite Dr',
         }
 
         expected_result = {'output': expected_output}
@@ -110,7 +103,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'match': True,
             'replace': 'wxyz',
             'search': True,
-            'substring': '668 Infinite Dr'
+            'substring': '668 Infinite Dr',
         }
 
         expected_result = {'output': expected_output}
@@ -120,9 +113,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
     def test_time_functions_in_yaql(self):
         wf_name = 'examples.orquesta-test-yaql-time-functions'
 
-        expected_output = {
-            'time': '3h25m45s'
-        }
+        expected_output = {'time': '3h25m45s'}
 
         expected_result = {'output': expected_output}
 
@@ -131,9 +122,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
     def test_time_functions_in_jinja(self):
         wf_name = 'examples.orquesta-test-jinja-time-functions'
 
-        expected_output = {
-            'time': '3h25m45s'
-        }
+        expected_output = {'time': '3h25m45s'}
 
         expected_result = {'output': expected_output}
 
@@ -153,7 +142,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'bump_major': '1.0.0',
             'bump_minor': '0.11.0',
             'bump_patch': '0.10.1',
-            'strip_patch': '0.10'
+            'strip_patch': '0.10',
         }
 
         expected_result = {'output': expected_output}
@@ -174,7 +163,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'bump_major': '1.0.0',
             'bump_minor': '0.11.0',
             'bump_patch': '0.10.1',
-            'strip_patch': '0.10'
+            'strip_patch': '0.10',
         }
 
         expected_result = {'output': expected_output}

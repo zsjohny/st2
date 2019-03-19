@@ -25,21 +25,17 @@ from st2common.models.system.actionchain import Node
 
 
 class ActionChainRunnerResolveParamsTests(unittest2.TestCase):
-
     def test_render_params_action_context(self):
         runner = acr.get_runner()
         chain_context = {
-            'parent': {
-                'execution_id': 'some_awesome_exec_id',
-                'user': 'dad'
-            },
+            'parent': {'execution_id': 'some_awesome_exec_id', 'user': 'dad'},
             'user': 'son',
-            'k1': 'v1'
+            'k1': 'v1',
         }
         task_params = {
             'exec_id': {'default': '{{action_context.parent.execution_id}}'},
             'k2': {},
-            'foo': {'default': 1}
+            'foo': {'default': 1},
         }
         action_node = Node(name='test_action_context_params', ref='core.local', params=task_params)
         rendered_params = runner._resolve_params(action_node, {}, {}, {}, chain_context)
@@ -48,17 +44,14 @@ class ActionChainRunnerResolveParamsTests(unittest2.TestCase):
     def test_render_params_action_context_non_existent_member(self):
         runner = acr.get_runner()
         chain_context = {
-            'parent': {
-                'execution_id': 'some_awesome_exec_id',
-                'user': 'dad'
-            },
+            'parent': {'execution_id': 'some_awesome_exec_id', 'user': 'dad'},
             'user': 'son',
-            'k1': 'v1'
+            'k1': 'v1',
         }
         task_params = {
             'exec_id': {'default': '{{action_context.parent.yo_gimme_tha_key}}'},
             'k2': {},
-            'foo': {'default': 1}
+            'foo': {'default': 1},
         }
         action_node = Node(name='test_action_context_params', ref='core.local', params=task_params)
         try:
@@ -69,26 +62,16 @@ class ActionChainRunnerResolveParamsTests(unittest2.TestCase):
 
     def test_render_params_with_config(self):
         with mock.patch('st2common.util.config_loader.ContentPackConfigLoader') as config_loader:
-            config_loader().get_config.return_value = {
-                'amazing_config_value_fo_lyfe': 'no'
-            }
+            config_loader().get_config.return_value = {'amazing_config_value_fo_lyfe': 'no'}
 
             runner = acr.get_runner()
             chain_context = {
-                'parent': {
-                    'execution_id': 'some_awesome_exec_id',
-                    'user': 'dad',
-                    'pack': 'mom'
-                },
+                'parent': {'execution_id': 'some_awesome_exec_id', 'user': 'dad', 'pack': 'mom'},
                 'user': 'son',
             }
-            task_params = {
-                'config_val': '{{config_context.amazing_config_value_fo_lyfe}}'
-            }
+            task_params = {'config_val': '{{config_context.amazing_config_value_fo_lyfe}}'}
             action_node = Node(
-                name='test_action_context_params',
-                ref='core.local',
-                params=task_params
+                name='test_action_context_params', ref='core.local', params=task_params
             )
             rendered_params = runner._resolve_params(action_node, {}, {}, {}, chain_context)
             self.assertEqual(rendered_params['config_val'], 'no')
@@ -97,17 +80,11 @@ class ActionChainRunnerResolveParamsTests(unittest2.TestCase):
         chain_spec = {
             'vars': {
                 'unicode_var': u'٩(̾●̮̮̃̾•̃̾)۶ ٩(̾●̮̮̃̾•̃̾)۶ ćšž',
-                'unicode_var_param': u'{{ param }}'
+                'unicode_var_param': u'{{ param }}',
             },
             'chain': [
-                {
-                    'name': 'c1',
-                    'ref': 'core.local',
-                    'parameters': {
-                        'cmd': 'echo {{ unicode_var }}'
-                    }
-                }
-            ]
+                {'name': 'c1', 'ref': 'core.local', 'parameters': {'cmd': 'echo {{ unicode_var }}'}}
+            ],
         }
 
         chain_holder = acr.ChainHolder(chainspec=chain_spec, chainname='foo')
@@ -115,6 +92,6 @@ class ActionChainRunnerResolveParamsTests(unittest2.TestCase):
 
         expected = {
             'unicode_var': u'٩(̾●̮̮̃̾•̃̾)۶ ٩(̾●̮̮̃̾•̃̾)۶ ćšž',
-            'unicode_var_param': u'٩(̾●̮̮̃̾•̃̾)۶'
+            'unicode_var_param': u'٩(̾●̮̮̃̾•̃̾)۶',
         }
         self.assertEqual(chain_holder.vars, expected)

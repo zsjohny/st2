@@ -18,7 +18,6 @@ from st2common.policies import base
 
 
 class RaiseExceptionApplicator(base.ResourcePolicyApplicator):
-
     def apply_before(self, target):
         raise Exception('For honor!!!!')
 

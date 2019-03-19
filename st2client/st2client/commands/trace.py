@@ -23,8 +23,14 @@ from st2client.commands import resource
 from st2client.utils.date import format_isodate_for_user_timezone
 
 
-TRACE_ATTRIBUTE_DISPLAY_ORDER = ['id', 'trace_tag', 'action_executions', 'rules',
-                                 'trigger_instances', 'start_timestamp']
+TRACE_ATTRIBUTE_DISPLAY_ORDER = [
+    'id',
+    'trace_tag',
+    'action_executions',
+    'rules',
+    'trigger_instances',
+    'start_timestamp',
+]
 
 TRACE_HEADER_DISPLAY_ORDER = ['id', 'trace_tag', 'start_timestamp']
 
@@ -37,7 +43,7 @@ TRIGGER_INSTANCE_DISPLAY_OPTIONS = [
     'trigger-instances',
     'trigger_instances',
     'triggerinstances',
-    'triggers'
+    'triggers',
 ]
 
 ACTION_EXECUTION_DISPLAY_OPTIONS = [
@@ -46,27 +52,28 @@ ACTION_EXECUTION_DISPLAY_OPTIONS = [
     'action-executions',
     'action_executions',
     'actionexecutions',
-    'actions'
+    'actions',
 ]
 
 
 class TraceBranch(resource.ResourceBranch):
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(TraceBranch, self).__init__(
-            Trace, description, app, subparsers,
+            Trace,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             read_only=True,
-            commands={
-                'list': TraceListCommand,
-                'get': TraceGetCommand
-            })
+            commands={'list': TraceListCommand, 'get': TraceGetCommand},
+        )
 
 
 class SingleTraceDisplayMixin(object):
-
     def print_trace_details(self, trace, args, **kwargs):
-        options = {'attributes': TRACE_ATTRIBUTE_DISPLAY_ORDER if args.json else
-                   TRACE_HEADER_DISPLAY_ORDER}
+        options = {
+            'attributes': TRACE_ATTRIBUTE_DISPLAY_ORDER if args.json else TRACE_HEADER_DISPLAY_ORDER
+        }
         options['json'] = args.json
         options['yaml'] = args.yaml
         options['attribute_transform_functions'] = self.attribute_transform_functions
@@ -81,36 +88,62 @@ class SingleTraceDisplayMixin(object):
 
         components = []
         if any(attr in args.attr for attr in TRIGGER_INSTANCE_DISPLAY_OPTIONS):
-            components.extend([Resource(**{'id': trigger_instance['object_id'],
-                                           'type': TriggerInstance._alias.lower(),
-                                           'ref': trigger_instance['ref'],
-                                           'updated_at': trigger_instance['updated_at']})
-                               for trigger_instance in trace.trigger_instances])
+            components.extend(
+                [
+                    Resource(
+                        **{
+                            'id': trigger_instance['object_id'],
+                            'type': TriggerInstance._alias.lower(),
+                            'ref': trigger_instance['ref'],
+                            'updated_at': trigger_instance['updated_at'],
+                        }
+                    )
+                    for trigger_instance in trace.trigger_instances
+                ]
+            )
         if any(attr in args.attr for attr in ['all', 'rules']):
-            components.extend([Resource(**{'id': rule['object_id'],
-                                           'type': Rule._alias.lower(),
-                                           'ref': rule['ref'],
-                                           'updated_at': rule['updated_at']})
-                               for rule in trace.rules])
+            components.extend(
+                [
+                    Resource(
+                        **{
+                            'id': rule['object_id'],
+                            'type': Rule._alias.lower(),
+                            'ref': rule['ref'],
+                            'updated_at': rule['updated_at'],
+                        }
+                    )
+                    for rule in trace.rules
+                ]
+            )
         if any(attr in args.attr for attr in ACTION_EXECUTION_DISPLAY_OPTIONS):
-            components.extend([Resource(**{'id': execution['object_id'],
-                                           'type': Execution._alias.lower(),
-                                           'ref': execution['ref'],
-                                           'updated_at': execution['updated_at']})
-                               for execution in trace.action_executions])
+            components.extend(
+                [
+                    Resource(
+                        **{
+                            'id': execution['object_id'],
+                            'type': Execution._alias.lower(),
+                            'ref': execution['ref'],
+                            'updated_at': execution['updated_at'],
+                        }
+                    )
+                    for execution in trace.action_executions
+                ]
+            )
         if components:
             components.sort(key=lambda resource: resource.updated_at)
-            self.print_output(components, table.MultiColumnTable,
-                              attributes=TRACE_COMPONENT_DISPLAY_LABELS,
-                              json=args.json, yaml=args.yaml)
+            self.print_output(
+                components,
+                table.MultiColumnTable,
+                attributes=TRACE_COMPONENT_DISPLAY_LABELS,
+                json=args.json,
+                yaml=args.yaml,
+            )
 
 
 class TraceListCommand(resource.ResourceCommand, SingleTraceDisplayMixin):
     display_attributes = ['id', 'uid', 'trace_tag', 'start_timestamp']
 
-    attribute_transform_functions = {
-        'start_timestamp': format_isodate_for_user_timezone
-    }
+    attribute_transform_functions = {'start_timestamp': format_isodate_for_user_timezone}
 
     attribute_display_order = TRACE_ATTRIBUTE_DISPLAY_ORDER
 
@@ -119,37 +152,68 @@ class TraceListCommand(resource.ResourceCommand, SingleTraceDisplayMixin):
         self.default_limit = 50
 
         super(TraceListCommand, self).__init__(
-            resource, 'list', 'Get the list of the %s most recent %s.' %
-            (self.default_limit, resource.get_plural_display_name().lower()),
-            *args, **kwargs)
+            resource,
+            'list',
+            'Get the list of the %s most recent %s.'
+            % (self.default_limit, resource.get_plural_display_name().lower()),
+            *args,
+            **kwargs
+        )
 
         self.resource_name = resource.get_plural_display_name().lower()
         self.group = self.parser.add_mutually_exclusive_group()
-        self.parser.add_argument('-n', '--last', type=int, dest='last',
-                                 default=self.default_limit,
-                                 help=('List N most recent %s. Use -n -1 to fetch the full result \
-                                       set.' % self.resource_name))
-        self.parser.add_argument('-s', '--sort', type=str, dest='sort_order',
-                                 default='descending',
-                                 help=('Sort %s by start timestamp, '
-                                       'asc|ascending (earliest first) '
-                                       'or desc|descending (latest first)' % self.resource_name))
+        self.parser.add_argument(
+            '-n',
+            '--last',
+            type=int,
+            dest='last',
+            default=self.default_limit,
+            help=(
+                'List N most recent %s. Use -n -1 to fetch the full result \
+                                       set.'
+                % self.resource_name
+            ),
+        )
+        self.parser.add_argument(
+            '-s',
+            '--sort',
+            type=str,
+            dest='sort_order',
+            default='descending',
+            help=(
+                'Sort %s by start timestamp, '
+                'asc|ascending (earliest first) '
+                'or desc|descending (latest first)' % self.resource_name
+            ),
+        )
 
         # Filter options
         self.group.add_argument('-c', '--trace-tag', help='Trace-tag to filter the list.')
         self.group.add_argument('-e', '--execution', help='Execution to filter the list.')
         self.group.add_argument('-r', '--rule', help='Rule to filter the list.')
-        self.group.add_argument('-g', '--trigger-instance',
-                                help='TriggerInstance to filter the list.')
+        self.group.add_argument(
+            '-g', '--trigger-instance', help='TriggerInstance to filter the list.'
+        )
         # Display options
-        self.parser.add_argument('-a', '--attr', nargs='+',
-                                 default=self.display_attributes,
-                                 help=('List of attributes to include in the '
-                                       'output. "all" will return all '
-                                       'attributes.'))
-        self.parser.add_argument('-w', '--width', nargs='+', type=int,
-                                 default=None,
-                                 help=('Set the width of columns in output.'))
+        self.parser.add_argument(
+            '-a',
+            '--attr',
+            nargs='+',
+            default=self.display_attributes,
+            help=(
+                'List of attributes to include in the '
+                'output. "all" will return all '
+                'attributes.'
+            ),
+        )
+        self.parser.add_argument(
+            '-w',
+            '--width',
+            nargs='+',
+            type=int,
+            default=None,
+            help=('Set the width of columns in output.'),
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -182,17 +246,26 @@ class TraceListCommand(resource.ResourceCommand, SingleTraceDisplayMixin):
 
             if not args.json and not args.yaml:
                 if args.last and count and count > args.last:
-                        table.SingleRowTable.note_box(self.resource_name, 1)
+                    table.SingleRowTable.note_box(self.resource_name, 1)
         else:
             if args.json or args.yaml:
-                self.print_output(instances, table.MultiColumnTable,
-                                  attributes=args.attr, widths=args.width,
-                                  json=args.json, yaml=args.yaml,
-                                  attribute_transform_functions=self.attribute_transform_functions)
+                self.print_output(
+                    instances,
+                    table.MultiColumnTable,
+                    attributes=args.attr,
+                    widths=args.width,
+                    json=args.json,
+                    yaml=args.yaml,
+                    attribute_transform_functions=self.attribute_transform_functions,
+                )
             else:
-                self.print_output(instances, table.MultiColumnTable,
-                                  attributes=args.attr, widths=args.width,
-                                  attribute_transform_functions=self.attribute_transform_functions)
+                self.print_output(
+                    instances,
+                    table.MultiColumnTable,
+                    attributes=args.attr,
+                    widths=args.width,
+                    attribute_transform_functions=self.attribute_transform_functions,
+                )
 
                 if args.last and count and count > args.last:
                     table.SingleRowTable.note_box(self.resource_name, args.last)
@@ -201,9 +274,7 @@ class TraceListCommand(resource.ResourceCommand, SingleTraceDisplayMixin):
 class TraceGetCommand(resource.ResourceGetCommand, SingleTraceDisplayMixin):
     display_attributes = ['all']
     attribute_display_order = TRACE_ATTRIBUTE_DISPLAY_ORDER
-    attribute_transform_functions = {
-        'start_timestamp': format_isodate_for_user_timezone
-    }
+    attribute_transform_functions = {'start_timestamp': format_isodate_for_user_timezone}
 
     pk_argument_name = 'id'
 
@@ -213,23 +284,29 @@ class TraceGetCommand(resource.ResourceGetCommand, SingleTraceDisplayMixin):
         # Causation chains
         self.causation_group = self.parser.add_mutually_exclusive_group()
 
-        self.causation_group.add_argument('-e', '--execution',
-                                          help='Execution to show causation chain.')
+        self.causation_group.add_argument(
+            '-e', '--execution', help='Execution to show causation chain.'
+        )
         self.causation_group.add_argument('-r', '--rule', help='Rule to show causation chain.')
-        self.causation_group.add_argument('-g', '--trigger-instance',
-                                          help='TriggerInstance to show causation chain.')
+        self.causation_group.add_argument(
+            '-g', '--trigger-instance', help='TriggerInstance to show causation chain.'
+        )
 
         # display filter group
         self.display_filter_group = self.parser.add_argument_group()
 
-        self.display_filter_group.add_argument('--show-executions', action='store_true',
-                                               help='Only show executions.')
-        self.display_filter_group.add_argument('--show-rules', action='store_true',
-                                               help='Only show rules.')
-        self.display_filter_group.add_argument('--show-trigger-instances', action='store_true',
-                                               help='Only show trigger instances.')
-        self.display_filter_group.add_argument('-n', '--hide-noop-triggers', action='store_true',
-                                               help='Hide noop trigger instances.')
+        self.display_filter_group.add_argument(
+            '--show-executions', action='store_true', help='Only show executions.'
+        )
+        self.display_filter_group.add_argument(
+            '--show-rules', action='store_true', help='Only show rules.'
+        )
+        self.display_filter_group.add_argument(
+            '--show-trigger-instances', action='store_true', help='Only show trigger instances.'
+        )
+        self.display_filter_group.add_argument(
+            '-n', '--hide-noop-triggers', action='store_true', help='Hide noop trigger instances.'
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -333,9 +410,9 @@ class TraceGetCommand(resource.ResourceGetCommand, SingleTraceDisplayMixin):
         should be displayed.
         """
         # If all the filters are false nothing is to be filtered.
-        all_component_types = not(args.show_executions or
-                                  args.show_rules or
-                                  args.show_trigger_instances)
+        all_component_types = not (
+            args.show_executions or args.show_rules or args.show_trigger_instances
+        )
 
         # check if noop_triggers are to be hidden. This check applies whenever TriggerInstances
         # are to be shown.

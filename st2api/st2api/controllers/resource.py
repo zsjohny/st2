@@ -35,11 +35,7 @@ from st2common.router import Response
 
 LOG = logging.getLogger(__name__)
 
-RESERVED_QUERY_PARAMS = {
-    'id': 'id',
-    'name': 'name',
-    'sort': 'order_by'
-}
+RESERVED_QUERY_PARAMS = {'id': 'id', 'name': 'name', 'sort': 'order_by'}
 
 
 def split_id_value(value):
@@ -65,11 +61,9 @@ def parameter_validation(validator, properties, instance, schema):
     parameter_specific_schema = {
         "description": "Input parameters for the action.",
         "type": "object",
-        "patternProperties": {
-            r"^\w+$": util_schema.get_action_parameters_schema()
-        },
+        "patternProperties": {r"^\w+$": util_schema.get_action_parameters_schema()},
         'additionalProperties': False,
-        "default": {}
+        "default": {},
     }
 
     parameter_specific_validator = util_schema.CustomValidator(parameter_specific_schema)
@@ -100,9 +94,7 @@ class ResourceController(object):
     # Default number of items returned per page if no limit is explicitly provided
     default_limit = 100
 
-    query_options = {
-        'sort': []
-    }
+    query_options = {'sort': []}
 
     # A list of optional transformation functions for user provided filter values
     filter_transform_functions = {}
@@ -130,9 +122,19 @@ class ResourceController(object):
     def max_limit(self):
         return cfg.CONF.api.max_page_size
 
-    def _get_all(self, exclude_fields=None, include_fields=None, advanced_filters=None,
-                 sort=None, offset=0, limit=None, query_options=None,
-                 from_model_kwargs=None, raw_filters=None, requester_user=None):
+    def _get_all(
+        self,
+        exclude_fields=None,
+        include_fields=None,
+        advanced_filters=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        query_options=None,
+        from_model_kwargs=None,
+        raw_filters=None,
+        requester_user=None,
+    ):
         """
         :param exclude_fields: A list of object fields to exclude.
         :type exclude_fields: ``list``
@@ -144,8 +146,10 @@ class ResourceController(object):
         query_options = query_options if query_options else self.query_options
 
         if exclude_fields and include_fields:
-            msg = ('exclude_fields and include_fields arguments are mutually exclusive. '
-                   'You need to provide either one or another, but not both.')
+            msg = (
+                'exclude_fields and include_fields arguments are mutually exclusive. '
+                'You need to provide either one or another, but not both.'
+            )
             raise ValueError(msg)
 
         exclude_fields = self._validate_exclude_fields(exclude_fields=exclude_fields)
@@ -178,7 +182,7 @@ class ResourceController(object):
 
         # TODO: To protect us from DoS, we need to make max_limit mandatory
         offset = int(offset)
-        if offset >= 2**31:
+        if offset >= 2 ** 31:
             raise ValueError('Offset "%s" specified is more than 32-bit int' % (offset))
 
         limit = validate_limit_query_param(limit=limit, requester_user=requester_user)
@@ -219,8 +223,9 @@ class ResourceController(object):
                 except LookUpError as e:
                     raise ValueError(six.text_type(e))
 
-        instances = self.access.query(exclude_fields=exclude_fields, only_fields=include_fields,
-                                      **filters)
+        instances = self.access.query(
+            exclude_fields=exclude_fields, only_fields=include_fields, **filters
+        )
         if limit == 1:
             # Perform the filtering on the DB side
             instances = instances.limit(limit)
@@ -228,12 +233,14 @@ class ResourceController(object):
         from_model_kwargs = from_model_kwargs or {}
         from_model_kwargs.update(self.from_model_kwargs)
 
-        result = self.resources_model_filter(model=self.model,
-                                             instances=instances,
-                                             offset=offset,
-                                             eop=eop,
-                                             requester_user=requester_user,
-                                             **from_model_kwargs)
+        result = self.resources_model_filter(
+            model=self.model,
+            instances=instances,
+            offset=offset,
+            eop=eop,
+            requester_user=requester_user,
+            **from_model_kwargs
+        )
 
         resp = Response(json=result)
         resp.headers['X-Total-Count'] = str(instances.count())
@@ -243,17 +250,18 @@ class ResourceController(object):
 
         return resp
 
-    def resources_model_filter(self, model, instances, requester_user=None, offset=0, eop=0,
-                              **from_model_kwargs):
+    def resources_model_filter(
+        self, model, instances, requester_user=None, offset=0, eop=0, **from_model_kwargs
+    ):
         """
         Method which converts DB objects to API objects and performs any additional filtering.
         """
 
         result = []
         for instance in instances[offset:eop]:
-            item = self.resource_model_filter(model=model, instance=instance,
-                                              requester_user=requester_user,
-                                              **from_model_kwargs)
+            item = self.resource_model_filter(
+                model=model, instance=instance, requester_user=requester_user, **from_model_kwargs
+            )
             result.append(item)
         return result
 
@@ -264,8 +272,15 @@ class ResourceController(object):
         item = model.from_model(instance, **from_model_kwargs)
         return item
 
-    def _get_one_by_id(self, id, requester_user, permission_type, exclude_fields=None,
-                       include_fields=None, from_model_kwargs=None):
+    def _get_one_by_id(
+        self,
+        id,
+        requester_user,
+        permission_type,
+        exclude_fields=None,
+        include_fields=None,
+        from_model_kwargs=None,
+    ):
         """
         :param exclude_fields: A list of object fields to exclude.
         :type exclude_fields: ``list``
@@ -273,13 +288,14 @@ class ResourceController(object):
         :type include_fields: ``list``
         """
 
-        instance = self._get_by_id(resource_id=id, exclude_fields=exclude_fields,
-                                   include_fields=include_fields)
+        instance = self._get_by_id(
+            resource_id=id, exclude_fields=exclude_fields, include_fields=include_fields
+        )
 
         if permission_type:
-            rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                              resource_db=instance,
-                                                              permission_type=permission_type)
+            rbac_utils.assert_user_has_resource_db_permission(
+                user_db=requester_user, resource_db=instance, permission_type=permission_type
+            )
 
         if not instance:
             msg = 'Unable to identify resource with id "%s".' % id
@@ -288,21 +304,30 @@ class ResourceController(object):
         from_model_kwargs = from_model_kwargs or {}
         from_model_kwargs.update(self.from_model_kwargs)
 
-        result = self.resource_model_filter(model=self.model, instance=instance,
-                                            requester_user=requester_user,
-                                            **from_model_kwargs)
+        result = self.resource_model_filter(
+            model=self.model, instance=instance, requester_user=requester_user, **from_model_kwargs
+        )
 
         if not result:
-            LOG.debug('Not returning the result because RBAC resource isolation is enabled and '
-                      'current user doesn\'t match the resource user')
-            raise ResourceAccessDeniedPermissionIsolationError(user_db=requester_user,
-                                                               resource_api_or_db=instance,
-                                                               permission_type=permission_type)
+            LOG.debug(
+                'Not returning the result because RBAC resource isolation is enabled and '
+                'current user doesn\'t match the resource user'
+            )
+            raise ResourceAccessDeniedPermissionIsolationError(
+                user_db=requester_user, resource_api_or_db=instance, permission_type=permission_type
+            )
 
         return result
 
-    def _get_one_by_name_or_id(self, name_or_id, requester_user, permission_type,
-                               exclude_fields=None, include_fields=None, from_model_kwargs=None):
+    def _get_one_by_name_or_id(
+        self,
+        name_or_id,
+        requester_user,
+        permission_type,
+        exclude_fields=None,
+        include_fields=None,
+        from_model_kwargs=None,
+    ):
         """
         :param exclude_fields: A list of object fields to exclude.
         :type exclude_fields: ``list``
@@ -310,13 +335,14 @@ class ResourceController(object):
         :type include_fields: ``list``
         """
 
-        instance = self._get_by_name_or_id(name_or_id=name_or_id, exclude_fields=exclude_fields,
-                                           include_fields=include_fields)
+        instance = self._get_by_name_or_id(
+            name_or_id=name_or_id, exclude_fields=exclude_fields, include_fields=include_fields
+        )
 
         if permission_type:
-            rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                              resource_db=instance,
-                                                              permission_type=permission_type)
+            rbac_utils.assert_user_has_resource_db_permission(
+                user_db=requester_user, resource_db=instance, permission_type=permission_type
+            )
 
         if not instance:
             msg = 'Unable to identify resource with name_or_id "%s".' % (name_or_id)
@@ -328,10 +354,12 @@ class ResourceController(object):
 
         return result
 
-    def _get_one_by_pack_ref(self, pack_ref, exclude_fields=None, include_fields=None,
-                             from_model_kwargs=None):
-        instance = self._get_by_pack_ref(pack_ref=pack_ref, exclude_fields=exclude_fields,
-                                         include_fields=include_fields)
+    def _get_one_by_pack_ref(
+        self, pack_ref, exclude_fields=None, include_fields=None, from_model_kwargs=None
+    ):
+        instance = self._get_by_pack_ref(
+            pack_ref=pack_ref, exclude_fields=exclude_fields, include_fields=include_fields
+        )
 
         if not instance:
             msg = 'Unable to identify resource with pack_ref "%s".' % (pack_ref)
@@ -345,8 +373,9 @@ class ResourceController(object):
 
     def _get_by_id(self, resource_id, exclude_fields=None, include_fields=None):
         try:
-            resource_db = self.access.get(id=resource_id, exclude_fields=exclude_fields,
-                                          only_fields=include_fields)
+            resource_db = self.access.get(
+                id=resource_id, exclude_fields=exclude_fields, only_fields=include_fields
+            )
         except ValidationError:
             resource_db = None
 
@@ -354,8 +383,9 @@ class ResourceController(object):
 
     def _get_by_name(self, resource_name, exclude_fields=None, include_fields=None):
         try:
-            resource_db = self.access.get(name=resource_name, exclude_fields=exclude_fields,
-                                          only_fields=include_fields)
+            resource_db = self.access.get(
+                name=resource_name, exclude_fields=exclude_fields, only_fields=include_fields
+            )
         except Exception:
             resource_db = None
 
@@ -363,8 +393,9 @@ class ResourceController(object):
 
     def _get_by_pack_ref(self, pack_ref, exclude_fields=None, include_fields=None):
         try:
-            resource_db = self.access.get(pack=pack_ref, exclude_fields=exclude_fields,
-                                          only_fields=include_fields)
+            resource_db = self.access.get(
+                pack=pack_ref, exclude_fields=exclude_fields, only_fields=include_fields
+            )
         except Exception:
             resource_db = None
 
@@ -374,13 +405,13 @@ class ResourceController(object):
         """
         Retrieve resource object by an id of a name.
         """
-        resource_db = self._get_by_id(resource_id=name_or_id, exclude_fields=exclude_fields,
-                                      include_fields=include_fields)
+        resource_db = self._get_by_id(
+            resource_id=name_or_id, exclude_fields=exclude_fields, include_fields=include_fields
+        )
 
         if not resource_db:
             # Try name
-            resource_db = self._get_by_name(resource_name=name_or_id,
-                                            exclude_fields=exclude_fields)
+            resource_db = self._get_by_name(resource_name=name_or_id, exclude_fields=exclude_fields)
 
         if not resource_db:
             msg = 'Resource with a name or id "%s" not found' % (name_or_id)
@@ -420,7 +451,7 @@ class ResourceController(object):
 
         for field in exclude_fields:
             if field not in self.valid_exclude_attributes:
-                msg = ('Invalid or unsupported exclude attribute specified: %s' % (field))
+                msg = 'Invalid or unsupported exclude attribute specified: %s' % (field)
                 raise ValueError(msg)
 
         return exclude_fields
@@ -454,20 +485,27 @@ class BaseResourceIsolationControllerMixin(object):
     users).
     """
 
-    def resources_model_filter(self, model, instances, requester_user=None, offset=0, eop=0,
-                              **from_model_kwargs):
+    def resources_model_filter(
+        self, model, instances, requester_user=None, offset=0, eop=0, **from_model_kwargs
+    ):
         # RBAC or permission isolation is disabled, bail out
         if not (cfg.CONF.rbac.enable and cfg.CONF.rbac.permission_isolation):
             result = super(BaseResourceIsolationControllerMixin, self).resources_model_filter(
-                model=model, instances=instances, requester_user=requester_user,
-                offset=offset, eop=eop, **from_model_kwargs)
+                model=model,
+                instances=instances,
+                requester_user=requester_user,
+                offset=offset,
+                eop=eop,
+                **from_model_kwargs
+            )
 
             return result
 
         result = []
         for instance in instances[offset:eop]:
-            item = self.resource_model_filter(model=model, instance=instance,
-                                              requester_user=requester_user, **from_model_kwargs)
+            item = self.resource_model_filter(
+                model=model, instance=instance, requester_user=requester_user, **from_model_kwargs
+            )
 
             if not item:
                 continue
@@ -480,13 +518,13 @@ class BaseResourceIsolationControllerMixin(object):
         # RBAC or permission isolation is disabled, bail out
         if not (cfg.CONF.rbac.enable and cfg.CONF.rbac.permission_isolation):
             result = super(BaseResourceIsolationControllerMixin, self).resource_model_filter(
-                model=model, instance=instance, requester_user=requester_user,
-                **from_model_kwargs)
+                model=model, instance=instance, requester_user=requester_user, **from_model_kwargs
+            )
 
             return result
 
         user_is_admin = rbac_utils.user_is_admin(user_db=requester_user)
-        user_is_system_user = (requester_user.name == cfg.CONF.system_user.user)
+        user_is_system_user = requester_user.name == cfg.CONF.system_user.user
 
         item = model.from_model(instance, **from_model_kwargs)
 
@@ -513,51 +551,71 @@ class ContentPackResourceController(ResourceController):
         super(ContentPackResourceController, self).__init__()
         self.get_one_db_method = self._get_by_ref_or_id
 
-    def _get_one(self, ref_or_id, requester_user, permission_type, exclude_fields=None,
-                 include_fields=None, from_model_kwargs=None):
+    def _get_one(
+        self,
+        ref_or_id,
+        requester_user,
+        permission_type,
+        exclude_fields=None,
+        include_fields=None,
+        from_model_kwargs=None,
+    ):
         try:
-            instance = self._get_by_ref_or_id(ref_or_id=ref_or_id, exclude_fields=exclude_fields,
-                                              include_fields=include_fields)
+            instance = self._get_by_ref_or_id(
+                ref_or_id=ref_or_id, exclude_fields=exclude_fields, include_fields=include_fields
+            )
         except Exception as e:
             LOG.exception(six.text_type(e))
             abort(http_client.NOT_FOUND, six.text_type(e))
             return
 
         if permission_type:
-            rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                              resource_db=instance,
-                                                              permission_type=permission_type)
+            rbac_utils.assert_user_has_resource_db_permission(
+                user_db=requester_user, resource_db=instance, permission_type=permission_type
+            )
 
         # Perform resource isolation check (if supported)
         from_model_kwargs = from_model_kwargs or {}
         from_model_kwargs.update(self.from_model_kwargs)
 
-        result = self.resource_model_filter(model=self.model, instance=instance,
-                                            requester_user=requester_user,
-                                            **from_model_kwargs)
+        result = self.resource_model_filter(
+            model=self.model, instance=instance, requester_user=requester_user, **from_model_kwargs
+        )
 
         if not result:
-            LOG.debug('Not returning the result because RBAC resource isolation is enabled and '
-                      'current user doesn\'t match the resource user')
-            raise ResourceAccessDeniedPermissionIsolationError(user_db=requester_user,
-                                                               resource_api_or_db=instance,
-                                                               permission_type=permission_type)
+            LOG.debug(
+                'Not returning the result because RBAC resource isolation is enabled and '
+                'current user doesn\'t match the resource user'
+            )
+            raise ResourceAccessDeniedPermissionIsolationError(
+                user_db=requester_user, resource_api_or_db=instance, permission_type=permission_type
+            )
 
         return Response(json=result)
 
-    def _get_all(self, exclude_fields=None, include_fields=None,
-                 sort=None, offset=0, limit=None, query_options=None,
-                 from_model_kwargs=None, raw_filters=None, requester_user=None):
-        resp = super(ContentPackResourceController,
-                     self)._get_all(exclude_fields=exclude_fields,
-                                    include_fields=include_fields,
-                                    sort=sort,
-                                    offset=offset,
-                                    limit=limit,
-                                    query_options=query_options,
-                                    from_model_kwargs=from_model_kwargs,
-                                    raw_filters=raw_filters,
-                                    requester_user=requester_user)
+    def _get_all(
+        self,
+        exclude_fields=None,
+        include_fields=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        query_options=None,
+        from_model_kwargs=None,
+        raw_filters=None,
+        requester_user=None,
+    ):
+        resp = super(ContentPackResourceController, self)._get_all(
+            exclude_fields=exclude_fields,
+            include_fields=include_fields,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            query_options=query_options,
+            from_model_kwargs=from_model_kwargs,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
         return resp
 
@@ -570,8 +628,10 @@ class ContentPackResourceController(ResourceController):
         """
 
         if exclude_fields and include_fields:
-            msg = ('exclude_fields and include_fields arguments are mutually exclusive. '
-                   'You need to provide either one or another, but not both.')
+            msg = (
+                'exclude_fields and include_fields arguments are mutually exclusive. '
+                'You need to provide either one or another, but not both.'
+            )
             raise ValueError(msg)
 
         if ResourceReference.is_resource_reference(ref_or_id):
@@ -581,11 +641,13 @@ class ContentPackResourceController(ResourceController):
             is_reference = False
 
         if is_reference:
-            resource_db = self._get_by_ref(resource_ref=ref_or_id, exclude_fields=exclude_fields,
-                                          include_fields=include_fields)
+            resource_db = self._get_by_ref(
+                resource_ref=ref_or_id, exclude_fields=exclude_fields, include_fields=include_fields
+            )
         else:
-            resource_db = self._get_by_id(resource_id=ref_or_id, exclude_fields=exclude_fields,
-                                          include_fields=include_fields)
+            resource_db = self._get_by_id(
+                resource_id=ref_or_id, exclude_fields=exclude_fields, include_fields=include_fields
+            )
 
         if not resource_db:
             msg = 'Resource with a reference or id "%s" not found' % (ref_or_id)
@@ -595,8 +657,10 @@ class ContentPackResourceController(ResourceController):
 
     def _get_by_ref(self, resource_ref, exclude_fields=None, include_fields=None):
         if exclude_fields and include_fields:
-            msg = ('exclude_fields and include_fields arguments are mutually exclusive. '
-                   'You need to provide either one or another, but not both.')
+            msg = (
+                'exclude_fields and include_fields arguments are mutually exclusive. '
+                'You need to provide either one or another, but not both.'
+            )
             raise ValueError(msg)
 
         try:
@@ -604,9 +668,9 @@ class ContentPackResourceController(ResourceController):
         except Exception:
             return None
 
-        resource_db = self.access.query(name=ref.name, pack=ref.pack,
-                                        exclude_fields=exclude_fields,
-                                        only_fields=include_fields).first()
+        resource_db = self.access.query(
+            name=ref.name, pack=ref.pack, exclude_fields=exclude_fields, only_fields=include_fields
+        ).first()
         return resource_db
 
 
@@ -624,25 +688,28 @@ def validate_limit_query_param(limit, requester_user=None):
         if int(limit) == -1:
             if not user_is_admin:
                 # Only admins can specify limit -1
-                message = ('Administrator access required to be able to specify limit=-1 and '
-                           'retrieve all the records')
-                raise AccessDeniedError(message=message,
-                                        user_db=requester_user)
+                message = (
+                    'Administrator access required to be able to specify limit=-1 and '
+                    'retrieve all the records'
+                )
+                raise AccessDeniedError(message=message, user_db=requester_user)
 
             return 0
         elif int(limit) <= -2:
             msg = 'Limit, "%s" specified, must be a positive number.' % (limit)
             raise ValueError(msg)
         elif int(limit) > cfg.CONF.api.max_page_size and not user_is_admin:
-            msg = ('Limit "%s" specified, maximum value is "%s"' % (limit,
-                                                                    cfg.CONF.api.max_page_size))
+            msg = 'Limit "%s" specified, maximum value is "%s"' % (
+                limit,
+                cfg.CONF.api.max_page_size,
+            )
 
-            raise AccessDeniedError(message=msg,
-                                    user_db=requester_user)
+            raise AccessDeniedError(message=msg, user_db=requester_user)
     # Disable n = 0
     elif limit == 0:
-        msg = ('Limit, "%s" specified, must be a positive number or -1 for full result set.' %
-               (limit))
+        msg = 'Limit, "%s" specified, must be a positive number or -1 for full result set.' % (
+            limit
+        )
         raise ValueError(msg)
 
     return limit

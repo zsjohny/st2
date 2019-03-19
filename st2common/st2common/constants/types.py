@@ -16,9 +16,7 @@
 from __future__ import absolute_import
 from st2common.util.enum import Enum
 
-__all__ = [
-    'ResourceType'
-]
+__all__ = ['ResourceType']
 
 
 class ResourceType(Enum):

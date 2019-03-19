@@ -30,7 +30,7 @@ from st2common.constants import action as action_constants
 LIVEACTION_LAUNCHED_STATUSES = [
     action_constants.LIVEACTION_STATUS_REQUESTED,
     action_constants.LIVEACTION_STATUS_SCHEDULED,
-    action_constants.LIVEACTION_STATUS_RUNNING
+    action_constants.LIVEACTION_STATUS_RUNNING,
 ]
 
 
@@ -39,10 +39,9 @@ def retry_on_exceptions(exc):
 
 
 class WorkflowControlTestCaseMixin(object):
-
     def _create_temp_file(self):
         _, temp_file_path = tempfile.mkstemp()
-        os.chmod(temp_file_path, 0o755)     # nosec
+        os.chmod(temp_file_path, 0o755)  # nosec
         return temp_file_path
 
     def _delete_temp_file(self, temp_file_path):
@@ -54,13 +53,18 @@ class WorkflowControlTestCaseMixin(object):
 
 
 class TestWorkflowExecution(unittest2.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.st2client = st2.Client(base_url='http://127.0.0.1')
 
-    def _execute_workflow(self, action, parameters=None, execute_async=True,
-                          expected_status=None, expected_result=None):
+    def _execute_workflow(
+        self,
+        action,
+        parameters=None,
+        execute_async=True,
+        expected_status=None,
+        expected_result=None,
+    ):
 
         ex = models.LiveAction(action=action, parameters=(parameters or {}))
         ex = self.st2client.executions.create(ex)
@@ -83,9 +87,7 @@ class TestWorkflowExecution(unittest2.TestCase):
 
         return ex
 
-    @retrying.retry(
-        retry_on_exception=retry_on_exceptions,
-        wait_fixed=3000, stop_max_delay=900000)
+    @retrying.retry(retry_on_exception=retry_on_exceptions, wait_fixed=3000, stop_max_delay=900000)
     def _wait_for_state(self, ex, states):
         if isinstance(states, six.string_types):
             states = [states]
@@ -101,8 +103,7 @@ class TestWorkflowExecution(unittest2.TestCase):
             if ex.status in action_constants.LIVEACTION_COMPLETED_STATES:
                 raise Exception(
                     'Execution is in completed state "%s" and '
-                    'does not match expected state(s). %s' %
-                    (ex.status, ex.result)
+                    'does not match expected state(s). %s' % (ex.status, ex.result)
                 )
             else:
                 raise
@@ -112,14 +113,13 @@ class TestWorkflowExecution(unittest2.TestCase):
     def _get_children(self, ex):
         return self.st2client.executions.query(parent=ex.id)
 
-    @retrying.retry(
-        retry_on_exception=retry_on_exceptions,
-        wait_fixed=3000, stop_max_delay=900000)
+    @retrying.retry(retry_on_exception=retry_on_exceptions, wait_fixed=3000, stop_max_delay=900000)
     def _wait_for_task(self, ex, task, status=None, num_task_exs=1):
         ex = self.st2client.executions.get_by_id(ex.id)
 
         task_exs = [
-            task_ex for task_ex in self._get_children(ex)
+            task_ex
+            for task_ex in self._get_children(ex)
             if task_ex.context.get('orquesta', {}).get('task_name', '') == task
         ]
 
@@ -148,9 +148,7 @@ class TestWorkflowExecution(unittest2.TestCase):
 
         return task_exs
 
-    @retrying.retry(
-        retry_on_exception=retry_on_exceptions,
-        wait_fixed=3000, stop_max_delay=900000)
+    @retrying.retry(retry_on_exception=retry_on_exceptions, wait_fixed=3000, stop_max_delay=900000)
     def _wait_for_completion(self, ex):
         ex = self._wait_for_state(ex, action_constants.LIVEACTION_COMPLETED_STATES)
 
@@ -159,8 +157,7 @@ class TestWorkflowExecution(unittest2.TestCase):
         except:
             if ex.status in action_constants.LIVEACTION_COMPLETED_STATES:
                 raise Exception(
-                    'Execution is in completed state and does not '
-                    'contain expected result.'
+                    'Execution is in completed state and does not ' 'contain expected result.'
                 )
             else:
                 raise

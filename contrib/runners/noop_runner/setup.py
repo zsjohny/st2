@@ -47,9 +47,5 @@ setup(
     packages=find_packages(exclude=['setuptools', 'tests']),
     package_data={'noop_runner': ['runner.yaml']},
     scripts=[],
-    entry_points={
-        'st2common.runners.runner': [
-            'noop = noop_runner.noop_runner',
-        ],
-    }
+    entry_points={'st2common.runners.runner': ['noop = noop_runner.noop_runner']},
 )

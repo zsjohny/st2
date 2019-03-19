@@ -32,9 +32,7 @@ LOG = logging.getLogger(__name__)
 
 
 class SensorWatcher(ConsumerMixin):
-
-    def __init__(self, create_handler, update_handler, delete_handler,
-                 queue_suffix=None):
+    def __init__(self, create_handler, update_handler, delete_handler, queue_suffix=None):
         """
         :param create_handler: Function which is called on SensorDB create event.
         :type create_handler: ``callable``
@@ -57,13 +55,15 @@ class SensorWatcher(ConsumerMixin):
         self._handlers = {
             publishers.CREATE_RK: create_handler,
             publishers.UPDATE_RK: update_handler,
-            publishers.DELETE_RK: delete_handler
+            publishers.DELETE_RK: delete_handler,
         }
 
     def get_consumers(self, Consumer, channel):
-        consumers = [Consumer(queues=[self._sensor_watcher_q],
-                              accept=['pickle'],
-                              callbacks=[self.process_task])]
+        consumers = [
+            Consumer(
+                queues=[self._sensor_watcher_q], accept=['pickle'], callbacks=[self.process_task]
+            )
+        ]
         return consumers
 
     def process_task(self, body, message):
@@ -83,8 +83,9 @@ class SensorWatcher(ConsumerMixin):
             try:
                 handler(body)
             except Exception as e:
-                LOG.exception('Handling failed. Message body: %s. Exception: %s',
-                              body, six.text_type(e))
+                LOG.exception(
+                    'Handling failed. Message body: %s. Exception: %s', body, six.text_type(e)
+                )
         finally:
             message.ack()
 
@@ -115,8 +116,9 @@ class SensorWatcher(ConsumerMixin):
 
     @staticmethod
     def _get_queue(queue_suffix):
-        queue_name = queue_utils.get_queue_name(queue_name_base='st2.sensor.watch',
-                                                queue_name_suffix=queue_suffix,
-                                                add_random_uuid_to_suffix=True
-                                                )
+        queue_name = queue_utils.get_queue_name(
+            queue_name_base='st2.sensor.watch',
+            queue_name_suffix=queue_suffix,
+            add_random_uuid_to_suffix=True,
+        )
         return reactor.get_sensor_cud_queue(queue_name, routing_key='#')

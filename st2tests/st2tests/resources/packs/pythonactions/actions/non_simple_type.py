@@ -8,9 +8,5 @@ class Test(object):
 
 class NonSimpleTypeAction(Action):
     def run(self):
-        result = [
-            {'a': '1'},
-            {'c': 2, 'h': 3},
-            {'e': Test()}
-        ]
+        result = [{'a': '1'}, {'c': 2, 'h': 3}, {'e': Test()}]
         return result

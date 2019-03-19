@@ -34,9 +34,7 @@ from st2common import router as api_router
 from st2common.services import inquiry as inquiry_service
 
 
-__all__ = [
-    'InquiriesController'
-]
+__all__ = ['InquiriesController']
 
 LOG = logging.getLogger(__name__)
 
@@ -55,8 +53,14 @@ class InquiriesController(ResourceController):
     model = inqy_api_models.InquiryAPI
     access = ex_db_access.ActionExecution
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, requester_user=None,
-                limit=None, **raw_filters):
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        requester_user=None,
+        limit=None,
+        **raw_filters
+    ):
         """Retrieve multiple Inquiries
 
             Handles requests:
@@ -74,9 +78,9 @@ class InquiriesController(ResourceController):
             limit=limit,
             raw_filters={
                 'status': action_constants.LIVEACTION_STATUS_PENDING,
-                'runner': INQUIRY_RUNNER
+                'runner': INQUIRY_RUNNER,
             },
-            requester_user=requester_user
+            requester_user=requester_user,
         )
 
         # Since "model" is set to InquiryAPI (for good reasons), _get_all returns a list of
@@ -110,7 +114,7 @@ class InquiriesController(ResourceController):
             inquiry = self._get_one_by_id(
                 id=inquiry_id,
                 requester_user=requester_user,
-                permission_type=rbac_types.PermissionType.INQUIRY_VIEW
+                permission_type=rbac_types.PermissionType.INQUIRY_VIEW,
             )
         except db_exceptions.StackStormDBObjectNotFoundError as e:
             LOG.exception('Unable to identify inquiry with id "%s".' % inquiry_id)
@@ -151,7 +155,7 @@ class InquiriesController(ResourceController):
             inquiry = self._get_one_by_id(
                 id=inquiry_id,
                 requester_user=requester_user,
-                permission_type=rbac_types.PermissionType.INQUIRY_RESPOND
+                permission_type=rbac_types.PermissionType.INQUIRY_RESPOND,
             )
         except db_exceptions.StackStormDBObjectNotFoundError as e:
             LOG.exception('Unable to identify inquiry with id "%s".' % inquiry_id)
@@ -191,13 +195,11 @@ class InquiriesController(ResourceController):
             LOG.exception('Fail to update response for inquiry "%s".' % inquiry_id)
             api_router.abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
 
-        return {
-            'id': inquiry_id,
-            'response': response_data.response
-        }
+        return {'id': inquiry_id, 'response': response_data.response}
 
-    def _get_one_by_id(self, id, requester_user, permission_type,
-                       exclude_fields=None, from_model_kwargs=None):
+    def _get_one_by_id(
+        self, id, requester_user, permission_type, exclude_fields=None, from_model_kwargs=None
+    ):
         """Override ResourceController._get_one_by_id to contain scope of Inquiries UID hack
         :param exclude_fields: A list of object fields to exclude.
         :type exclude_fields: ``list``
@@ -215,17 +217,18 @@ class InquiriesController(ResourceController):
         # "inquiry:<id>".
         #
         # TODO (mierdin): All of this should be removed once Inquiries get their own DB model.
-        if (execution_db and getattr(execution_db, 'runner', None) and
-                execution_db.runner.get('runner_module') == INQUIRY_RUNNER):
+        if (
+            execution_db
+            and getattr(execution_db, 'runner', None)
+            and execution_db.runner.get('runner_module') == INQUIRY_RUNNER
+        ):
             execution_db.get_uid = get_uid
 
         LOG.debug('Checking permission on inquiry "%s".' % id)
 
         if permission_type:
             rbac_utils.assert_user_has_resource_db_permission(
-                user_db=requester_user,
-                resource_db=execution_db,
-                permission_type=permission_type
+                user_db=requester_user, resource_db=execution_db, permission_type=permission_type
             )
 
         from_model_kwargs = from_model_kwargs or {}

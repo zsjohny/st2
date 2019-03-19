@@ -30,7 +30,6 @@ __all__ = [
     'compare_path_file_name',
     'lowercase_value',
     'get_field_name_from_mongoengine_error',
-
 ]
 
 
@@ -100,7 +99,7 @@ def rstrip_last_char(input_str, char_to_strip):
         return input_str
 
     if input_str.endswith(char_to_strip):
-        return input_str[:-len(char_to_strip)]
+        return input_str[: -len(char_to_strip)]
 
     return input_str
 
@@ -192,8 +191,9 @@ def ignore_and_log_exception(exc_classes=(Exception,), logger=None, level=loggin
                 else:
                     func_name = func.__name__
 
-                message = ('Exception in fuction "%s": %s' % (func_name, str(e)))
+                message = 'Exception in fuction "%s": %s' % (func_name, str(e))
                 logger.log(level, message)
 
         return wrapper
+
     return decorator

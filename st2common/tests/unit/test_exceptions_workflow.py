@@ -23,7 +23,6 @@ from st2common.models.db import workflow as wf_db_models
 
 
 class WorkflowExceptionTest(unittest2.TestCase):
-
     def test_retry_on_exceptions(self):
         instance = wf_db_models.WorkflowExecutionDB()
         exc = db_exc.StackStormDBObjectWriteConflictError(instance)

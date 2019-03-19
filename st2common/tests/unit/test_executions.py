@@ -29,7 +29,6 @@ from six.moves import range
 
 
 class TestActionExecutionHistoryModel(DbTestCase):
-
     def setUp(self):
         super(TestActionExecutionHistoryModel, self).setUp()
 
@@ -42,7 +41,7 @@ class TestActionExecutionHistoryModel(DbTestCase):
                 'liveaction': copy.deepcopy(fixture.ARTIFACTS['liveactions']['task1']),
                 'status': fixture.ARTIFACTS['liveactions']['task1']['status'],
                 'start_timestamp': fixture.ARTIFACTS['liveactions']['task1']['start_timestamp'],
-                'end_timestamp': fixture.ARTIFACTS['liveactions']['task1']['end_timestamp']
+                'end_timestamp': fixture.ARTIFACTS['liveactions']['task1']['end_timestamp'],
             },
             {
                 'id': str(bson.ObjectId()),
@@ -51,8 +50,8 @@ class TestActionExecutionHistoryModel(DbTestCase):
                 'liveaction': copy.deepcopy(fixture.ARTIFACTS['liveactions']['task2']),
                 'status': fixture.ARTIFACTS['liveactions']['task2']['status'],
                 'start_timestamp': fixture.ARTIFACTS['liveactions']['task2']['start_timestamp'],
-                'end_timestamp': fixture.ARTIFACTS['liveactions']['task2']['end_timestamp']
-            }
+                'end_timestamp': fixture.ARTIFACTS['liveactions']['task2']['end_timestamp'],
+            },
         ]
 
         # Fake execution record for a workflow action execution triggered by rule.
@@ -68,7 +67,7 @@ class TestActionExecutionHistoryModel(DbTestCase):
             'children': [task['id'] for task in self.fake_history_subtasks],
             'status': fixture.ARTIFACTS['liveactions']['workflow']['status'],
             'start_timestamp': fixture.ARTIFACTS['liveactions']['workflow']['start_timestamp'],
-            'end_timestamp': fixture.ARTIFACTS['liveactions']['workflow']['end_timestamp']
+            'end_timestamp': fixture.ARTIFACTS['liveactions']['workflow']['end_timestamp'],
         }
 
         # Assign parent to the execution records for the subtasks.
@@ -250,13 +249,9 @@ class TestActionExecutionHistoryModel(DbTestCase):
             ActionExecution.add_or_update(ActionExecutionAPI.to_model(obj))
 
         dt_range = '2014-12-25T00:00:10Z..2014-12-25T00:00:19Z'
-        objs = ActionExecution.query(start_timestamp=dt_range,
-                                     order_by=['start_timestamp'])
-        self.assertLess(objs[0]['start_timestamp'],
-                        objs[9]['start_timestamp'])
+        objs = ActionExecution.query(start_timestamp=dt_range, order_by=['start_timestamp'])
+        self.assertLess(objs[0]['start_timestamp'], objs[9]['start_timestamp'])
 
         dt_range = '2014-12-25T00:00:19Z..2014-12-25T00:00:10Z'
-        objs = ActionExecution.query(start_timestamp=dt_range,
-                                     order_by=['-start_timestamp'])
-        self.assertLess(objs[9]['start_timestamp'],
-                        objs[0]['start_timestamp'])
+        objs = ActionExecution.query(start_timestamp=dt_range, order_by=['-start_timestamp'])
+        self.assertLess(objs[9]['start_timestamp'], objs[0]['start_timestamp'])

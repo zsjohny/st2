@@ -30,15 +30,21 @@ class FakeModel(stormbase.StormBaseDB):
 
 
 class TestBaseModel(DbTestCase):
-
     def test_print(self):
-        instance = FakeModel(name='seesaw', boolean_field=True,
-                             datetime_field=date_utils.get_datetime_utc_now(),
-                             description=u'fun!', dict_field={'a': 1},
-                             integer_field=68, list_field=['abc'])
+        instance = FakeModel(
+            name='seesaw',
+            boolean_field=True,
+            datetime_field=date_utils.get_datetime_utc_now(),
+            description=u'fun!',
+            dict_field={'a': 1},
+            integer_field=68,
+            list_field=['abc'],
+        )
 
-        expected = ('FakeModel(boolean_field=True, datetime_field="%s", description="fun!", '
-                    'dict_field={\'a\': 1}, id=None, integer_field=68, list_field=[\'abc\'], '
-                    'name="seesaw")' % str(instance.datetime_field))
+        expected = (
+            'FakeModel(boolean_field=True, datetime_field="%s", description="fun!", '
+            'dict_field={\'a\': 1}, id=None, integer_field=68, list_field=[\'abc\'], '
+            'name="seesaw")' % str(instance.datetime_field)
+        )
 
         self.assertEqual(str(instance), expected)

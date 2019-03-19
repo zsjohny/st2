@@ -38,25 +38,28 @@ from st2common.constants.exit_codes import SUCCESS_EXIT_CODE
 from st2common.constants.exit_codes import FAILURE_EXIT_CODE
 from st2common.garbage_collection.executions import purge_executions
 
-__all__ = [
-    'main'
-]
+__all__ = ['main']
 
 LOG = logging.getLogger(__name__)
 
 
 def _register_cli_opts():
     cli_opts = [
-        cfg.StrOpt('timestamp', default=None,
-                   help='Will delete execution and liveaction models older than ' +
-                   'this UTC timestamp. ' +
-                   'Example value: 2015-03-13T19:01:27.255542Z.'),
-        cfg.StrOpt('action-ref', default='',
-                   help='action-ref to delete executions for.'),
-        cfg.BoolOpt('purge-incomplete', default=False,
-                    help='Purge all models irrespective of their ``status``.' +
-                    'By default, only executions in completed states such as "succeeeded" ' +
-                    ', "failed", "canceled" and "timed_out" are deleted.'),
+        cfg.StrOpt(
+            'timestamp',
+            default=None,
+            help='Will delete execution and liveaction models older than '
+            + 'this UTC timestamp. '
+            + 'Example value: 2015-03-13T19:01:27.255542Z.',
+        ),
+        cfg.StrOpt('action-ref', default='', help='action-ref to delete executions for.'),
+        cfg.BoolOpt(
+            'purge-incomplete',
+            default=False,
+            help='Purge all models irrespective of their ``status``.'
+            + 'By default, only executions in completed states such as "succeeeded" '
+            + ', "failed", "canceled" and "timed_out" are deleted.',
+        ),
     ]
     do_register_cli_opts(cli_opts)
 
@@ -78,8 +81,12 @@ def main():
         timestamp = timestamp.replace(tzinfo=pytz.UTC)
 
     try:
-        purge_executions(logger=LOG, timestamp=timestamp, action_ref=action_ref,
-                         purge_incomplete=purge_incomplete)
+        purge_executions(
+            logger=LOG,
+            timestamp=timestamp,
+            action_ref=action_ref,
+            purge_incomplete=purge_incomplete,
+        )
     except Exception as e:
         LOG.exception(six.text_type(e))
         return FAILURE_EXIT_CODE

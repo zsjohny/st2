@@ -27,12 +27,10 @@ from st2common.transport import utils as transport_utils
 
 from st2tests.fixturesloader import get_fixtures_base_path
 
-__all__ = [
-    'RabbitMQTLSListenerTestCase'
-]
+__all__ = ['RabbitMQTLSListenerTestCase']
 
 CERTS_FIXTURES_PATH = os.path.join(get_fixtures_base_path(), 'ssl_certs/')
-ON_TRAVIS = (os.environ.get('TRAVIS', 'false').lower() == 'true')
+ON_TRAVIS = os.environ.get('TRAVIS', 'false').lower() == 'true'
 
 NON_SSL_LISTENER_PORT = 5672
 SSL_LISTENER_PORT = 5671
@@ -45,7 +43,6 @@ SSL_LISTENER_PORT = 5671
 @unittest2.skip('Skipping until we upgrade to Xenial on Travis')
 # @unittest2.skipIf(not ON_TRAVIS, 'Skipping tests because not running on Travis')
 class RabbitMQTLSListenerTestCase(unittest2.TestCase):
-
     def setUp(self):
         # Set default values
         cfg.CONF.set_override(name='ssl', override=False, group='messaging')
@@ -65,8 +62,9 @@ class RabbitMQTLSListenerTestCase(unittest2.TestCase):
         except Exception as e:
             self.assertFalse(connection.connected)
             self.assertTrue(isinstance(e, (IOError, socket.error)))
-            self.assertTrue(expected_msg_1 in six.text_type(e) or expected_msg_2 in
-                            six.text_type(e))
+            self.assertTrue(
+                expected_msg_1 in six.text_type(e) or expected_msg_2 in six.text_type(e)
+            )
         else:
             self.fail('Exception was not thrown')
 

@@ -38,10 +38,14 @@ def migrate_datastore():
             kvp_id = getattr(kvp, 'id', None)
             secret = getattr(kvp, 'secret', False)
             scope = getattr(kvp, 'scope', SYSTEM_SCOPE)
-            new_kvp_db = KeyValuePairDB(id=kvp_id, name=kvp.name,
-                                        expire_timestamp=kvp.expire_timestamp,
-                                        value=kvp.value, secret=secret,
-                                        scope=scope)
+            new_kvp_db = KeyValuePairDB(
+                id=kvp_id,
+                name=kvp.name,
+                expire_timestamp=kvp.expire_timestamp,
+                value=kvp.value,
+                secret=secret,
+                scope=scope,
+            )
             KeyValuePair.add_or_update(new_kvp_db)
     except:
         print('ERROR: Failed migrating datastore item with name: %s' % kvp.name)

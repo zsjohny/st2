@@ -27,10 +27,7 @@ from st2common.transport.publishers import PoolPublisher
 from st2common.bootstrap.sensorsregistrar import SensorsRegistrar
 from st2common.bootstrap.rulesregistrar import RulesRegistrar
 
-__all__ = [
-    'SensorRegistrationTestCase',
-    'RuleRegistrationTestCase'
-]
+__all__ = ['SensorRegistrationTestCase', 'RuleRegistrationTestCase']
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PACKS_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '../fixtures/packs'))
@@ -38,10 +35,11 @@ PACKS_DIR = os.path.abspath(os.path.join(CURRENT_DIR, '../fixtures/packs'))
 
 # NOTE: We need to perform this patching because test fixtures are located outside of the packs
 # base paths directory. This will never happen outside the context of test fixtures.
-@mock.patch('st2common.content.utils.get_pack_base_path',
-            mock.Mock(return_value=os.path.join(PACKS_DIR, 'pack_with_sensor')))
+@mock.patch(
+    'st2common.content.utils.get_pack_base_path',
+    mock.Mock(return_value=os.path.join(PACKS_DIR, 'pack_with_sensor')),
+)
 class SensorRegistrationTestCase(DbTestCase):
-
     @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
     def test_register_sensors(self):
         # Verify DB is empty at the beginning
@@ -113,6 +111,7 @@ class SensorRegistrationTestCase(DbTestCase):
             data['poll_interval'] = 50
             data['trigger_types'][1]['description'] = 'test 2'
             return data
+
         registrar._meta_loader.load = mock_load
 
         registrar.register_from_packs(base_dirs=[PACKS_DIR])
@@ -137,8 +136,10 @@ class SensorRegistrationTestCase(DbTestCase):
 
 # NOTE: We need to perform this patching because test fixtures are located outside of the packs
 # base paths directory. This will never happen outside the context of test fixtures.
-@mock.patch('st2common.content.utils.get_pack_base_path',
-            mock.Mock(return_value=os.path.join(PACKS_DIR, 'pack_with_rules')))
+@mock.patch(
+    'st2common.content.utils.get_pack_base_path',
+    mock.Mock(return_value=os.path.join(PACKS_DIR, 'pack_with_rules')),
+)
 class RuleRegistrationTestCase(DbTestCase):
     def test_register_rules(self):
         # Verify DB is empty at the beginning

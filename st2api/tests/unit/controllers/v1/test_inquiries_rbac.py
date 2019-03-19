@@ -41,21 +41,18 @@ TEST_FIXTURES = {
 
 
 @mock.patch.object(publishers.PoolPublisher, 'publish', mock.MagicMock())
-class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase,
-                                    api_tests_base.BaseInquiryControllerTestCase):
+class InquiryRBACControllerTestCase(
+    api_tests_base.APIControllerWithRBACTestCase, api_tests_base.BaseInquiryControllerTestCase
+):
 
     fixtures_loader = fixturesloader.FixturesLoader()
 
-    @mock.patch.object(
-        action_validator,
-        'validate_action',
-        mock.MagicMock(return_value=True))
+    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(return_value=True))
     def setUp(self):
         super(InquiryRBACControllerTestCase, self).setUp()
 
         self.fixtures_loader.save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict=TEST_FIXTURES
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
         )
 
         # Insert mock users, roles and assignments
@@ -64,33 +61,32 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
                 "roles": ["role_get"],
                 "permissions": [rbac_types.PermissionType.INQUIRY_VIEW],
                 "resource_type": rbac_types.ResourceType.INQUIRY,
-                "resource_uid": 'inquiry'
+                "resource_uid": 'inquiry',
             },
             "user_list_db": {
                 "roles": ["role_list"],
                 "permissions": [rbac_types.PermissionType.INQUIRY_LIST],
                 "resource_type": rbac_types.ResourceType.INQUIRY,
-                "resource_uid": 'inquiry'
+                "resource_uid": 'inquiry',
             },
             "user_respond_db": {
                 "roles": ["role_respond"],
                 "permissions": [rbac_types.PermissionType.INQUIRY_RESPOND],
                 "resource_type": rbac_types.ResourceType.INQUIRY,
-                "resource_uid": 'inquiry'
+                "resource_uid": 'inquiry',
             },
             "user_respond_paramtest": {
                 "roles": ["role_respond_2"],
                 "permissions": [rbac_types.PermissionType.INQUIRY_RESPOND],
                 "resource_type": rbac_types.ResourceType.INQUIRY,
-                "resource_uid": 'inquiry'
+                "resource_uid": 'inquiry',
             },
             "user_respond_inherit": {
                 "roles": ["role_inherit"],
                 "permissions": [rbac_types.PermissionType.ACTION_EXECUTE],
                 "resource_type": rbac_types.ResourceType.ACTION,
-                "resource_uid": 'action:wolfpack:inquiry-workflow'
-            }
-
+                "resource_uid": 'action:wolfpack:inquiry-workflow',
+            },
         }
 
         # Create users
@@ -105,7 +101,7 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
             grant_db = rbac_db_models.PermissionGrantDB(
                 permission_types=assignment_details["permissions"],
                 resource_uid=assignment_details["resource_uid"],
-                resource_type=assignment_details["resource_type"]
+                resource_type=assignment_details["resource_type"],
             )
             grant_db = rbac_db_access.PermissionGrant.add_or_update(grant_db)
             permission_grants = [str(grant_db.id)]
@@ -120,27 +116,19 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
 
             for role in assignment_details['roles']:
                 role_assignment_db = rbac_db_models.UserRoleAssignmentDB(
-                    user=user_db.name,
-                    role=role,
-                    source='assignments/%s.yaml' % user_db.name)
+                    user=user_db.name, role=role, source='assignments/%s.yaml' % user_db.name
+                )
                 rbac_db_access.UserRoleAssignment.add_or_update(role_assignment_db)
 
         # Create Inquiry
-        data = {
-            'action': 'wolfpack.ask',
-            'parameters': {
-                "roles": [
-                    'role_respond'
-                ]
-            }
-        }
+        data = {'action': 'wolfpack.ask', 'parameters': {"roles": ['role_respond']}}
 
         result = {
             "schema": SCHEMA_DEFAULT,
             "roles": ['role_respond'],
             "users": [],
             "route": "",
-            "ttl": 1440
+            "ttl": 1440,
         }
 
         result_default = {
@@ -148,7 +136,7 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
             "roles": [],
             "users": [],
             "route": "",
-            "ttl": 1440
+            "ttl": 1440,
         }
 
         # Use admin user for creating test objects
@@ -156,20 +144,14 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
         self.use_user(user_db)
 
         # Create workflow
-        wf_data = {
-            'action': 'wolfpack.inquiry-workflow'
-        }
+        wf_data = {'action': 'wolfpack.inquiry-workflow'}
         post_resp = self.app.post_json('/v1/executions', wf_data)
         wf_id = str(post_resp.json.get('id'))
 
         inquiry_with_parent = {
             'action': 'wolfpack.ask',
             # 'parameters': {},
-            'context': {
-                "parent": {
-                    'execution_id': wf_id
-                }
-            }
+            'context': {"parent": {'execution_id': wf_id}},
         }
 
         resp = self._do_create_inquiry(data, result)
@@ -179,10 +161,7 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
         expected_context = {
             'pack': 'wolfpack',
             'user': 'admin',
-            'rbac': {
-                'user': 'admin',
-                'roles': ['admin']
-            }
+            'rbac': {'user': 'admin', 'roles': ['admin']},
         }
         self.assertEqual(resp.json['context'], expected_context)
 
@@ -193,14 +172,9 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
         # Validated expected context for inquiries under RBAC
         expected_context = {
             'pack': 'wolfpack',
-            'parent': {
-                'execution_id': wf_id
-            },
+            'parent': {'execution_id': wf_id},
             'user': 'admin',
-            'rbac': {
-                'user': 'admin',
-                'roles': ['admin']
-            }
+            'rbac': {'user': 'admin', 'roles': ['admin']},
         }
         self.assertEqual(resp.json['context'], expected_context)
 
@@ -271,10 +245,7 @@ class InquiryRBACControllerTestCase(api_tests_base.APIControllerWithRBACTestCase
         resp = self._do_respond(self.inquiry_id, response)
         self.assertEqual(resp.status_int, http_client.OK)
 
-    @mock.patch.object(
-        action_service,
-        'request_pause',
-        mock.MagicMock(return_value=None))
+    @mock.patch.object(action_service, 'request_pause', mock.MagicMock(return_value=None))
     def test_inquiry_roles_inherit(self):
         """Tests action_execute -> inquiry_respond permission inheritance
 

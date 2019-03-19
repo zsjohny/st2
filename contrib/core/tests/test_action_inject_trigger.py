@@ -36,9 +36,7 @@ class InjectTriggerActionTestCase(BaseActionTestCase):
 
         action.run(trigger='dummy_pack.trigger1')
         mock_api_client.webhooks.post_generic_webhook.assert_called_with(
-            trigger='dummy_pack.trigger1',
-            payload={},
-            trace_tag=None
+            trigger='dummy_pack.trigger1', payload={}, trace_tag=None
         )
 
         mock_api_client.webhooks.post_generic_webhook.reset()
@@ -53,9 +51,7 @@ class InjectTriggerActionTestCase(BaseActionTestCase):
         action.run(trigger='dummy_pack.trigger2', payload={'foo': 'bar'})
 
         mock_api_client.webhooks.post_generic_webhook.assert_called_with(
-            trigger='dummy_pack.trigger2',
-            payload={'foo': 'bar'},
-            trace_tag=None
+            trigger='dummy_pack.trigger2', payload={'foo': 'bar'}, trace_tag=None
         )
 
         mock_api_client.webhooks.post_generic_webhook.reset()
@@ -70,7 +66,5 @@ class InjectTriggerActionTestCase(BaseActionTestCase):
         action.run(trigger='dummy_pack.trigger3', payload={'foo': 'bar'}, trace_tag='Tag1')
 
         mock_api_client.webhooks.post_generic_webhook.assert_called_with(
-            trigger='dummy_pack.trigger3',
-            payload={'foo': 'bar'},
-            trace_tag='Tag1'
+            trigger='dummy_pack.trigger3', payload={'foo': 'bar'}, trace_tag='Tag1'
         )

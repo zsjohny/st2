@@ -32,9 +32,7 @@ from st2common.util.pack import get_pack_metadata
 from st2common.util.pack import get_pack_ref_from_metadata
 from st2common.exceptions.db import StackStormDBObjectNotFoundError
 
-__all__ = [
-    'ResourceRegistrar'
-]
+__all__ = ['ResourceRegistrar']
 
 LOG = logging.getLogger(__name__)
 
@@ -44,10 +42,7 @@ LOG = logging.getLogger(__name__)
 # a long running process.
 REGISTERED_PACKS_CACHE = {}
 
-EXCLUDE_FILE_PATTERNS = [
-    '*.pyc',
-    '.git/*'
-]
+EXCLUDE_FILE_PATTERNS = ['*.pyc', '.git/*']
 
 
 class ResourceRegistrar(object):
@@ -150,17 +145,24 @@ class ResourceRegistrar(object):
         # will be fully removed in v2.4.0.
         config_path = os.path.join(pack_dir, 'config.yaml')
         if os.path.isfile(config_path):
-            LOG.error('Pack "%s" contains a deprecated config.yaml file (%s). '
-                      'Support for "config.yaml" files has been deprecated in StackStorm v1.6.0 '
-                      'in favor of config.schema.yaml config schema files and config files in '
-                      '/opt/stackstorm/configs/ directory. Support for config.yaml files has '
-                      'been removed in the release (v2.4.0) so please migrate. For more '
-                      'information please refer to %s ' % (pack_db.name, config_path,
-                      'https://docs.stackstorm.com/reference/pack_configs.html'))
+            LOG.error(
+                'Pack "%s" contains a deprecated config.yaml file (%s). '
+                'Support for "config.yaml" files has been deprecated in StackStorm v1.6.0 '
+                'in favor of config.schema.yaml config schema files and config files in '
+                '/opt/stackstorm/configs/ directory. Support for config.yaml files has '
+                'been removed in the release (v2.4.0) so please migrate. For more '
+                'information please refer to %s '
+                % (
+                    pack_db.name,
+                    config_path,
+                    'https://docs.stackstorm.com/reference/pack_configs.html',
+                )
+            )
 
         # 2. Register corresponding pack config schema
-        config_schema_db = self._register_pack_config_schema_db(pack_name=pack_name,
-                                                                pack_dir=pack_dir)
+        config_schema_db = self._register_pack_config_schema_db(
+            pack_name=pack_name, pack_dir=pack_dir
+        )
 
         return pack_db, config_schema_db
 
@@ -173,8 +175,7 @@ class ResourceRegistrar(object):
         # 2hich are in sub-directories)
         # 2. If attribute is not available, but pack name is and pack name meets the valid name
         # criteria, we use that
-        content['ref'] = get_pack_ref_from_metadata(metadata=content,
-                                                    pack_directory_name=pack_name)
+        content['ref'] = get_pack_ref_from_metadata(metadata=content, pack_directory_name=pack_name)
 
         # Include a list of pack files
         pack_file_list = get_file_list(directory=pack_dir, exclude_patterns=EXCLUDE_FILE_PATTERNS)

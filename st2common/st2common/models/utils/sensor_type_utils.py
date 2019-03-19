@@ -21,11 +21,7 @@ from st2common.constants.sensors import MINIMUM_POLL_INTERVAL
 from st2common.models.db.sensor import SensorTypeDB
 from st2common.services import triggers as trigger_service
 
-__all__ = [
-    'to_sensor_db_model',
-    'get_sensor_entry_point',
-    'create_trigger_types'
-]
+__all__ = ['to_sensor_db_model', 'get_sensor_entry_point', 'create_trigger_types']
 
 
 def to_sensor_db_model(sensor_api_model=None):
@@ -50,8 +46,7 @@ def to_sensor_db_model(sensor_api_model=None):
 
     poll_interval = getattr(sensor_api_model, 'poll_interval', None)
     if poll_interval and (poll_interval < MINIMUM_POLL_INTERVAL):
-        raise ValueError('Minimum possible poll_interval is %s seconds' %
-                         (MINIMUM_POLL_INTERVAL))
+        raise ValueError('Minimum possible poll_interval is %s seconds' % (MINIMUM_POLL_INTERVAL))
 
     # Add pack and metadata fileto each trigger type item
     for trigger_type in trigger_types:
@@ -60,15 +55,17 @@ def to_sensor_db_model(sensor_api_model=None):
 
     trigger_type_refs = create_trigger_types(trigger_types)
 
-    return _create_sensor_type(pack=pack,
-                               name=class_name,
-                               description=description,
-                               artifact_uri=artifact_uri,
-                               entry_point=entry_point,
-                               trigger_types=trigger_type_refs,
-                               poll_interval=poll_interval,
-                               enabled=enabled,
-                               metadata_file=metadata_file)
+    return _create_sensor_type(
+        pack=pack,
+        name=class_name,
+        description=description,
+        artifact_uri=artifact_uri,
+        entry_point=entry_point,
+        trigger_types=trigger_type_refs,
+        poll_interval=poll_interval,
+        enabled=enabled,
+        metadata_file=metadata_file,
+    )
 
 
 def create_trigger_types(trigger_types, metadata_file=None):
@@ -87,14 +84,29 @@ def create_trigger_types(trigger_types, metadata_file=None):
     return trigger_type_refs
 
 
-def _create_sensor_type(pack=None, name=None, description=None, artifact_uri=None,
-                        entry_point=None, trigger_types=None, poll_interval=10,
-                        enabled=True, metadata_file=None):
+def _create_sensor_type(
+    pack=None,
+    name=None,
+    description=None,
+    artifact_uri=None,
+    entry_point=None,
+    trigger_types=None,
+    poll_interval=10,
+    enabled=True,
+    metadata_file=None,
+):
 
-    sensor_type = SensorTypeDB(pack=pack, name=name, description=description,
-                               artifact_uri=artifact_uri, entry_point=entry_point,
-                               poll_interval=poll_interval, enabled=enabled,
-                               trigger_types=trigger_types, metadata_file=metadata_file)
+    sensor_type = SensorTypeDB(
+        pack=pack,
+        name=name,
+        description=description,
+        artifact_uri=artifact_uri,
+        entry_point=entry_point,
+        poll_interval=poll_interval,
+        enabled=enabled,
+        trigger_types=trigger_types,
+        metadata_file=metadata_file,
+    )
     return sensor_type
 
 

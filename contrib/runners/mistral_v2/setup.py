@@ -34,8 +34,9 @@ apply_vagrant_workaround()
 setup(
     name='stackstorm-runner-mistral-v2',
     version=__version__,
-    description=('Mistral v2 workflow action runner for StackStorm event-driven '
-                 'automation platform'),
+    description=(
+        'Mistral v2 workflow action runner for StackStorm event-driven ' 'automation platform'
+    ),
     author='StackStorm',
     author_email='info@stackstorm.com',
     license='Apache License (2.0)',
@@ -49,14 +50,8 @@ setup(
     package_data={'mistral_v2': ['runner.yaml']},
     scripts=[],
     entry_points={
-        'st2common.runners.runner': [
-            'mistral-v2 = mistral_v2.mistral_v2',
-        ],
-        'st2common.runners.query': [
-            'mistral-v2 = mistral_v2.query',
-        ],
-        'st2common.runners.callback': [
-            'mistral-v2 = mistral_v2.callback',
-        ],
-    }
+        'st2common.runners.runner': ['mistral-v2 = mistral_v2.mistral_v2'],
+        'st2common.runners.query': ['mistral-v2 = mistral_v2.query'],
+        'st2common.runners.callback': ['mistral-v2 = mistral_v2.callback'],
+    },
 )

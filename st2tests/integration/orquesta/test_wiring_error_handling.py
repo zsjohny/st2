@@ -21,14 +21,13 @@ from st2common.constants import action as ac_const
 
 
 class ErrorHandlingTest(base.TestWorkflowExecution):
-
     def test_inspection_error(self):
         expected_errors = [
             {
                 'type': 'content',
                 'message': 'The action "std.noop" is not registered in the database.',
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.action',
-                'spec_path': 'tasks.task3.action'
+                'spec_path': 'tasks.task3.action',
             },
             {
                 'type': 'context',
@@ -50,7 +49,7 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     r'properties.tasks.patternProperties.^\w+$.'
                     'properties.next.items.properties.when'
                 ),
-                'spec_path': 'tasks.task2.next[0].when'
+                'spec_path': 'tasks.task2.next[0].when',
             },
             {
                 'type': 'syntax',
@@ -59,8 +58,8 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     'not valid under any of the given schemas'
                 ),
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.input.oneOf',
-                'spec_path': 'tasks.task2.input'
-            }
+                'spec_path': 'tasks.task2.input',
+            },
         ]
 
         ex = self._execute_workflow('examples.orquesta-fail-inspection')
@@ -76,7 +75,7 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     'YaqlEvaluationException: Unable to evaluate expression '
                     '\'<% abs(8).value %>\'. NoFunctionRegisteredException: '
                     'Unknown function "#property#value"'
-                )
+                ),
             }
         ]
 
@@ -93,7 +92,7 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     'YaqlEvaluationException: Unable to evaluate expression '
                     '\'<% abs(8).value %>\'. NoFunctionRegisteredException: '
                     'Unknown function "#property#value"'
-                )
+                ),
             }
         ]
 
@@ -112,7 +111,7 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     'Unknown function "#property#value"'
                 ),
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -131,13 +130,11 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                 ),
                 'task_transition_id': 'task2__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
-        expected_output = {
-            'greeting': None
-        }
+        expected_output = {'greeting': None}
 
         ex = self._execute_workflow('examples.orquesta-fail-task-transition')
         ex = self._wait_for_completion(ex)
@@ -154,13 +151,11 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                 ),
                 'task_transition_id': 'task2__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
-        expected_output = {
-            'greeting': None
-        }
+        expected_output = {'greeting': None}
 
         ex = self._execute_workflow('examples.orquesta-fail-task-publish')
         ex = self._wait_for_completion(ex)
@@ -175,7 +170,7 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     'YaqlEvaluationException: Unable to evaluate expression '
                     '\'<% abs(8).value %>\'. NoFunctionRegisteredException: '
                     'Unknown function "#property#value"'
-                )
+                ),
             }
         ]
 
@@ -190,19 +185,19 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                 'type': 'content',
                 'message': 'The action reference "echo" is not formatted correctly.',
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.action',
-                'spec_path': 'tasks.task1.action'
+                'spec_path': 'tasks.task1.action',
             },
             {
                 'type': 'content',
                 'message': 'The action "core.echoz" is not registered in the database.',
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.action',
-                'spec_path': 'tasks.task2.action'
+                'spec_path': 'tasks.task2.action',
             },
             {
                 'type': 'content',
                 'message': 'Action "core.echo" is missing required input "message".',
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.input',
-                'spec_path': 'tasks.task3.input'
+                'spec_path': 'tasks.task3.input',
             },
             {
                 'type': 'content',
@@ -211,8 +206,8 @@ class ErrorHandlingTest(base.TestWorkflowExecution):
                     r'properties.tasks.patternProperties.^\w+$.properties.input.'
                     r'patternProperties.^\w+$'
                 ),
-                'spec_path': 'tasks.task3.input.messages'
-            }
+                'spec_path': 'tasks.task3.input.messages',
+            },
         ]
 
         ex = self._execute_workflow('examples.orquesta-fail-inspection-task-contents')

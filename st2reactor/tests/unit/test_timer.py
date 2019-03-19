@@ -61,8 +61,13 @@ class St2TimerTestCase(CleanDbTestCase):
         # Add a dummy timer Trigger object
         type_ = list(TIMER_TRIGGER_TYPES.keys())[0]
         parameters = {'unit': 'seconds', 'delta': 1000}
-        trigger_db = TriggerDB(id=bson.ObjectId(), name='test_trigger_1', pack='dummy',
-                               type=type_, parameters=parameters)
+        trigger_db = TriggerDB(
+            id=bson.ObjectId(),
+            name='test_trigger_1',
+            pack='dummy',
+            type=type_,
+            parameters=parameters,
+        )
         trigger_db = Trigger.add_or_update(trigger_db)
 
         # Verify object has been added
@@ -83,10 +88,13 @@ class St2TimerTestCase(CleanDbTestCase):
         # Add a dummy timer Trigger object
         type_ = list(TIMER_TRIGGER_TYPES.keys())[0]
         parameters = {'unit': 'seconds', 'delta': 1}
-        trigger_db = TriggerDB(name='test_trigger_1', pack='dummy', type=type_,
-                               parameters=parameters)
+        trigger_db = TriggerDB(
+            name='test_trigger_1', pack='dummy', type=type_, parameters=parameters
+        )
         timer.add_trigger(trigger_db)
         timer._emit_trigger_instance(trigger=trigger_db.to_serializable_dict())
 
-        self.assertEqual(dispatch_mock.call_args[1]['trace_context'].trace_tag,
-                         '%s-%s' % (TIMER_TRIGGER_TYPES[type_]['name'], trigger_db.name))
+        self.assertEqual(
+            dispatch_mock.call_args[1]['trace_context'].trace_tag,
+            '%s-%s' % (TIMER_TRIGGER_TYPES[type_]['name'], trigger_db.name),
+        )

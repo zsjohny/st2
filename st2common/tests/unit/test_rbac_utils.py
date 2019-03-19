@@ -27,9 +27,7 @@ from st2common.rbac.utils import user_is_admin
 from st2common.rbac.utils import user_has_role
 from st2common.rbac.migrations import insert_system_roles
 
-__all__ = [
-    'RBACUtilsTestCase'
-]
+__all__ = ['RBACUtilsTestCase']
 
 
 class RBACUtilsTestCase(DbTestCase):
@@ -52,14 +50,18 @@ class RBACUtilsTestCase(DbTestCase):
 
         # Add system admin role assignment
         role_assignment_1 = UserRoleAssignmentDB(
-            user=cls.system_admin_user.name, role=SystemRole.SYSTEM_ADMIN,
-            source='assignments/%s.yaml' % cls.system_admin_user.name)
+            user=cls.system_admin_user.name,
+            role=SystemRole.SYSTEM_ADMIN,
+            source='assignments/%s.yaml' % cls.system_admin_user.name,
+        )
         role_assignment_1.save()
 
         # Add admin role assignment
         role_assignment_2 = UserRoleAssignmentDB(
-            user=cls.admin_user.name, role=SystemRole.ADMIN,
-            source='assignments/%s.yaml' % cls.admin_user.name)
+            user=cls.admin_user.name,
+            role=SystemRole.ADMIN,
+            source='assignments/%s.yaml' % cls.admin_user.name,
+        )
         role_assignment_2.save()
 
     def setUp(self):

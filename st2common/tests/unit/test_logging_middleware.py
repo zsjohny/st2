@@ -21,16 +21,13 @@ from oslo_config import cfg
 from st2common.middleware.logging import LoggingMiddleware
 from st2common.constants.secrets import MASKED_ATTRIBUTE_VALUE
 
-__all__ = [
-    'LoggingMiddlewareTestCase'
-]
+__all__ = ['LoggingMiddlewareTestCase']
 
 
 class LoggingMiddlewareTestCase(unittest2.TestCase):
     @mock.patch('st2common.middleware.logging.LOG')
     @mock.patch('st2common.middleware.logging.Request')
     def test_secret_parameters_are_masked_in_log_message(self, mock_request, mock_log):
-
         def app(environ, custom_start_response):
             custom_start_response(status='200 OK', headers=[('Content-Length', 100)])
             return [None]
@@ -40,8 +37,9 @@ class LoggingMiddlewareTestCase(unittest2.TestCase):
         router.match.return_value = (endpoint, None)
         middleware = LoggingMiddleware(app=app, router=router)
 
-        cfg.CONF.set_override(group='log', name='mask_secrets_blacklist',
-                              override=['blacklisted_4', 'blacklisted_5'])
+        cfg.CONF.set_override(
+            group='log', name='mask_secrets_blacklist', override=['blacklisted_4', 'blacklisted_5']
+        )
 
         environ = {}
         mock_request.return_value.GET.dict_of_lists.return_value = {

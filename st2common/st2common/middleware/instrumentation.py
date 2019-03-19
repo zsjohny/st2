@@ -21,10 +21,7 @@ from st2common.metrics.base import get_driver
 from st2common.util.date import get_datetime_utc_now
 from st2common.router import NotFoundException
 
-__all__ = [
-    'RequestInstrumentationMiddleware',
-    'ResponseInstrumentationMiddleware'
-]
+__all__ = ['RequestInstrumentationMiddleware', 'ResponseInstrumentationMiddleware']
 
 LOG = logging.getLogger(__name__)
 
@@ -56,8 +53,9 @@ class RequestInstrumentationMiddleware(object):
         # anti-pattern and causes unnecessary load on the metrics server.
         submit_metrics = endpoint.get('x-submit-metrics', True)
         operation_id = endpoint.get('operationId', None)
-        is_get_one_endpoint = bool(operation_id) and (operation_id.endswith('.get') or
-                                                      operation_id.endswith('.get_one'))
+        is_get_one_endpoint = bool(operation_id) and (
+            operation_id.endswith('.get') or operation_id.endswith('.get_one')
+        )
 
         if is_get_one_endpoint:
             # NOTE: We don't submit metrics for any get one API endpoint since this would result
@@ -99,7 +97,7 @@ class RequestInstrumentationMiddleware(object):
             def update_metrics_hook(env):
                 # Hook which is called at the very end after all the response has been sent and
                 # connection closed
-                time_delta = (get_datetime_utc_now() - start_time)
+                time_delta = get_datetime_utc_now() - start_time
                 duration = time_delta.total_seconds()
 
                 # Send total request time
@@ -141,8 +139,7 @@ class ResponseInstrumentationMiddleware(object):
             status_code = int(status.split(' ')[0])
 
             metrics_driver = get_driver()
-            metrics_driver.inc_counter('%s.response.status.%s' % (self._service_name,
-                                                                  status_code))
+            metrics_driver.inc_counter('%s.response.status.%s' % (self._service_name, status_code))
 
             return start_response(status, headers, exc_info)
 

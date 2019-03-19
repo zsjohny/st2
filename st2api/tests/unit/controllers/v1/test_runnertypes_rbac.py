@@ -20,16 +20,14 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'RunnerTypesControllerRBACTestCase'
-]
+__all__ = ['RunnerTypesControllerRBACTestCase']
 
 FIXTURES_PACK = 'generic'
 TEST_FIXTURES = {
     'runners': ['testrunner1.yaml'],
     'actions': ['action1.yaml', 'local.yaml'],
     'triggers': ['trigger1.yaml'],
-    'triggertypes': ['triggertype1.yaml']
+    'triggertypes': ['triggertype1.yaml'],
 }
 
 
@@ -38,8 +36,9 @@ class RunnerTypesControllerRBACTestCase(APIControllerWithRBACTestCase):
 
     def setUp(self):
         super(RunnerTypesControllerRBACTestCase, self).setUp()
-        self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                 fixtures_dict=TEST_FIXTURES)
+        self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
     def test_get_all_and_get_one_no_permissions(self):
         # get all
@@ -47,15 +46,18 @@ class RunnerTypesControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.app.get('/v1/runnertypes', expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission '
-                        '"runner_type_list"')
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission ' '"runner_type_list"'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
         # get one
         resp = self.app.get('/v1/runnertypes/test-runner-1', expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission '
-                        '"runner_type_view" on resource "runner_type:test-runner-1"')
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission '
+            '"runner_type_view" on resource "runner_type:test-runner-1"'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -74,11 +76,14 @@ class RunnerTypesControllerRBACTestCase(APIControllerWithRBACTestCase):
         update_input['enabled'] = False
 
         resp = self.__do_put(runnertype_id, update_input)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission '
-                        '"runner_type_modify" on resource "runner_type:test-runner-1"')
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission '
+            '"runner_type_modify" on resource "runner_type:test-runner-1"'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
     def __do_put(self, runner_type_id, runner_type):
-        return self.app.put_json('/v1/runnertypes/%s' % runner_type_id, runner_type,
-                                expect_errors=True)
+        return self.app.put_json(
+            '/v1/runnertypes/%s' % runner_type_id, runner_type, expect_errors=True
+        )

@@ -28,7 +28,7 @@ __all__ = [
     'ActionExecution',
     'ActionExecutionState',
     'LiveAction',
-    'RunnerType'
+    'RunnerType',
 ]
 
 

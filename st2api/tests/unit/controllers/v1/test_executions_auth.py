@@ -44,33 +44,16 @@ ACTION_1 = {
     'pack': 'sixpack',
     'runner_type': 'remote-shell-cmd',
     'parameters': {
-        'a': {
-            'type': 'string',
-            'default': 'abc'
-        },
-        'b': {
-            'type': 'number',
-            'default': 123
-        },
-        'c': {
-            'type': 'number',
-            'default': 123,
-            'immutable': True
-        },
-        'd': {
-            'type': 'string',
-            'secret': True
-        }
-    }
+        'a': {'type': 'string', 'default': 'abc'},
+        'b': {'type': 'number', 'default': 123},
+        'c': {'type': 'number', 'default': 123, 'immutable': True},
+        'd': {'type': 'string', 'secret': True},
+    },
 }
 
 LIVE_ACTION_1 = {
     'action': 'sixpack.st2.dummy.action1',
-    'parameters': {
-        'hosts': 'localhost',
-        'cmd': 'uname -a',
-        'd': SUPER_SECRET_PARAMETER
-    }
+    'parameters': {'hosts': 'localhost', 'cmd': 'uname -a', 'd': SUPER_SECRET_PARAMETER},
 }
 
 # NOTE: We use a longer expiry time because this variable is initialized on module import (aka
@@ -83,9 +66,7 @@ SYS_TOKEN = TokenDB(id=bson.ObjectId(), user='system', token=uuid.uuid4().hex, e
 USR_TOKEN = TokenDB(id=bson.ObjectId(), user='tokenuser', token=uuid.uuid4().hex, expiry=EXPIRY)
 
 FIXTURES_PACK = 'generic'
-FIXTURES = {
-    'users': ['system_user.yaml', 'token_user.yaml']
-}
+FIXTURES = {'users': ['system_user.yaml', 'token_user.yaml']}
 
 
 def mock_get_token(*args, **kwargs):
@@ -100,12 +81,9 @@ class ActionExecutionControllerTestCaseAuthEnabled(FunctionalTest):
     enable_auth = True
 
     @classmethod
-    @mock.patch.object(
-        Token, 'get',
-        mock.MagicMock(side_effect=mock_get_token))
+    @mock.patch.object(Token, 'get', mock.MagicMock(side_effect=mock_get_token))
     @mock.patch.object(User, 'get_by_name', mock.MagicMock(side_effect=UserDB))
-    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(
-        return_value=True))
+    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(return_value=True))
     def setUpClass(cls):
         super(ActionExecutionControllerTestCaseAuthEnabled, cls).setUpClass()
         cls.action = copy.deepcopy(ACTION_1)
@@ -113,13 +91,10 @@ class ActionExecutionControllerTestCaseAuthEnabled(FunctionalTest):
         post_resp = cls.app.post_json('/v1/actions', cls.action, headers=headers)
         cls.action['id'] = post_resp.json['id']
 
-        FixturesLoader().save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                             fixtures_dict=FIXTURES)
+        FixturesLoader().save_fixtures_to_db(fixtures_pack=FIXTURES_PACK, fixtures_dict=FIXTURES)
 
     @classmethod
-    @mock.patch.object(
-        Token, 'get',
-        mock.MagicMock(side_effect=mock_get_token))
+    @mock.patch.object(Token, 'get', mock.MagicMock(side_effect=mock_get_token))
     def tearDownClass(cls):
         headers = {'content-type': 'application/json', 'X-Auth-Token': str(SYS_TOKEN.token)}
         cls.app.delete('/v1/actions/%s' % cls.action['id'], headers=headers)
@@ -128,9 +103,7 @@ class ActionExecutionControllerTestCaseAuthEnabled(FunctionalTest):
     def _do_post(self, liveaction, *args, **kwargs):
         return self.app.post_json('/v1/executions', liveaction, *args, **kwargs)
 
-    @mock.patch.object(
-        Token, 'get',
-        mock.MagicMock(side_effect=mock_get_token))
+    @mock.patch.object(Token, 'get', mock.MagicMock(side_effect=mock_get_token))
     def test_post_with_st2_context_in_headers(self):
         headers = {'content-type': 'application/json', 'X-Auth-Token': str(USR_TOKEN.token)}
         resp = self._do_post(copy.deepcopy(LIVE_ACTION_1), headers=headers)
@@ -138,9 +111,11 @@ class ActionExecutionControllerTestCaseAuthEnabled(FunctionalTest):
         token_user = resp.json['context']['user']
         self.assertEqual(token_user, 'tokenuser')
         context = {'parent': {'execution_id': str(resp.json['id']), 'user': token_user}}
-        headers = {'content-type': 'application/json',
-                   'X-Auth-Token': str(SYS_TOKEN.token),
-                   'st2-context': json.dumps(context)}
+        headers = {
+            'content-type': 'application/json',
+            'X-Auth-Token': str(SYS_TOKEN.token),
+            'st2-context': json.dumps(context),
+        }
         resp = self._do_post(copy.deepcopy(LIVE_ACTION_1), headers=headers)
         self.assertEqual(resp.status_int, 201)
         self.assertEqual(resp.json['context']['user'], 'tokenuser')

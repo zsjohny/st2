@@ -21,10 +21,7 @@ class FormatResultAction(Action):
 
     def run(self, execution_id):
         execution = self._get_execution(execution_id)
-        context = {
-            'six': six,
-            'execution': execution
-        }
+        context = {'six': six, 'execution': execution}
         template = self.default_template
         result = {"enabled": True}
 
@@ -32,9 +29,7 @@ class FormatResultAction(Action):
         if alias_id:
             alias = self.client.managers['ActionAlias'].get_by_id(alias_id)
 
-            context.update({
-                'alias': alias
-            })
+            context.update({'alias': alias})
 
             result_params = getattr(alias, 'result', None)
             if result_params:

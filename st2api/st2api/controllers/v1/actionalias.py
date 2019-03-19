@@ -40,37 +40,40 @@ class ActionAliasController(resource.ContentPackResourceController):
     """
         Implements the RESTful interface for ActionAliases.
     """
+
     model = ActionAliasAPI
     access = ActionAlias
-    supported_filters = {
-        'name': 'name',
-        'pack': 'pack'
-    }
+    supported_filters = {'name': 'name', 'pack': 'pack'}
 
-    query_options = {
-        'sort': ['pack', 'name']
-    }
+    query_options = {'sort': ['pack', 'name']}
 
-    _custom_actions = {
-        'match': ['POST'],
-        'help': ['POST']
-    }
+    _custom_actions = {'match': ['POST'], 'help': ['POST']}
 
-    def get_all(self, exclude_attributes=None, include_attributes=None,
-                sort=None, offset=0, limit=None, requester_user=None, **raw_filters):
-        return super(ActionAliasController, self)._get_all(exclude_fields=exclude_attributes,
-                                                           include_fields=include_attributes,
-                                                           sort=sort,
-                                                           offset=offset,
-                                                           limit=limit,
-                                                           raw_filters=raw_filters,
-                                                           requester_user=requester_user)
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
+        return super(ActionAliasController, self)._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, ref_or_id, requester_user):
         permission_type = PermissionType.ACTION_ALIAS_VIEW
-        return super(ActionAliasController, self)._get_one(ref_or_id,
-                                                           requester_user=requester_user,
-                                                           permission_type=permission_type)
+        return super(ActionAliasController, self)._get_one(
+            ref_or_id, requester_user=requester_user, permission_type=permission_type
+        )
 
     def match(self, action_alias_match_api):
         """
@@ -119,14 +122,16 @@ class ActionAliasController(resource.ContentPackResourceController):
         """
 
         permission_type = PermissionType.ACTION_ALIAS_CREATE
-        rbac_utils.assert_user_has_resource_api_permission(user_db=requester_user,
-                                                           resource_api=action_alias,
-                                                           permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_api_permission(
+            user_db=requester_user, resource_api=action_alias, permission_type=permission_type
+        )
 
         try:
             action_alias_db = ActionAliasAPI.to_model(action_alias)
-            LOG.debug('/actionalias/ POST verified ActionAliasAPI and formulated ActionAliasDB=%s',
-                      action_alias_db)
+            LOG.debug(
+                '/actionalias/ POST verified ActionAliasAPI and formulated ActionAliasDB=%s',
+                action_alias_db,
+            )
             action_alias_db = ActionAlias.add_or_update(action_alias_db)
         except (ValidationError, ValueError, ValueValidationException) as e:
             LOG.exception('Validation failed for action alias data=%s.', action_alias)
@@ -147,22 +152,29 @@ class ActionAliasController(resource.ContentPackResourceController):
                 PUT /actionalias/1
         """
         action_alias_db = self._get_by_ref_or_id(ref_or_id=ref_or_id)
-        LOG.debug('PUT /actionalias/ lookup with id=%s found object: %s', ref_or_id,
-                  action_alias_db)
+        LOG.debug(
+            'PUT /actionalias/ lookup with id=%s found object: %s', ref_or_id, action_alias_db
+        )
 
         permission_type = PermissionType.ACTION_ALIAS_MODIFY
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=action_alias_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=action_alias_db, permission_type=permission_type
+        )
 
         if not hasattr(action_alias, 'id'):
             action_alias.id = None
 
         try:
-            if action_alias.id is not None and action_alias.id is not '' and \
-               action_alias.id != ref_or_id:
-                LOG.warning('Discarding mismatched id=%s found in payload and using uri_id=%s.',
-                            action_alias.id, ref_or_id)
+            if (
+                action_alias.id is not None
+                and action_alias.id is not ''
+                and action_alias.id != ref_or_id
+            ):
+                LOG.warning(
+                    'Discarding mismatched id=%s found in payload and using uri_id=%s.',
+                    action_alias.id,
+                    ref_or_id,
+                )
             old_action_alias_db = action_alias_db
             action_alias_db = ActionAliasAPI.to_model(action_alias)
             action_alias_db.id = ref_or_id
@@ -186,19 +198,21 @@ class ActionAliasController(resource.ContentPackResourceController):
                 DELETE /actionalias/1
         """
         action_alias_db = self._get_by_ref_or_id(ref_or_id=ref_or_id)
-        LOG.debug('DELETE /actionalias/ lookup with id=%s found object: %s', ref_or_id,
-                  action_alias_db)
+        LOG.debug(
+            'DELETE /actionalias/ lookup with id=%s found object: %s', ref_or_id, action_alias_db
+        )
 
         permission_type = PermissionType.ACTION_ALIAS_DELETE
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=action_alias_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=action_alias_db, permission_type=permission_type
+        )
 
         try:
             ActionAlias.delete(action_alias_db)
         except Exception as e:
-            LOG.exception('Database delete encountered exception during delete of id="%s".',
-                          ref_or_id)
+            LOG.exception(
+                'Database delete encountered exception during delete of id="%s".', ref_or_id
+            )
             abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
             return
 

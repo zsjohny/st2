@@ -176,15 +176,15 @@ def mask_secret_parameters(parameters, secret_parameters, result=None):
     for secret_param, secret_sub_params in iterator:
         if is_dict:
             if secret_param in result:
-                result[secret_param] = mask_secret_parameters(parameters[secret_param],
-                                                              secret_sub_params,
-                                                              result=result[secret_param])
+                result[secret_param] = mask_secret_parameters(
+                    parameters[secret_param], secret_sub_params, result=result[secret_param]
+                )
         elif is_list:
             # we're assuming lists contain the same data type for every element
             for idx, value in enumerate(result):
-                result[idx] = mask_secret_parameters(parameters[idx],
-                                                     secret_sub_params,
-                                                     result=result[idx])
+                result[idx] = mask_secret_parameters(
+                    parameters[idx], secret_sub_params, result=result[idx]
+                )
         else:
             result[secret_param] = MASKED_ATTRIBUTE_VALUE
 

@@ -46,6 +46,7 @@ def add_auth_token_to_kwargs_from_cli(func):
         if getattr(ns, 'api_key', None):
             kwargs['api_key'] = ns.api_key
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -58,20 +59,34 @@ class ResourceNotFoundError(Exception):
 
 
 class ResourceBranch(commands.Branch):
-
-    def __init__(self, resource, description, app, subparsers,
-                 parent_parser=None, read_only=False, commands=None,
-                 has_disable=False):
+    def __init__(
+        self,
+        resource,
+        description,
+        app,
+        subparsers,
+        parent_parser=None,
+        read_only=False,
+        commands=None,
+        has_disable=False,
+    ):
 
         self.resource = resource
         super(ResourceBranch, self).__init__(
-            self.resource.get_alias().lower(), description,
-            app, subparsers, parent_parser=parent_parser)
+            self.resource.get_alias().lower(),
+            description,
+            app,
+            subparsers,
+            parent_parser=parent_parser,
+        )
 
         # Registers subcommands for managing the resource type.
         self.subparsers = self.parser.add_subparsers(
-            help=('List of commands for managing %s.' %
-                  self.resource.get_plural_display_name().lower()))
+            help=(
+                'List of commands for managing %s.'
+                % self.resource.get_plural_display_name().lower()
+            )
+        )
 
         # Resolves if commands need to be overridden.
         commands = commands or {}
@@ -82,7 +97,7 @@ class ResourceBranch(commands.Branch):
             "update": ResourceUpdateCommand,
             "delete": ResourceDeleteCommand,
             "enable": ResourceEnableCommand,
-            "disable": ResourceDisableCommand
+            "disable": ResourceDisableCommand,
         }
         for cmd, cmd_class in cmd_map.items():
             if cmd not in commands:
@@ -116,22 +131,29 @@ class ResourceCommand(commands.Command):
         self.resource = resource
 
         if has_token_opt:
-            self.parser.add_argument('-t', '--token', dest='token',
-                                     help='Access token for user authentication. '
-                                          'Get ST2_AUTH_TOKEN from the environment '
-                                          'variables by default.')
-            self.parser.add_argument('--api-key', dest='api_key',
-                                     help='Api Key for user authentication. '
-                                          'Get ST2_API_KEY from the environment '
-                                          'variables by default.')
+            self.parser.add_argument(
+                '-t',
+                '--token',
+                dest='token',
+                help='Access token for user authentication. '
+                'Get ST2_AUTH_TOKEN from the environment '
+                'variables by default.',
+            )
+            self.parser.add_argument(
+                '--api-key',
+                dest='api_key',
+                help='Api Key for user authentication. '
+                'Get ST2_API_KEY from the environment '
+                'variables by default.',
+            )
 
         # Formatter flags
-        self.parser.add_argument('-j', '--json',
-                                 action='store_true', dest='json',
-                                 help='Print output in JSON format.')
-        self.parser.add_argument('-y', '--yaml',
-                                 action='store_true', dest='yaml',
-                                 help='Print output in YAML format.')
+        self.parser.add_argument(
+            '-j', '--json', action='store_true', dest='json', help='Print output in JSON format.'
+        )
+        self.parser.add_argument(
+            '-y', '--yaml', action='store_true', dest='yaml', help='Print output in YAML format.'
+        )
 
     @property
     def manager(self):
@@ -143,8 +165,7 @@ class ResourceCommand(commands.Command):
         return '%s-id' % resource_name.replace(' ', '-')
 
     def print_not_found(self, name):
-        print('%s "%s" is not found.\n' %
-              (self.resource.get_display_name(), name))
+        print('%s "%s" is not found.\n' % (self.resource.get_display_name(), name))
 
     def get_resource(self, name_or_id, **kwargs):
         pk_argument_name = self.pk_argument_name
@@ -180,7 +201,7 @@ class ResourceCommand(commands.Command):
         instance = self.get_resource_by_pk(pk=id, **kwargs)
 
         if not instance:
-            message = ('Resource with id "%s" doesn\'t exist.' % (id))
+            message = 'Resource with id "%s" doesn\'t exist.' % (id)
             raise ResourceNotFoundError(message)
         return instance
 
@@ -197,8 +218,7 @@ class ResourceCommand(commands.Command):
             instance = self.get_resource_by_pk(pk=name_or_id, **kwargs)
 
         if not instance:
-            message = ('Resource with id or name "%s" doesn\'t exist.' %
-                       (name_or_id))
+            message = 'Resource with id or name "%s" doesn\'t exist.' % (name_or_id)
             raise ResourceNotFoundError(message)
         return instance
 
@@ -206,8 +226,7 @@ class ResourceCommand(commands.Command):
         instance = self.manager.get_by_ref_or_id(ref_or_id=ref_or_id, **kwargs)
 
         if not instance:
-            message = ('Resource with id or reference "%s" doesn\'t exist.' %
-                       (ref_or_id))
+            message = 'Resource with id or reference "%s" doesn\'t exist.' % (ref_or_id)
             raise ResourceNotFoundError(message)
         return instance
 
@@ -227,11 +246,11 @@ class ResourceCommand(commands.Command):
         resource_display_name = resource.get_display_name().lower()
 
         if 'ref' in argument:
-            result = ('Reference or ID of the %s.' % (resource_display_name))
+            result = 'Reference or ID of the %s.' % (resource_display_name)
         elif 'name_or_id' in argument:
-            result = ('Name or ID of the %s.' % (resource_display_name))
+            result = 'Name or ID of the %s.' % (resource_display_name)
         else:
-            result = ('%s of the %s.' % (argument_display_name, resource_display_name))
+            result = '%s of the %s.' % (argument_display_name, resource_display_name)
 
         return result
 
@@ -286,17 +305,27 @@ class ResourceTableCommand(ResourceViewCommand):
     display_attributes = ['id', 'name', 'description']
 
     def __init__(self, resource, name, description, *args, **kwargs):
-        super(ResourceTableCommand, self).__init__(resource, name, description,
-                                                   *args, **kwargs)
+        super(ResourceTableCommand, self).__init__(resource, name, description, *args, **kwargs)
 
-        self.parser.add_argument('-a', '--attr', nargs='+',
-                                 default=self.display_attributes,
-                                 help=('List of attributes to include in the '
-                                       'output. "all" will return all '
-                                       'attributes.'))
-        self.parser.add_argument('-w', '--width', nargs='+', type=int,
-                                 default=None,
-                                 help=('Set the width of columns in output.'))
+        self.parser.add_argument(
+            '-a',
+            '--attr',
+            nargs='+',
+            default=self.display_attributes,
+            help=(
+                'List of attributes to include in the '
+                'output. "all" will return all '
+                'attributes.'
+            ),
+        )
+        self.parser.add_argument(
+            '-w',
+            '--width',
+            nargs='+',
+            type=int,
+            default=None,
+            help=('Set the width of columns in output.'),
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -309,29 +338,41 @@ class ResourceTableCommand(ResourceViewCommand):
 
     def run_and_print(self, args, **kwargs):
         instances = self.run(args, **kwargs)
-        self.print_output(instances, table.MultiColumnTable,
-                          attributes=args.attr, widths=args.width,
-                          json=args.json, yaml=args.yaml)
+        self.print_output(
+            instances,
+            table.MultiColumnTable,
+            attributes=args.attr,
+            widths=args.width,
+            json=args.json,
+            yaml=args.yaml,
+        )
 
 
 class ResourceListCommand(ResourceTableCommand):
     def __init__(self, resource, *args, **kwargs):
         super(ResourceListCommand, self).__init__(
-            resource, 'list', 'Get the list of %s.' % resource.get_plural_display_name().lower(),
-            *args, **kwargs)
+            resource,
+            'list',
+            'Get the list of %s.' % resource.get_plural_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
 
 class ContentPackResourceListCommand(ResourceListCommand):
     """
     Base command class for use with resources which belong to a content pack.
     """
-    def __init__(self, resource, *args, **kwargs):
-        super(ContentPackResourceListCommand, self).__init__(resource,
-                                                             *args, **kwargs)
 
-        self.parser.add_argument('-p', '--pack', type=str,
-                                 help=('Only return resources belonging to the'
-                                       ' provided pack'))
+    def __init__(self, resource, *args, **kwargs):
+        super(ContentPackResourceListCommand, self).__init__(resource, *args, **kwargs)
+
+        self.parser.add_argument(
+            '-p',
+            '--pack',
+            type=str,
+            help=('Only return resources belonging to the' ' provided pack'),
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -356,24 +397,29 @@ class ResourceGetCommand(ResourceViewCommand):
 
     def __init__(self, resource, *args, **kwargs):
         super(ResourceGetCommand, self).__init__(
-            resource, 'get',
+            resource,
+            'get',
             self.help_string or 'Get individual %s.' % resource.get_display_name().lower(),
-            *args, **kwargs
+            *args,
+            **kwargs
         )
 
         argument = self.pk_argument_name
         metavar = self._get_metavar_for_argument(argument=self.pk_argument_name)
-        help = self._get_help_for_argument(resource=resource,
-                                           argument=self.pk_argument_name)
+        help = self._get_help_for_argument(resource=resource, argument=self.pk_argument_name)
 
-        self.parser.add_argument(argument,
-                                 metavar=metavar,
-                                 help=help)
-        self.parser.add_argument('-a', '--attr', nargs='+',
-                                 default=self.display_attributes,
-                                 help=('List of attributes to include in the '
-                                       'output. "all" or unspecified will '
-                                       'return all attributes.'))
+        self.parser.add_argument(argument, metavar=metavar, help=help)
+        self.parser.add_argument(
+            '-a',
+            '--attr',
+            nargs='+',
+            default=self.display_attributes,
+            help=(
+                'List of attributes to include in the '
+                'output. "all" or unspecified will '
+                'return all attributes.'
+            ),
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -383,9 +429,14 @@ class ResourceGetCommand(ResourceViewCommand):
     def run_and_print(self, args, **kwargs):
         try:
             instance = self.run(args, **kwargs)
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=args.attr, json=args.json, yaml=args.yaml,
-                              attribute_display_order=self.attribute_display_order)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=args.attr,
+                json=args.json,
+                yaml=args.yaml,
+                attribute_display_order=self.attribute_display_order,
+            )
         except ResourceNotFoundError:
             resource_id = getattr(args, self.pk_argument_name, None)
             self.print_not_found(resource_id)
@@ -409,15 +460,21 @@ class ContentPackResourceGetCommand(ResourceGetCommand):
 
 
 class ResourceCreateCommand(ResourceCommand):
-
     def __init__(self, resource, *args, **kwargs):
-        super(ResourceCreateCommand, self).__init__(resource, 'create',
+        super(ResourceCreateCommand, self).__init__(
+            resource,
+            'create',
             'Create a new %s.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('file',
-                                 help=('JSON/YAML file containing the %s to create.'
-                                       % resource.get_display_name().lower()))
+        self.parser.add_argument(
+            'file',
+            help=(
+                'JSON/YAML file containing the %s to create.' % resource.get_display_name().lower()
+            ),
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -430,8 +487,13 @@ class ResourceCreateCommand(ResourceCommand):
             instance = self.run(args, **kwargs)
             if not instance:
                 raise Exception('Server did not create instance.')
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=['all'], json=args.json, yaml=args.yaml)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=['all'],
+                json=args.json,
+                yaml=args.yaml,
+            )
         except Exception as e:
             message = six.text_type(e)
             print('ERROR: %s' % (message))
@@ -442,21 +504,25 @@ class ResourceUpdateCommand(ResourceCommand):
     pk_argument_name = 'name_or_id'
 
     def __init__(self, resource, *args, **kwargs):
-        super(ResourceUpdateCommand, self).__init__(resource, 'update',
+        super(ResourceUpdateCommand, self).__init__(
+            resource,
+            'update',
             'Updating an existing %s.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
         argument = self.pk_argument_name
         metavar = self._get_metavar_for_argument(argument=self.pk_argument_name)
-        help = self._get_help_for_argument(resource=resource,
-                                           argument=self.pk_argument_name)
+        help = self._get_help_for_argument(resource=resource, argument=self.pk_argument_name)
 
-        self.parser.add_argument(argument,
-                                 metavar=metavar,
-                                 help=help)
-        self.parser.add_argument('file',
-                                 help=('JSON/YAML file containing the %s to update.'
-                                       % resource.get_display_name().lower()))
+        self.parser.add_argument(argument, metavar=metavar, help=help)
+        self.parser.add_argument(
+            'file',
+            help=(
+                'JSON/YAML file containing the %s to update.' % resource.get_display_name().lower()
+            ),
+        )
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -469,17 +535,23 @@ class ResourceUpdateCommand(ResourceCommand):
             modified_instance.id = instance.id
         else:
             if modified_instance.id != instance.id:
-                raise Exception('The value for the %s id in the JSON/YAML file '
-                                'does not match the ID provided in the '
-                                'command line arguments.' %
-                                self.resource.get_display_name().lower())
+                raise Exception(
+                    'The value for the %s id in the JSON/YAML file '
+                    'does not match the ID provided in the '
+                    'command line arguments.' % self.resource.get_display_name().lower()
+                )
         return self.manager.update(modified_instance, **kwargs)
 
     def run_and_print(self, args, **kwargs):
         instance = self.run(args, **kwargs)
         try:
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=['all'], json=args.json, yaml=args.yaml)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=['all'],
+                json=args.json,
+                yaml=args.yaml,
+            )
         except Exception as e:
             print('ERROR: %s' % (six.text_type(e)))
             raise OperationFailureException(six.text_type(e))
@@ -493,18 +565,19 @@ class ResourceEnableCommand(ResourceCommand):
     pk_argument_name = 'name_or_id'
 
     def __init__(self, resource, *args, **kwargs):
-        super(ResourceEnableCommand, self).__init__(resource, 'enable',
+        super(ResourceEnableCommand, self).__init__(
+            resource,
+            'enable',
             'Enable an existing %s.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
         argument = self.pk_argument_name
         metavar = self._get_metavar_for_argument(argument=self.pk_argument_name)
-        help = self._get_help_for_argument(resource=resource,
-                                           argument=self.pk_argument_name)
+        help = self._get_help_for_argument(resource=resource, argument=self.pk_argument_name)
 
-        self.parser.add_argument(argument,
-                                 metavar=metavar,
-                                 help=help)
+        self.parser.add_argument(argument, metavar=metavar, help=help)
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -523,8 +596,9 @@ class ResourceEnableCommand(ResourceCommand):
 
     def run_and_print(self, args, **kwargs):
         instance = self.run(args, **kwargs)
-        self.print_output(instance, table.PropertyValueTable,
-                          attributes=['all'], json=args.json, yaml=args.yaml)
+        self.print_output(
+            instance, table.PropertyValueTable, attributes=['all'], json=args.json, yaml=args.yaml
+        )
 
 
 class ContentPackResourceEnableCommand(ResourceEnableCommand):
@@ -535,18 +609,19 @@ class ResourceDisableCommand(ResourceCommand):
     pk_argument_name = 'name_or_id'
 
     def __init__(self, resource, *args, **kwargs):
-        super(ResourceDisableCommand, self).__init__(resource, 'disable',
+        super(ResourceDisableCommand, self).__init__(
+            resource,
+            'disable',
             'Disable an existing %s.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
         argument = self.pk_argument_name
         metavar = self._get_metavar_for_argument(argument=self.pk_argument_name)
-        help = self._get_help_for_argument(resource=resource,
-                                           argument=self.pk_argument_name)
+        help = self._get_help_for_argument(resource=resource, argument=self.pk_argument_name)
 
-        self.parser.add_argument(argument,
-                                 metavar=metavar,
-                                 help=help)
+        self.parser.add_argument(argument, metavar=metavar, help=help)
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -565,8 +640,9 @@ class ResourceDisableCommand(ResourceCommand):
 
     def run_and_print(self, args, **kwargs):
         instance = self.run(args, **kwargs)
-        self.print_output(instance, table.PropertyValueTable,
-                          attributes=['all'], json=args.json, yaml=args.yaml)
+        self.print_output(
+            instance, table.PropertyValueTable, attributes=['all'], json=args.json, yaml=args.yaml
+        )
 
 
 class ContentPackResourceDisableCommand(ResourceDisableCommand):
@@ -577,18 +653,19 @@ class ResourceDeleteCommand(ResourceCommand):
     pk_argument_name = 'name_or_id'
 
     def __init__(self, resource, *args, **kwargs):
-        super(ResourceDeleteCommand, self).__init__(resource, 'delete',
+        super(ResourceDeleteCommand, self).__init__(
+            resource,
+            'delete',
             'Delete an existing %s.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
         argument = self.pk_argument_name
         metavar = self._get_metavar_for_argument(argument=self.pk_argument_name)
-        help = self._get_help_for_argument(resource=resource,
-                                           argument=self.pk_argument_name)
+        help = self._get_help_for_argument(resource=resource, argument=self.pk_argument_name)
 
-        self.parser.add_argument(argument,
-                                 metavar=metavar,
-                                 help=help)
+        self.parser.add_argument(argument, metavar=metavar, help=help)
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -621,8 +698,9 @@ def load_meta_file(file_path):
 
     file_name, file_ext = os.path.splitext(file_path)
     if file_ext not in ALLOWED_EXTS:
-        raise Exception('Unsupported meta type %s, file %s. Allowed: %s' %
-                        (file_ext, file_path, ALLOWED_EXTS))
+        raise Exception(
+            'Unsupported meta type %s, file %s. Allowed: %s' % (file_ext, file_path, ALLOWED_EXTS)
+        )
 
     with open(file_path, 'r') as f:
         return PARSER_FUNCS[file_ext](f)

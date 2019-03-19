@@ -21,7 +21,6 @@ from st2common.constants import action as action_constants
 
 
 class FunctionsWiringTest(base.TestWorkflowExecution):
-
     def test_task_functions_in_yaql(self):
         wf_name = 'examples.orquesta-test-yaql-task-functions'
 
@@ -31,7 +30,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'task9__2__parent': 'task8__2',
             'that_task_by_name': 'task1',
             'this_task_by_name': 'task1',
-            'this_task_no_arg': 'task1'
+            'this_task_no_arg': 'task1',
         }
 
         expected_result = {'output': expected_output}
@@ -47,7 +46,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             'task9__2__parent': 'task8__2',
             'that_task_by_name': 'task1',
             'this_task_by_name': 'task1',
-            'this_task_no_arg': 'task1'
+            'this_task_no_arg': 'task1',
         }
 
         expected_result = {'output': expected_output}
@@ -69,7 +68,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
                 ),
                 'task_transition_id': 'noop__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -79,7 +78,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             wf_name,
             execute_async=False,
             expected_status=action_constants.LIVEACTION_STATUS_FAILED,
-            expected_result=expected_result
+            expected_result=expected_result,
         )
 
     def test_task_nonexistent_in_jinja(self):
@@ -97,7 +96,7 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
                 ),
                 'task_transition_id': 'noop__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -107,5 +106,5 @@ class FunctionsWiringTest(base.TestWorkflowExecution):
             wf_name,
             execute_async=False,
             expected_status=action_constants.LIVEACTION_STATUS_FAILED,
-            expected_result=expected_result
+            expected_result=expected_result,
         )

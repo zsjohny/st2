@@ -15,9 +15,7 @@
 
 from tests import FunctionalTest
 
-__all__ = [
-    'RootControllerTestCase'
-]
+__all__ = ['RootControllerTestCase']
 
 
 class RootControllerTestCase(FunctionalTest):

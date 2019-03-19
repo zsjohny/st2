@@ -23,9 +23,7 @@ import mock
 from st2client.utils.terminal import DEFAULT_TERMINAL_SIZE_COLUMNS
 from st2client.utils.terminal import get_terminal_size_columns
 
-__all__ = [
-    'TerminalUtilsTestCase'
-]
+__all__ = ['TerminalUtilsTestCase']
 
 
 class TerminalUtilsTestCase(unittest2.TestCase):

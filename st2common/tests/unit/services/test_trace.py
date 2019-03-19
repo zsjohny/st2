@@ -32,31 +32,31 @@ from st2tests import DbTestCase
 
 FIXTURES_PACK = 'traces'
 
-TEST_MODELS = OrderedDict((
-    ('executions', [
-        'traceable_execution.yaml',
-        'rule_fired_execution.yaml',
-        'execution_with_parent.yaml'
-    ]),
-    ('liveactions', [
-        'traceable_liveaction.yaml',
-        'liveaction_with_parent.yaml'
-    ]),
-    ('traces', [
-        'trace_empty.yaml',
-        'trace_multiple_components.yaml',
-        'trace_one_each.yaml',
-        'trace_one_each_dup.yaml',
-        'trace_execution.yaml'
-    ]),
-    ('triggers', ['trigger1.yaml']),
-    ('triggerinstances', [
-        'action_trigger.yaml',
-        'notify_trigger.yaml',
-        'non_internal_trigger.yaml'
-    ]),
-    ('rules', ['rule1.yaml']),
-))
+TEST_MODELS = OrderedDict(
+    (
+        (
+            'executions',
+            ['traceable_execution.yaml', 'rule_fired_execution.yaml', 'execution_with_parent.yaml'],
+        ),
+        ('liveactions', ['traceable_liveaction.yaml', 'liveaction_with_parent.yaml']),
+        (
+            'traces',
+            [
+                'trace_empty.yaml',
+                'trace_multiple_components.yaml',
+                'trace_one_each.yaml',
+                'trace_one_each_dup.yaml',
+                'trace_execution.yaml',
+            ],
+        ),
+        ('triggers', ['trigger1.yaml']),
+        (
+            'triggerinstances',
+            ['action_trigger.yaml', 'notify_trigger.yaml', 'non_internal_trigger.yaml'],
+        ),
+        ('rules', ['rule1.yaml']),
+    )
+)
 
 
 class DummyComponent(object):
@@ -78,8 +78,9 @@ class TestTraceService(DbTestCase):
     @classmethod
     def setUpClass(cls):
         super(TestTraceService, cls).setUpClass()
-        cls.models = FixturesLoader().save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                          fixtures_dict=TEST_MODELS)
+        cls.models = FixturesLoader().save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_MODELS
+        )
         cls.trace1 = cls.models['traces']['trace_multiple_components.yaml']
         cls.trace2 = cls.models['traces']['trace_one_each.yaml']
         cls.trace3 = cls.models['traces']['trace_one_each_dup.yaml']
@@ -105,9 +106,11 @@ class TestTraceService(DbTestCase):
 
     def test_get_trace_db_by_action_execution_fail(self):
         action_execution = DummyComponent(id_=self.trace2.action_executions[0].object_id)
-        self.assertRaises(UniqueTraceNotFoundException,
-                          trace_service.get_trace_db_by_action_execution,
-                          **{'action_execution': action_execution})
+        self.assertRaises(
+            UniqueTraceNotFoundException,
+            trace_service.get_trace_db_by_action_execution,
+            **{'action_execution': action_execution}
+        )
 
     def test_get_trace_db_by_rule(self):
         rule = DummyComponent(id_=self.trace1.rules[0].object_id)
@@ -129,9 +132,11 @@ class TestTraceService(DbTestCase):
 
     def test_get_trace_db_by_trigger_instance_fail(self):
         trigger_instance = DummyComponent(id_=self.trace2.trigger_instances[0].object_id)
-        self.assertRaises(UniqueTraceNotFoundException,
-                          trace_service.get_trace_db_by_trigger_instance,
-                          **{'trigger_instance': trigger_instance})
+        self.assertRaises(
+            UniqueTraceNotFoundException,
+            trace_service.get_trace_db_by_trigger_instance,
+            **{'trigger_instance': trigger_instance}
+        )
 
     def test_get_trace_by_dict(self):
         trace_context = {'id_': str(self.trace1.id)}
@@ -199,12 +204,12 @@ class TestTraceService(DbTestCase):
 
     def test_get_trace_db_by_live_action_parent_fail(self):
         traceable_liveaction = copy.copy(self.traceable_liveaction)
-        traceable_liveaction.context['parent'] = {
-            'execution_id': str(bson.ObjectId())
-        }
-        self.assertRaises(StackStormDBObjectNotFoundError,
-                          trace_service.get_trace_db_by_live_action,
-                          traceable_liveaction)
+        traceable_liveaction.context['parent'] = {'execution_id': str(bson.ObjectId())}
+        self.assertRaises(
+            StackStormDBObjectNotFoundError,
+            trace_service.get_trace_db_by_live_action,
+            traceable_liveaction,
+        )
 
     def test_get_trace_db_by_live_action_from_execution(self):
         traceable_liveaction = copy.copy(self.traceable_liveaction)
@@ -231,21 +236,30 @@ class TestTraceService(DbTestCase):
             trace_context,
             action_executions=[action_execution_id],
             rules=[rule_id],
-            trigger_instances=[trigger_instance_id])
+            trigger_instances=[trigger_instance_id],
+        )
 
         retrieved_trace_db = Trace.get_by_id(self.trace_empty.id)
-        self.assertEqual(len(retrieved_trace_db.action_executions), 1,
-                         'Expected updated action_executions.')
-        self.assertEqual(retrieved_trace_db.action_executions[0].object_id, action_execution_id,
-                         'Expected updated action_executions.')
+        self.assertEqual(
+            len(retrieved_trace_db.action_executions), 1, 'Expected updated action_executions.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.action_executions[0].object_id,
+            action_execution_id,
+            'Expected updated action_executions.',
+        )
 
         self.assertEqual(len(retrieved_trace_db.rules), 1, 'Expected updated rules.')
         self.assertEqual(retrieved_trace_db.rules[0].object_id, rule_id, 'Expected updated rules.')
 
-        self.assertEqual(len(retrieved_trace_db.trigger_instances), 1,
-                         'Expected updated trigger_instances.')
-        self.assertEqual(retrieved_trace_db.trigger_instances[0].object_id, trigger_instance_id,
-                         'Expected updated trigger_instances.')
+        self.assertEqual(
+            len(retrieved_trace_db.trigger_instances), 1, 'Expected updated trigger_instances.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.trigger_instances[0].object_id,
+            trigger_instance_id,
+            'Expected updated trigger_instances.',
+        )
 
         Trace.delete(retrieved_trace_db)
         Trace.add_or_update(self.trace_empty)
@@ -260,34 +274,46 @@ class TestTraceService(DbTestCase):
             to_save,
             action_executions=[action_execution_id],
             rules=[rule_id],
-            trigger_instances=[trigger_instance_id])
+            trigger_instances=[trigger_instance_id],
+        )
 
         retrieved_trace_db = Trace.get_by_id(saved.id)
-        self.assertEqual(len(retrieved_trace_db.action_executions), 1,
-                         'Expected updated action_executions.')
-        self.assertEqual(retrieved_trace_db.action_executions[0].object_id, action_execution_id,
-                         'Expected updated action_executions.')
+        self.assertEqual(
+            len(retrieved_trace_db.action_executions), 1, 'Expected updated action_executions.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.action_executions[0].object_id,
+            action_execution_id,
+            'Expected updated action_executions.',
+        )
 
         self.assertEqual(len(retrieved_trace_db.rules), 1, 'Expected updated rules.')
         self.assertEqual(retrieved_trace_db.rules[0].object_id, rule_id, 'Expected updated rules.')
 
-        self.assertEqual(len(retrieved_trace_db.trigger_instances), 1,
-                         'Expected updated trigger_instances.')
-        self.assertEqual(retrieved_trace_db.trigger_instances[0].object_id, trigger_instance_id,
-                         'Expected updated trigger_instances.')
+        self.assertEqual(
+            len(retrieved_trace_db.trigger_instances), 1, 'Expected updated trigger_instances.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.trigger_instances[0].object_id,
+            trigger_instance_id,
+            'Expected updated trigger_instances.',
+        )
 
         # Now add more TraceComponents and validated that they are added properly.
         saved = trace_service.add_or_update_given_trace_db(
             retrieved_trace_db,
             action_executions=[str(bson.ObjectId()), str(bson.ObjectId())],
             rules=[str(bson.ObjectId())],
-            trigger_instances=[str(bson.ObjectId()), str(bson.ObjectId()), str(bson.ObjectId())])
+            trigger_instances=[str(bson.ObjectId()), str(bson.ObjectId()), str(bson.ObjectId())],
+        )
         retrieved_trace_db = Trace.get_by_id(saved.id)
-        self.assertEqual(len(retrieved_trace_db.action_executions), 3,
-                         'Expected updated action_executions.')
+        self.assertEqual(
+            len(retrieved_trace_db.action_executions), 3, 'Expected updated action_executions.'
+        )
         self.assertEqual(len(retrieved_trace_db.rules), 2, 'Expected updated rules.')
-        self.assertEqual(len(retrieved_trace_db.trigger_instances), 4,
-                         'Expected updated trigger_instances.')
+        self.assertEqual(
+            len(retrieved_trace_db.trigger_instances), 4, 'Expected updated trigger_instances.'
+        )
 
         Trace.delete(retrieved_trace_db)
 
@@ -305,25 +331,36 @@ class TestTraceService(DbTestCase):
             trace_context,
             action_executions=[action_execution_id],
             rules=[rule_id],
-            trigger_instances=[trigger_instance_id])
+            trigger_instances=[trigger_instance_id],
+        )
         post_add_or_update_traces = len(Trace.get_all())
 
-        self.assertTrue(post_add_or_update_traces > pre_add_or_update_traces,
-                        'Expected new Trace to be created.')
+        self.assertTrue(
+            post_add_or_update_traces > pre_add_or_update_traces,
+            'Expected new Trace to be created.',
+        )
 
         retrieved_trace_db = Trace.get_by_id(trace_db.id)
-        self.assertEqual(len(retrieved_trace_db.action_executions), 1,
-                         'Expected updated action_executions.')
-        self.assertEqual(retrieved_trace_db.action_executions[0].object_id, action_execution_id,
-                         'Expected updated action_executions.')
+        self.assertEqual(
+            len(retrieved_trace_db.action_executions), 1, 'Expected updated action_executions.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.action_executions[0].object_id,
+            action_execution_id,
+            'Expected updated action_executions.',
+        )
 
         self.assertEqual(len(retrieved_trace_db.rules), 1, 'Expected updated rules.')
         self.assertEqual(retrieved_trace_db.rules[0].object_id, rule_id, 'Expected updated rules.')
 
-        self.assertEqual(len(retrieved_trace_db.trigger_instances), 1,
-                         'Expected updated trigger_instances.')
-        self.assertEqual(retrieved_trace_db.trigger_instances[0].object_id, trigger_instance_id,
-                         'Expected updated trigger_instances.')
+        self.assertEqual(
+            len(retrieved_trace_db.trigger_instances), 1, 'Expected updated trigger_instances.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.trigger_instances[0].object_id,
+            trigger_instance_id,
+            'Expected updated trigger_instances.',
+        )
 
         Trace.delete(retrieved_trace_db)
 
@@ -336,132 +373,157 @@ class TestTraceService(DbTestCase):
         pre_add_or_update_traces = len(Trace.get_all())
         trace_db = trace_service.add_or_update_given_trace_context(
             trace_context,
-            action_executions=[{'id': action_execution_id,
-                                'caused_by': {'id': '%s:%s' % (rule_id, trigger_instance_id),
-                                              'type': 'rule'}}],
-            rules=[{'id': rule_id,
-                    'caused_by': {'id': trigger_instance_id, 'type': 'trigger-instance'}}],
-            trigger_instances=[trigger_instance_id])
+            action_executions=[
+                {
+                    'id': action_execution_id,
+                    'caused_by': {'id': '%s:%s' % (rule_id, trigger_instance_id), 'type': 'rule'},
+                }
+            ],
+            rules=[
+                {
+                    'id': rule_id,
+                    'caused_by': {'id': trigger_instance_id, 'type': 'trigger-instance'},
+                }
+            ],
+            trigger_instances=[trigger_instance_id],
+        )
         post_add_or_update_traces = len(Trace.get_all())
 
-        self.assertTrue(post_add_or_update_traces > pre_add_or_update_traces,
-                        'Expected new Trace to be created.')
+        self.assertTrue(
+            post_add_or_update_traces > pre_add_or_update_traces,
+            'Expected new Trace to be created.',
+        )
 
         retrieved_trace_db = Trace.get_by_id(trace_db.id)
-        self.assertEqual(len(retrieved_trace_db.action_executions), 1,
-                         'Expected updated action_executions.')
-        self.assertEqual(retrieved_trace_db.action_executions[0].object_id, action_execution_id,
-                         'Expected updated action_executions.')
-        self.assertEqual(retrieved_trace_db.action_executions[0].caused_by,
-                         {'id': '%s:%s' % (rule_id, trigger_instance_id),
-                          'type': 'rule'},
-                         'Expected updated action_executions.')
+        self.assertEqual(
+            len(retrieved_trace_db.action_executions), 1, 'Expected updated action_executions.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.action_executions[0].object_id,
+            action_execution_id,
+            'Expected updated action_executions.',
+        )
+        self.assertEqual(
+            retrieved_trace_db.action_executions[0].caused_by,
+            {'id': '%s:%s' % (rule_id, trigger_instance_id), 'type': 'rule'},
+            'Expected updated action_executions.',
+        )
 
         self.assertEqual(len(retrieved_trace_db.rules), 1, 'Expected updated rules.')
         self.assertEqual(retrieved_trace_db.rules[0].object_id, rule_id, 'Expected updated rules.')
-        self.assertEqual(retrieved_trace_db.rules[0].caused_by,
-                         {'id': trigger_instance_id, 'type': 'trigger-instance'},
-                         'Expected updated rules.')
+        self.assertEqual(
+            retrieved_trace_db.rules[0].caused_by,
+            {'id': trigger_instance_id, 'type': 'trigger-instance'},
+            'Expected updated rules.',
+        )
 
-        self.assertEqual(len(retrieved_trace_db.trigger_instances), 1,
-                         'Expected updated trigger_instances.')
-        self.assertEqual(retrieved_trace_db.trigger_instances[0].object_id, trigger_instance_id,
-                         'Expected updated trigger_instances.')
-        self.assertEqual(retrieved_trace_db.trigger_instances[0].caused_by, {},
-                         'Expected updated rules.')
+        self.assertEqual(
+            len(retrieved_trace_db.trigger_instances), 1, 'Expected updated trigger_instances.'
+        )
+        self.assertEqual(
+            retrieved_trace_db.trigger_instances[0].object_id,
+            trigger_instance_id,
+            'Expected updated trigger_instances.',
+        )
+        self.assertEqual(
+            retrieved_trace_db.trigger_instances[0].caused_by, {}, 'Expected updated rules.'
+        )
 
         Trace.delete(retrieved_trace_db)
 
     def test_trace_component_for_trigger_instance(self):
         # action_trigger
         trace_component = trace_service.get_trace_component_for_trigger_instance(
-            self.action_trigger)
+            self.action_trigger
+        )
         expected = {
             'id': str(self.action_trigger.id),
             'ref': self.action_trigger.trigger,
             'caused_by': {
                 'type': 'action_execution',
-                'id': self.action_trigger.payload['execution_id']
-            }
+                'id': self.action_trigger.payload['execution_id'],
+            },
         }
         self.assertEqual(trace_component, expected)
         # notify_trigger
         trace_component = trace_service.get_trace_component_for_trigger_instance(
-            self.notify_trigger)
+            self.notify_trigger
+        )
         expected = {
             'id': str(self.notify_trigger.id),
             'ref': self.notify_trigger.trigger,
             'caused_by': {
                 'type': 'action_execution',
-                'id': self.notify_trigger.payload['execution_id']
-            }
+                'id': self.notify_trigger.payload['execution_id'],
+            },
         }
         self.assertEqual(trace_component, expected)
         # non_internal_trigger
         trace_component = trace_service.get_trace_component_for_trigger_instance(
-            self.non_internal_trigger)
+            self.non_internal_trigger
+        )
         expected = {
             'id': str(self.non_internal_trigger.id),
             'ref': self.non_internal_trigger.trigger,
-            'caused_by': {}
+            'caused_by': {},
         }
         self.assertEqual(trace_component, expected)
 
     def test_trace_component_for_rule(self):
-        trace_component = trace_service.get_trace_component_for_rule(self.rule1,
-            self.non_internal_trigger)
+        trace_component = trace_service.get_trace_component_for_rule(
+            self.rule1, self.non_internal_trigger
+        )
         expected = {
             'id': str(self.rule1.id),
             'ref': self.rule1.ref,
-            'caused_by': {
-                'type': 'trigger_instance',
-                'id': str(self.non_internal_trigger.id)
-            }
+            'caused_by': {'type': 'trigger_instance', 'id': str(self.non_internal_trigger.id)},
         }
         self.assertEqual(trace_component, expected)
 
     def test_trace_component_for_action_execution(self):
         # no cause
         trace_component = trace_service.get_trace_component_for_action_execution(
-            self.traceable_execution,
-            self.traceable_liveaction)
+            self.traceable_execution, self.traceable_liveaction
+        )
         expected = {
             'id': str(self.traceable_execution.id),
             'ref': self.traceable_execution.action['ref'],
-            'caused_by': {}
+            'caused_by': {},
         }
         self.assertEqual(trace_component, expected)
         # rule_fired_execution
         trace_component = trace_service.get_trace_component_for_action_execution(
-            self.rule_fired_execution,
-            self.traceable_liveaction)
+            self.rule_fired_execution, self.traceable_liveaction
+        )
         expected = {
             'id': str(self.rule_fired_execution.id),
             'ref': self.rule_fired_execution.action['ref'],
             'caused_by': {
                 'type': 'rule',
-                'id': '%s:%s' % (self.rule_fired_execution.rule['id'],
-                                 self.rule_fired_execution.trigger_instance['id'])
-            }
+                'id': '%s:%s'
+                % (
+                    self.rule_fired_execution.rule['id'],
+                    self.rule_fired_execution.trigger_instance['id'],
+                ),
+            },
         }
         self.assertEqual(trace_component, expected)
         # execution_with_parent
         trace_component = trace_service.get_trace_component_for_action_execution(
-            self.execution_with_parent,
-            self.liveaction_with_parent)
+            self.execution_with_parent, self.liveaction_with_parent
+        )
         expected = {
             'id': str(self.execution_with_parent.id),
             'ref': self.execution_with_parent.action['ref'],
             'caused_by': {
                 'type': 'action_execution',
-                'id': self.liveaction_with_parent.context['parent']['execution_id']
-            }
+                'id': self.liveaction_with_parent.context['parent']['execution_id'],
+            },
         }
         self.assertEqual(trace_component, expected)
 
 
 class TestTraceContext(TestCase):
-
     def test_str_method(self):
         trace_context = TraceContext(id_='id', trace_tag='tag')
         self.assertTrue(str(trace_context))

@@ -35,11 +35,7 @@ from st2common.util.shell import quote_unix
 from st2common.constants.runners import DEFAULT_SSH_PORT, REMOTE_RUNNER_PRIVATE_KEY_HEADER
 import six
 
-__all__ = [
-    'ParamikoSSHClient',
-
-    'SSHCommandTimeoutError'
-]
+__all__ = ['ParamikoSSHClient', 'SSHCommandTimeoutError']
 
 
 class SSHCommandTimeoutError(Exception):
@@ -63,8 +59,7 @@ class SSHCommandTimeoutError(Exception):
         super(SSHCommandTimeoutError, self).__init__(self.message)
 
     def __repr__(self):
-        return ('<SSHCommandTimeoutError: cmd="%s",timeout=%s)>' %
-                (self.cmd, self.timeout))
+        return '<SSHCommandTimeoutError: cmd="%s",timeout=%s)>' % (self.cmd, self.timeout)
 
     def __str__(self):
         return self.message
@@ -84,9 +79,20 @@ class ParamikoSSHClient(object):
     # Connect socket timeout
     CONNECT_TIMEOUT = 60
 
-    def __init__(self, hostname, port=DEFAULT_SSH_PORT, username=None, password=None,
-                 bastion_host=None, key_files=None, key_material=None, timeout=None,
-                 passphrase=None, handle_stdout_line_func=None, handle_stderr_line_func=None):
+    def __init__(
+        self,
+        hostname,
+        port=DEFAULT_SSH_PORT,
+        username=None,
+        password=None,
+        bastion_host=None,
+        key_files=None,
+        key_material=None,
+        timeout=None,
+        passphrase=None,
+        handle_stdout_line_func=None,
+        handle_stderr_line_func=None,
+    ):
         """
         Authentication is always attempted in the following order:
 
@@ -111,8 +117,7 @@ class ParamikoSSHClient(object):
         self._handle_stderr_line_func = handle_stderr_line_func
 
         self.ssh_config_file = os.path.expanduser(
-            cfg.CONF.ssh_runner.ssh_config_file_path or
-            '~/.ssh/config'
+            cfg.CONF.ssh_runner.ssh_config_file_path or '~/.ssh/config'
         )
         self.logger = logging.getLogger(__name__)
 
@@ -164,13 +169,19 @@ class ParamikoSSHClient(object):
         """
 
         if not local_path or not remote_path:
-            raise Exception('Need both local_path and remote_path. local: %s, remote: %s' %
-                            local_path, remote_path)
+            raise Exception(
+                'Need both local_path and remote_path. local: %s, remote: %s' % local_path,
+                remote_path,
+            )
         local_path = quote_unix(local_path)
         remote_path = quote_unix(remote_path)
 
-        extra = {'_local_path': local_path, '_remote_path': remote_path, '_mode': mode,
-                 '_mirror_local_mode': mirror_local_mode}
+        extra = {
+            '_local_path': local_path,
+            '_remote_path': remote_path,
+            '_mode': mode,
+            '_mirror_local_mode': mirror_local_mode,
+        }
         self.logger.debug('Uploading file', extra=extra)
 
         if not os.path.exists(local_path):
@@ -190,7 +201,7 @@ class ParamikoSSHClient(object):
             remote_mode = rattrs.st_mode
             # Only bitshift if we actually got an remote_mode
             if remote_mode is not None:
-                remote_mode = (remote_mode & 0o7777)
+                remote_mode = remote_mode & 0o7777
             if local_mode != remote_mode:
                 self.sftp.chmod(remote_path, local_mode)
 
@@ -216,8 +227,12 @@ class ParamikoSSHClient(object):
         :rtype: ``list`` of ``str``
         """
 
-        extra = {'_local_path': local_path, '_remote_path': remote_path, '_mode': mode,
-                 '_mirror_local_mode': mirror_local_mode}
+        extra = {
+            '_local_path': local_path,
+            '_remote_path': remote_path,
+            '_mode': mode,
+            '_mirror_local_mode': mirror_local_mode,
+        }
         self.logger.debug('Uploading dir', extra=extra)
 
         if os.path.basename(local_path):
@@ -246,8 +261,12 @@ class ParamikoSSHClient(object):
                 local_path = os.path.join(context, f)
                 n = posixpath.join(rcontext, f)
                 # Note that quote_unix is done by put anyways.
-                p = self.put(local_path=local_path, remote_path=n,
-                             mirror_local_mode=mirror_local_mode, mode=mode)
+                p = self.put(
+                    local_path=local_path,
+                    remote_path=n,
+                    mirror_local_mode=mirror_local_mode,
+                    mode=mode,
+                )
                 remote_paths.append(p)
 
         return remote_paths
@@ -385,12 +404,14 @@ class ParamikoSSHClient(object):
         exit_status_ready = chan.exit_status_ready()
 
         if exit_status_ready:
-            stdout_data = self._consume_stdout(chan=chan,
-                                               call_line_handler_func=call_line_handler_func)
+            stdout_data = self._consume_stdout(
+                chan=chan, call_line_handler_func=call_line_handler_func
+            )
             stdout_data = stdout_data.getvalue()
 
-            stderr_data = self._consume_stderr(chan=chan,
-                                               call_line_handler_func=call_line_handler_func)
+            stderr_data = self._consume_stderr(
+                chan=chan, call_line_handler_func=call_line_handler_func
+            )
             stderr_data = stderr_data.getvalue()
 
             stdout.write(stdout_data)
@@ -398,7 +419,7 @@ class ParamikoSSHClient(object):
 
         while not exit_status_ready:
             current_time = time.time()
-            elapsed_time = (current_time - start_time)
+            elapsed_time = current_time - start_time
 
             if timeout and (elapsed_time > timeout):
                 # TODO: Is this the right way to clean up?
@@ -406,15 +427,16 @@ class ParamikoSSHClient(object):
 
                 stdout = strip_shell_chars(stdout.getvalue())
                 stderr = strip_shell_chars(stderr.getvalue())
-                raise SSHCommandTimeoutError(cmd=cmd, timeout=timeout, stdout=stdout,
-                                             stderr=stderr)
+                raise SSHCommandTimeoutError(cmd=cmd, timeout=timeout, stdout=stdout, stderr=stderr)
 
-            stdout_data = self._consume_stdout(chan=chan,
-                                               call_line_handler_func=call_line_handler_func)
+            stdout_data = self._consume_stdout(
+                chan=chan, call_line_handler_func=call_line_handler_func
+            )
             stdout_data = stdout_data.getvalue()
 
-            stderr_data = self._consume_stderr(chan=chan,
-                                               call_line_handler_func=call_line_handler_func)
+            stderr_data = self._consume_stderr(
+                chan=chan, call_line_handler_func=call_line_handler_func
+            )
             stderr_data = stderr_data.getvalue()
 
             stdout.write(stdout_data)
@@ -584,8 +606,10 @@ class ParamikoSSHClient(object):
         # Note: We do it here and not up the stack to avoid false positives.
         contains_header = REMOTE_RUNNER_PRIVATE_KEY_HEADER in key_material.lower()
         if not contains_header and (key_material.count('/') >= 1 or key_material.count('\\') >= 1):
-            msg = ('"private_key" parameter needs to contain private key data / content and not '
-                   'a path')
+            msg = (
+                '"private_key" parameter needs to contain private key data / content and not '
+                'a path'
+            )
         elif passphrase:
             msg = 'Invalid passphrase or invalid/unsupported key type'
         else:
@@ -615,30 +639,36 @@ class ParamikoSSHClient(object):
         :rtype: :class:`paramiko.SSHClient`
         """
 
-        conninfo = {'hostname': host,
-                    'allow_agent': False,
-                    'look_for_keys': False,
-                    'timeout': self.timeout}
+        conninfo = {
+            'hostname': host,
+            'allow_agent': False,
+            'look_for_keys': False,
+            'timeout': self.timeout,
+        }
 
         ssh_config_file_info = {}
         if cfg.CONF.ssh_runner.use_ssh_config:
             ssh_config_file_info = self._get_ssh_config_for_host(host)
 
-        self.username = (self.username or ssh_config_file_info.get('user', None) or
-                         cfg.CONF.system_user.user)
+        self.username = (
+            self.username or ssh_config_file_info.get('user', None) or cfg.CONF.system_user.user
+        )
         self.port = self.port or ssh_config_file_info.get('port' or None) or DEFAULT_SSH_PORT
 
         # If both key file and key material are provided as action parameters,
         # throw an error informing user only one is required.
         if self.key_files and self.key_material:
-            msg = ('key_files and key_material arguments are mutually exclusive. Supply only one.')
+            msg = 'key_files and key_material arguments are mutually exclusive. Supply only one.'
             raise ValueError(msg)
 
         # If neither key material nor password is provided, only then we look at key file and decide
         # if we want to use the user supplied one or the one in SSH config.
         if not self.key_material and not self.password:
-            self.key_files = (self.key_files or ssh_config_file_info.get('identityfile', None) or
-                              cfg.CONF.system_user.ssh_key_file)
+            self.key_files = (
+                self.key_files
+                or ssh_config_file_info.get('identityfile', None)
+                or cfg.CONF.system_user.ssh_key_file
+            )
 
         if self.passphrase and not (self.key_files or self.key_material):
             raise ValueError('passphrase should accompany private key material')
@@ -646,9 +676,11 @@ class ParamikoSSHClient(object):
         credentials_provided = self.password or self.key_files or self.key_material
 
         if not credentials_provided:
-            msg = ('Either password or key file location or key material should be supplied ' +
-                   'for action. You can also add an entry for host %s in SSH config file %s.' %
-                   (host, self.ssh_config_file))
+            msg = (
+                'Either password or key file location or key material should be supplied '
+                + 'for action. You can also add an entry for host %s in SSH config file %s.'
+                % (host, self.ssh_config_file)
+            )
             raise ValueError(msg)
 
         conninfo['username'] = self.username
@@ -662,8 +694,10 @@ class ParamikoSSHClient(object):
 
             passphrase_reqd = self._is_key_file_needs_passphrase(self.key_files)
             if passphrase_reqd and not self.passphrase:
-                msg = ('Private key file %s is passphrase protected. Supply a passphrase.' %
-                       self.key_files)
+                msg = (
+                    'Private key file %s is passphrase protected. Supply a passphrase.'
+                    % self.key_files
+                )
                 raise paramiko.ssh_exception.PasswordRequiredException(msg)
 
             if self.passphrase:
@@ -671,15 +705,20 @@ class ParamikoSSHClient(object):
                 conninfo['password'] = self.passphrase
 
         if self.key_material:
-            conninfo['pkey'] = self._get_pkey_object(key_material=self.key_material,
-                                                     passphrase=self.passphrase)
+            conninfo['pkey'] = self._get_pkey_object(
+                key_material=self.key_material, passphrase=self.passphrase
+            )
 
         if not self.password and not (self.key_files or self.key_material):
             conninfo['allow_agent'] = True
             conninfo['look_for_keys'] = True
 
-        extra = {'_hostname': host, '_port': self.port,
-                 '_username': self.username, '_timeout': self.timeout}
+        extra = {
+            '_hostname': host,
+            '_port': self.port,
+            '_username': self.username,
+            '_timeout': self.timeout,
+        }
         self.logger.debug('Connecting to server', extra=extra)
 
         socket = socket or ssh_config_file_info.get('sock', None)
@@ -699,9 +738,11 @@ class ParamikoSSHClient(object):
             if conninfo.get('password', None):
                 conninfo['password'] = '<redacted>'
 
-            msg = ('Error connecting to host %s ' % host +
-                   'with connection parameters %s.' % conninfo +
-                   'Paramiko error: %s.' % paramiko_msg)
+            msg = (
+                'Error connecting to host %s ' % host
+                + 'with connection parameters %s.' % conninfo
+                + 'Paramiko error: %s.' % paramiko_msg
+            )
             raise SSHException(msg)
 
         return client
@@ -714,8 +755,10 @@ class ParamikoSSHClient(object):
             with open(self.ssh_config_file) as f:
                 ssh_config_parser.parse(f)
         except IOError as e:
-            raise Exception('Error accessing ssh config file %s. Code: %s Reason %s' %
-                            (self.ssh_config_file, e.errno, e.strerror))
+            raise Exception(
+                'Error accessing ssh config file %s. Code: %s Reason %s'
+                % (self.ssh_config_file, e.errno, e.strerror)
+            )
 
         ssh_config = ssh_config_parser.lookup(host)
         self.logger.info('Parsed SSH config file contents: %s', ssh_config)
@@ -749,5 +792,9 @@ class ParamikoSSHClient(object):
         return False
 
     def __repr__(self):
-        return ('<ParamikoSSHClient hostname=%s,port=%s,username=%s,id=%s>' %
-                (self.hostname, self.port, self.username, id(self)))
+        return '<ParamikoSSHClient hostname=%s,port=%s,username=%s,id=%s>' % (
+            self.hostname,
+            self.port,
+            self.username,
+            id(self),
+        )

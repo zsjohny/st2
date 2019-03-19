@@ -20,7 +20,6 @@ from st2common.util import jinja as jinja_utils
 
 
 class JinjaUtilsTimeFilterTestCase(unittest2.TestCase):
-
     def test_to_human_time_filter(self):
         env = jinja_utils.get_jinja_environment()
 
@@ -31,5 +30,4 @@ class JinjaUtilsTimeFilterTestCase(unittest2.TestCase):
         actual = env.from_string(template).render({'k1': 0})
         self.assertEqual(actual, '0s')
 
-        self.assertRaises(AssertionError, env.from_string(template).render,
-                          {'k1': 'stuff'})
+        self.assertRaises(AssertionError, env.from_string(template).render, {'k1': 'stuff'})

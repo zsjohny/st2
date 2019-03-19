@@ -24,9 +24,7 @@ from st2common import log as logging
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'shutdown_server_kill_pending_requests'
-]
+__all__ = ['shutdown_server_kill_pending_requests']
 
 
 def shutdown_server_kill_pending_requests(sock, worker_pool, wait_time=2):

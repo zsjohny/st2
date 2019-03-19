@@ -26,9 +26,7 @@ from st2common.util.crypto import symmetric_decrypt
 from st2common.models.api.keyvalue import KeyValuePairAPI
 from st2common.persistence.keyvalue import KeyValuePair
 
-__all__ = [
-    'set_datastore_value_for_config_key',
-]
+__all__ = ['set_datastore_value_for_config_key']
 
 LOG = logging.getLogger(__name__)
 

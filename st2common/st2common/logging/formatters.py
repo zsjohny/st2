@@ -27,10 +27,7 @@ from oslo_config import cfg
 from st2common.constants.secrets import MASKED_ATTRIBUTES_BLACKLIST
 from st2common.constants.secrets import MASKED_ATTRIBUTE_VALUE
 
-__all__ = [
-    'ConsoleLogFormatter',
-    'GelfLogFormatter',
-]
+__all__ = ['ConsoleLogFormatter', 'GelfLogFormatter']
 
 SIMPLE_TYPES = (int, float) + six.string_types
 NON_OBJECT_TYPES = SIMPLE_TYPES + (list, dict) + six.string_types
@@ -46,7 +43,7 @@ COMMON_ATTRIBUTE_NAMES = [
     'module',
     'filename',
     'funcName',
-    'lineno'
+    'lineno',
 ]
 
 
@@ -124,8 +121,9 @@ class BaseExtraLogFormatter(logging.Formatter):
     PREFIX = '_'  # Prefix for user provided attributes in the extra dict
 
     def _get_extra_attributes(self, record):
-        attributes = dict([(k, v) for k, v in six.iteritems(record.__dict__)
-                           if k.startswith(self.PREFIX)])
+        attributes = dict(
+            [(k, v) for k, v in six.iteritems(record.__dict__) if k.startswith(self.PREFIX)]
+        )
         return attributes
 
     def _get_common_extra_attributes(self, record):
@@ -257,7 +255,7 @@ class GelfLogFormatter(BaseExtraLogFormatter):
             'full_message': full_msg,
             'timestamp': time_now_sec,
             'timestamp_f': time_now_float,
-            'level': level
+            'level': level,
         }
 
         if exc_info:

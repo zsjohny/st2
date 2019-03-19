@@ -9,8 +9,7 @@ from st2reactor.sensor.base import Sensor
 
 class FileWatchSensor(Sensor):
     def __init__(self, sensor_service, config=None):
-        super(FileWatchSensor, self).__init__(sensor_service=sensor_service,
-                                              config=config)
+        super(FileWatchSensor, self).__init__(sensor_service=sensor_service, config=config)
         self._trigger = None
         self._logger = self._sensor_service.get_logger(__name__)
         self._tail = None
@@ -67,11 +66,6 @@ class FileWatchSensor(Sensor):
 
     def _handle_line(self, file_path, line):
         trigger = self._trigger
-        payload = {
-            'file_path': file_path,
-            'file_name': os.path.basename(file_path),
-            'line': line
-        }
-        self._logger.debug('Sending payload %s for trigger %s to sensor_service.',
-                           payload, trigger)
+        payload = {'file_path': file_path, 'file_name': os.path.basename(file_path), 'line': line}
+        self._logger.debug('Sending payload %s for trigger %s to sensor_service.', payload, trigger)
         self.sensor_service.dispatch(trigger=trigger, payload=payload)

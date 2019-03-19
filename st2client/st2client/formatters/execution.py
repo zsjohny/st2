@@ -40,13 +40,12 @@ def _print_bordered(text):
     width = max(len(s) for s in lines) + 2
     res = ['\n+' + '-' * width + '+']
     for s in lines:
-        res.append('| ' + (s + ' ' * width)[:width - 2] + ' |')
+        res.append('| ' + (s + ' ' * width)[: width - 2] + ' |')
     res.append('+' + '-' * width + '+')
     return '\n'.join(res)
 
 
 class ExecutionResult(formatters.Formatter):
-
     @classmethod
     def format(cls, entry, *args, **kwargs):
         attrs = kwargs.get('attributes', [])
@@ -65,8 +64,12 @@ class ExecutionResult(formatters.Formatter):
                 # if the leading character is objectish start and last character is objectish
                 # end but the string isn't supposed to be a object. Try/Except will catch
                 # this for now, but this should be improved.
-                if (isinstance(value, six.string_types) and len(value) > 0 and
-                        value[0] in ['{', '['] and value[len(value) - 1] in ['}', ']']):
+                if (
+                    isinstance(value, six.string_types)
+                    and len(value) > 0
+                    and value[0] in ['{', '[']
+                    and value[len(value) - 1] in ['}', ']']
+                ):
                     try:
                         new_value = ast.literal_eval(value)
                     except:
@@ -79,21 +82,21 @@ class ExecutionResult(formatters.Formatter):
                     # 2. Drop the trailing newline
                     # 3. Set width to maxint so pyyaml does not split text. Anything longer
                     #    and likely we will see other issues like storage :P.
-                    formatted_value = yaml.safe_dump({attr: value},
-                                                     default_flow_style=False,
-                                                     width=PLATFORM_MAXINT,
-                                                     indent=2)[len(attr) + 2:-1]
+                    formatted_value = yaml.safe_dump(
+                        {attr: value}, default_flow_style=False, width=PLATFORM_MAXINT, indent=2
+                    )[len(attr) + 2 : -1]
                     value = ('\n' if isinstance(value, dict) else '') + formatted_value
                     value = strutil.dedupe_newlines(value)
 
                 # transform the value of our attribute so things like 'status'
                 # and 'timestamp' are formatted nicely
-                transform_function = attribute_transform_functions.get(attr,
-                                                                       lambda value: value)
+                transform_function = attribute_transform_functions.get(attr, lambda value: value)
                 value = transform_function(value=value)
 
-                output += ('\n' if output else '') + '%s: %s' % \
-                    (DisplayColors.colorize(attr, DisplayColors.BLUE), value)
+                output += ('\n' if output else '') + '%s: %s' % (
+                    DisplayColors.colorize(attr, DisplayColors.BLUE),
+                    value,
+                )
 
             output_schema = entry.get('action', {}).get('output_schema')
             schema_check = get_config()['general']['silence_schema_output']

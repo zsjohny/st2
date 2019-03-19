@@ -21,17 +21,20 @@ from st2client.formatters import table
 
 
 class RuleBranch(resource.ResourceBranch):
-
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(RuleBranch, self).__init__(
-            models.Rule, description, app, subparsers,
+            models.Rule,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             commands={
                 'list': RuleListCommand,
                 'get': RuleGetCommand,
                 'update': RuleUpdateCommand,
-                'delete': RuleDeleteCommand
-            })
+                'delete': RuleDeleteCommand,
+            },
+        )
 
         self.commands['enable'] = RuleEnableCommand(self.resource, self.app, self.subparsers)
         self.commands['disable'] = RuleDisableCommand(self.resource, self.app, self.subparsers)
@@ -45,32 +48,49 @@ class RuleListCommand(resource.ResourceTableCommand):
 
         self.default_limit = 50
 
-        super(RuleListCommand, self).__init__(resource, 'list',
-                                              'Get the list of the %s most recent %s.' %
-                                              (self.default_limit,
-                                               resource.get_plural_display_name().lower()),
-                                              *args, **kwargs)
+        super(RuleListCommand, self).__init__(
+            resource,
+            'list',
+            'Get the list of the %s most recent %s.'
+            % (self.default_limit, resource.get_plural_display_name().lower()),
+            *args,
+            **kwargs
+        )
 
         self.resource_name = resource.get_plural_display_name().lower()
         self.group = self.parser.add_argument_group()
-        self.parser.add_argument('-n', '--last', type=int, dest='last',
-                                 default=self.default_limit,
-                                 help=('List N most recent %s. Use -n -1 to fetch the full result \
-                                       set.' % self.resource_name))
-        self.parser.add_argument('--iftt', action='store_true',
-                                 help='Show trigger and action in display list.')
-        self.parser.add_argument('-p', '--pack', type=str,
-                                 help=('Only return resources belonging to the'
-                                       ' provided pack'))
-        self.group.add_argument('-c', '--action',
-                                help='Action reference to filter the list.')
-        self.group.add_argument('-g', '--trigger',
-                                help='Trigger type reference to filter the list.')
+        self.parser.add_argument(
+            '-n',
+            '--last',
+            type=int,
+            dest='last',
+            default=self.default_limit,
+            help=(
+                'List N most recent %s. Use -n -1 to fetch the full result \
+                                       set.'
+                % self.resource_name
+            ),
+        )
+        self.parser.add_argument(
+            '--iftt', action='store_true', help='Show trigger and action in display list.'
+        )
+        self.parser.add_argument(
+            '-p',
+            '--pack',
+            type=str,
+            help=('Only return resources belonging to the' ' provided pack'),
+        )
+        self.group.add_argument('-c', '--action', help='Action reference to filter the list.')
+        self.group.add_argument(
+            '-g', '--trigger', help='Trigger type reference to filter the list.'
+        )
         self.enabled_filter_group = self.parser.add_mutually_exclusive_group()
-        self.enabled_filter_group.add_argument('--enabled', action='store_true',
-                                               help='Show rules that are enabled.')
-        self.enabled_filter_group.add_argument('--disabled', action='store_true',
-                                               help='Show rules that are disabled.')
+        self.enabled_filter_group.add_argument(
+            '--enabled', action='store_true', help='Show rules that are enabled.'
+        )
+        self.enabled_filter_group.add_argument(
+            '--disabled', action='store_true', help='Show rules that are disabled.'
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -99,12 +119,18 @@ class RuleListCommand(resource.ResourceTableCommand):
     def run_and_print(self, args, **kwargs):
         instances, count = self.run(args, **kwargs)
         if args.json or args.yaml:
-            self.print_output(instances, table.MultiColumnTable,
-                              attributes=args.attr, widths=args.width,
-                              json=args.json, yaml=args.yaml)
+            self.print_output(
+                instances,
+                table.MultiColumnTable,
+                attributes=args.attr,
+                widths=args.width,
+                json=args.json,
+                yaml=args.yaml,
+            )
         else:
-            self.print_output(instances, table.MultiColumnTable,
-                              attributes=args.attr, widths=args.width)
+            self.print_output(
+                instances, table.MultiColumnTable, attributes=args.attr, widths=args.width
+            )
 
             if args.last and count and count > args.last:
                 table.SingleRowTable.note_box(self.resource_name, args.last)
@@ -112,8 +138,7 @@ class RuleListCommand(resource.ResourceTableCommand):
 
 class RuleGetCommand(resource.ContentPackResourceGetCommand):
     display_attributes = ['all']
-    attribute_display_order = ['id', 'uid', 'ref', 'pack', 'name', 'description',
-                               'enabled']
+    attribute_display_order = ['id', 'uid', 'ref', 'pack', 'name', 'description', 'enabled']
 
 
 class RuleUpdateCommand(resource.ContentPackResourceUpdateCommand):
@@ -122,14 +147,12 @@ class RuleUpdateCommand(resource.ContentPackResourceUpdateCommand):
 
 class RuleEnableCommand(resource.ContentPackResourceEnableCommand):
     display_attributes = ['all']
-    attribute_display_order = ['id', 'ref', 'pack', 'name', 'enabled', 'description',
-                               'enabled']
+    attribute_display_order = ['id', 'ref', 'pack', 'name', 'enabled', 'description', 'enabled']
 
 
 class RuleDisableCommand(resource.ContentPackResourceDisableCommand):
     display_attributes = ['all']
-    attribute_display_order = ['id', 'ref', 'pack', 'name', 'enabled', 'description',
-                               'enabled']
+    attribute_display_order = ['id', 'ref', 'pack', 'name', 'enabled', 'description', 'enabled']
 
 
 class RuleDeleteCommand(resource.ContentPackResourceDeleteCommand):

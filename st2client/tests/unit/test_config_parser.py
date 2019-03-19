@@ -36,8 +36,12 @@ class CLIConfigParserTestCase(unittest2.TestCase):
         parser = CLIConfigParser(config_file_path='doesnotexist', validate_config_exists=False)
         self.assertTrue(parser)
 
-        self.assertRaises(ValueError, CLIConfigParser, config_file_path='doestnotexist',
-                          validate_config_exists=True)
+        self.assertRaises(
+            ValueError,
+            CLIConfigParser,
+            config_file_path='doestnotexist',
+            validate_config_exists=True,
+        )
 
     def test_parse(self):
         # File doesn't exist
@@ -53,42 +57,31 @@ class CLIConfigParserTestCase(unittest2.TestCase):
                 'api_version': 'v1',
                 'cacert': 'cacartpath',
                 'silence_ssl_warnings': False,
-                'silence_schema_output': True
+                'silence_schema_output': True,
             },
-            'cli': {
-                'debug': True,
-                'cache_token': False,
-                'timezone': 'UTC'
-            },
-            'credentials': {
-                'username': 'test1',
-                'password': 'test1',
-                'api_key': None
-            },
-            'api': {
-                'url': 'http://127.0.0.1:9101/v1'
-            },
-            'auth': {
-                'url': 'http://127.0.0.1:9100/'
-            },
-            'stream': {
-                'url': 'http://127.0.0.1:9102/v1/stream'
-            }
+            'cli': {'debug': True, 'cache_token': False, 'timezone': 'UTC'},
+            'credentials': {'username': 'test1', 'password': 'test1', 'api_key': None},
+            'api': {'url': 'http://127.0.0.1:9101/v1'},
+            'auth': {'url': 'http://127.0.0.1:9100/'},
+            'stream': {'url': 'http://127.0.0.1:9102/v1/stream'},
         }
-        parser = CLIConfigParser(config_file_path=CONFIG_FILE_PATH_FULL,
-                                 validate_config_exists=False)
+        parser = CLIConfigParser(
+            config_file_path=CONFIG_FILE_PATH_FULL, validate_config_exists=False
+        )
         result = parser.parse()
         self.assertEqual(expected, result)
 
         # File exists - missing options, test defaults
-        parser = CLIConfigParser(config_file_path=CONFIG_FILE_PATH_PARTIAL,
-                                 validate_config_exists=False)
+        parser = CLIConfigParser(
+            config_file_path=CONFIG_FILE_PATH_PARTIAL, validate_config_exists=False
+        )
         result = parser.parse()
         self.assertTrue(result['cli']['cache_token'], True)
 
     def test_get_config_for_unicode_char(self):
-        parser = CLIConfigParser(config_file_path=CONFIG_FILE_PATH_UNICODE,
-                                 validate_config_exists=False)
+        parser = CLIConfigParser(
+            config_file_path=CONFIG_FILE_PATH_UNICODE, validate_config_exists=False
+        )
         config = parser.parse()
 
         if six.PY3:
@@ -209,17 +202,20 @@ class CLIConfigPermissionsTestCase(unittest2.TestCase):
 
         self.assertEqual(
             "The SGID bit is not set on the StackStorm configuration directory.",
-            parser.LOG.info.call_args_list[0][0][0])
+            parser.LOG.info.call_args_list[0][0][0],
+        )
 
         self.assertEqual(parser.LOG.warn.call_count, 2)
         self.assertEqual(
             "The StackStorm configuration directory permissions are insecure "
             "(too permissive): others have access.",
-            parser.LOG.warn.call_args_list[0][0][0])
+            parser.LOG.warn.call_args_list[0][0][0],
+        )
 
         self.assertEqual(
             "The StackStorm configuration file permissions are insecure: others have access.",
-            parser.LOG.warn.call_args_list[1][0][0])
+            parser.LOG.warn.call_args_list[1][0][0],
+        )
 
         # Make sure we left the file alone
         self.assertTrue(os.path.exists(self.TEMP_FILE_PATH))
@@ -239,9 +235,11 @@ class CLIConfigPermissionsTestCase(unittest2.TestCase):
 
         self.assertNotEqual(os.stat(self.TEMP_FILE_PATH).st_mode & 0o777, 0o770)
 
-        parser = CLIConfigParser(config_file_path=self.TEMP_FILE_PATH,
-                                 validate_config_exists=True,
-                                 validate_config_permissions=False)
+        parser = CLIConfigParser(
+            config_file_path=self.TEMP_FILE_PATH,
+            validate_config_exists=True,
+            validate_config_permissions=False,
+        )
         parser.LOG = mock.Mock()
 
         result = parser.parse()  # noqa F841

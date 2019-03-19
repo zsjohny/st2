@@ -20,7 +20,6 @@ from st2common.models.api.notification import NotificationsHelper
 
 
 class NotificationsHelperTestCase(unittest2.TestCase):
-
     def test_model_transformations(self):
         notify = {}
 
@@ -33,24 +32,13 @@ class NotificationsHelperTestCase(unittest2.TestCase):
 
         notify['on-complete'] = {
             'message': 'Action completed.',
-            'routes': [
-                '66'
-            ],
-            'data': {
-                'foo': '{{foo}}',
-                'bar': 1,
-                'baz': [1, 2, 3]
-            }
+            'routes': ['66'],
+            'data': {'foo': '{{foo}}', 'bar': 1, 'baz': [1, 2, 3]},
         }
         notify['on-success'] = {
             'message': 'Action succeeded.',
-            'routes': [
-                '100'
-            ],
-            'data': {
-                'foo': '{{foo}}',
-                'bar': 1,
-            }
+            'routes': ['100'],
+            'data': {'foo': '{{foo}}', 'bar': 1},
         }
         notify_model = NotificationsHelper.to_model(notify)
         self.assertEqual(notify['on-complete']['message'], notify_model.on_complete.message)
@@ -79,24 +67,10 @@ class NotificationsHelperTestCase(unittest2.TestCase):
         self.assertEqual(notify_api, {})
 
         notify['on-complete'] = {
-            'routes': [
-                '66'
-            ],
-            'data': {
-                'foo': '{{foo}}',
-                'bar': 1,
-                'baz': [1, 2, 3]
-            }
+            'routes': ['66'],
+            'data': {'foo': '{{foo}}', 'bar': 1, 'baz': [1, 2, 3]},
         }
-        notify['on-success'] = {
-            'routes': [
-                '100'
-            ],
-            'data': {
-                'foo': '{{foo}}',
-                'bar': 1,
-            }
-        }
+        notify['on-success'] = {'routes': ['100'], 'data': {'foo': '{{foo}}', 'bar': 1}}
         notify_model = NotificationsHelper.to_model(notify)
         self.assertDictEqual(notify['on-complete']['data'], notify_model.on_complete.data)
         self.assertListEqual(notify['on-complete']['routes'], notify_model.on_complete.routes)

@@ -24,12 +24,7 @@ import dateutil.tz
 import dateutil.parser
 
 
-__all__ = [
-    'get_datetime_utc_now',
-    'add_utc_tz',
-    'convert_to_utc',
-    'parse'
-]
+__all__ = ['get_datetime_utc_now', 'add_utc_tz', 'convert_to_utc', 'parse']
 
 
 def get_datetime_utc_now():

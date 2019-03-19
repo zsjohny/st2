@@ -21,7 +21,7 @@ __all__ = [
     'AccessDeniedError',
     'ResourceTypeAccessDeniedError',
     'ResourceAccessDeniedError',
-    'ResourceAccessDeniedPermissionIsolationError'
+    'ResourceAccessDeniedPermissionIsolationError',
 ]
 
 
@@ -45,8 +45,10 @@ class ResourceTypeAccessDeniedError(AccessDeniedError):
     def __init__(self, user_db, permission_type):
         self.permission_type = permission_type
 
-        message = ('User "%s" doesn\'t have required permission "%s"' % (user_db.name,
-                                                                        permission_type))
+        message = 'User "%s" doesn\'t have required permission "%s"' % (
+            user_db.name,
+            permission_type,
+        )
         super(ResourceTypeAccessDeniedError, self).__init__(message=message, user_db=user_db)
 
 
@@ -62,11 +64,16 @@ class ResourceAccessDeniedError(AccessDeniedError):
         resource_uid = resource_api_or_db.get_uid() if resource_api_or_db else 'unknown'
 
         if resource_api_or_db and permission_type not in GLOBAL_PERMISSION_TYPES:
-            message = ('User "%s" doesn\'t have required permission "%s" on resource "%s"' %
-                       (user_db.name, permission_type, resource_uid))
+            message = 'User "%s" doesn\'t have required permission "%s" on resource "%s"' % (
+                user_db.name,
+                permission_type,
+                resource_uid,
+            )
         else:
-            message = ('User "%s" doesn\'t have required permission "%s"' %
-                       (user_db.name, permission_type))
+            message = 'User "%s" doesn\'t have required permission "%s"' % (
+                user_db.name,
+                permission_type,
+            )
         super(ResourceAccessDeniedError, self).__init__(message=message, user_db=user_db)
 
 
@@ -82,7 +89,10 @@ class ResourceAccessDeniedPermissionIsolationError(AccessDeniedError):
 
         resource_uid = resource_api_or_db.get_uid() if resource_api_or_db else 'unknown'
 
-        message = ('User "%s" doesn\'t have access to resource "%s" due to resource permission '
-                   'isolation.' % (user_db.name, resource_uid))
-        super(ResourceAccessDeniedPermissionIsolationError, self).__init__(message=message,
-                                                                           user_db=user_db)
+        message = (
+            'User "%s" doesn\'t have access to resource "%s" due to resource permission '
+            'isolation.' % (user_db.name, resource_uid)
+        )
+        super(ResourceAccessDeniedPermissionIsolationError, self).__init__(
+            message=message, user_db=user_db
+        )

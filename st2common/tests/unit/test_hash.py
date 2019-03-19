@@ -22,7 +22,6 @@ from six.moves import range
 
 
 class TestHashWithApiKeys(unittest2.TestCase):
-
     def test_hash_repeatability(self):
         api_key = auth_utils.generate_api_key()
         hash1 = hash_utils.hash(api_key)

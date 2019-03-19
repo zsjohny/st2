@@ -36,17 +36,14 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'BaseRuleControllerRBACTestCase',
-    'RuleControllerRBACTestCase'
-]
+__all__ = ['BaseRuleControllerRBACTestCase', 'RuleControllerRBACTestCase']
 
 FIXTURES_PACK = 'generic'
 TEST_FIXTURES = {
     'runners': ['testrunner1.yaml'],
     'actions': ['action1.yaml', 'local.yaml'],
     'triggers': ['trigger1.yaml'],
-    'triggertypes': ['triggertype1.yaml']
+    'triggertypes': ['triggertype1.yaml'],
 }
 
 
@@ -72,23 +69,24 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
 
     def setUp(self):
         super(BaseRuleControllerRBACTestCase, self).setUp()
-        self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                 fixtures_dict=TEST_FIXTURES)
+        self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
         file_name = 'rule_with_webhook_trigger.yaml'
         self.RULE_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule_example_pack.yaml'
         self.RULE_2 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule_action_doesnt_exist.yaml'
         self.RULE_3 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         # Insert mock users, roles and assignments
 
@@ -119,9 +117,11 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # Roles
         # rule_create grant on parent pack
-        grant_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.RULE_CREATE])
+        grant_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.RULE_CREATE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='rule_create', permission_grants=permission_grants)
@@ -129,13 +129,17 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.roles['rule_create'] = role_1_db
 
         # rule_create grant on parent pack, webhook_create on webhook "sample"
-        grant_1_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.RULE_CREATE])
+        grant_1_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.RULE_CREATE],
+        )
         grant_1_db = PermissionGrant.add_or_update(grant_1_db)
-        grant_2_db = PermissionGrantDB(resource_uid='webhook:sample',
-                                     resource_type=ResourceType.WEBHOOK,
-                                     permission_types=[PermissionType.WEBHOOK_CREATE])
+        grant_2_db = PermissionGrantDB(
+            resource_uid='webhook:sample',
+            resource_type=ResourceType.WEBHOOK,
+            permission_types=[PermissionType.WEBHOOK_CREATE],
+        )
         grant_2_db = PermissionGrant.add_or_update(grant_2_db)
         permission_grants = [str(grant_1_db.id), str(grant_2_db.id)]
         role_2_db = RoleDB(name='rule_create_webhook_create', permission_grants=permission_grants)
@@ -144,67 +148,99 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # rule_create grant on parent pack, webhook_create on webhook "sample", action_execute on
         # core.local
-        grant_1_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.RULE_CREATE])
+        grant_1_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.RULE_CREATE],
+        )
         grant_1_db = PermissionGrant.add_or_update(grant_1_db)
-        grant_2_db = PermissionGrantDB(resource_uid='webhook:sample',
-                                     resource_type=ResourceType.WEBHOOK,
-                                     permission_types=[PermissionType.WEBHOOK_CREATE])
+        grant_2_db = PermissionGrantDB(
+            resource_uid='webhook:sample',
+            resource_type=ResourceType.WEBHOOK,
+            permission_types=[PermissionType.WEBHOOK_CREATE],
+        )
         grant_2_db = PermissionGrant.add_or_update(grant_2_db)
-        grant_3_db = PermissionGrantDB(resource_uid='action:core:local',
-                                     resource_type=ResourceType.ACTION,
-                                     permission_types=[PermissionType.ACTION_EXECUTE])
+        grant_3_db = PermissionGrantDB(
+            resource_uid='action:core:local',
+            resource_type=ResourceType.ACTION,
+            permission_types=[PermissionType.ACTION_EXECUTE],
+        )
         grant_3_db = PermissionGrant.add_or_update(grant_3_db)
         permission_grants = [str(grant_1_db.id), str(grant_2_db.id), str(grant_3_db.id)]
 
-        role_3_db = RoleDB(name='rule_create_webhook_create_core_local_execute',
-                           permission_grants=permission_grants)
+        role_3_db = RoleDB(
+            name='rule_create_webhook_create_core_local_execute',
+            permission_grants=permission_grants,
+        )
         role_3_db = Role.add_or_update(role_3_db)
         self.roles['rule_create_webhook_create_core_local_execute'] = role_3_db
 
         # rule_create, rule_list, webhook_create, action_execute on parent pack
-        grant_6_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.RULE,
-                                     permission_types=[PermissionType.RULE_LIST])
+        grant_6_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.RULE,
+            permission_types=[PermissionType.RULE_LIST],
+        )
         grant_6_db = PermissionGrant.add_or_update(grant_6_db)
 
-        permission_grants = [str(grant_1_db.id), str(grant_2_db.id), str(grant_3_db.id),
-                             str(grant_6_db.id)]
+        permission_grants = [
+            str(grant_1_db.id),
+            str(grant_2_db.id),
+            str(grant_3_db.id),
+            str(grant_6_db.id),
+        ]
 
-        role_5_db = RoleDB(name='rule_create_list_webhook_create_core_local_execute',
-                           permission_grants=permission_grants)
+        role_5_db = RoleDB(
+            name='rule_create_list_webhook_create_core_local_execute',
+            permission_grants=permission_grants,
+        )
         role_5_db = Role.add_or_update(role_5_db)
         self.roles['rule_create_list_webhook_create_core_local_execute'] = role_5_db
 
         # rule_create grant on parent pack, webhook_create on webhook "sample", action_execute on
         # examples and wolfpack
-        grant_1_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.RULE_CREATE])
+        grant_1_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.RULE_CREATE],
+        )
         grant_1_db = PermissionGrant.add_or_update(grant_1_db)
-        grant_2_db = PermissionGrantDB(resource_uid='webhook:sample',
-                                     resource_type=ResourceType.WEBHOOK,
-                                     permission_types=[PermissionType.WEBHOOK_CREATE])
+        grant_2_db = PermissionGrantDB(
+            resource_uid='webhook:sample',
+            resource_type=ResourceType.WEBHOOK,
+            permission_types=[PermissionType.WEBHOOK_CREATE],
+        )
         grant_2_db = PermissionGrant.add_or_update(grant_2_db)
-        grant_3_db = PermissionGrantDB(resource_uid='pack:wolfpack',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_ALL])
+        grant_3_db = PermissionGrantDB(
+            resource_uid='pack:wolfpack',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_ALL],
+        )
         grant_3_db = PermissionGrant.add_or_update(grant_3_db)
-        grant_4_db = PermissionGrantDB(resource_uid=None,
-                                       resource_type=ResourceType.RULE,
-                                       permission_types=[PermissionType.RULE_LIST])
+        grant_4_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.RULE,
+            permission_types=[PermissionType.RULE_LIST],
+        )
         grant_4_db = PermissionGrant.add_or_update(grant_4_db)
-        grant_5_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_ALL])
+        grant_5_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_ALL],
+        )
         grant_5_db = PermissionGrant.add_or_update(grant_5_db)
 
-        permission_grants = [str(grant_1_db.id), str(grant_2_db.id), str(grant_3_db.id),
-                             str(grant_4_db.id), str(grant_5_db.id)]
+        permission_grants = [
+            str(grant_1_db.id),
+            str(grant_2_db.id),
+            str(grant_3_db.id),
+            str(grant_4_db.id),
+            str(grant_5_db.id),
+        ]
 
-        role_4_db = RoleDB(name='rule_create_webhook_create_action_execute',
-                           permission_grants=permission_grants)
+        role_4_db = RoleDB(
+            name='rule_create_webhook_create_action_execute', permission_grants=permission_grants
+        )
         role_4_db = Role.add_or_update(role_4_db)
         self.roles['rule_create_webhook_create_action_execute'] = role_4_db
 
@@ -213,42 +249,48 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role=self.roles['rule_create'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['rule_create_webhook_create']
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role=self.roles['rule_create_webhook_create'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['rule_create_webhook_create_core_local_execute']
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role=self.roles['rule_create_webhook_create_core_local_execute'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['rule_create_1']
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role=self.roles['rule_create_webhook_create_action_execute'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['user_two']
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role='rule_create_list_webhook_create_core_local_execute',
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['user_three']
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role='rule_create_list_webhook_create_core_local_execute',
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_get_all_respective_actions_with_permission_isolation(self):
@@ -343,8 +385,10 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
             self.assertEqual(resp.json['id'], rule_id)
             self.assertEqual(resp.json['context']['user'], 'user_two')
 
-        expected_msg = ('User "user_two" doesn\'t have access to resource "rule:.*" due to '
-                        'resource permission isolation.')
+        expected_msg = (
+            'User "user_two" doesn\'t have access to resource "rule:.*" due to '
+            'resource permission isolation.'
+        )
 
         for rule_id in result['admin']:
             resp = self.app.get('%s/%s' % (self.api_endpoint, rule_id), expect_errors=True)
@@ -366,8 +410,10 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
             self.assertEqual(resp.json['id'], rule_id)
             self.assertEqual(resp.json['context']['user'], 'user_three')
 
-        expected_msg = ('User "user_three" doesn\'t have access to resource "rule:.*" due to '
-                        'resource permission isolation.')
+        expected_msg = (
+            'User "user_three" doesn\'t have access to resource "rule:.*" due to '
+            'resource permission isolation.'
+        )
 
         for rule_id in result['admin']:
             resp = self.app.get('%s/%s' % (self.api_endpoint, rule_id), expect_errors=True)
@@ -383,8 +429,10 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
         user_db = self.users['observer']
         self.use_user(user_db)
 
-        expected_msg = ('User "observer" doesn\'t have access to resource "rule:.*" due to '
-                        'resource permission isolation.')
+        expected_msg = (
+            'User "observer" doesn\'t have access to resource "rule:.*" due to '
+            'resource permission isolation.'
+        )
 
         for username, rule_ids in result.items():
             for rule_id in rule_ids:
@@ -399,11 +447,7 @@ class BaseRuleControllerRBACTestCase(APIControllerWithRBACTestCase):
     def _insert_mock_rule_data_for_isolation_tests(self, rule):
         data = copy.copy(rule)
 
-        result = {
-            'admin': [],
-            'user_two': [],
-            'user_three': []
-        }
+        result = {'admin': [], 'user_two': [], 'user_three': []}
 
         # User with admin role assignment
         user_db = self.users['admin']
@@ -455,8 +499,10 @@ class RuleControllerRBACTestCase(BaseRuleControllerRBACTestCase):
         self.use_user(user_db)
 
         resp = self._do_post(self.RULE_1)
-        expected_msg = ('User "rule_create" doesn\'t have required permission (webhook_create) '
-                        'to use trigger core.st2.webhook')
+        expected_msg = (
+            'User "rule_create" doesn\'t have required permission (webhook_create) '
+            'to use trigger core.st2.webhook'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -466,8 +512,10 @@ class RuleControllerRBACTestCase(BaseRuleControllerRBACTestCase):
         self.use_user(user_db)
 
         resp = self._do_post(self.RULE_3)
-        expected_msg = ('User "rule_create_webhook_create" doesn\'t have required (action_execute)'
-                        ' permission to use action wolfpack.action-doesnt-exist-woo')
+        expected_msg = (
+            'User "rule_create_webhook_create" doesn\'t have required (action_execute)'
+            ' permission to use action wolfpack.action-doesnt-exist-woo'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -478,8 +526,10 @@ class RuleControllerRBACTestCase(BaseRuleControllerRBACTestCase):
         self.use_user(user_db)
 
         resp = self._do_post(self.RULE_2)
-        expected_msg = ('User "rule_create" doesn\'t have required (action_execute) permission '
-                        'to use action wolfpack.action-1')
+        expected_msg = (
+            'User "rule_create" doesn\'t have required (action_execute) permission '
+            'to use action wolfpack.action-1'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -490,8 +540,10 @@ class RuleControllerRBACTestCase(BaseRuleControllerRBACTestCase):
         self.use_user(user_db)
 
         resp = self._do_post(self.RULE_1)
-        expected_msg = ('User "rule_create_webhook_create" doesn\'t have required '
-                        '(action_execute) permission to use action core.local')
+        expected_msg = (
+            'User "rule_create_webhook_create" doesn\'t have required '
+            '(action_execute) permission to use action core.local'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 

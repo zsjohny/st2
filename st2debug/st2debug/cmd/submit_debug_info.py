@@ -73,10 +73,7 @@ LOG = logging.getLogger(__name__)
 # Constants
 GPG_INSTALLED = find_executable('gpg') is not None
 
-LOG_FILE_PATHS = [
-    '/var/log/st2/*.log',
-    '/var/log/mistral*.log'
-]
+LOG_FILE_PATHS = ['/var/log/st2/*.log', '/var/log/mistral*.log']
 
 ST2_CONFIG_FILE_PATH = '/etc/st2/st2.conf'
 MISTRAL_CONFIG_FILE_PATH = '/etc/mistral/mistral.conf'
@@ -84,12 +81,7 @@ MISTRAL_CONFIG_FILE_PATH = '/etc/mistral/mistral.conf'
 SHELL_COMMANDS = []
 
 # Directory structure inside tarball
-DIRECTORY_STRUCTURE = [
-    'configs/',
-    'logs/',
-    'content/',
-    'commands/'
-]
+DIRECTORY_STRUCTURE = ['configs/', 'logs/', 'content/', 'commands/']
 
 OUTPUT_PATHS = {
     'logs': 'logs/',
@@ -97,14 +89,11 @@ OUTPUT_PATHS = {
     'content': 'content/',
     'commands': 'commands/',
     'system_info': 'system_info.yaml',
-    'user_info': 'user_info.yaml'
+    'user_info': 'user_info.yaml',
 }
 
 # Options which should be removed from the st2 config
-ST2_CONF_OPTIONS_TO_REMOVE = {
-    'database': ['username', 'password'],
-    'messaging': ['url']
-}
+ST2_CONF_OPTIONS_TO_REMOVE = {'database': ['username', 'password'], 'messaging': ['url']}
 
 REMOVE_VALUE_NAME = '**removed**'
 
@@ -130,9 +119,18 @@ def setup_logging():
 
 
 class DebugInfoCollector(object):
-    def __init__(self, include_logs, include_configs, include_content, include_system_info,
-                 include_shell_commands=False, user_info=None, debug=False, config_file=None,
-                 output_path=None):
+    def __init__(
+        self,
+        include_logs,
+        include_configs,
+        include_content,
+        include_system_info,
+        include_shell_commands=False,
+        user_info=None,
+        debug=False,
+        config_file=None,
+        output_path=None,
+    ):
         """
         Initialize a DebugInfoCollector object.
 
@@ -166,8 +164,9 @@ class DebugInfoCollector(object):
 
         config_file = config_file or {}
         self.st2_config_file_path = config_file.get('st2_config_file_path', ST2_CONFIG_FILE_PATH)
-        self.mistral_config_file_path = config_file.get('mistral_config_file_path',
-                                                        MISTRAL_CONFIG_FILE_PATH)
+        self.mistral_config_file_path = config_file.get(
+            'mistral_config_file_path', MISTRAL_CONFIG_FILE_PATH
+        )
         self.log_file_paths = config_file.get('log_file_paths', LOG_FILE_PATHS[:])
         self.gpg_key = config_file.get('gpg_key', GPG_KEY)
         self.gpg_key_fingerprint = config_file.get('gpg_key_fingerprint', GPG_KEY_FINGERPRINT)
@@ -177,10 +176,7 @@ class DebugInfoCollector(object):
 
         self.st2_config_file_name = os.path.basename(self.st2_config_file_path)
         self.mistral_config_file_name = os.path.basename(self.mistral_config_file_path)
-        self.config_file_paths = [
-            self.st2_config_file_path,
-            self.mistral_config_file_path
-        ]
+        self.config_file_paths = [self.st2_config_file_path, self.mistral_config_file_path]
 
     def run(self, encrypt=False, upload=False, existing_file=None):
         """
@@ -203,26 +199,31 @@ class DebugInfoCollector(object):
                 # Create a new archive if an existing file hasn't been provided
                 working_file = self.create_archive()
                 if not encrypt and not upload:
-                    LOG.info('Debug tarball successfully '
-                             'generated and can be reviewed at: %s' % working_file)
+                    LOG.info(
+                        'Debug tarball successfully '
+                        'generated and can be reviewed at: %s' % working_file
+                    )
                 else:
                     temp_files.append(working_file)
 
             if encrypt:
                 working_file = self.encrypt_archive(archive_file_path=working_file)
                 if not upload:
-                    LOG.info('Encrypted debug tarball successfully generated at: %s' %
-                             working_file)
+                    LOG.info('Encrypted debug tarball successfully generated at: %s' % working_file)
                 else:
                     temp_files.append(working_file)
 
             if upload:
                 self.upload_archive(archive_file_path=working_file)
                 tarball_name = os.path.basename(working_file)
-                LOG.info('Debug tarball successfully uploaded to %s (name=%s)' %
-                         (self.company_name, tarball_name))
-                LOG.info('When communicating with support, please let them know the '
-                         'tarball name - %s' % tarball_name)
+                LOG.info(
+                    'Debug tarball successfully uploaded to %s (name=%s)'
+                    % (self.company_name, tarball_name)
+                )
+                LOG.info(
+                    'When communicating with support, please let them know the '
+                    'tarball name - %s' % tarball_name
+                )
         finally:
             # Remove temp files
             for temp_file in temp_files:
@@ -296,13 +297,16 @@ class DebugInfoCollector(object):
             assert import_result.count == 1
 
             encrypted_archive_output_file_name = os.path.basename(archive_file_path) + '.asc'
-            encrypted_archive_output_file_path = os.path.join('/tmp',
-                                                              encrypted_archive_output_file_name)
+            encrypted_archive_output_file_path = os.path.join(
+                '/tmp', encrypted_archive_output_file_name
+            )
             with open(archive_file_path, 'rb') as fp:
-                gpg.encrypt_file(file=fp,
-                                 recipients=self.gpg_key_fingerprint,
-                                 always_trust=True,
-                                 output=encrypted_archive_output_file_path)
+                gpg.encrypt_file(
+                    file=fp,
+                    recipients=self.gpg_key_fingerprint,
+                    always_trust=True,
+                    output=encrypted_archive_output_file_path,
+                )
             return encrypted_archive_output_file_path
         except Exception as e:
             LOG.exception('Failed to encrypt archive', exc_info=True)
@@ -394,8 +398,7 @@ class DebugInfoCollector(object):
         """
         LOG.debug('Including system info')
 
-        system_information = yaml.safe_dump(self.get_system_information(),
-                                            default_flow_style=False)
+        system_information = yaml.safe_dump(self.get_system_information(), default_flow_style=False)
 
         with open(output_path, 'w') as fp:
             fp.write(system_information)
@@ -506,13 +509,10 @@ class DebugInfoCollector(object):
         system_information = {
             'hostname': socket.gethostname(),
             'operating_system': {},
-            'hardware': {
-                'cpu': {},
-                'memory': {}
-            },
+            'hardware': {'cpu': {}, 'memory': {}},
             'python': {},
             'stackstorm': {},
-            'mistral': {}
+            'mistral': {},
         }
 
         # Operating system information
@@ -534,10 +534,7 @@ class DebugInfoCollector(object):
         if cpu_info:
             core_count = len(cpu_info)
             model = cpu_info[0]['model_name']
-            system_information['hardware']['cpu'] = {
-                'core_count': core_count,
-                'model_name': model
-            }
+            system_information['hardware']['cpu'] = {'core_count': core_count, 'model_name': model}
         else:
             # Unsupported platform
             system_information['hardware']['cpu'] = 'unsupported platform'
@@ -547,12 +544,8 @@ class DebugInfoCollector(object):
         if memory_info:
             total = memory_info['MemTotal'] / 1024
             free = memory_info['MemFree'] / 1024
-            used = (total - free)
-            system_information['hardware']['memory'] = {
-                'total': total,
-                'used': used,
-                'free': free
-            }
+            used = total - free
+            system_information['hardware']['memory'] = {'total': total, 'used': used, 'free': free}
         else:
             # Unsupported platform
             system_information['hardware']['memory'] = 'unsupported platform'
@@ -588,28 +581,62 @@ class DebugInfoCollector(object):
 
 def main():
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--exclude-logs', action='store_true', default=False,
-                        help='Don\'t include logs in the generated tarball')
-    parser.add_argument('--exclude-configs', action='store_true', default=False,
-                        help='Don\'t include configs in the generated tarball')
-    parser.add_argument('--exclude-content', action='store_true', default=False,
-                        help='Don\'t include content packs in the generated tarball')
-    parser.add_argument('--exclude-system-info', action='store_true', default=False,
-                        help='Don\'t include system information in the generated tarball')
-    parser.add_argument('--exclude-shell-commands', action='store_true', default=False,
-                        help='Don\'t include shell commands output in the generated tarball')
-    parser.add_argument('--yes', action='store_true', default=False,
-                        help='Run in non-interactive mode and answer "yes" to all the questions')
-    parser.add_argument('--review', action='store_true', default=False,
-                        help='Generate the tarball, but don\'t encrypt and upload it')
-    parser.add_argument('--debug', action='store_true', default=False,
-                        help='Enable debug mode')
-    parser.add_argument('--config', action='store', default=None,
-                        help='Get required configurations from config file')
-    parser.add_argument('--output', action='store', default=None,
-                        help='Specify output file path')
-    parser.add_argument('--existing-file', action='store', default=None,
-                        help='Specify an existing file to operate on')
+    parser.add_argument(
+        '--exclude-logs',
+        action='store_true',
+        default=False,
+        help='Don\'t include logs in the generated tarball',
+    )
+    parser.add_argument(
+        '--exclude-configs',
+        action='store_true',
+        default=False,
+        help='Don\'t include configs in the generated tarball',
+    )
+    parser.add_argument(
+        '--exclude-content',
+        action='store_true',
+        default=False,
+        help='Don\'t include content packs in the generated tarball',
+    )
+    parser.add_argument(
+        '--exclude-system-info',
+        action='store_true',
+        default=False,
+        help='Don\'t include system information in the generated tarball',
+    )
+    parser.add_argument(
+        '--exclude-shell-commands',
+        action='store_true',
+        default=False,
+        help='Don\'t include shell commands output in the generated tarball',
+    )
+    parser.add_argument(
+        '--yes',
+        action='store_true',
+        default=False,
+        help='Run in non-interactive mode and answer "yes" to all the questions',
+    )
+    parser.add_argument(
+        '--review',
+        action='store_true',
+        default=False,
+        help='Generate the tarball, but don\'t encrypt and upload it',
+    )
+    parser.add_argument('--debug', action='store_true', default=False, help='Enable debug mode')
+    parser.add_argument(
+        '--config',
+        action='store',
+        default=None,
+        help='Get required configurations from config file',
+    )
+    parser.add_argument('--output', action='store', default=None, help='Specify output file path')
+    parser.add_argument(
+        '--existing-file',
+        action='store',
+        default=None,
+        help='Specify an existing file to operate on',
+    )
     args = parser.parse_args()
 
     setup_logging()
@@ -652,16 +679,21 @@ def main():
         # When not running in review mode, GPG needs to be installed and
         # available
         if not GPG_INSTALLED:
-            msg = ('"gpg" binary not found, can\'t proceed. Make sure "gpg" is installed '
-                   'and available in PATH.')
+            msg = (
+                '"gpg" binary not found, can\'t proceed. Make sure "gpg" is installed '
+                'and available in PATH.'
+            )
             raise ValueError(msg)
 
     if not args.yes and not args.existing_file and upload:
-        submitted_content = [name.replace('exclude_', '') for name in ARG_NAMES if
-                             not getattr(args, name, False)]
+        submitted_content = [
+            name.replace('exclude_', '') for name in ARG_NAMES if not getattr(args, name, False)
+        ]
         submitted_content = ', '.join(submitted_content)
-        print('This will submit the following information to %s: %s' % (company_name,
-                                                                        submitted_content))
+        print(
+            'This will submit the following information to %s: %s'
+            % (company_name, submitted_content)
+        )
         value = six.moves.input('Are you sure you want to proceed? [y/n] ')
         if value.strip().lower() not in ['y', 'yes']:
             print('Aborting')
@@ -670,22 +702,26 @@ def main():
     # Prompt user for optional additional context info
     user_info = {}
     if not args.yes and not args.existing_file:
-        print('If you want us to get back to you via email, you can provide additional context '
-              'such as your name, email and an optional comment')
+        print(
+            'If you want us to get back to you via email, you can provide additional context '
+            'such as your name, email and an optional comment'
+        )
         value = six.moves.input('Would you like to provide additional context? [y/n] ')
         if value.strip().lower() in ['y', 'yes']:
             user_info['name'] = six.moves.input('Name: ')
             user_info['email'] = six.moves.input('Email: ')
             user_info['comment'] = six.moves.input('Comment: ')
 
-    debug_collector = DebugInfoCollector(include_logs=not args.exclude_logs,
-                                         include_configs=not args.exclude_configs,
-                                         include_content=not args.exclude_content,
-                                         include_system_info=not args.exclude_system_info,
-                                         include_shell_commands=not args.exclude_shell_commands,
-                                         user_info=user_info,
-                                         debug=args.debug,
-                                         config_file=config_file,
-                                         output_path=args.output)
+    debug_collector = DebugInfoCollector(
+        include_logs=not args.exclude_logs,
+        include_configs=not args.exclude_configs,
+        include_content=not args.exclude_content,
+        include_system_info=not args.exclude_system_info,
+        include_shell_commands=not args.exclude_shell_commands,
+        user_info=user_info,
+        debug=args.debug,
+        config_file=config_file,
+        output_path=args.output,
+    )
 
     debug_collector.run(encrypt=encrypt, upload=upload, existing_file=args.existing_file)

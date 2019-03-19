@@ -25,8 +25,13 @@ from tests import FunctionalTest
 FIXTURES_PACK = 'generic'
 
 TEST_MODELS = {
-    'apikeys': ['apikey1.yaml', 'apikey2.yaml', 'apikey3.yaml', 'apikey_disabled.yaml',
-                'apikey_malformed.yaml']
+    'apikeys': [
+        'apikey1.yaml',
+        'apikey2.yaml',
+        'apikey3.yaml',
+        'apikey_disabled.yaml',
+        'apikey_malformed.yaml',
+    ]
 }
 
 # Hardcoded keys matching the fixtures. Lazy way to workound one-way hash and still use fixtures.
@@ -48,8 +53,9 @@ class TestApiKeyController(FunctionalTest):
         cfg.CONF.set_override(name='mask_secrets', override=True, group='api')
         cfg.CONF.set_override(name='mask_secrets', override=True, group='log')
 
-        models = FixturesLoader().save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                      fixtures_dict=TEST_MODELS)
+        models = FixturesLoader().save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_MODELS
+        )
         cls.apikey1 = models['apikeys']['apikey1.yaml']
         cls.apikey2 = models['apikeys']['apikey2.yaml']
         cls.apikey3 = models['apikeys']['apikey3.yaml']
@@ -64,10 +70,17 @@ class TestApiKeyController(FunctionalTest):
         self.assertEqual(len(resp.json), 5, '/v1/apikeys did not return all apikeys.')
 
         retrieved_ids = [apikey['id'] for apikey in resp.json]
-        self.assertEqual(retrieved_ids,
-                         [str(self.apikey1.id), str(self.apikey2.id), str(self.apikey3.id),
-                          str(self.apikey4.id), str(self.apikey5.id)],
-                         'Incorrect api keys retrieved.')
+        self.assertEqual(
+            retrieved_ids,
+            [
+                str(self.apikey1.id),
+                str(self.apikey2.id),
+                str(self.apikey3.id),
+                str(self.apikey4.id),
+                str(self.apikey5.id),
+            ],
+            'Incorrect api keys retrieved.',
+        )
 
         resp = self.app.get('/v1/apikeys/?limit=-1')
         self.assertEqual(resp.status_int, 200)
@@ -109,52 +122,45 @@ class TestApiKeyController(FunctionalTest):
         # limit > max_page_size, but user is not admin
         resp = self.app.get('/v1/apikeys?offset=2&limit=1000', expect_errors=True)
         self.assertEqual(resp.status_int, http_client.FORBIDDEN)
-        self.assertEqual(resp.json['faultstring'],
-                         'Limit "1000" specified, maximum value is "100"')
+        self.assertEqual(resp.json['faultstring'], 'Limit "1000" specified, maximum value is "100"')
 
     def test_get_all_invalid_limit_negative_integer(self):
         resp = self.app.get('/v1/apikeys?offset=2&limit=-22', expect_errors=True)
         self.assertEqual(resp.status_int, 400)
-        self.assertEqual(resp.json['faultstring'],
-                         'Limit, "-22" specified, must be a positive number.')
+        self.assertEqual(
+            resp.json['faultstring'], 'Limit, "-22" specified, must be a positive number.'
+        )
 
     def test_get_all_invalid_offset_too_large(self):
         offset = '2141564789454123457895412237483648'
         resp = self.app.get('/v1/apikeys?offset=%s&limit=1' % (offset), expect_errors=True)
         self.assertEqual(resp.status_int, 400)
-        self.assertEqual(resp.json['faultstring'],
-                         'Offset "%s" specified is more than 32 bit int' % (offset))
+        self.assertEqual(
+            resp.json['faultstring'], 'Offset "%s" specified is more than 32 bit int' % (offset)
+        )
 
     def test_get_one_by_id(self):
         resp = self.app.get('/v1/apikeys/%s' % self.apikey1.id)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json['id'], str(self.apikey1.id),
-                         'Incorrect api key retrieved.')
-        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE,
-                         'Key should be masked.')
+        self.assertEqual(resp.json['id'], str(self.apikey1.id), 'Incorrect api key retrieved.')
+        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE, 'Key should be masked.')
 
     def test_get_one_by_key(self):
         # key1
         resp = self.app.get('/v1/apikeys/%s' % KEY1_KEY)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json['id'], str(self.apikey1.id),
-                         'Incorrect api key retrieved.')
-        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE,
-                         'Key should be masked.')
+        self.assertEqual(resp.json['id'], str(self.apikey1.id), 'Incorrect api key retrieved.')
+        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE, 'Key should be masked.')
         # key2
         resp = self.app.get('/v1/apikeys/%s' % KEY2_KEY)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json['id'], str(self.apikey2.id),
-                         'Incorrect api key retrieved.')
-        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE,
-                         'Key should be masked.')
+        self.assertEqual(resp.json['id'], str(self.apikey2.id), 'Incorrect api key retrieved.')
+        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE, 'Key should be masked.')
         # key3
         resp = self.app.get('/v1/apikeys/%s' % KEY3_KEY)
         self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.json['id'], str(self.apikey3.id),
-                         'Incorrect api key retrieved.')
-        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE,
-                         'Key should be masked.')
+        self.assertEqual(resp.json['id'], str(self.apikey3.id), 'Incorrect api key retrieved.')
+        self.assertEqual(resp.json['key_hash'], MASKED_ATTRIBUTE_VALUE, 'Key should be masked.')
 
     def test_get_show_secrets(self):
 
@@ -165,14 +171,11 @@ class TestApiKeyController(FunctionalTest):
             self.assertNotEqual(key['uid'], MASKED_ATTRIBUTE_VALUE)
 
     def test_post_delete_key(self):
-        api_key = {
-            'user': 'herge'
-        }
+        api_key = {'user': 'herge'}
         resp1 = self.app.post_json('/v1/apikeys', api_key)
         self.assertEqual(resp1.status_int, 201)
         self.assertTrue(resp1.json['key'], 'Key should be non-None.')
-        self.assertNotEqual(resp1.json['key'], MASKED_ATTRIBUTE_VALUE,
-                            'Key should not be masked.')
+        self.assertNotEqual(resp1.json['key'], MASKED_ATTRIBUTE_VALUE, 'Key should not be masked.')
 
         # should lead to creation of another key
         resp2 = self.app.post_json('/v1/apikeys', api_key)
@@ -191,16 +194,11 @@ class TestApiKeyController(FunctionalTest):
         resp3 = self.app.post_json('/v1/apikeys', {})
         self.assertEqual(resp3.status_int, 201)
         self.assertTrue(resp3.json['key'], 'Key should be non-None.')
-        self.assertNotEqual(resp3.json['key'], MASKED_ATTRIBUTE_VALUE,
-                            'Key should not be masked.')
+        self.assertNotEqual(resp3.json['key'], MASKED_ATTRIBUTE_VALUE, 'Key should not be masked.')
         self.assertTrue(resp3.json['user'], cfg.CONF.system_user.user)
 
     def test_post_delete_same_key_hash(self):
-        api_key = {
-            'id': '5c5dbb576cb8de06a2d79a4d',
-            'user': 'herge',
-            'key_hash': 'ABCDE'
-        }
+        api_key = {'id': '5c5dbb576cb8de06a2d79a4d', 'user': 'herge', 'key_hash': 'ABCDE'}
         resp1 = self.app.post_json('/v1/apikeys', api_key)
         self.assertEqual(resp1.status_int, 201)
         self.assertEqual(resp1.json['key'], None, 'Key should be None.')
@@ -221,15 +219,17 @@ class TestApiKeyController(FunctionalTest):
 
         update_input = resp.json
         update_input['enabled'] = not update_input['enabled']
-        put_resp = self.app.put_json('/v1/apikeys/%s' % self.apikey1.id, update_input,
-                                     expect_errors=True)
+        put_resp = self.app.put_json(
+            '/v1/apikeys/%s' % self.apikey1.id, update_input, expect_errors=True
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['enabled'], not resp.json['enabled'])
 
         update_input = put_resp.json
         update_input['enabled'] = not update_input['enabled']
-        put_resp = self.app.put_json('/v1/apikeys/%s' % self.apikey1.id, update_input,
-                                     expect_errors=True)
+        put_resp = self.app.put_json(
+            '/v1/apikeys/%s' % self.apikey1.id, update_input, expect_errors=True
+        )
         self.assertEqual(put_resp.status_int, 200)
         self.assertEqual(put_resp.json['enabled'], resp.json['enabled'])
 
@@ -239,8 +239,9 @@ class TestApiKeyController(FunctionalTest):
 
         update_input = resp.json
         update_input['key_hash'] = '1'
-        put_resp = self.app.put_json('/v1/apikeys/%s' % self.apikey1.id, update_input,
-                                     expect_errors=True)
+        put_resp = self.app.put_json(
+            '/v1/apikeys/%s' % self.apikey1.id, update_input, expect_errors=True
+        )
         self.assertEqual(put_resp.status_int, 400)
         self.assertTrue(put_resp.json['faultstring'])
 

@@ -26,10 +26,7 @@ import fnmatch
 
 import six
 
-__all__ = [
-    'get_file_list',
-    'recursive_chown'
-]
+__all__ = ['get_file_list', 'recursive_chown']
 
 
 def get_file_list(directory, exclude_patterns=None):

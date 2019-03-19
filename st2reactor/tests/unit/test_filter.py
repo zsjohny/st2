@@ -40,30 +40,36 @@ MOCK_TRIGGER_INSTANCE = TriggerInstanceDB(
         'float': 0.8,
         'list': ['v1', True, 1],
         'recursive_list': [
-            {
-                'field_name': "Status",
-                'to_value': "Approved",
-            }, {
-                'field_name': "Signed off by",
-                'to_value': "Stanley",
-            }
+            {'field_name': "Status", 'to_value': "Approved"},
+            {'field_name': "Signed off by", 'to_value': "Stanley"},
         ],
-    }
+    },
 )
 
 MOCK_ACTION = ActionDB(id=bson.ObjectId(), pack='wolfpack', name='action-test-1.name')
 
-MOCK_RULE_1 = RuleDB(id=bson.ObjectId(), pack='wolfpack', name='some1',
-                     trigger=reference.get_str_resource_ref_from_model(MOCK_TRIGGER),
-                     criteria={}, action=ActionExecutionSpecDB(ref="somepack.someaction"))
+MOCK_RULE_1 = RuleDB(
+    id=bson.ObjectId(),
+    pack='wolfpack',
+    name='some1',
+    trigger=reference.get_str_resource_ref_from_model(MOCK_TRIGGER),
+    criteria={},
+    action=ActionExecutionSpecDB(ref="somepack.someaction"),
+)
 
-MOCK_RULE_2 = RuleDB(id=bson.ObjectId(), pack='wolfpack', name='some2',
-                     trigger=reference.get_str_resource_ref_from_model(MOCK_TRIGGER),
-                     criteria={}, action=ActionExecutionSpecDB(ref="somepack.someaction"))
+MOCK_RULE_2 = RuleDB(
+    id=bson.ObjectId(),
+    pack='wolfpack',
+    name='some2',
+    trigger=reference.get_str_resource_ref_from_model(MOCK_TRIGGER),
+    criteria={},
+    action=ActionExecutionSpecDB(ref="somepack.someaction"),
+)
 
 
-@mock.patch.object(reference, 'get_model_by_resource_ref',
-                   mock.MagicMock(return_value=MOCK_TRIGGER))
+@mock.patch.object(
+    reference, 'get_model_by_resource_ref', mock.MagicMock(return_value=MOCK_TRIGGER)
+)
 class FilterTest(DbTestCase):
     def test_empty_criteria(self):
         rule = MOCK_RULE_1
@@ -94,15 +100,9 @@ class FilterTest(DbTestCase):
                 'type': 'search',
                 'condition': 'any',
                 'pattern': {
-                    'item.field_name': {
-                        'type': 'equals',
-                        'pattern': 'Status',
-                    },
-                    'item.to_value': {
-                        'type': 'equals',
-                        'pattern': 'Approved'
-                    }
-                }
+                    'item.field_name': {'type': 'equals', 'pattern': 'Status'},
+                    'item.to_value': {'type': 'equals', 'pattern': 'Approved'},
+                },
             }
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
@@ -115,15 +115,9 @@ class FilterTest(DbTestCase):
                 'type': 'search',
                 'condition': 'any',
                 'pattern': {
-                    'item.field_name': {
-                        'type': 'equals',
-                        'pattern': 'Status',
-                    },
-                    'item.to_value': {
-                        'type': 'equals',
-                        'pattern': 'Denied',
-                    }
-                }
+                    'item.field_name': {'type': 'equals', 'pattern': 'Status'},
+                    'item.to_value': {'type': 'equals', 'pattern': 'Denied'},
+                },
             }
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
@@ -135,12 +129,7 @@ class FilterTest(DbTestCase):
             'trigger.recursive_list': {
                 'type': 'search',
                 'condition': 'all',
-                'pattern': {
-                    'item.field_name': {
-                        'type': 'startswith',
-                        'pattern': 'S',
-                    }
-                }
+                'pattern': {'item.field_name': {'type': 'startswith', 'pattern': 'S'}},
             }
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
@@ -153,15 +142,9 @@ class FilterTest(DbTestCase):
                 'type': 'search',
                 'condition': 'all',
                 'pattern': {
-                    'item.field_name': {
-                        'type': 'equals',
-                        'pattern': 'Status',
-                    },
-                    'item.to_value': {
-                        'type': 'equals',
-                        'pattern': 'Denied',
-                    }
-                }
+                    'item.field_name': {'type': 'equals', 'pattern': 'Status'},
+                    'item.to_value': {'type': 'equals', 'pattern': 'Denied'},
+                },
             }
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
@@ -192,10 +175,7 @@ class FilterTest(DbTestCase):
 
         rule = MOCK_RULE_1
         rule.criteria = {
-            'trigger.p1': {
-                'type': 'equals',
-                'pattern': "{{'%s' % trigger.p1 if trigger.int}}"
-            }
+            'trigger.p1': {'type': 'equals', 'pattern': "{{'%s' % trigger.p1 if trigger.int}}"}
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
         self.assertTrue(f.filter(), 'equals check should have passed.')
@@ -211,7 +191,7 @@ class FilterTest(DbTestCase):
                         {{item}}{% if not loop.last %},{% endif %}
                         {% endfor %}
                     ]
-                """
+                """,
             }
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
@@ -238,7 +218,7 @@ class FilterTest(DbTestCase):
                         {{item}}
                         {% endfor %}
                     ]
-                """
+                """,
             }
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
@@ -323,9 +303,8 @@ class FilterTest(DbTestCase):
         rule = MOCK_RULE_2
 
         # Using a variable in pattern, referencing an inexistent datastore value
-        rule.criteria = {'trigger.p1': {
-            'type': 'equals',
-            'pattern': '{{ st2kv.system.inexistent_value }}'}
+        rule.criteria = {
+            'trigger.p1': {'type': 'equals', 'pattern': '{{ st2kv.system.inexistent_value }}'}
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
         self.assertFalse(f.filter())
@@ -336,10 +315,7 @@ class FilterTest(DbTestCase):
         mock_KeyValueLookup.return_value = mock_result
 
         rule.criteria = {
-            'trigger.p1': {
-                'type': 'equals',
-                'pattern': '{{ st2kv.system.test_value_1 }}'
-            }
+            'trigger.p1': {'type': 'equals', 'pattern': '{{ st2kv.system.test_value_1 }}'}
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
         self.assertFalse(f.filter())
@@ -350,10 +326,7 @@ class FilterTest(DbTestCase):
         mock_KeyValueLookup.return_value = mock_result
 
         rule.criteria = {
-            'trigger.p1': {
-                'type': 'equals',
-                'pattern': '{{ st2kv.system.test_value_2 }}'
-            }
+            'trigger.p1': {'type': 'equals', 'pattern': '{{ st2kv.system.test_value_2 }}'}
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
         self.assertTrue(f.filter())
@@ -364,10 +337,7 @@ class FilterTest(DbTestCase):
         mock_KeyValueLookup.return_value = mock_result
 
         rule.criteria = {
-            'trigger.p2': {
-                'type': 'equals',
-                'pattern': '{{ st2kv.system.test_value_3 }}'
-            }
+            'trigger.p2': {'type': 'equals', 'pattern': '{{ st2kv.system.test_value_3 }}'}
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
         self.assertFalse(f.filter())
@@ -378,10 +348,7 @@ class FilterTest(DbTestCase):
         mock_KeyValueLookup.return_value = mock_result
 
         rule.criteria = {
-            'trigger.p2': {
-                'type': 'equals',
-                'pattern': 'pre{{ st2kv.system.test_value_3 }}post'
-            }
+            'trigger.p2': {'type': 'equals', 'pattern': 'pre{{ st2kv.system.test_value_3 }}post'}
         }
         f = RuleFilter(MOCK_TRIGGER_INSTANCE, MOCK_TRIGGER, rule)
         self.assertTrue(f.filter())

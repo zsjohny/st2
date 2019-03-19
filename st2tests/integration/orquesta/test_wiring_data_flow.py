@@ -27,7 +27,6 @@ from st2common.constants import action as ac_const
 
 
 class WiringTest(base.TestWorkflowExecution):
-
     def test_data_flow(self):
         wf_name = 'examples.orquesta-data-flow'
         wf_input = {'a1': 'fee fi fo fum'}
@@ -47,7 +46,7 @@ class WiringTest(base.TestWorkflowExecution):
 
         expected_output = {
             'a5': wf_input['a1'].decode('utf-8') if six.PY2 else wf_input['a1'],
-            'b5': wf_input['a1'].decode('utf-8') if six.PY2 else wf_input['a1']
+            'b5': wf_input['a1'].decode('utf-8') if six.PY2 else wf_input['a1'],
         }
 
         expected_result = {'output': expected_output}
@@ -63,9 +62,8 @@ class WiringTest(base.TestWorkflowExecution):
         wf_input = {'name': '薩諾斯'}
 
         expected_output = {
-            'greeting': '%s, All your base are belong to us!' % (
-                wf_input['name'].decode('utf-8') if six.PY2 else wf_input['name']
-            )
+            'greeting': '%s, All your base are belong to us!'
+            % (wf_input['name'].decode('utf-8') if six.PY2 else wf_input['name'])
         }
 
         expected_result = {'output': expected_output}

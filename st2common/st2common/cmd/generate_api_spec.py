@@ -25,9 +25,7 @@ from st2common.util import spec_loader
 from st2common.script_setup import setup as common_setup
 from st2common.script_setup import teardown as common_teardown
 
-__all__ = [
-    'main'
-]
+__all__ = ['main']
 
 LOG = logging.getLogger(__name__)
 

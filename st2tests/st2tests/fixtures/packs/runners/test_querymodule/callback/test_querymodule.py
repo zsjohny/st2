@@ -26,7 +26,6 @@ def get_instance():
 
 
 class MockRunnerCallbackHandler(callback.AsyncActionExecutionCallbackHandler):
-
     @classmethod
     def callback(cls, url, context, status, result):
         pass

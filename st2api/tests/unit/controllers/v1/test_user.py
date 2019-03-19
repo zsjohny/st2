@@ -15,9 +15,7 @@
 
 from tests.base import APIControllerWithRBACTestCase
 
-__all__ = [
-    'UserControllerTestCase'
-]
+__all__ = ['UserControllerTestCase']
 
 
 class UserControllerTestCase(APIControllerWithRBACTestCase):

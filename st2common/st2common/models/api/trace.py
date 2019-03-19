@@ -23,37 +23,23 @@ from st2common.models.db.trace import TraceDB, TraceComponentDB
 TraceComponentAPISchema = {
     'type': 'object',
     'properties': {
-        'object_id': {
-            'type': 'string',
-            'description': 'Id of the component',
-            'required': True
-        },
-        'ref': {
-            'type': 'string',
-            'description': 'ref of the component',
-            'required': False
-        },
+        'object_id': {'type': 'string', 'description': 'Id of the component', 'required': True},
+        'ref': {'type': 'string', 'description': 'ref of the component', 'required': False},
         'updated_at': {
             'description': 'The start time when the action is executed.',
             'type': 'string',
-            'pattern': isotime.ISO8601_UTC_REGEX
+            'pattern': isotime.ISO8601_UTC_REGEX,
         },
         'caused_by': {
             'type': 'object',
             'description': 'Component that is the cause or the predecesor.',
             'properties': {
-                'id': {
-                    'description': 'Id of the causal component.',
-                    'type': 'string'
-                },
-                'type': {
-                    'description': 'Type of the causal component.',
-                    'type': 'string'
-                }
-            }
-        }
+                'id': {'description': 'Id of the causal component.', 'type': 'string'},
+                'type': {'description': 'Type of the causal component.', 'type': 'string'},
+            },
+        },
     },
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 
@@ -70,35 +56,35 @@ class TraceAPI(BaseAPI, APIUIDMixin):
             'id': {
                 'description': 'The unique identifier for a Trace.',
                 'type': 'string',
-                'default': None
+                'default': None,
             },
             'trace_tag': {
                 'description': 'User assigned identifier for each Trace.',
                 'type': 'string',
-                'required': True
+                'required': True,
             },
             'action_executions': {
                 'description': 'All ActionExecutions belonging to a Trace.',
                 'type': 'array',
-                'items': TraceComponentAPISchema
+                'items': TraceComponentAPISchema,
             },
             'rules': {
                 'description': 'All rules that applied as part of a Trace.',
                 'type': 'array',
-                'items': TraceComponentAPISchema
+                'items': TraceComponentAPISchema,
             },
             'trigger_instances': {
                 'description': 'All TriggerInstances fired during a Trace.',
                 'type': 'array',
-                'items': TraceComponentAPISchema
+                'items': TraceComponentAPISchema,
             },
             'start_timestamp': {
                 'description': 'Timestamp when the Trace is started.',
                 'type': 'string',
-                'pattern': isotime.ISO8601_UTC_REGEX
+                'pattern': isotime.ISO8601_UTC_REGEX,
             },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -106,7 +92,7 @@ class TraceAPI(BaseAPI, APIUIDMixin):
         values = {
             'object_id': component['object_id'],
             'ref': component['ref'],
-            'caused_by': component.get('caused_by', {})
+            'caused_by': component.get('caused_by', {}),
         }
         updated_at = component.get('updated_at', None)
         if updated_at:
@@ -115,12 +101,12 @@ class TraceAPI(BaseAPI, APIUIDMixin):
 
     @classmethod
     def to_model(cls, instance):
-        values = {
-            'trace_tag': instance.trace_tag
-        }
+        values = {'trace_tag': instance.trace_tag}
         action_executions = getattr(instance, 'action_executions', [])
-        action_executions = [TraceAPI.to_component_model(component=action_execution)
-                             for action_execution in action_executions]
+        action_executions = [
+            TraceAPI.to_component_model(component=action_execution)
+            for action_execution in action_executions
+        ]
         values['action_executions'] = action_executions
 
         rules = getattr(instance, 'rules', [])
@@ -128,8 +114,10 @@ class TraceAPI(BaseAPI, APIUIDMixin):
         values['rules'] = rules
 
         trigger_instances = getattr(instance, 'trigger_instances', [])
-        trigger_instances = [TraceAPI.to_component_model(component=trigger_instance)
-                             for trigger_instance in trigger_instances]
+        trigger_instances = [
+            TraceAPI.to_component_model(component=trigger_instance)
+            for trigger_instance in trigger_instances
+        ]
         values['trigger_instances'] = trigger_instances
 
         start_timestamp = getattr(instance, 'start_timestamp', None)
@@ -139,23 +127,29 @@ class TraceAPI(BaseAPI, APIUIDMixin):
 
     @classmethod
     def from_component_model(cls, component_model):
-        return {'object_id': component_model.object_id,
-                'ref': component_model.ref,
-                'updated_at': isotime.format(component_model.updated_at, offset=False),
-                'caused_by': component_model.caused_by}
+        return {
+            'object_id': component_model.object_id,
+            'ref': component_model.ref,
+            'updated_at': isotime.format(component_model.updated_at, offset=False),
+            'caused_by': component_model.caused_by,
+        }
 
     @classmethod
     def from_model(cls, model, mask_secrets=False):
         instance = cls._from_model(model, mask_secrets=mask_secrets)
         instance['start_timestamp'] = isotime.format(model.start_timestamp, offset=False)
         if model.action_executions:
-            instance['action_executions'] = [cls.from_component_model(action_execution)
-                                             for action_execution in model.action_executions]
+            instance['action_executions'] = [
+                cls.from_component_model(action_execution)
+                for action_execution in model.action_executions
+            ]
         if model.rules:
             instance['rules'] = [cls.from_component_model(rule) for rule in model.rules]
         if model.trigger_instances:
-            instance['trigger_instances'] = [cls.from_component_model(trigger_instance)
-                                             for trigger_instance in model.trigger_instances]
+            instance['trigger_instances'] = [
+                cls.from_component_model(trigger_instance)
+                for trigger_instance in model.trigger_instances
+            ]
         return cls(**instance)
 
 
@@ -173,6 +167,7 @@ class TraceContext(object):
                      Optional property.
     :type trace_tag: ``str``
     """
+
     def __init__(self, id_=None, trace_tag=None):
         self.id_ = id_
         self.trace_tag = trace_tag

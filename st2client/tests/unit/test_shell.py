@@ -161,11 +161,18 @@ class ShellTestCase(base.BaseCLITestCase):
         auth_url = 'http://www.st2.com:8888'
         api_url = 'http://www.stackstorm1.com:9101/v1'
         stream_url = 'http://www.stackstorm1.com:9102/v1'
-        args = ['--url', base_url,
-                '--auth-url', auth_url,
-                '--api-url', api_url,
-                '--stream-url', stream_url,
-                'trigger', 'list']
+        args = [
+            '--url',
+            base_url,
+            '--auth-url',
+            auth_url,
+            '--api-url',
+            api_url,
+            '--stream-url',
+            stream_url,
+            'trigger',
+            'list',
+        ]
         parsed_args = self.shell.parser.parse_args(args)
         client = self.shell.get_client(parsed_args)
         self.assertEqual(client.endpoints['base'], base_url)
@@ -191,15 +198,19 @@ class ShellTestCase(base.BaseCLITestCase):
         self.assertEqual(client.endpoints['stream'], stream_url)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')),
+    )
     def test_exit_code_on_success(self):
         argv = ['trigger', 'list']
         self.assertEqual(self.shell.run(argv), 0)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(None, 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(None, 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_exit_code_on_error(self):
         argv = ['trigger', 'list']
         self.assertEqual(self.shell.run(argv), 1)
@@ -207,9 +218,11 @@ class ShellTestCase(base.BaseCLITestCase):
     def _validate_parser(self, args_list, is_subcommand=True):
         for args in args_list:
             ns = self.shell.parser.parse_args(args)
-            func = (self.shell.commands[args[0]].run_and_print
-                    if not is_subcommand
-                    else self.shell.commands[args[0]].commands[args[1]].run_and_print)
+            func = (
+                self.shell.commands[args[0]].run_and_print
+                if not is_subcommand
+                else self.shell.commands[args[0]].commands[args[1]].run_and_print
+            )
             self.assertEqual(ns.func, func)
 
     def test_action(self):
@@ -222,7 +235,7 @@ class ShellTestCase(base.BaseCLITestCase):
             ['action', 'execute', '-h'],
             ['action', 'execute', 'remote', '-h'],
             ['action', 'execute', 'remote', 'hosts=192.168.1.1', 'user=st2', 'cmd="ls -l"'],
-            ['action', 'execute', 'remote-fib', 'hosts=192.168.1.1', '3', '8']
+            ['action', 'execute', 'remote-fib', 'hosts=192.168.1.1', '3', '8'],
         ]
         self._validate_parser(args_list)
 
@@ -243,13 +256,16 @@ class ShellTestCase(base.BaseCLITestCase):
             ['execution', 'pause', '123'],
             ['execution', 'pause', '123', '456'],
             ['execution', 'resume', '123'],
-            ['execution', 'resume', '123', '456']
+            ['execution', 'resume', '123', '456'],
         ]
         self._validate_parser(args_list)
 
         # Test mutually exclusive argument groups
-        self.assertRaises(SystemExit, self._validate_parser,
-                          [['execution', 'get', '123', '-d', '-k', 'localhost.stdout']])
+        self.assertRaises(
+            SystemExit,
+            self._validate_parser,
+            [['execution', 'get', '123', '-d', '-k', 'localhost.stdout']],
+        )
 
     def test_key(self):
         args_list = [
@@ -258,7 +274,7 @@ class ShellTestCase(base.BaseCLITestCase):
             ['key', 'get', 'abc'],
             ['key', 'set', 'abc', '123'],
             ['key', 'delete', 'abc'],
-            ['key', 'load', '/tmp/keys.json']
+            ['key', 'load', '/tmp/keys.json'],
         ]
         self._validate_parser(args_list)
 
@@ -276,7 +292,7 @@ class ShellTestCase(base.BaseCLITestCase):
             ['policy', 'get', 'abc'],
             ['policy', 'create', '/tmp/policy.json'],
             ['policy', 'update', '123', '/tmp/policy.json'],
-            ['policy', 'delete', 'abc']
+            ['policy', 'delete', 'abc'],
         ]
         self._validate_parser(args_list)
 
@@ -285,7 +301,7 @@ class ShellTestCase(base.BaseCLITestCase):
             ['policy-type', 'list'],
             ['policy-type', 'list', '-r', 'action'],
             ['policy-type', 'list', '--resource-type', 'action'],
-            ['policy-type', 'get', 'abc']
+            ['policy-type', 'get', 'abc'],
         ]
         self._validate_parser(args_list)
 
@@ -300,7 +316,7 @@ class ShellTestCase(base.BaseCLITestCase):
             ['pack', 'install', 'abc'],
             ['pack', 'install', 'abc', '--force'],
             ['pack', 'install', 'abc', '--detail'],
-            ['pack', 'config', 'abc']
+            ['pack', 'config', 'abc'],
         ]
         self._validate_parser(args_list)
 
@@ -342,15 +358,12 @@ class ShellTestCase(base.BaseCLITestCase):
             ['run', '-h'],
             ['run', 'abc', '-h'],
             ['run', 'remote', 'hosts=192.168.1.1', 'user=st2', 'cmd="ls -l"'],
-            ['run', 'remote-fib', 'hosts=192.168.1.1', '3', '8']
+            ['run', 'remote-fib', 'hosts=192.168.1.1', '3', '8'],
         ]
         self._validate_parser(args_list, is_subcommand=False)
 
     def test_runner(self):
-        args_list = [
-            ['runner', 'list'],
-            ['runner', 'get', 'abc']
-        ]
+        args_list = [['runner', 'list'], ['runner', 'get', 'abc']]
         self._validate_parser(args_list)
 
     def test_rule(self):
@@ -360,7 +373,7 @@ class ShellTestCase(base.BaseCLITestCase):
             ['rule', 'get', 'abc'],
             ['rule', 'create', '/tmp/rule.json'],
             ['rule', 'update', '123', '/tmp/rule.json'],
-            ['rule', 'delete', 'abc']
+            ['rule', 'delete', 'abc'],
         ]
         self._validate_parser(args_list)
 
@@ -370,14 +383,14 @@ class ShellTestCase(base.BaseCLITestCase):
             ['trigger', 'get', 'abc'],
             ['trigger', 'create', '/tmp/trigger.json'],
             ['trigger', 'update', '123', '/tmp/trigger.json'],
-            ['trigger', 'delete', 'abc']
+            ['trigger', 'delete', 'abc'],
         ]
         self._validate_parser(args_list)
 
     def test_workflow(self):
         args_list = [
             ['workflow', 'inspect', '--file', '/path/to/workflow/definition'],
-            ['workflow', 'inspect', '--action', 'mock.foobar']
+            ['workflow', 'inspect', '--action', 'mock.foobar'],
         ]
 
         self._validate_parser(args_list)
@@ -439,8 +452,10 @@ class ShellTestCase(base.BaseCLITestCase):
     @mock.patch('locale.getdefaultlocale', mock.Mock(return_value=['en_US']))
     @mock.patch('locale.getpreferredencoding', mock.Mock(return_value='iso'))
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')),
+    )
     @mock.patch('st2client.shell.LOGGER')
     def test_non_unicode_encoding_locale_warning_is_printed(self, mock_logger):
         shell = Shell()
@@ -452,16 +467,19 @@ class ShellTestCase(base.BaseCLITestCase):
     @mock.patch('locale.getdefaultlocale', mock.Mock(side_effect=ValueError('bar')))
     @mock.patch('locale.getpreferredencoding', mock.Mock(side_effect=ValueError('bar')))
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')),
+    )
     @mock.patch('st2client.shell.LOGGER')
     def test_failed_to_get_locale_encoding_warning_is_printed(self, mock_logger):
         shell = Shell()
         shell.run(argv=['trigger', 'list'])
 
         call_args = mock_logger.warn.call_args[0][0]
-        self.assertTrue('Locale unknown with encoding unknown which is not UTF-8 is used.' in
-                        call_args)
+        self.assertTrue(
+            'Locale unknown with encoding unknown which is not UTF-8 is used.' in call_args
+        )
 
     def _write_mock_package_metadata_file(self):
         _, package_metadata_path = tempfile.mkstemp()
@@ -473,8 +491,8 @@ class ShellTestCase(base.BaseCLITestCase):
 
     @unittest2.skipIf(True, 'skipping until checks are re-enabled')
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse("{}", 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse("{}", 200, 'OK'))
+    )
     def test_dont_warn_multiple_times(self):
         mock_temp_dir_path = tempfile.mkdtemp()
         mock_config_dir_path = os.path.join(mock_temp_dir_path, 'testconfig')
@@ -500,18 +518,20 @@ class ShellTestCase(base.BaseCLITestCase):
         self.assertEqual(shell.LOG.warn.call_count, 2)
         self.assertEqual(
             shell.LOG.warn.call_args_list[0][0][0][:63],
-            'The StackStorm configuration directory permissions are insecure')
+            'The StackStorm configuration directory permissions are insecure',
+        )
         self.assertEqual(
             shell.LOG.warn.call_args_list[1][0][0][:58],
-            'The StackStorm configuration file permissions are insecure')
+            'The StackStorm configuration file permissions are insecure',
+        )
 
         self.assertEqual(shell.LOG.info.call_count, 2)
         self.assertEqual(
-            shell.LOG.info.call_args_list[0][0][0], "The SGID bit is not "
-            "set on the StackStorm configuration directory.")
+            shell.LOG.info.call_args_list[0][0][0],
+            "The SGID bit is not " "set on the StackStorm configuration directory.",
+        )
 
-        self.assertEqual(
-            shell.LOG.info.call_args_list[1][0][0], 'Skipping parsing CLI config')
+        self.assertEqual(shell.LOG.info.call_args_list[1][0][0], 'Skipping parsing CLI config')
 
 
 class CLITokenCachingTestCase(unittest2.TestCase):
@@ -523,10 +543,10 @@ class CLITokenCachingTestCase(unittest2.TestCase):
 
         os.makedirs(self._mock_config_directory_path)
 
-        self._p1 = mock.patch('st2client.base.ST2_CONFIG_DIRECTORY',
-                              self._mock_config_directory_path)
-        self._p2 = mock.patch('st2client.base.ST2_CONFIG_PATH',
-                              self._mock_config_path)
+        self._p1 = mock.patch(
+            'st2client.base.ST2_CONFIG_DIRECTORY', self._mock_config_directory_path
+        )
+        self._p2 = mock.patch('st2client.base.ST2_CONFIG_PATH', self._mock_config_path)
         self._p1.start()
         self._p2.start()
 
@@ -540,7 +560,7 @@ class CLITokenCachingTestCase(unittest2.TestCase):
             'ST2_API_URL',
             'ST2_STREAM_URL',
             'ST2_DATASTORE_URL',
-            'ST2_AUTH_TOKEN'
+            'ST2_AUTH_TOKEN',
         ]:
             if var in os.environ:
                 del os.environ[var]
@@ -556,10 +576,7 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         password = 'testp'
 
         cached_token_path = shell._get_cached_token_path_for_user(username=username)
-        data = {
-            'token': 'yayvalid',
-            'expire_timestamp': (int(time.time()) + 20)
-        }
+        data = {'token': 'yayvalid', 'expire_timestamp': (int(time.time()) + 20)}
         with open(cached_token_path, 'w') as fp:
             fp.write(json.dumps(data))
 
@@ -567,15 +584,15 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         os.chmod(self._mock_config_directory_path, 0o000)
 
         shell.LOG = mock.Mock()
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
 
         self.assertEqual(result, None)
         self.assertEqual(shell.LOG.warn.call_count, 1)
         log_message = shell.LOG.warn.call_args[0][0]
 
-        expected_msg = ('Unable to retrieve cached token from .*? read access to the parent '
-                        'directory')
+        expected_msg = (
+            'Unable to retrieve cached token from .*? read access to the parent ' 'directory'
+        )
         self.assertRegexpMatches(log_message, expected_msg)
 
         # 2. Read access on the directory, but not on the cached token file
@@ -583,14 +600,13 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         os.chmod(cached_token_path, 0o000)
 
         shell.LOG = mock.Mock()
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, None)
 
         self.assertEqual(shell.LOG.warn.call_count, 1)
         log_message = shell.LOG.warn.call_args[0][0]
 
-        expected_msg = ('Unable to retrieve cached token from .*? read access to this file')
+        expected_msg = 'Unable to retrieve cached token from .*? read access to this file'
         self.assertRegexpMatches(log_message, expected_msg)
 
         # 3. Other users also have read access to the file
@@ -598,14 +614,13 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         os.chmod(cached_token_path, 0o444)
 
         shell.LOG = mock.Mock()
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, 'yayvalid')
 
         self.assertEqual(shell.LOG.warn.call_count, 1)
         log_message = shell.LOG.warn.call_args[0][0]
 
-        expected_msg = ('Permissions .*? for cached token file .*? are too permissive.*')
+        expected_msg = 'Permissions .*? for cached token file .*? are too permissive.*'
         self.assertRegexpMatches(log_message, expected_msg)
 
     def test_cache_auth_token_invalid_permissions(self):
@@ -618,10 +633,7 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         token_db = TokenDB(user=username, token='fyeah', expiry=expiry)
 
         cached_token_path = shell._get_cached_token_path_for_user(username=username)
-        data = {
-            'token': 'yayvalid',
-            'expire_timestamp': (int(time.time()) + 20)
-        }
+        data = {'token': 'yayvalid', 'expire_timestamp': (int(time.time()) + 20)}
         with open(cached_token_path, 'w') as fp:
             fp.write(json.dumps(data))
 
@@ -634,8 +646,9 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         self.assertEqual(shell.LOG.warn.call_count, 1)
         log_message = shell.LOG.warn.call_args[0][0]
 
-        expected_msg = ('Unable to write token to .*? doesn\'t have write access to the parent '
-                        'directory')
+        expected_msg = (
+            'Unable to write token to .*? doesn\'t have write access to the parent ' 'directory'
+        )
         self.assertRegexpMatches(log_message, expected_msg)
 
         # 2. Current user has no write access to the cached token file
@@ -648,7 +661,7 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         self.assertEqual(shell.LOG.warn.call_count, 1)
         log_message = shell.LOG.warn.call_args[0][0]
 
-        expected_msg = ('Unable to write token to .*? doesn\'t have write access to this file')
+        expected_msg = 'Unable to write token to .*? doesn\'t have write access to this file'
         self.assertRegexpMatches(log_message, expected_msg)
 
     def test_get_cached_auth_token_no_token_cache_file(self):
@@ -657,8 +670,7 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         username = 'testu'
         password = 'testp'
 
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, None)
 
     def test_get_cached_auth_token_corrupted_token_cache_file(self):
@@ -672,8 +684,14 @@ class CLITokenCachingTestCase(unittest2.TestCase):
             fp.write('CORRRRRUPTED!')
 
         expected_msg = 'File (.+) with cached token is corrupted or invalid'
-        self.assertRaisesRegexp(ValueError, expected_msg, shell._get_cached_auth_token,
-                                client=client, username=username, password=password)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            shell._get_cached_auth_token,
+            client=client,
+            username=username,
+            password=password,
+        )
 
     def test_get_cached_auth_token_expired_token_in_cache_file(self):
         client = Client()
@@ -682,15 +700,11 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         password = 'testp'
 
         cached_token_path = shell._get_cached_token_path_for_user(username=username)
-        data = {
-            'token': 'expired',
-            'expire_timestamp': (int(time.time()) - 10)
-        }
+        data = {'token': 'expired', 'expire_timestamp': (int(time.time()) - 10)}
         with open(cached_token_path, 'w') as fp:
             fp.write(json.dumps(data))
 
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, None)
 
     def test_get_cached_auth_token_valid_token_in_cache_file(self):
@@ -700,15 +714,11 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         password = 'testp'
 
         cached_token_path = shell._get_cached_token_path_for_user(username=username)
-        data = {
-            'token': 'yayvalid',
-            'expire_timestamp': (int(time.time()) + 20)
-        }
+        data = {'token': 'yayvalid', 'expire_timestamp': (int(time.time()) + 20)}
         with open(cached_token_path, 'w') as fp:
             fp.write(json.dumps(data))
 
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, 'yayvalid')
 
     def test_cache_auth_token_success(self):
@@ -718,15 +728,13 @@ class CLITokenCachingTestCase(unittest2.TestCase):
         password = 'testp'
         expiry = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
 
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, None)
 
         token_db = TokenDB(user=username, token='fyeah', expiry=expiry)
         shell._cache_auth_token(token_obj=token_db)
 
-        result = shell._get_cached_auth_token(client=client, username=username,
-                                              password=password)
+        result = shell._get_cached_auth_token(client=client, username=username, password=password)
         self.assertEqual(result, 'fyeah')
 
     def test_automatic_auth_skipped_on_auth_command(self):

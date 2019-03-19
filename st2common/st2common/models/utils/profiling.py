@@ -26,7 +26,7 @@ __all__ = [
     'enable_profiling',
     'disable_profiling',
     'is_enabled',
-    'log_query_and_profile_data_for_queryset'
+    'log_query_and_profile_data_for_queryset',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -86,11 +86,13 @@ def log_query_and_profile_data_for_queryset(queryset):
     explain_info = cloned_queryset.explain(format=True)
 
     if mongo_query is not None and collection_name is not None:
-        mongo_shell_query = construct_mongo_shell_query(mongo_query=mongo_query,
-                                                        collection_name=collection_name,
-                                                        ordering=ordering,
-                                                        limit=limit,
-                                                        only_fields=only_fields)
+        mongo_shell_query = construct_mongo_shell_query(
+            mongo_query=mongo_query,
+            collection_name=collection_name,
+            ordering=ordering,
+            limit=limit,
+            only_fields=only_fields,
+        )
         extra = {'mongo_query': mongo_query, 'mongo_shell_query': mongo_shell_query}
         LOG.debug('MongoDB query: %s' % (mongo_shell_query), extra=extra)
         LOG.debug('MongoDB explain data: %s' % (explain_info))
@@ -98,8 +100,7 @@ def log_query_and_profile_data_for_queryset(queryset):
     return queryset
 
 
-def construct_mongo_shell_query(mongo_query, collection_name, ordering, limit,
-                                only_fields=None):
+def construct_mongo_shell_query(mongo_query, collection_name, ordering, limit, only_fields=None):
     result = []
 
     # Select collection
@@ -119,7 +120,8 @@ def construct_mongo_shell_query(mongo_query, collection_name, ordering, limit,
         projection_items = ['\'%s\': 1' % (field) for field in only_fields]
         projection = ', '.join(projection_items)
         part = 'find({filter_predicate}, {{{projection}}})'.format(
-            filter_predicate=filter_predicate, projection=projection)
+            filter_predicate=filter_predicate, projection=projection
+        )
     else:
         part = 'find({filter_predicate})'.format(filter_predicate=filter_predicate)
 
@@ -129,8 +131,9 @@ def construct_mongo_shell_query(mongo_query, collection_name, ordering, limit,
     if ordering:
         sort_predicate = []
         for field_name, direction in ordering:
-            sort_predicate.append('{name}: {direction}'.format(name=field_name,
-                                                              direction=direction))
+            sort_predicate.append(
+                '{name}: {direction}'.format(name=field_name, direction=direction)
+            )
 
         sort_predicate = ', '.join(sort_predicate)
         part = 'sort({{{sort_predicate}}})'.format(sort_predicate=sort_predicate)

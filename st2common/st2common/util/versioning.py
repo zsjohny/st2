@@ -25,12 +25,7 @@ import semver
 
 from st2common import __version__ as stackstorm_version
 
-__all__ = [
-    'get_stackstorm_version',
-    'get_python_version',
-
-    'complex_semver_match'
-]
+__all__ = ['get_stackstorm_version', 'get_python_version', 'complex_semver_match']
 
 
 def get_stackstorm_version():

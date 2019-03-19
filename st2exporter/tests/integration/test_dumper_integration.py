@@ -31,17 +31,26 @@ from st2tests.fixturesloader import FixturesLoader
 DESCENDANTS_PACK = 'descendants'
 
 DESCENDANTS_FIXTURES = {
-    'executions': ['root_execution.yaml', 'child1_level1.yaml', 'child2_level1.yaml',
-                   'child1_level2.yaml', 'child2_level2.yaml', 'child3_level2.yaml',
-                   'child1_level3.yaml', 'child2_level3.yaml', 'child3_level3.yaml']
+    'executions': [
+        'root_execution.yaml',
+        'child1_level1.yaml',
+        'child2_level1.yaml',
+        'child1_level2.yaml',
+        'child2_level2.yaml',
+        'child3_level2.yaml',
+        'child1_level3.yaml',
+        'child2_level3.yaml',
+        'child3_level3.yaml',
+    ]
 }
 
 
 class TestDumper(DbTestCase):
 
     fixtures_loader = FixturesLoader()
-    loaded_fixtures = fixtures_loader.load_fixtures(fixtures_pack=DESCENDANTS_PACK,
-                                                    fixtures_dict=DESCENDANTS_FIXTURES)
+    loaded_fixtures = fixtures_loader.load_fixtures(
+        fixtures_pack=DESCENDANTS_PACK, fixtures_dict=DESCENDANTS_FIXTURES
+    )
     loaded_executions = loaded_fixtures['executions']
     execution_apis = []
     for execution in loaded_executions.values():
@@ -57,10 +66,14 @@ class TestDumper(DbTestCase):
     @mock.patch.object(os.path, 'exists', mock.MagicMock(return_value=True))
     def test_write_marker_to_db(self):
         executions_queue = self.get_queue()
-        dumper = Dumper(queue=executions_queue,
-                        export_dir='/tmp', batch_size=5,
-                        max_files_per_sleep=1,
-                        file_prefix='st2-stuff-', file_format='json')
+        dumper = Dumper(
+            queue=executions_queue,
+            export_dir='/tmp',
+            batch_size=5,
+            max_files_per_sleep=1,
+            file_prefix='st2-stuff-',
+            file_format='json',
+        )
         timestamps = [isotime.parse(execution.end_timestamp) for execution in self.execution_apis]
         max_timestamp = max(timestamps)
         marker_db = dumper._write_marker_to_db(max_timestamp)
@@ -71,10 +84,14 @@ class TestDumper(DbTestCase):
     @mock.patch.object(os.path, 'exists', mock.MagicMock(return_value=True))
     def test_write_marker_to_db_marker_exists(self):
         executions_queue = self.get_queue()
-        dumper = Dumper(queue=executions_queue,
-                        export_dir='/tmp', batch_size=5,
-                        max_files_per_sleep=1,
-                        file_prefix='st2-stuff-', file_format='json')
+        dumper = Dumper(
+            queue=executions_queue,
+            export_dir='/tmp',
+            batch_size=5,
+            max_files_per_sleep=1,
+            file_prefix='st2-stuff-',
+            file_format='json',
+        )
         timestamps = [isotime.parse(execution.end_timestamp) for execution in self.execution_apis]
         max_timestamp = max(timestamps)
         first_marker_db = dumper._write_marker_to_db(max_timestamp)

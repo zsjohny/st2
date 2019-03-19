@@ -20,17 +20,14 @@ Based on http://code.activestate.com/recipes/576694/ (MIT license)
 from __future__ import absolute_import
 import collections
 
-__all__ = [
-    'OrderedSet'
-]
+__all__ = ['OrderedSet']
 
 
 class OrderedSet(collections.MutableSet):
-
     def __init__(self, iterable=None):
         self.end = end = []
-        end += [None, end, end]         # sentinel node for doubly linked list
-        self.map = {}                   # key --> [key, prev, next]
+        end += [None, end, end]  # sentinel node for doubly linked list
+        self.map = {}  # key --> [key, prev, next]
         if iterable is not None:
             self |= iterable
 

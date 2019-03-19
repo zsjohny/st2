@@ -23,7 +23,6 @@ from six.moves import range
 
 
 class TestGreenPoolDispatch(TestCase):
-
     def test_dispatch_simple(self):
         dispatcher = BufferedDispatcher(dispatch_pool_size=10)
         mock_handler = mock.MagicMock()
@@ -38,9 +37,11 @@ class TestGreenPoolDispatch(TestCase):
         self.assertItemsEqual(expected, call_args_list)
 
     def test_dispatch_starved(self):
-        dispatcher = BufferedDispatcher(dispatch_pool_size=2,
-                                        monitor_thread_empty_q_sleep_time=0.01,
-                                        monitor_thread_no_workers_sleep_time=0.01)
+        dispatcher = BufferedDispatcher(
+            dispatch_pool_size=2,
+            monitor_thread_empty_q_sleep_time=0.01,
+            monitor_thread_no_workers_sleep_time=0.01,
+        )
         mock_handler = mock.MagicMock()
         expected = []
         for i in range(10):

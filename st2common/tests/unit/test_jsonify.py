@@ -5,7 +5,6 @@ import st2common.util.jsonify as jsonify
 
 
 class JsonifyTests(unittest2.TestCase):
-
     def test_none_object(self):
         obj = None
         self.assertTrue(jsonify.json_loads(obj) is None)

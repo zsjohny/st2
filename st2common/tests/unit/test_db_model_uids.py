@@ -29,9 +29,7 @@ from st2common.models.db.policy import PolicyTypeDB
 from st2common.models.db.policy import PolicyDB
 from st2common.models.db.auth import ApiKeyDB
 
-__all__ = [
-    'DBModelUIDFieldTestCase'
-]
+__all__ = ['DBModelUIDFieldTestCase']
 
 
 class DBModelUIDFieldTestCase(unittest2.TestCase):

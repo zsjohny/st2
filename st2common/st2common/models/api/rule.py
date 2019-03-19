@@ -32,15 +32,10 @@ class RuleTypeSpec(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'ref': {
-                'type': 'string',
-                'required': True
-            },
-            'parameters': {
-                'type': 'object'
-            }
+            'ref': {'type': 'string', 'required': True},
+            'parameters': {'type': 'object'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
 
@@ -54,26 +49,21 @@ class RuleTypeAPI(BaseAPI):
             'id': {
                 'description': 'The unique identifier for the action runner.',
                 'type': 'string',
-                'default': None
+                'default': None,
             },
             'name': {
                 'description': 'The name of the action runner.',
                 'type': 'string',
-                'required': True
+                'required': True,
             },
             'description': {
                 'description': 'The description of the action runner.',
-                'type': 'string'
+                'type': 'string',
             },
-            'enabled': {
-                'type': 'boolean',
-                'default': True
-            },
-            'parameters': {
-                'type': 'object'
-            }
+            'enabled': {'type': 'boolean', 'default': True},
+            'parameters': {'type': 'object'},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -83,8 +73,7 @@ class RuleTypeAPI(BaseAPI):
         enabled = getattr(rule_type, 'enabled', False)
         parameters = getattr(rule_type, 'parameters', {})
 
-        return cls.model(name=name, description=description, enabled=enabled,
-                         parameters=parameters)
+        return cls.model(name=name, description=description, enabled=enabled, parameters=parameters)
 
 
 class RuleAPI(BaseAPI, APIUIDMixin):
@@ -113,98 +102,58 @@ class RuleAPI(BaseAPI, APIUIDMixin):
         status: enabled or disabled. If disabled occurrence of the trigger
         does not lead to execution of a action and vice-versa.
     """
+
     model = RuleDB
     schema = {
         'type': 'object',
         'properties': {
-            'id': {
-                'type': 'string',
-                'default': None
-            },
+            'id': {'type': 'string', 'default': None},
             "ref": {
                 "description": "System computed user friendly reference for the action. \
                                 Provided value will be overridden by computed value.",
-                "type": "string"
+                "type": "string",
             },
-            'uid': {
-                'type': 'string'
-            },
-            'name': {
-                'type': 'string',
-                'required': True
-            },
-            'pack': {
-                'type': 'string',
-                'default': DEFAULT_PACK_NAME
-            },
-            'description': {
-                'type': 'string'
-            },
+            'uid': {'type': 'string'},
+            'name': {'type': 'string', 'required': True},
+            'pack': {'type': 'string', 'default': DEFAULT_PACK_NAME},
+            'description': {'type': 'string'},
             'type': RuleTypeSpec.schema,
             'trigger': {
                 'type': 'object',
                 'required': True,
                 'properties': {
-                    'type': {
-                        'type': 'string',
-                        'required': True
-                    },
-                    'description': {
-                        'type': 'string',
-                        'require': False
-                    },
-                    'parameters': {
-                        'type': 'object',
-                        'default': {}
-                    },
-                    'ref': {
-                        'type': 'string',
-                        'required': False
-                    }
+                    'type': {'type': 'string', 'required': True},
+                    'description': {'type': 'string', 'require': False},
+                    'parameters': {'type': 'object', 'default': {}},
+                    'ref': {'type': 'string', 'required': False},
                 },
-                'additionalProperties': True
+                'additionalProperties': True,
             },
-            'criteria': {
-                'type': 'object',
-                'default': {}
-            },
+            'criteria': {'type': 'object', 'default': {}},
             'action': {
                 'type': 'object',
                 'required': True,
                 'properties': {
-                    'ref': {
-                        'type': 'string',
-                        'required': True
-                    },
-                    'description': {
-                        'type': 'string',
-                        'require': False
-                    },
-                    'parameters': {
-                        'type': 'object'
-                    }
+                    'ref': {'type': 'string', 'required': True},
+                    'description': {'type': 'string', 'require': False},
+                    'parameters': {'type': 'object'},
                 },
-                'additionalProperties': False
+                'additionalProperties': False,
             },
-            'enabled': {
-                'type': 'boolean',
-                'default': False
-            },
-            'context': {
-                'type': 'object'
-            },
+            'enabled': {'type': 'boolean', 'default': False},
+            'context': {'type': 'object'},
             "tags": {
                 "description": "User associated metadata assigned to this object.",
                 "type": "array",
-                "items": {"type": "object"}
+                "items": {"type": "object"},
             },
             "metadata_file": {
                 "description": "Path to the metadata file relative to the pack directory.",
                 "type": "string",
-                "default": ""
-            }
+                "default": "",
+            },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -219,7 +168,7 @@ class RuleAPI(BaseAPI, APIUIDMixin):
             rule['trigger'] = {
                 'type': trigger_db.type,
                 'parameters': trigger_db.parameters,
-                'ref': model.trigger
+                'ref': model.trigger,
             }
 
         rule['tags'] = TagsHelper.from_model(model.tags)
@@ -238,28 +187,32 @@ class RuleAPI(BaseAPI, APIUIDMixin):
         trigger_type_ref = trigger.get('type', None)
         parameters = trigger.get('parameters', {})
 
-        validator.validate_trigger_parameters(trigger_type_ref=trigger_type_ref,
-                                              parameters=parameters)
+        validator.validate_trigger_parameters(
+            trigger_type_ref=trigger_type_ref, parameters=parameters
+        )
 
         # Create a trigger for the provided rule
         trigger_db = TriggerService.create_trigger_db_from_rule(rule)
         kwargs['trigger'] = reference.get_str_resource_ref_from_model(trigger_db)
 
         kwargs['pack'] = getattr(rule, 'pack', DEFAULT_PACK_NAME)
-        kwargs['ref'] = ResourceReference.to_string_reference(pack=kwargs['pack'],
-                                                              name=kwargs['name'])
+        kwargs['ref'] = ResourceReference.to_string_reference(
+            pack=kwargs['pack'], name=kwargs['name']
+        )
 
         # Validate criteria
         kwargs['criteria'] = dict(getattr(rule, 'criteria', {}))
         validator.validate_criteria(kwargs['criteria'])
 
-        kwargs['action'] = ActionExecutionSpecDB(ref=rule.action['ref'],
-                                                 parameters=rule.action.get('parameters', {}))
+        kwargs['action'] = ActionExecutionSpecDB(
+            ref=rule.action['ref'], parameters=rule.action.get('parameters', {})
+        )
 
         rule_type = dict(getattr(rule, 'type', {}))
         if rule_type:
-            kwargs['type'] = RuleTypeSpecDB(ref=rule_type['ref'],
-                                            parameters=rule_type.get('parameters', {}))
+            kwargs['type'] = RuleTypeSpecDB(
+                ref=rule_type['ref'], parameters=rule_type.get('parameters', {})
+            )
 
         kwargs['enabled'] = getattr(rule, 'enabled', False)
         kwargs['context'] = getattr(rule, 'context', dict())
@@ -275,13 +228,5 @@ class RuleViewAPI(RuleAPI):
     # Always deep-copy to avoid breaking the original.
     schema = copy.deepcopy(RuleAPI.schema)
     # Update the schema to include the description properties
-    schema['properties']['action'].update({
-        'description': {
-            'type': 'string'
-        }
-    })
-    schema['properties']['trigger'].update({
-        'description': {
-            'type': 'string'
-        }
-    })
+    schema['properties']['action'].update({'description': {'type': 'string'}})
+    schema['properties']['trigger'].update({'description': {'type': 'string'}})

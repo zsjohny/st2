@@ -32,6 +32,7 @@ from oslo_config import cfg
 
 import st2tests.config as tests_config
 from six.moves import range
+
 tests_config.parse_args()
 
 from st2common.constants import action as action_constants
@@ -46,35 +47,29 @@ from st2tests import DbTestCase
 
 MOCK_WF_TASKS_SUCCEEDED = [
     {'name': 'task1', 'state': 'SUCCESS'},
-    {'name': 'task2', 'state': 'SUCCESS'}
+    {'name': 'task2', 'state': 'SUCCESS'},
 ]
 
-MOCK_WF_TASKS_ERRORED = [
-    {'name': 'task1', 'state': 'SUCCESS'},
-    {'name': 'task2', 'state': 'ERROR'}
-]
+MOCK_WF_TASKS_ERRORED = [{'name': 'task1', 'state': 'SUCCESS'}, {'name': 'task2', 'state': 'ERROR'}]
 
 MOCK_WF_TASKS_RUNNING = [
     {'name': 'task1', 'state': 'SUCCESS'},
-    {'name': 'task2', 'state': 'RUNNING'}
+    {'name': 'task2', 'state': 'RUNNING'},
 ]
 
 MOCK_WF_TASKS_WAITING = [
     {'name': 'task1', 'state': 'SUCCESS'},
-    {'name': 'task2', 'state': 'WAITING'}
+    {'name': 'task2', 'state': 'WAITING'},
 ]
 
-MOCK_WF_TASKS_PAUSED = [
-    {'name': 'task1', 'state': 'SUCCESS'},
-    {'name': 'task2', 'state': 'PAUSED'}
-]
+MOCK_WF_TASKS_PAUSED = [{'name': 'task1', 'state': 'SUCCESS'}, {'name': 'task2', 'state': 'PAUSED'}]
 
 MOCK_WF_EX_DATA = {
     'id': uuid.uuid4().hex,
     'name': 'main',
     'output': '{"k1": "v1"}',
     'state': 'SUCCESS',
-    'state_info': None
+    'state_info': None,
 }
 
 MOCK_WF_EX = executions.Execution(None, MOCK_WF_EX_DATA)
@@ -91,7 +86,7 @@ MOCK_WF_EX_TASKS_DATA = [
         'state_info': None,
         'input': '{"a": "b"}',
         'result': '{"c": "d"}',
-        'published': '{"c": "d"}'
+        'published': '{"c": "d"}',
     },
     {
         'id': uuid.uuid4().hex,
@@ -104,20 +99,16 @@ MOCK_WF_EX_TASKS_DATA = [
         'state_info': None,
         'input': '{"e": "f", "g": "h"}',
         'result': '{"i": "j", "k": "l"}',
-        'published': '{"k": "l"}'
-    }
+        'published': '{"k": "l"}',
+    },
 ]
 
 MOCK_WF_EX_TASKS = [
     tasks.Task(None, MOCK_WF_EX_TASKS_DATA[0]),
-    tasks.Task(None, MOCK_WF_EX_TASKS_DATA[1])
+    tasks.Task(None, MOCK_WF_EX_TASKS_DATA[1]),
 ]
 
-MOCK_QRY_CONTEXT = {
-    'mistral': {
-        'execution_id': uuid.uuid4().hex
-    }
-}
+MOCK_QRY_CONTEXT = {'mistral': {'execution_id': uuid.uuid4().hex}}
 
 MOCK_LIVEACTION_RESULT = {
     'tasks': [
@@ -132,7 +123,7 @@ MOCK_LIVEACTION_RESULT = {
             'state_info': MOCK_WF_EX_TASKS_DATA[0]['state_info'],
             'input': json.loads(MOCK_WF_EX_TASKS_DATA[0]['input']),
             'result': json.loads(MOCK_WF_EX_TASKS_DATA[0]['result']),
-            'published': json.loads(MOCK_WF_EX_TASKS_DATA[0]['published'])
+            'published': json.loads(MOCK_WF_EX_TASKS_DATA[0]['published']),
         }
     ]
 }
@@ -149,7 +140,7 @@ MOCK_WF_EX_INCOMPLETE_TASKS_DATA = [
         'state_info': None,
         'input': '{"a": "b"}',
         'result': '{"c": "d"}',
-        'published': '{"c": "d"}'
+        'published': '{"c": "d"}',
     },
     {
         'id': uuid.uuid4().hex,
@@ -162,13 +153,13 @@ MOCK_WF_EX_INCOMPLETE_TASKS_DATA = [
         'state_info': None,
         'input': '{"e": "f", "g": "h"}',
         'result': '{"i": "j", "k": "l"}',
-        'published': '{"k": "l"}'
-    }
+        'published': '{"k": "l"}',
+    },
 ]
 
 MOCK_WF_EX_INCOMPLETE_TASKS = [
     tasks.Task(None, MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]),
-    tasks.Task(None, MOCK_WF_EX_INCOMPLETE_TASKS_DATA[1])
+    tasks.Task(None, MOCK_WF_EX_INCOMPLETE_TASKS_DATA[1]),
 ]
 
 MOCK_LIVEACTION_OUTDATED_INCOMPLETE_TASKS_RESULT = {
@@ -184,7 +175,7 @@ MOCK_LIVEACTION_OUTDATED_INCOMPLETE_TASKS_RESULT = {
             'state_info': MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['state_info'],
             'input': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['input']),
             'result': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['result']),
-            'published': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['published'])
+            'published': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['published']),
         }
     ]
 }
@@ -202,7 +193,7 @@ MOCK_LIVEACTION_UP_TO_DATE_INCOMPLETE_TASKS_RESULT = {
             'state_info': MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['state_info'],
             'input': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['input']),
             'result': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['result']),
-            'published': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['published'])
+            'published': json.loads(MOCK_WF_EX_INCOMPLETE_TASKS_DATA[0]['published']),
         }
     ]
 }
@@ -212,7 +203,7 @@ MOCK_CHILD_ACTIONEXECUTION_REQUESTED = ActionExecutionDB(
     runner={'name': 'local-shell-cmd'},
     liveaction={'id': uuid.uuid4().hex},
     status=action_constants.LIVEACTION_STATUS_REQUESTED,
-    children=[]
+    children=[],
 )
 
 MOCK_CHILD_ACTIONEXECUTION_RUNNING = ActionExecutionDB(
@@ -220,7 +211,7 @@ MOCK_CHILD_ACTIONEXECUTION_RUNNING = ActionExecutionDB(
     runner={'name': 'local-shell-cmd'},
     liveaction={'id': uuid.uuid4().hex},
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    children=[]
+    children=[],
 )
 
 MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED = ActionExecutionDB(
@@ -228,7 +219,7 @@ MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED = ActionExecutionDB(
     runner={'name': 'local-shell-cmd'},
     liveaction={'id': uuid.uuid4().hex},
     status=action_constants.LIVEACTION_STATUS_SUCCEEDED,
-    children=[]
+    children=[],
 )
 
 MOCK_CHILD_ACTIONEXECUTION_PAUSED = ActionExecutionDB(
@@ -236,12 +227,11 @@ MOCK_CHILD_ACTIONEXECUTION_PAUSED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': uuid.uuid4().hex},
     status=action_constants.LIVEACTION_STATUS_PAUSED,
-    children=[]
+    children=[],
 )
 
 MOCK_LIVEACTION_RUNNING = LiveActionDB(
-    action='mock.workflow',
-    status=action_constants.LIVEACTION_STATUS_RUNNING
+    action='mock.workflow', status=action_constants.LIVEACTION_STATUS_RUNNING
 )
 
 MOCK_ACTIONEXECUTION_RUNNING_CHILD_REQUESTED = ActionExecutionDB(
@@ -249,7 +239,7 @@ MOCK_ACTIONEXECUTION_RUNNING_CHILD_REQUESTED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_RUNNING.id},
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_REQUESTED.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_REQUESTED.id],
 )
 
 MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING = ActionExecutionDB(
@@ -257,7 +247,7 @@ MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_RUNNING.id},
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id],
 )
 
 MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED = ActionExecutionDB(
@@ -265,30 +255,29 @@ MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_RUNNING.id},
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED.id],
 )
 
 MOCK_LIVEACTION_RUNNING_WITH_STREAMING_RESULT = LiveActionDB(
     action='mock.workflow',
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    result=MOCK_LIVEACTION_RESULT
+    result=MOCK_LIVEACTION_RESULT,
 )
 
 MOCK_LIVEACTION_RUNNING_WITH_OUTDATED_INCOMPLETE_TASKS_STREAMING_RESULT = LiveActionDB(
     action='mock.workflow',
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    result=MOCK_LIVEACTION_OUTDATED_INCOMPLETE_TASKS_RESULT
+    result=MOCK_LIVEACTION_OUTDATED_INCOMPLETE_TASKS_RESULT,
 )
 
 MOCK_LIVEACTION_RUNNING_WITH_UP_TO_DATE_INCOMPLETE_TASKS_STREAMING_RESULT = LiveActionDB(
     action='mock.workflow',
     status=action_constants.LIVEACTION_STATUS_RUNNING,
-    result=MOCK_LIVEACTION_UP_TO_DATE_INCOMPLETE_TASKS_RESULT
+    result=MOCK_LIVEACTION_UP_TO_DATE_INCOMPLETE_TASKS_RESULT,
 )
 
 MOCK_LIVEACTION_CANCELING = LiveActionDB(
-    action='mock.workflow',
-    status=action_constants.LIVEACTION_STATUS_CANCELING
+    action='mock.workflow', status=action_constants.LIVEACTION_STATUS_CANCELING
 )
 
 MOCK_ACTIONEXECUTION_CANCELING_CHILD_RUNNING = ActionExecutionDB(
@@ -296,7 +285,7 @@ MOCK_ACTIONEXECUTION_CANCELING_CHILD_RUNNING = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_CANCELING.id},
     status=action_constants.LIVEACTION_STATUS_CANCELING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id],
 )
 
 MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED = ActionExecutionDB(
@@ -304,7 +293,7 @@ MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_CANCELING.id},
     status=action_constants.LIVEACTION_STATUS_CANCELING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED.id],
 )
 
 MOCK_ACTIONEXECUTION_CANCELING_CHILD_PAUSED = ActionExecutionDB(
@@ -312,12 +301,11 @@ MOCK_ACTIONEXECUTION_CANCELING_CHILD_PAUSED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_CANCELING.id},
     status=action_constants.LIVEACTION_STATUS_CANCELING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_PAUSED.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_PAUSED.id],
 )
 
 MOCK_LIVEACTION_PAUSING = LiveActionDB(
-    action='mock.workflow',
-    status=action_constants.LIVEACTION_STATUS_PAUSING
+    action='mock.workflow', status=action_constants.LIVEACTION_STATUS_PAUSING
 )
 
 MOCK_ACTIONEXECUTION_PAUSING = ActionExecutionDB(
@@ -325,7 +313,7 @@ MOCK_ACTIONEXECUTION_PAUSING = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_PAUSING.id},
     status=action_constants.LIVEACTION_STATUS_PAUSING,
-    children=[]
+    children=[],
 )
 
 MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING = ActionExecutionDB(
@@ -333,7 +321,7 @@ MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_PAUSING.id},
     status=action_constants.LIVEACTION_STATUS_PAUSING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id],
 )
 
 MOCK_ACTIONEXECUTION_PAUSING_CHILD_PAUSED = ActionExecutionDB(
@@ -341,12 +329,11 @@ MOCK_ACTIONEXECUTION_PAUSING_CHILD_PAUSED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_PAUSING.id},
     status=action_constants.LIVEACTION_STATUS_PAUSING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_PAUSED.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_PAUSED.id],
 )
 
 MOCK_LIVEACTION_RESUMING = LiveActionDB(
-    action='mock.workflow',
-    status=action_constants.LIVEACTION_STATUS_RESUMING
+    action='mock.workflow', status=action_constants.LIVEACTION_STATUS_RESUMING
 )
 
 MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING = ActionExecutionDB(
@@ -354,7 +341,7 @@ MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_RESUMING.id},
     status=action_constants.LIVEACTION_STATUS_RESUMING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_RUNNING.id],
 )
 
 MOCK_ACTIONEXECUTION_RESUMING_CHILD_SUCCEEDED = ActionExecutionDB(
@@ -362,12 +349,11 @@ MOCK_ACTIONEXECUTION_RESUMING_CHILD_SUCCEEDED = ActionExecutionDB(
     runner={'name': 'mistral_v2'},
     liveaction={'id': MOCK_LIVEACTION_RESUMING.id},
     status=action_constants.LIVEACTION_STATUS_RESUMING,
-    children=[MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED.id]
+    children=[MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED.id],
 )
 
 
 class MistralQuerierTest(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(MistralQuerierTest, cls).setUpClass()
@@ -386,407 +372,481 @@ class MistralQuerierTest(DbTestCase):
         self.querier = self.query_module.get_instance()
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_running_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'RUNNING',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RUNNING, 'RUNNING', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_running_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'RUNNING',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RUNNING, 'RUNNING', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_succeeded_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'SUCCESS',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RUNNING, 'SUCCESS', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_SUCCEEDED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_succeeded_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'SUCCESS',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RUNNING, 'SUCCESS', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_succeeded_tasks_completed_child_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'SUCCESS',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RUNNING, 'SUCCESS', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_failed_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'ERROR',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RUNNING, 'ERROR', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_FAILED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_failed_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'ERROR',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RUNNING, 'ERROR', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_canceled_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'CANCELLED',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_CANCELING, 'CANCELLED', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_canceled_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'CANCELLED',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_CANCELING, 'CANCELLED', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_canceled_tasks_waiting(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'CANCELLED',
-            MOCK_WF_TASKS_WAITING
+            MOCK_LIVEACTION_CANCELING, 'CANCELLED', MOCK_WF_TASKS_WAITING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_PAUSED,
-            MOCK_CHILD_ACTIONEXECUTION_PAUSED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_PAUSED,
+                MOCK_CHILD_ACTIONEXECUTION_PAUSED,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_canceled_tasks_paused(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'CANCELLED',
-            MOCK_WF_TASKS_PAUSED
+            MOCK_LIVEACTION_CANCELING, 'CANCELLED', MOCK_WF_TASKS_PAUSED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_running_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'RUNNING',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_CANCELING, 'RUNNING', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_running_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'RUNNING',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_CANCELING, 'RUNNING', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_CANCELING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_canceling_exec_running_tasks_waiting(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_CANCELING,
-            'RUNNING',
-            MOCK_WF_TASKS_WAITING
+            MOCK_LIVEACTION_CANCELING, 'RUNNING', MOCK_WF_TASKS_WAITING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_cancelled_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'CANCELLED',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RUNNING, 'CANCELLED', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_PAUSING_CHILD_PAUSED,
-            MOCK_CHILD_ACTIONEXECUTION_PAUSED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_PAUSING_CHILD_PAUSED,
+                MOCK_CHILD_ACTIONEXECUTION_PAUSED,
+            ]
+        ),
+    )
     def test_determine_status_wf_pausing_exec_paused_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_PAUSING,
-            'PAUSED',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_PAUSING, 'PAUSED', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_pausing_exec_paused_tasks_completed_child_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_PAUSING,
-            'PAUSED',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_PAUSING, 'PAUSED', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_pausing_exec_paused_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_PAUSING,
-            'PAUSED',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_PAUSING, 'PAUSED', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_PAUSING_CHILD_PAUSED,
-            MOCK_CHILD_ACTIONEXECUTION_PAUSED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_PAUSING_CHILD_PAUSED,
+                MOCK_CHILD_ACTIONEXECUTION_PAUSED,
+            ]
+        ),
+    )
     def test_determine_status_wf_pausing_exec_paused_tasks_paused(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_PAUSING,
-            'PAUSED',
-            MOCK_WF_TASKS_PAUSED
+            MOCK_LIVEACTION_PAUSING, 'PAUSED', MOCK_WF_TASKS_PAUSED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_PAUSING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_pausing_exec_running_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_PAUSING,
-            'RUNNING',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_PAUSING, 'RUNNING', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_paused_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'PAUSED',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RUNNING, 'PAUSED', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSED, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_running_exec_paused_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RUNNING,
-            'PAUSED',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RUNNING, 'PAUSED', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RESUMING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RESUMING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_resuming_exec_paused_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RESUMING,
-            'PAUSED',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RESUMING, 'PAUSED', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RESUMING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RESUMING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RESUMING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_determine_status_wf_resuming_exec_running_tasks_completed(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RESUMING,
-            'RUNNING',
-            MOCK_WF_TASKS_SUCCEEDED
+            MOCK_LIVEACTION_RESUMING, 'RUNNING', MOCK_WF_TASKS_SUCCEEDED
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_resuming_exec_running_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RESUMING,
-            'RUNNING',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RESUMING, 'RUNNING', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_RUNNING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_resuming_exec_paused_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RESUMING,
-            'PAUSED',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RESUMING, 'PAUSED', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_PAUSING, status)
 
     @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING,
-            MOCK_CHILD_ACTIONEXECUTION_RUNNING]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RESUMING_CHILD_RUNNING,
+                MOCK_CHILD_ACTIONEXECUTION_RUNNING,
+            ]
+        ),
+    )
     def test_determine_status_wf_resuming_exec_canceled_tasks_running(self):
         status = self.querier._determine_execution_status(
-            MOCK_LIVEACTION_RESUMING,
-            'CANCELLED',
-            MOCK_WF_TASKS_RUNNING
+            MOCK_LIVEACTION_RESUMING, 'CANCELLED', MOCK_WF_TASKS_RUNNING
         )
 
         self.assertEqual(action_constants.LIVEACTION_STATUS_CANCELING, status)
 
-    @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
     def test_get_workflow_result(self):
         result = self.querier._get_workflow_result(uuid.uuid4().hex, uuid.uuid4().hex)
 
         expected = {
             'k1': 'v1',
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         self.assertDictEqual(expected, result)
 
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_WF_EX_TASKS[0],
-            MOCK_WF_EX_TASKS[1]]))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(side_effect=[MOCK_WF_EX_TASKS[0], MOCK_WF_EX_TASKS[1]]),
+    )
     def test_get_workflow_tasks(self):
         tasks = self.querier._get_workflow_tasks(uuid.uuid4().hex, uuid.uuid4().hex)
 
@@ -800,34 +860,32 @@ class MistralQuerierTest(DbTestCase):
             self.assertDictEqual(expected[i], tasks[i])
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(side_effect=[MOCK_WF_EX_TASKS[0], MOCK_WF_EX_TASKS[1]]),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_WF_EX_TASKS[0],
-            MOCK_WF_EX_TASKS[1]]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -839,38 +897,36 @@ class MistralQuerierTest(DbTestCase):
         self.assertDictEqual(expected, result)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING_WITH_STREAMING_RESULT))
+        action_utils,
+        'get_liveaction_by_id',
+        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING_WITH_STREAMING_RESULT),
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager, 'list', mock.MagicMock(return_value=[MOCK_WF_EX_TASKS[1]])
+    )
+    @mock.patch.object(tasks.TaskManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX_TASKS[1]))
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=[MOCK_WF_EX_TASKS[1]]))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS[1]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query_with_last_query_time(self):
         last_query_time = time.time() - 3
 
         (status, result) = self.querier.query(
-            uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT,
-            last_query_time=last_query_time
+            uuid.uuid4().hex, MOCK_QRY_CONTEXT, last_query_time=last_query_time
         )
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -882,47 +938,49 @@ class MistralQuerierTest(DbTestCase):
         self.assertDictEqual(expected, result)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(side_effect=db_exc.StackStormDBObjectNotFoundError()))
+        action_utils,
+        'get_liveaction_by_id',
+        mock.MagicMock(side_effect=db_exc.StackStormDBObjectNotFoundError()),
+    )
     def test_query_liveaction_not_found(self):
         self.assertRaises(
             db_exc.StackStormDBObjectNotFoundError,
             self.querier.query,
             uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT
+            MOCK_QRY_CONTEXT,
         )
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(side_effect=[
-            requests.exceptions.ConnectionError(),
-            MOCK_WF_EX]))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError(), MOCK_WF_EX]),
+    )
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(side_effect=[MOCK_WF_EX_TASKS[0], MOCK_WF_EX_TASKS[1]]),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_WF_EX_TASKS[0],
-            MOCK_WF_EX_TASKS[1]]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query_get_workflow_retry(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -937,29 +995,36 @@ class MistralQuerierTest(DbTestCase):
         executions.ExecutionManager.get.assert_has_calls(calls)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError()] * 4))
+        executions.ExecutionManager,
+        'get',
+        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError()] * 4),
+    )
     def test_query_get_workflow_retry_exhausted(self):
         self.assertRaises(
             requests.exceptions.ConnectionError,
             self.querier.query,
             uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT)
+            MOCK_QRY_CONTEXT,
+        )
 
         calls = [call(MOCK_QRY_CONTEXT['mistral']['execution_id']) for i in range(0, 2)]
         executions.ExecutionManager.get.assert_has_calls(calls)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
+        executions.ExecutionManager,
+        'get',
         mock.MagicMock(
             side_effect=mistralclient_base.APIException(
-                error_code=404, error_message='Workflow not found.')))
+                error_code=404, error_message='Workflow not found.'
+            )
+        ),
+    )
     def test_query_get_workflow_not_found(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
@@ -967,36 +1032,36 @@ class MistralQuerierTest(DbTestCase):
         self.assertEqual('Workflow not found.', result)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager,
+        'list',
+        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError(), MOCK_WF_EX_TASKS]),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(side_effect=[
-            requests.exceptions.ConnectionError(),
-            MOCK_WF_EX_TASKS]))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(side_effect=[MOCK_WF_EX_TASKS[0], MOCK_WF_EX_TASKS[1]]),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_WF_EX_TASKS[0],
-            MOCK_WF_EX_TASKS[1]]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query_list_workflow_tasks_retry(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -1015,35 +1080,38 @@ class MistralQuerierTest(DbTestCase):
         tasks.TaskManager.get.assert_has_calls(calls)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                requests.exceptions.ConnectionError(),
+                MOCK_WF_EX_TASKS[0],
+                MOCK_WF_EX_TASKS[1],
+            ]
+        ),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[
-            requests.exceptions.ConnectionError(),
-            MOCK_WF_EX_TASKS[0],
-            MOCK_WF_EX_TASKS[1]]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query_get_workflow_tasks_retry(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -1057,71 +1125,68 @@ class MistralQuerierTest(DbTestCase):
         calls = [
             call(MOCK_WF_EX_TASKS[0].id),
             call(MOCK_WF_EX_TASKS[0].id),
-            call(MOCK_WF_EX_TASKS[1].id)
+            call(MOCK_WF_EX_TASKS[1].id),
         ]
 
         tasks.TaskManager.get.assert_has_calls(calls)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
-    @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError()] * 4))
+        tasks.TaskManager,
+        'list',
+        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError()] * 4),
+    )
     def test_query_list_workflow_tasks_retry_exhausted(self):
         self.assertRaises(
             requests.exceptions.ConnectionError,
             self.querier.query,
             uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT)
+            MOCK_QRY_CONTEXT,
+        )
 
         mock_call = call(workflow_execution_id=MOCK_QRY_CONTEXT['mistral']['execution_id'])
         calls = [mock_call for i in range(0, 2)]
         tasks.TaskManager.list.assert_has_calls(calls)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
-    @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError()] * 4))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError()] * 4),
+    )
     def test_query_get_workflow_tasks_retry_exhausted(self):
         self.assertRaises(
             requests.exceptions.ConnectionError,
             self.querier.query,
             uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT)
+            MOCK_QRY_CONTEXT,
+        )
 
-        calls = [
-            call(MOCK_WF_EX_TASKS[0].id),
-            call(MOCK_WF_EX_TASKS[0].id)
-        ]
+        calls = [call(MOCK_WF_EX_TASKS[0].id), call(MOCK_WF_EX_TASKS[0].id)]
 
         tasks.TaskManager.get.assert_has_calls(calls)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
-    @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
+        tasks.TaskManager,
+        'get',
         mock.MagicMock(
             side_effect=mistralclient_base.APIException(
-                error_code=404, error_message='Task not found.')))
+                error_code=404, error_message='Task not found.'
+            )
+        ),
+    )
     def test_query_get_workflow_tasks_not_found(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
@@ -1135,39 +1200,40 @@ class MistralQuerierTest(DbTestCase):
         self.assertRaises(Exception, self.querier.query, uuid.uuid4().hex, {'mistral': {}})
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
+        action_utils,
+        'get_liveaction_by_id',
         mock.MagicMock(
-            return_value=MOCK_LIVEACTION_RUNNING_WITH_OUTDATED_INCOMPLETE_TASKS_STREAMING_RESULT))
+            return_value=MOCK_LIVEACTION_RUNNING_WITH_OUTDATED_INCOMPLETE_TASKS_STREAMING_RESULT
+        ),
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_INCOMPLETE_TASKS)
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_INCOMPLETE_TASKS))
+        tasks.TaskManager, 'get', mock.MagicMock(side_effect=MOCK_WF_EX_INCOMPLETE_TASKS)
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=MOCK_WF_EX_INCOMPLETE_TASKS))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query_with_outdated_tasks_in_liveaction_result(self):
         last_query_time = time.time() + 3
 
         (status, result) = self.querier.query(
-            uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT,
-            last_query_time=last_query_time
+            uuid.uuid4().hex, MOCK_QRY_CONTEXT, last_query_time=last_query_time
         )
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_INCOMPLETE_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -1179,39 +1245,40 @@ class MistralQuerierTest(DbTestCase):
         self.assertDictEqual(expected, result)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
+        action_utils,
+        'get_liveaction_by_id',
         mock.MagicMock(
-            return_value=MOCK_LIVEACTION_RUNNING_WITH_UP_TO_DATE_INCOMPLETE_TASKS_STREAMING_RESULT))
+            return_value=MOCK_LIVEACTION_RUNNING_WITH_UP_TO_DATE_INCOMPLETE_TASKS_STREAMING_RESULT
+        ),
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_INCOMPLETE_TASKS)
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_INCOMPLETE_TASKS))
+        tasks.TaskManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX_INCOMPLETE_TASKS[1])
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX_INCOMPLETE_TASKS[1]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
-            MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_SUCCEEDED,
+                MOCK_CHILD_ACTIONEXECUTION_SUCCEEDED,
+            ]
+        ),
+    )
     def test_query_with_up_to_date_tasks_in_liveaction_result(self):
         last_query_time = time.time() + 3
 
         (status, result) = self.querier.query(
-            uuid.uuid4().hex,
-            MOCK_QRY_CONTEXT,
-            last_query_time=last_query_time
+            uuid.uuid4().hex, MOCK_QRY_CONTEXT, last_query_time=last_query_time
         )
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_INCOMPLETE_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:
@@ -1223,34 +1290,32 @@ class MistralQuerierTest(DbTestCase):
         self.assertDictEqual(expected, result)
 
     @mock.patch.object(
-        action_utils, 'get_liveaction_by_id',
-        mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING))
+        action_utils, 'get_liveaction_by_id', mock.MagicMock(return_value=MOCK_LIVEACTION_RUNNING)
+    )
+    @mock.patch.object(executions.ExecutionManager, 'get', mock.MagicMock(return_value=MOCK_WF_EX))
+    @mock.patch.object(tasks.TaskManager, 'list', mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
     @mock.patch.object(
-        executions.ExecutionManager, 'get',
-        mock.MagicMock(return_value=MOCK_WF_EX))
+        tasks.TaskManager,
+        'get',
+        mock.MagicMock(side_effect=[MOCK_WF_EX_TASKS[0], MOCK_WF_EX_TASKS[1]]),
+    )
     @mock.patch.object(
-        tasks.TaskManager, 'list',
-        mock.MagicMock(return_value=MOCK_WF_EX_TASKS))
-    @mock.patch.object(
-        tasks.TaskManager, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_WF_EX_TASKS[0],
-            MOCK_WF_EX_TASKS[1]]))
-    @mock.patch.object(
-        ActionExecution, 'get',
-        mock.MagicMock(side_effect=[
-            MOCK_ACTIONEXECUTION_RUNNING_CHILD_REQUESTED,
-            MOCK_CHILD_ACTIONEXECUTION_REQUESTED]))
+        ActionExecution,
+        'get',
+        mock.MagicMock(
+            side_effect=[
+                MOCK_ACTIONEXECUTION_RUNNING_CHILD_REQUESTED,
+                MOCK_CHILD_ACTIONEXECUTION_REQUESTED,
+            ]
+        ),
+    )
     def test_orphaned_execution_child_in_requested_state(self):
         (status, result) = self.querier.query(uuid.uuid4().hex, MOCK_QRY_CONTEXT)
 
         expected = {
             'k1': 'v1',
             'tasks': copy.deepcopy(MOCK_WF_EX_TASKS_DATA),
-            'extra': {
-                'state': MOCK_WF_EX.state,
-                'state_info': MOCK_WF_EX.state_info
-            }
+            'extra': {'state': MOCK_WF_EX.state, 'state_info': MOCK_WF_EX.state_info},
         }
 
         for task in expected['tasks']:

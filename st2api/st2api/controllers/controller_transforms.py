@@ -14,9 +14,7 @@
 # limitations under the License.
 
 
-__all__ = [
-    'transform_to_bool'
-]
+__all__ = ['transform_to_bool']
 
 
 def transform_to_bool(value):

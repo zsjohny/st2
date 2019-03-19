@@ -25,16 +25,16 @@ LOG = logging.getLogger(__name__)
 
 
 class PolicyTypeBranch(resource.ResourceBranch):
-
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(PolicyTypeBranch, self).__init__(
-            models.PolicyType, description, app, subparsers,
+            models.PolicyType,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             read_only=True,
-            commands={
-                'list': PolicyTypeListCommand,
-                'get': PolicyTypeGetCommand
-            })
+            commands={'list': PolicyTypeListCommand, 'get': PolicyTypeGetCommand},
+        )
 
 
 class PolicyTypeListCommand(resource.ResourceListCommand):
@@ -43,8 +43,13 @@ class PolicyTypeListCommand(resource.ResourceListCommand):
     def __init__(self, resource, *args, **kwargs):
         super(PolicyTypeListCommand, self).__init__(resource, *args, **kwargs)
 
-        self.parser.add_argument('-r', '--resource-type', type=str, dest='resource_type',
-                                 help='Return policy types for the resource type.')
+        self.parser.add_argument(
+            '-r',
+            '--resource-type',
+            type=str,
+            dest='resource_type',
+            help='Return policy types for the resource type.',
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -65,17 +70,20 @@ class PolicyTypeGetCommand(resource.ResourceGetCommand):
 
 
 class PolicyBranch(resource.ResourceBranch):
-
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(PolicyBranch, self).__init__(
-            models.Policy, description, app, subparsers,
+            models.Policy,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             commands={
                 'list': PolicyListCommand,
                 'get': PolicyGetCommand,
                 'update': PolicyUpdateCommand,
-                'delete': PolicyDeleteCommand
-            })
+                'delete': PolicyDeleteCommand,
+            },
+        )
 
 
 class PolicyListCommand(resource.ContentPackResourceListCommand):
@@ -84,10 +92,20 @@ class PolicyListCommand(resource.ContentPackResourceListCommand):
     def __init__(self, resource, *args, **kwargs):
         super(PolicyListCommand, self).__init__(resource, *args, **kwargs)
 
-        self.parser.add_argument('-r', '--resource-ref', type=str, dest='resource_ref',
-                                 help='Return policies for the resource ref.')
-        self.parser.add_argument('-pt', '--policy-type', type=str, dest='policy_type',
-                                 help='Return policies of the policy type.')
+        self.parser.add_argument(
+            '-r',
+            '--resource-ref',
+            type=str,
+            dest='resource_ref',
+            help='Return policies for the resource ref.',
+        )
+        self.parser.add_argument(
+            '-pt',
+            '--policy-type',
+            type=str,
+            dest='policy_type',
+            help='Return policies of the policy type.',
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -109,9 +127,17 @@ class PolicyListCommand(resource.ContentPackResourceListCommand):
 
 class PolicyGetCommand(resource.ContentPackResourceGetCommand):
     display_attributes = ['all']
-    attribute_display_order = ['id', 'ref', 'pack', 'name', 'description',
-                               'enabled', 'resource_ref', 'policy_type',
-                               'parameters']
+    attribute_display_order = [
+        'id',
+        'ref',
+        'pack',
+        'name',
+        'description',
+        'enabled',
+        'resource_ref',
+        'policy_type',
+        'parameters',
+    ]
 
 
 class PolicyUpdateCommand(resource.ContentPackResourceUpdateCommand):

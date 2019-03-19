@@ -26,7 +26,7 @@ from st2common.services.keyvalues import UserKeyValueLookup
 __all__ = [
     'render_template',
     'render_template_with_system_context',
-    'render_template_with_system_and_user_context'
+    'render_template_with_system_and_user_context',
 ]
 
 
@@ -95,7 +95,7 @@ def render_template_with_system_and_user_context(value, user, context=None, pref
     context = context or {}
     context[DATASTORE_PARENT_SCOPE] = {
         SYSTEM_SCOPE: KeyValueLookup(prefix=prefix, scope=FULL_SYSTEM_SCOPE),
-        USER_SCOPE: UserKeyValueLookup(prefix=prefix, user=user, scope=FULL_USER_SCOPE)
+        USER_SCOPE: UserKeyValueLookup(prefix=prefix, user=user, scope=FULL_USER_SCOPE),
     }
 
     rendered = render_template(value=value, context=context)

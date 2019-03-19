@@ -36,14 +36,11 @@ from st2common.util.misc import get_normalized_file_path
 __all__ = [
     'getLogger',
     'setup',
-
     'FormatNamedFileHandler',
     'ConfigurableSyslogHandler',
-
     'LoggingStream',
-
     'ignore_lib2to3_log_messages',
-    'ignore_statsd_log_messages'
+    'ignore_statsd_log_messages',
 ]
 
 # NOTE: We set AUDIT to the highest log level which means AUDIT log messages will always be
@@ -52,17 +49,7 @@ __all__ = [
 logging.AUDIT = logging.CRITICAL + 10
 logging.addLevelName(logging.AUDIT, 'AUDIT')
 
-LOGGER_KEYS = [
-    'debug',
-    'info',
-    'warning',
-    'error',
-    'critical',
-    'exception',
-    'log',
-
-    'audit'
-]
+LOGGER_KEYS = ['debug', 'info', 'warning', 'error', 'critical', 'exception', 'log', 'audit']
 
 # Note: This attribute is used by "find_caller" so it can correctly exclude this file when looking
 # for the logger method caller frame.
@@ -114,6 +101,7 @@ def decorate_log_method(func):
                 kwargs.pop('extra', None)
                 return func(*args, **kwargs)
             raise e
+
     return func_wrapper
 
 
@@ -151,7 +139,6 @@ def getLogger(name):
 
 
 class LoggingStream(object):
-
     def __init__(self, name, level=logging.ERROR):
         self._logger = getLogger(name)
         self._level = level
@@ -187,9 +174,9 @@ def setup(config_file, redirect_stderr=True, excludes=None, disable_existing_log
     Configure logging from file.
     """
     try:
-        logging.config.fileConfig(config_file,
-                                  defaults=None,
-                                  disable_existing_loggers=disable_existing_loggers)
+        logging.config.fileConfig(
+            config_file, defaults=None, disable_existing_loggers=disable_existing_loggers
+        )
         handlers = logging.getLoggerClass().manager.root.handlers
         _add_exclusion_filters(handlers=handlers, excludes=excludes)
         if redirect_stderr:

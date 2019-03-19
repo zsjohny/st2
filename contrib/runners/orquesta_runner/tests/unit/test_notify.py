@@ -25,6 +25,7 @@ import st2tests
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests.unit import base
@@ -50,54 +51,41 @@ from st2tests.mocks import workflow as mock_wf_ex_xport
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 MOCK_NOTIFY = {
-    'on-complete': {
-        'data': {
-            'source_channel': 'baloney',
-            'user': 'lakstorm'
-        },
-        'routes': [
-            'hubot'
-        ]
-    }
+    'on-complete': {'data': {'source_channel': 'baloney', 'user': 'lakstorm'}, 'routes': ['hubot']}
 }
 
 
-@mock.patch.object(
-    notifier.Notifier,
-    '_post_notify_triggers',
-    mock.MagicMock(return_value=None))
-@mock.patch.object(
-    notifier.Notifier,
-    '_post_generic_trigger',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(notifier.Notifier, '_post_notify_triggers', mock.MagicMock(return_value=None))
+@mock.patch.object(notifier.Notifier, '_post_generic_trigger', mock.MagicMock(return_value=None))
 @mock.patch.object(
     publishers.CUDPublisher,
     'publish_update',
-    mock.MagicMock(side_effect=mock_ac_ex_xport.MockExecutionPublisher.publish_update))
+    mock.MagicMock(side_effect=mock_ac_ex_xport.MockExecutionPublisher.publish_update),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state),
+)
 class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(OrquestaNotifyTest, cls).setUpClass()
@@ -107,8 +95,7 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -141,10 +128,7 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
         self.assertEqual(wf_ex_db.status, action_constants.LIVEACTION_STATUS_RUNNING)
 
         # Check that notify is setup correctly in the db record.
-        expected_notify = {
-            'config': MOCK_NOTIFY,
-            'tasks': []
-        }
+        expected_notify = {'config': MOCK_NOTIFY, 'tasks': []}
 
         self.assertDictEqual(wf_ex_db.notify, expected_notify)
 
@@ -162,10 +146,7 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
         self.assertEqual(wf_ex_db.status, action_constants.LIVEACTION_STATUS_RUNNING)
 
         # Check that notify is setup correctly in the db record.
-        expected_notify = {
-            'config': MOCK_NOTIFY,
-            'tasks': wf_input['notify']
-        }
+        expected_notify = {'config': MOCK_NOTIFY, 'tasks': wf_input['notify']}
 
         self.assertDictEqual(wf_ex_db.notify, expected_notify)
 
@@ -182,10 +163,7 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
         self.assertEqual(wf_ex_db.status, action_constants.LIVEACTION_STATUS_RUNNING)
 
         # Check that notify is setup correctly in the db record.
-        expected_notify = {
-            'config': MOCK_NOTIFY,
-            'tasks': ['task1', 'task2', 'task3']
-        }
+        expected_notify = {'config': MOCK_NOTIFY, 'tasks': ['task1', 'task2', 'task3']}
 
         self.assertDictEqual(wf_ex_db.notify, expected_notify)
 
@@ -195,25 +173,21 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
         lv_ac_db.notify = notify_api_models.NotificationsHelper.to_model(MOCK_NOTIFY)
 
         expected_schema_failure_test_cases = [
-            'task1',            # Notify must be type of list.
-            [123],              # Item has to be type of string.
-            [''],               # String value cannot be empty.
-            ['  '],             # String value cannot be just spaces.
-            ['      '],         # String value cannot be just tabs.
-            ['init task'],      # String value cannot have space.
-            ['init-task'],      # String value cannot have dash.
-            ['task1', 'task1']  # String values have to be unique.
+            'task1',  # Notify must be type of list.
+            [123],  # Item has to be type of string.
+            [''],  # String value cannot be empty.
+            ['  '],  # String value cannot be just spaces.
+            ['      '],  # String value cannot be just tabs.
+            ['init task'],  # String value cannot have space.
+            ['init-task'],  # String value cannot have dash.
+            ['task1', 'task1'],  # String values have to be unique.
         ]
 
         for notify_tasks in expected_schema_failure_test_cases:
             lv_ac_db.parameters = {'notify': notify_tasks}
 
             try:
-                self.assertRaises(
-                    jsonschema.ValidationError,
-                    action_service.request,
-                    lv_ac_db
-                )
+                self.assertRaises(jsonschema.ValidationError, action_service.request, lv_ac_db)
             except Exception as e:
                 raise AssertionError('%s: %s' % (six.text_type(e), notify_tasks))
 
@@ -235,7 +209,7 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
                         'exist in the workflow definition: init_task.'
                     )
                 }
-            ]
+            ],
         }
 
         self.assertEqual(lv_ac_db.status, action_constants.LIVEACTION_STATUS_FAILED)
@@ -246,11 +220,7 @@ class OrquestaNotifyTest(st2tests.ExecutionDbTestCase):
         lv_ac_db = lv_db_models.LiveActionDB(action=wf_meta['name'])
         lv_ac_db.notify = notify_api_models.NotificationsHelper.to_model(MOCK_NOTIFY)
 
-        expected_schema_success_test_cases = [
-            [],
-            ['task1'],
-            ['task1', 'task2']
-        ]
+        expected_schema_success_test_cases = [[], ['task1'], ['task1', 'task2']]
 
         for notify_tasks in expected_schema_success_test_cases:
             lv_ac_db.parameters = {'notify': notify_tasks}

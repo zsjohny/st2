@@ -23,9 +23,7 @@ from st2common.util.misc import strip_shell_chars
 from st2common.util.misc import lowercase_value
 from st2common.util.ujson import fast_deepcopy
 
-__all__ = [
-    'MiscUtilTestCase'
-]
+__all__ = ['MiscUtilTestCase']
 
 
 class MiscUtilTestCase(unittest2.TestCase):
@@ -62,26 +60,12 @@ class MiscUtilTestCase(unittest2.TestCase):
         expected_value = ['testa', 'testb', 'testc']
         self.assertEqual(expected_value, lowercase_value(value=value))
 
-        value = {
-            'testA': 'testB',
-            'testC': 'TESTD',
-            'TESTE': 'TESTE'
-        }
-        expected_value = {
-            'testa': 'testb',
-            'testc': 'testd',
-            'teste': 'teste'
-        }
+        value = {'testA': 'testB', 'testC': 'TESTD', 'TESTE': 'TESTE'}
+        expected_value = {'testa': 'testb', 'testc': 'testd', 'teste': 'teste'}
         self.assertEqual(expected_value, lowercase_value(value=value))
 
     def test_fast_deepcopy_success(self):
-        values = [
-            'a',
-            u'٩(̾●̮̮̃̾•̃̾)۶',
-            1,
-            [1, 2, '3', 'b'],
-            {'a': 1, 'b': '3333', 'c': 'd'},
-        ]
+        values = ['a', u'٩(̾●̮̮̃̾•̃̾)۶', 1, [1, 2, '3', 'b'], {'a': 1, 'b': '3333', 'c': 'd'}]
         expected_values = [
             'a',
             u'٩(̾●̮̮̃̾•̃̾)۶',

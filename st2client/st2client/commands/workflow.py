@@ -1,4 +1,3 @@
-
 # Licensed to the StackStorm, Inc ('StackStorm') under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -27,11 +26,9 @@ LOG = logging.getLogger(__name__)
 
 
 class WorkflowBranch(commands.Branch):
-
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(WorkflowBranch, self).__init__(
-            'workflow', description, app, subparsers,
-            parent_parser=parent_parser
+            'workflow', description, app, subparsers, parent_parser=parent_parser
         )
 
         # Add subparser to register subcommands for managing workflows.
@@ -43,7 +40,6 @@ class WorkflowBranch(commands.Branch):
 
 
 class WorkflowInspectionCommand(commands.Command):
-
     def __init__(self, *args, **kwargs):
         name = 'inspect'
         description = 'Inspect workflow definition and return the list of errors if any.'
@@ -54,16 +50,14 @@ class WorkflowInspectionCommand(commands.Command):
         arg_group = self.parser.add_mutually_exclusive_group()
 
         arg_group.add_argument(
-            '--file',
-            dest='file',
-            help='Local file path to the workflow definition.'
+            '--file', dest='file', help='Local file path to the workflow definition.'
         )
 
         arg_group.add_argument(
             '--action',
             dest='action',
             help='Reference name for the registered action. This option works only if the file '
-                 'referenced by the entry point is installed locally under /opt/stackstorm/packs.'
+            'referenced by the entry point is installed locally under /opt/stackstorm/packs.',
         )
 
     @property

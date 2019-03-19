@@ -30,10 +30,7 @@ import st2common.content.utils as content_utils
 import st2common.util.action_db as action_utils
 import st2common.validators.api.action as action_validator
 
-__all__ = [
-    'ActionsRegistrar',
-    'register_actions'
-]
+__all__ = ['ActionsRegistrar', 'register_actions']
 
 LOG = logging.getLogger(__name__)
 
@@ -53,8 +50,7 @@ class ActionsRegistrar(ResourceRegistrar):
         self.register_packs(base_dirs=base_dirs)
 
         registered_count = 0
-        content = self._pack_loader.get_content(base_dirs=base_dirs,
-                                                content_type='actions')
+        content = self._pack_loader.get_content(base_dirs=base_dirs, content_type='actions')
 
         for pack, actions_dir in six.iteritems(content):
             if not actions_dir:
@@ -82,8 +78,9 @@ class ActionsRegistrar(ResourceRegistrar):
         """
         pack_dir = pack_dir[:-1] if pack_dir.endswith('/') else pack_dir
         _, pack = os.path.split(pack_dir)
-        actions_dir = self._pack_loader.get_content_from_pack(pack_dir=pack_dir,
-                                                              content_type='actions')
+        actions_dir = self._pack_loader.get_content_from_pack(
+            pack_dir=pack_dir, content_type='actions'
+        )
 
         # Register pack first
         self.register_pack(pack_name=pack, pack_dir=pack_dir)
@@ -123,14 +120,15 @@ class ActionsRegistrar(ResourceRegistrar):
             content['pack'] = pack
             pack_field = pack
         if pack_field != pack:
-            raise Exception('Model is in pack "%s" but field "pack" is different: %s' %
-                            (pack, pack_field))
+            raise Exception(
+                'Model is in pack "%s" but field "pack" is different: %s' % (pack, pack_field)
+            )
 
         # Add in "metadata_file" attribute which stores path to the pack metadata file relative to
         # the pack directory
-        metadata_file = content_utils.get_relative_path_to_pack_file(pack_ref=pack,
-                                                                     file_path=action,
-                                                                     use_pack_cache=True)
+        metadata_file = content_utils.get_relative_path_to_pack_file(
+            pack_ref=pack, file_path=action, use_pack_cache=True
+        )
         content['metadata_file'] = metadata_file
 
         action_api = ActionAPI(**content)
@@ -151,8 +149,10 @@ class ActionsRegistrar(ResourceRegistrar):
                 else:
                     parameter_name = 'unknown'
 
-                new_msg = ('Parameter name "%s" is invalid. Valid characters for parameter name '
-                           'are [a-zA-Z0-0_].' % (parameter_name))
+                new_msg = (
+                    'Parameter name "%s" is invalid. Valid characters for parameter name '
+                    'are [a-zA-Z0-0_].' % (parameter_name)
+                )
                 new_msg += '\n\n' + msg
                 raise jsonschema.ValidationError(new_msg)
             raise e
@@ -175,8 +175,9 @@ class ActionsRegistrar(ResourceRegistrar):
         if not existing:
             LOG.debug('Action %s not found. Creating new one with: %s', action_ref, content)
         else:
-            LOG.debug('Action %s found. Will be updated from: %s to: %s',
-                      action_ref, existing, model)
+            LOG.debug(
+                'Action %s found. Will be updated from: %s to: %s', action_ref, existing, model
+            )
             model.id = existing.id
 
         try:
@@ -200,8 +201,11 @@ class ActionsRegistrar(ResourceRegistrar):
                     continue
 
                 if self._fail_on_failure:
-                    msg = ('Failed to register action "%s" from pack "%s": %s' % (action, pack,
-                                                                                  six.text_type(e)))
+                    msg = 'Failed to register action "%s" from pack "%s": %s' % (
+                        action,
+                        pack,
+                        six.text_type(e),
+                    )
                     raise ValueError(msg)
 
                 LOG.exception('Unable to register action: %s', action)
@@ -212,16 +216,16 @@ class ActionsRegistrar(ResourceRegistrar):
         return registered_count
 
 
-def register_actions(packs_base_paths=None, pack_dir=None, use_pack_cache=True,
-                     fail_on_failure=False):
+def register_actions(
+    packs_base_paths=None, pack_dir=None, use_pack_cache=True, fail_on_failure=False
+):
     if packs_base_paths:
         assert isinstance(packs_base_paths, list)
 
     if not packs_base_paths:
         packs_base_paths = content_utils.get_packs_base_paths()
 
-    registrar = ActionsRegistrar(use_pack_cache=use_pack_cache,
-                                 fail_on_failure=fail_on_failure)
+    registrar = ActionsRegistrar(use_pack_cache=use_pack_cache, fail_on_failure=fail_on_failure)
 
     if pack_dir:
         result = registrar.register_from_pack(pack_dir=pack_dir)

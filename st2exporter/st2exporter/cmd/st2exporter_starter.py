@@ -23,9 +23,7 @@ from st2exporter import config
 from st2exporter import worker
 from st2common.util.monkey_patch import monkey_patch
 
-__all__ = [
-    'main'
-]
+__all__ = ['main']
 
 monkey_patch()
 
@@ -33,8 +31,13 @@ LOG = logging.getLogger(__name__)
 
 
 def _setup():
-    common_setup(service='exporter', config=config, setup_db=True, register_mq_exchanges=True,
-                 register_signal_handlers=True)
+    common_setup(
+        service='exporter',
+        config=config,
+        setup_db=True,
+        register_mq_exchanges=True,
+        register_signal_handlers=True,
+    )
 
 
 def _run_worker():

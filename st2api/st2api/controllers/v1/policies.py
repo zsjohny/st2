@@ -39,51 +39,68 @@ class PolicyTypeController(resource.ResourceController):
 
     mandatory_include_fields_retrieve = ['id', 'name', 'resource_type']
 
-    supported_filters = {
-        'resource_type': 'resource_type'
-    }
+    supported_filters = {'resource_type': 'resource_type'}
 
-    query_options = {
-        'sort': ['resource_type', 'name']
-    }
+    query_options = {'sort': ['resource_type', 'name']}
 
     def get_one(self, ref_or_id, requester_user):
         return self._get_one(ref_or_id, requester_user=requester_user)
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
-        return self._get_all(exclude_fields=exclude_attributes,
-                             include_fields=include_attributes,
-                             sort=sort,
-                             offset=offset,
-                             limit=limit,
-                             raw_filters=raw_filters,
-                             requester_user=requester_user)
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
+        return self._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def _get_one(self, ref_or_id, requester_user):
         instance = self._get_by_ref_or_id(ref_or_id=ref_or_id)
 
         permission_type = PermissionType.POLICY_TYPE_VIEW
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=instance,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=instance, permission_type=permission_type
+        )
 
         result = self.model.from_model(instance)
         return result
 
-    def _get_all(self, exclude_fields=None, include_fields=None, sort=None, offset=0, limit=None,
-                 query_options=None, from_model_kwargs=None, raw_filters=None,
-                 requester_user=None):
+    def _get_all(
+        self,
+        exclude_fields=None,
+        include_fields=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        query_options=None,
+        from_model_kwargs=None,
+        raw_filters=None,
+        requester_user=None,
+    ):
 
-        resp = super(PolicyTypeController, self)._get_all(exclude_fields=exclude_fields,
-                                                          include_fields=include_fields,
-                                                          sort=sort,
-                                                          offset=offset,
-                                                          limit=limit,
-                                                          query_options=query_options,
-                                                          from_model_kwargs=from_model_kwargs,
-                                                          raw_filters=raw_filters,
-                                                          requester_user=requester_user)
+        resp = super(PolicyTypeController, self)._get_all(
+            exclude_fields=exclude_fields,
+            include_fields=include_fields,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            query_options=query_options,
+            from_model_kwargs=from_model_kwargs,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
         return resp
 
@@ -124,27 +141,36 @@ class PolicyController(resource.ContentPackResourceController):
     supported_filters = {
         'pack': 'pack',
         'resource_ref': 'resource_ref',
-        'policy_type': 'policy_type'
+        'policy_type': 'policy_type',
     }
 
-    query_options = {
-        'sort': ['pack', 'name']
-    }
+    query_options = {'sort': ['pack', 'name']}
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
-        return self._get_all(exclude_fields=exclude_attributes,
-                             include_fields=include_attributes,
-                             sort=sort,
-                             offset=offset,
-                             limit=limit,
-                             raw_filters=raw_filters,
-                             requester_user=requester_user)
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
+        return self._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, ref_or_id, requester_user):
         permission_type = PermissionType.POLICY_VIEW
-        return self._get_one(ref_or_id, permission_type=permission_type,
-                             requester_user=requester_user)
+        return self._get_one(
+            ref_or_id, permission_type=permission_type, requester_user=requester_user
+        )
 
     def post(self, instance, requester_user):
         """
@@ -153,9 +179,9 @@ class PolicyController(resource.ContentPackResourceController):
                 POST /policies/
         """
         permission_type = PermissionType.POLICY_CREATE
-        rbac_utils.assert_user_has_resource_api_permission(user_db=requester_user,
-                                                           resource_api=instance,
-                                                           permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_api_permission(
+            user_db=requester_user, resource_api=instance, permission_type=permission_type
+        )
 
         op = 'POST /policies/'
 
@@ -178,9 +204,9 @@ class PolicyController(resource.ContentPackResourceController):
         LOG.debug('%s found object: %s', op, db_model)
 
         permission_type = PermissionType.POLICY_MODIFY
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=db_model,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=db_model, permission_type=permission_type
+        )
 
         db_model_id = db_model.id
 
@@ -223,9 +249,9 @@ class PolicyController(resource.ContentPackResourceController):
         LOG.debug('%s found object: %s', op, db_model)
 
         permission_type = PermissionType.POLICY_DELETE
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=db_model,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=db_model, permission_type=permission_type
+        )
 
         try:
             validate_not_part_of_system_pack(db_model)

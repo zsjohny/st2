@@ -29,7 +29,6 @@ from st2common.util import date as date_utils
 
 @mock.patch.object(publishers.PoolPublisher, 'publish', mock.MagicMock())
 class TaskExecutionModelTest(st2tests.DbTestCase):
-
     def test_task_execution_crud(self):
         initial = wf_db_models.TaskExecutionDB()
         initial.workflow_execution = uuid.uuid4().hex
@@ -103,9 +102,7 @@ class TaskExecutionModelTest(st2tests.DbTestCase):
         created.delete()
 
         self.assertRaises(
-            db_exc.StackStormDBObjectNotFoundError,
-            wf_db_access.TaskExecution.get_by_id,
-            doc_id
+            db_exc.StackStormDBObjectNotFoundError, wf_db_access.TaskExecution.get_by_id, doc_id
         )
 
     def test_task_execution_crud_set_itemized_true(self):
@@ -182,9 +179,7 @@ class TaskExecutionModelTest(st2tests.DbTestCase):
         created.delete()
 
         self.assertRaises(
-            db_exc.StackStormDBObjectNotFoundError,
-            wf_db_access.TaskExecution.get_by_id,
-            doc_id
+            db_exc.StackStormDBObjectNotFoundError, wf_db_access.TaskExecution.get_by_id, doc_id
         )
 
     def test_task_execution_write_conflict(self):
@@ -230,14 +225,12 @@ class TaskExecutionModelTest(st2tests.DbTestCase):
             db_exc.StackStormDBObjectWriteConflictError,
             wf_db_access.TaskExecution.update,
             retrieved2,
-            status='pausing'
+            status='pausing',
         )
 
         # Test delete
         created.delete()
 
         self.assertRaises(
-            db_exc.StackStormDBObjectNotFoundError,
-            wf_db_access.TaskExecution.get_by_id,
-            doc_id
+            db_exc.StackStormDBObjectNotFoundError, wf_db_access.TaskExecution.get_by_id, doc_id
         )

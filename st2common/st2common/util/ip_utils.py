@@ -21,11 +21,7 @@ from st2common.log import logging
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'is_ipv4',
-    'is_ipv6',
-    'split_host_port'
-]
+__all__ = ['is_ipv4', 'is_ipv6', 'split_host_port']
 
 BRACKET_PATTERN = r"^\[.*\]"  # IPv6 bracket pattern to specify port
 COMPILED_BRACKET_PATTERN = re.compile(BRACKET_PATTERN)

@@ -18,6 +18,7 @@ from __future__ import absolute_import
 # Ignore CryptographyDeprecationWarning warnings which appear on older versions of Python 2.7
 import warnings
 from cryptography.utils import CryptographyDeprecationWarning
+
 warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
 
 import os
@@ -61,10 +62,7 @@ from st2common.constants.keyvalue import SYSTEM_SCOPE
 from st2common.constants.runners import PYTHON_RUNNER_INVALID_ACTION_STATUS_EXIT_CODE
 from st2common.constants.runners import PYTHON_RUNNER_DEFAULT_LOG_LEVEL
 
-__all__ = [
-    'PythonActionWrapper',
-    'ActionService'
-]
+__all__ = ['PythonActionWrapper', 'ActionService']
 
 LOG = logging.getLogger(__name__)
 
@@ -104,15 +102,15 @@ class ActionService(object):
             # duration of the action lifetime
             action_name = self._action_wrapper._class_name
             log_level = self._action_wrapper._log_level
-            logger = get_logger_for_python_runner_action(action_name=action_name,
-                                                         log_level=log_level)
+            logger = get_logger_for_python_runner_action(
+                action_name=action_name, log_level=log_level
+            )
             pack_name = self._action_wrapper._pack
             class_name = self._action_wrapper._class_name
             auth_token = os.environ.get('ST2_ACTION_AUTH_TOKEN', None)
-            self._datastore_service = ActionDatastoreService(logger=logger,
-                                                             pack_name=pack_name,
-                                                             class_name=class_name,
-                                                             auth_token=auth_token)
+            self._datastore_service = ActionDatastoreService(
+                logger=logger, pack_name=pack_name, class_name=class_name, auth_token=auth_token
+            )
         return self._datastore_service
 
     ##################################
@@ -130,20 +128,30 @@ class ActionService(object):
         return self.datastore_service.list_values(local=local, prefix=prefix)
 
     def get_value(self, name, local=True, scope=SYSTEM_SCOPE, decrypt=False):
-        return self.datastore_service.get_value(name=name, local=local, scope=scope,
-                                                decrypt=decrypt)
+        return self.datastore_service.get_value(
+            name=name, local=local, scope=scope, decrypt=decrypt
+        )
 
     def set_value(self, name, value, ttl=None, local=True, scope=SYSTEM_SCOPE, encrypt=False):
-        return self.datastore_service.set_value(name=name, value=value, ttl=ttl, local=local,
-                                                scope=scope, encrypt=encrypt)
+        return self.datastore_service.set_value(
+            name=name, value=value, ttl=ttl, local=local, scope=scope, encrypt=encrypt
+        )
 
     def delete_value(self, name, local=True, scope=SYSTEM_SCOPE):
         return self.datastore_service.delete_value(name=name, local=local, scope=scope)
 
 
 class PythonActionWrapper(object):
-    def __init__(self, pack, file_path, config=None, parameters=None, user=None, parent_args=None,
-                 log_level=PYTHON_RUNNER_DEFAULT_LOG_LEVEL):
+    def __init__(
+        self,
+        pack,
+        file_path,
+        config=None,
+        parameters=None,
+        user=None,
+        parent_args=None,
+        log_level=PYTHON_RUNNER_DEFAULT_LOG_LEVEL,
+    ):
         """
         :param pack: Name of the pack this action belongs to.
         :type pack: ``str``
@@ -178,14 +186,17 @@ class PythonActionWrapper(object):
         try:
             st2common_config.parse_args(args=self._parent_args)
         except Exception as e:
-            LOG.debug('Failed to parse config using parent args (parent_args=%s): %s' %
-                      (str(self._parent_args), six.text_type(e)))
+            LOG.debug(
+                'Failed to parse config using parent args (parent_args=%s): %s'
+                % (str(self._parent_args), six.text_type(e))
+            )
 
         # Note: We can only set a default user value if one is not provided after parsing the
         # config
         if not self._user:
             # Note: We use late import to avoid performance overhead
             from oslo_config import cfg
+
             self._user = cfg.CONF.system_user.user
 
     def run(self):
@@ -201,14 +212,13 @@ class PythonActionWrapper(object):
             action_status = None
             action_result = output
 
-        action_output = {
-            'result': action_result,
-            'status': None
-        }
+        action_output = {'result': action_result, 'status': None}
 
         if action_status is not None and not isinstance(action_status, bool):
-            sys.stderr.write('Status returned from the action run() method must either be '
-                             'True or False, got: %s\n' % (action_status))
+            sys.stderr.write(
+                'Status returned from the action run() method must either be '
+                'True or False, got: %s\n' % (action_status)
+            )
             sys.stderr.write(INVALID_STATUS_ERROR_MESSAGE)
             sys.exit(PYTHON_RUNNER_INVALID_ACTION_STATUS_EXIT_CODE)
 
@@ -238,8 +248,10 @@ class PythonActionWrapper(object):
             actions_cls = action_loader.register_plugin(Action, self._file_path)
         except Exception as e:
             tb_msg = traceback.format_exc()
-            msg = ('Failed to load action class from file "%s" (action file most likely doesn\'t '
-                   'exist or contains invalid syntax): %s' % (self._file_path, six.text_type(e)))
+            msg = (
+                'Failed to load action class from file "%s" (action file most likely doesn\'t '
+                'exist or contains invalid syntax): %s' % (self._file_path, six.text_type(e))
+            )
             msg += '\n\n' + tb_msg
             exc_cls = type(e)
             raise exc_cls(msg)
@@ -247,8 +259,9 @@ class PythonActionWrapper(object):
         action_cls = actions_cls[0] if actions_cls and len(actions_cls) > 0 else None
 
         if not action_cls:
-            raise Exception('File "%s" has no action class or the file doesn\'t exist.' %
-                            (self._file_path))
+            raise Exception(
+                'File "%s" has no action class or the file doesn\'t exist.' % (self._file_path)
+            )
 
         # Retrieve name of the action class
         # Note - we need to either use cls.__name_ or inspect.getmro(cls)[0].__name__ to
@@ -256,31 +269,36 @@ class PythonActionWrapper(object):
         self._class_name = action_cls.__name__
 
         action_service = ActionService(action_wrapper=self)
-        action_instance = get_action_class_instance(action_cls=action_cls,
-                                                    config=self._config,
-                                                    action_service=action_service)
+        action_instance = get_action_class_instance(
+            action_cls=action_cls, config=self._config, action_service=action_service
+        )
         return action_instance
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Python action runner process wrapper')
-    parser.add_argument('--pack', required=True,
-                        help='Name of the pack this action belongs to')
-    parser.add_argument('--file-path', required=True,
-                        help='Path to the action module')
-    parser.add_argument('--config', required=False,
-                        help='Pack config serialized as JSON')
-    parser.add_argument('--parameters', required=False,
-                        help='Serialized action parameters')
-    parser.add_argument('--stdin-parameters', required=False, action='store_true',
-                        help='Serialized action parameters via stdin')
-    parser.add_argument('--user', required=False,
-                        help='User who triggered the action execution')
-    parser.add_argument('--parent-args', required=False,
-                        help='Command line arguments passed to the parent process serialized as '
-                             ' JSON')
-    parser.add_argument('--log-level', required=False, default=PYTHON_RUNNER_DEFAULT_LOG_LEVEL,
-                        help='Log level for actions')
+    parser.add_argument('--pack', required=True, help='Name of the pack this action belongs to')
+    parser.add_argument('--file-path', required=True, help='Path to the action module')
+    parser.add_argument('--config', required=False, help='Pack config serialized as JSON')
+    parser.add_argument('--parameters', required=False, help='Serialized action parameters')
+    parser.add_argument(
+        '--stdin-parameters',
+        required=False,
+        action='store_true',
+        help='Serialized action parameters via stdin',
+    )
+    parser.add_argument('--user', required=False, help='User who triggered the action execution')
+    parser.add_argument(
+        '--parent-args',
+        required=False,
+        help='Command line arguments passed to the parent process serialized as ' ' JSON',
+    )
+    parser.add_argument(
+        '--log-level',
+        required=False,
+        default=PYTHON_RUNNER_DEFAULT_LOG_LEVEL,
+        help='Log level for actions',
+    )
     args = parser.parse_args()
 
     config = json.loads(args.config) if args.config else {}
@@ -305,8 +323,9 @@ if __name__ == '__main__':
         i, _, _ = select.select([sys.stdin], [], [], READ_STDIN_INPUT_TIMEOUT)
 
         if not i:
-            raise ValueError(('No input received and timed out while waiting for '
-                              'parameters from stdin'))
+            raise ValueError(
+                ('No input received and timed out while waiting for ' 'parameters from stdin')
+            )
 
         stdin_data = sys.stdin.readline().strip()
 
@@ -314,8 +333,10 @@ if __name__ == '__main__':
             stdin_parameters = json.loads(stdin_data)
             stdin_parameters = stdin_parameters.get('parameters', {})
         except Exception as e:
-            msg = ('Failed to parse parameters from stdin. Expected a JSON object with '
-                   '"parameters" attribute: %s' % (six.text_type(e)))
+            msg = (
+                'Failed to parse parameters from stdin. Expected a JSON object with '
+                '"parameters" attribute: %s' % (six.text_type(e))
+            )
             raise ValueError(msg)
 
         parameters.update(stdin_parameters)
@@ -323,12 +344,14 @@ if __name__ == '__main__':
     LOG.debug('Received parameters: %s', parameters)
 
     assert isinstance(parent_args, list)
-    obj = PythonActionWrapper(pack=args.pack,
-                              file_path=args.file_path,
-                              config=config,
-                              parameters=parameters,
-                              user=user,
-                              parent_args=parent_args,
-                              log_level=log_level)
+    obj = PythonActionWrapper(
+        pack=args.pack,
+        file_path=args.file_path,
+        config=config,
+        parameters=parameters,
+        user=user,
+        parent_args=parent_args,
+        log_level=log_level,
+    )
 
     obj.run()

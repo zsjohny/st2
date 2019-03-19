@@ -28,12 +28,7 @@ import yaml
 from st2common.exceptions.plugins import IncompatiblePluginException
 from st2common import log as logging
 
-__all__ = [
-    'register_plugin',
-    'register_plugin_class',
-
-    'load_meta_file'
-]
+__all__ = ['register_plugin', 'register_plugin_class', 'load_meta_file']
 
 
 LOG = logging.getLogger(__name__)
@@ -61,15 +56,19 @@ def _register_plugin_path(plugin_dir_abs_path):
 def _get_plugin_module(plugin_file_path):
     plugin_module = os.path.basename(plugin_file_path)
     if plugin_module.endswith(PYTHON_EXTENSION):
-        plugin_module = plugin_module[:plugin_module.rfind('.py')]
+        plugin_module = plugin_module[: plugin_module.rfind('.py')]
     else:
         plugin_module = None
     return plugin_module
 
 
 def _get_classes_in_module(module):
-    return [kls for name, kls in inspect.getmembers(module,
-            lambda member: inspect.isclass(member) and member.__module__ == module.__name__)]
+    return [
+        kls
+        for name, kls in inspect.getmembers(
+            module, lambda member: inspect.isclass(member) and member.__module__ == module.__name__
+        )
+    ]
 
 
 def _get_plugin_classes(module_name):
@@ -149,8 +148,9 @@ def register_plugin_class(base_class, file_path, class_name):
     klass = getattr(module, class_name, None)
 
     if not klass:
-        raise Exception('Plugin file "%s" doesn\'t expose class named "%s"' %
-                        (file_path, class_name))
+        raise Exception(
+            'Plugin file "%s" doesn\'t expose class named "%s"' % (file_path, class_name)
+        )
 
     _register_plugin(base_class, klass)
     return klass
@@ -179,8 +179,9 @@ def register_plugin(plugin_base_class, plugin_abs_file_path):
             continue
 
     if len(registered_plugins) == 0:
-        raise Exception('Found no classes in plugin file "%s" matching requirements.' %
-                        (plugin_abs_file_path))
+        raise Exception(
+            'Found no classes in plugin file "%s" matching requirements.' % (plugin_abs_file_path)
+        )
 
     return registered_plugins
 
@@ -191,8 +192,9 @@ def load_meta_file(file_path):
 
     file_name, file_ext = os.path.splitext(file_path)
     if file_ext not in ALLOWED_EXTS:
-        raise Exception('Unsupported meta type %s, file %s. Allowed: %s' %
-                        (file_ext, file_path, ALLOWED_EXTS))
+        raise Exception(
+            'Unsupported meta type %s, file %s. Allowed: %s' % (file_ext, file_path, ALLOWED_EXTS)
+        )
 
     with open(file_path, 'r') as f:
         return PARSER_FUNCS[file_ext](f)

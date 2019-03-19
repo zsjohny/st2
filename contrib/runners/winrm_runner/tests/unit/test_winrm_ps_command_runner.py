@@ -23,7 +23,6 @@ from winrm_runner.winrm_base import WinRmBaseRunner
 
 
 class WinRmPsCommandRunnerTestCase(RunnerTestCase):
-
     def setUp(self):
         super(WinRmPsCommandRunnerTestCase, self).setUpClass()
         self._runner = winrm_ps_command_runner.get_runner()

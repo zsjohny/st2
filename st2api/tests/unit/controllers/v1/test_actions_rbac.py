@@ -32,15 +32,10 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'ActionControllerRBACTestCase'
-]
+__all__ = ['ActionControllerRBACTestCase']
 
 FIXTURES_PACK = 'generic'
-TEST_FIXTURES = {
-    'runners': ['testrunner1.yaml'],
-    'actions': ['action1.yaml', 'local.yaml'],
-}
+TEST_FIXTURES = {'runners': ['testrunner1.yaml'], 'actions': ['action1.yaml', 'local.yaml']}
 
 ACTION_2 = {
     'name': 'ma.dummy.action',
@@ -51,8 +46,8 @@ ACTION_2 = {
     'runner_type': 'local-shell-script',
     'parameters': {
         'c': {'type': 'string', 'default': 'C1', 'position': 0},
-        'd': {'type': 'string', 'default': 'D1', 'immutable': True}
-    }
+        'd': {'type': 'string', 'default': 'D1', 'immutable': True},
+    },
 }
 
 
@@ -61,13 +56,14 @@ class ActionControllerRBACTestCase(APIControllerWithRBACTestCase):
 
     def setUp(self):
         super(ActionControllerRBACTestCase, self).setUp()
-        self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                 fixtures_dict=TEST_FIXTURES)
+        self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
         file_name = 'action1.yaml'
         ActionControllerRBACTestCase.ACTION_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'actions': [file_name]})['actions'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'actions': [file_name]}
+        )['actions'][file_name]
 
         # Insert mock users, roles and assignments
 
@@ -78,9 +74,11 @@ class ActionControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # Roles
         # action_create grant on parent pack
-        grant_db = PermissionGrantDB(resource_uid='pack:examples',
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.ACTION_CREATE])
+        grant_db = PermissionGrantDB(
+            resource_uid='pack:examples',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_CREATE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='action_create', permission_grants=permission_grants)
@@ -92,7 +90,8 @@ class ActionControllerRBACTestCase(APIControllerWithRBACTestCase):
         role_assignment_db = UserRoleAssignmentDB(
             user=user_db.name,
             role=self.roles['action_create'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            source='assignments/%s.yaml' % user_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_create_action_no_action_create_permission(self):
@@ -100,13 +99,14 @@ class ActionControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.__do_post(ActionControllerRBACTestCase.ACTION_1)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "action_create" '
-                        'on resource "action:wolfpack:action-1"')
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission "action_create" '
+            'on resource "action:wolfpack:action-1"'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
-    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(
-        return_value=True))
+    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(return_value=True))
     def test_create_action_success(self):
         user_db = self.users['action_create']
         self.use_user(user_db)
@@ -121,8 +121,10 @@ class ActionControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         resp = self.app.get('/v1/actions?limit=-1', expect_errors=True)
 
-        expected_msg = ('Administrator access required to be able to specify limit=-1 and '
-                        'retrieve all the records')
+        expected_msg = (
+            'Administrator access required to be able to specify limit=-1 and '
+            'retrieve all the records'
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -141,7 +143,7 @@ class ActionControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         resp = self.app.get('/v1/actions?limit=20000', expect_errors=True)
 
-        expected_msg = ('Limit "20000" specified, maximum value is "100"')
+        expected_msg = 'Limit "20000" specified, maximum value is "100"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 

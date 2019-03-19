@@ -18,72 +18,76 @@ from st2common.exceptions.triggers import TriggerDoesNotExistException
 from st2common.models.api.rule import RuleAPI
 from st2common.models.system.common import ResourceReference
 from st2common.models.db.trigger import TriggerDB
-from st2common.persistence.trigger import (Trigger, TriggerType)
+from st2common.persistence.trigger import Trigger, TriggerType
 import st2common.services.triggers as trigger_service
 
 from st2tests.base import CleanDbTestCase
 from st2tests.fixturesloader import FixturesLoader
 
-MOCK_TRIGGER = TriggerDB(pack='dummy_pack_1', name='trigger-test.name', parameters={},
-                         type='dummy_pack_1.trigger-type-test.name')
+MOCK_TRIGGER = TriggerDB(
+    pack='dummy_pack_1',
+    name='trigger-test.name',
+    parameters={},
+    type='dummy_pack_1.trigger-type-test.name',
+)
 
 
 class TriggerServiceTests(CleanDbTestCase):
-
     def test_create_trigger_db_from_rule(self):
-        test_fixtures = {
-            'rules': ['cron_timer_rule_1.yaml', 'cron_timer_rule_3.yaml']
-        }
+        test_fixtures = {'rules': ['cron_timer_rule_1.yaml', 'cron_timer_rule_3.yaml']}
         loader = FixturesLoader()
         fixtures = loader.load_fixtures(fixtures_pack='generic', fixtures_dict=test_fixtures)
         rules = fixtures['rules']
 
         trigger_db_ret_1 = trigger_service.create_trigger_db_from_rule(
-            RuleAPI(**rules['cron_timer_rule_1.yaml']))
+            RuleAPI(**rules['cron_timer_rule_1.yaml'])
+        )
         self.assertTrue(trigger_db_ret_1 is not None)
         trigger_db = Trigger.get_by_id(trigger_db_ret_1.id)
-        self.assertDictEqual(trigger_db.parameters,
-                             rules['cron_timer_rule_1.yaml']['trigger']['parameters'])
+        self.assertDictEqual(
+            trigger_db.parameters, rules['cron_timer_rule_1.yaml']['trigger']['parameters']
+        )
 
         trigger_db_ret_2 = trigger_service.create_trigger_db_from_rule(
-            RuleAPI(**rules['cron_timer_rule_3.yaml']))
+            RuleAPI(**rules['cron_timer_rule_3.yaml'])
+        )
         self.assertTrue(trigger_db_ret_2 is not None)
         self.assertTrue(trigger_db_ret_2.id != trigger_db_ret_1.id)
 
     def test_create_trigger_db_from_rule_duplicate(self):
-        test_fixtures = {
-            'rules': ['cron_timer_rule_1.yaml', 'cron_timer_rule_2.yaml']
-        }
+        test_fixtures = {'rules': ['cron_timer_rule_1.yaml', 'cron_timer_rule_2.yaml']}
         loader = FixturesLoader()
         fixtures = loader.load_fixtures(fixtures_pack='generic', fixtures_dict=test_fixtures)
         rules = fixtures['rules']
 
         trigger_db_ret_1 = trigger_service.create_trigger_db_from_rule(
-            RuleAPI(**rules['cron_timer_rule_1.yaml']))
+            RuleAPI(**rules['cron_timer_rule_1.yaml'])
+        )
         self.assertTrue(trigger_db_ret_1 is not None)
         trigger_db_ret_2 = trigger_service.create_trigger_db_from_rule(
-            RuleAPI(**rules['cron_timer_rule_2.yaml']))
+            RuleAPI(**rules['cron_timer_rule_2.yaml'])
+        )
         self.assertTrue(trigger_db_ret_2 is not None)
         self.assertEqual(trigger_db_ret_1, trigger_db_ret_2, 'Should reuse same trigger.')
         trigger_db = Trigger.get_by_id(trigger_db_ret_1.id)
-        self.assertDictEqual(trigger_db.parameters,
-                             rules['cron_timer_rule_1.yaml']['trigger']['parameters'])
+        self.assertDictEqual(
+            trigger_db.parameters, rules['cron_timer_rule_1.yaml']['trigger']['parameters']
+        )
 
     def test_create_or_update_trigger_db_simple_triggers(self):
-        test_fixtures = {
-            'triggertypes': ['triggertype1.yaml']
-        }
+        test_fixtures = {'triggertypes': ['triggertype1.yaml']}
         loader = FixturesLoader()
         fixtures = loader.save_fixtures_to_db(fixtures_pack='generic', fixtures_dict=test_fixtures)
         triggertypes = fixtures['triggertypes']
         trigger_type_ref = ResourceReference.to_string_reference(
             name=triggertypes['triggertype1.yaml']['name'],
-            pack=triggertypes['triggertype1.yaml']['pack'])
+            pack=triggertypes['triggertype1.yaml']['pack'],
+        )
 
         trigger = {
             'name': triggertypes['triggertype1.yaml']['name'],
             'pack': triggertypes['triggertype1.yaml']['pack'],
-            'type': trigger_type_ref
+            'type': trigger_type_ref,
         }
         trigger_service.create_or_update_trigger_db(trigger)
         triggers = Trigger.get_all()
@@ -97,34 +101,25 @@ class TriggerServiceTests(CleanDbTestCase):
         self.assertTrue(triggers[0]['name'] == triggertypes['triggertype1.yaml']['name'])
 
     def test_exception_thrown_when_rule_creation_no_trigger_yes_triggertype(self):
-        test_fixtures = {
-            'triggertypes': ['triggertype1.yaml']
-        }
+        test_fixtures = {'triggertypes': ['triggertype1.yaml']}
         loader = FixturesLoader()
         fixtures = loader.save_fixtures_to_db(fixtures_pack='generic', fixtures_dict=test_fixtures)
         triggertypes = fixtures['triggertypes']
         trigger_type_ref = ResourceReference.to_string_reference(
             name=triggertypes['triggertype1.yaml']['name'],
-            pack=triggertypes['triggertype1.yaml']['pack'])
+            pack=triggertypes['triggertype1.yaml']['pack'],
+        )
 
         rule = {
             'name': 'fancyrule',
-            'trigger': {
-                'type': trigger_type_ref
-            },
-            'criteria': {
-
-            },
-            'action': {
-                'ref': 'core.local',
-                'parameters': {
-                    'cmd': 'date'
-                }
-            }
+            'trigger': {'type': trigger_type_ref},
+            'criteria': {},
+            'action': {'ref': 'core.local', 'parameters': {'cmd': 'date'}},
         }
         rule_api = RuleAPI(**rule)
-        self.assertRaises(TriggerDoesNotExistException,
-                          trigger_service.create_trigger_db_from_rule, rule_api)
+        self.assertRaises(
+            TriggerDoesNotExistException, trigger_service.create_trigger_db_from_rule, rule_api
+        )
 
     def test_get_trigger_db_given_type_and_params(self):
         # Add dummy triggers
@@ -134,8 +129,12 @@ class TriggerServiceTests(CleanDbTestCase):
 
         trigger_3 = TriggerDB(pack='testpack', name='testtrigger3', type='testpack.testtrigger3')
 
-        trigger_4 = TriggerDB(pack='testpack', name='testtrigger4', type='testpack.testtrigger4',
-                              parameters={'ponies': 'unicorn'})
+        trigger_4 = TriggerDB(
+            pack='testpack',
+            name='testtrigger4',
+            type='testpack.testtrigger4',
+            parameters={'ponies': 'unicorn'},
+        )
 
         Trigger.add_or_update(trigger_1)
         Trigger.add_or_update(trigger_2)
@@ -143,47 +142,56 @@ class TriggerServiceTests(CleanDbTestCase):
         Trigger.add_or_update(trigger_4)
 
         # Trigger with no parameters, parameters={} in db
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_1.type,
-                                                                          parameters={})
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_1.type, parameters={}
+        )
         self.assertEqual(trigger_db, trigger_1)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_1.type,
-                                                                          parameters=None)
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_1.type, parameters=None
+        )
         self.assertEqual(trigger_db, trigger_1)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_1.type,
-                                                                          parameters={'fo': 'bar'})
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_1.type, parameters={'fo': 'bar'}
+        )
         self.assertEqual(trigger_db, None)
 
         # Trigger with no parameters, no parameters attribute in the db
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_2.type,
-                                                                          parameters={})
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_2.type, parameters={}
+        )
         self.assertEqual(trigger_db, trigger_2)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_2.type,
-                                                                          parameters=None)
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_2.type, parameters=None
+        )
         self.assertEqual(trigger_db, trigger_2)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_2.type,
-                                                                          parameters={'fo': 'bar'})
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_2.type, parameters={'fo': 'bar'}
+        )
         self.assertEqual(trigger_db, None)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_3.type,
-                                                                          parameters={})
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_3.type, parameters={}
+        )
         self.assertEqual(trigger_db, trigger_3)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_3.type,
-                                                                          parameters=None)
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_3.type, parameters=None
+        )
         self.assertEqual(trigger_db, trigger_3)
 
         # Trigger with parameters
         trigger_db = trigger_service.get_trigger_db_given_type_and_params(
-            type=trigger_4.type,
-            parameters=trigger_4.parameters)
+            type=trigger_4.type, parameters=trigger_4.parameters
+        )
         self.assertEqual(trigger_db, trigger_4)
 
-        trigger_db = trigger_service.get_trigger_db_given_type_and_params(type=trigger_4.type,
-                                                                          parameters=None)
+        trigger_db = trigger_service.get_trigger_db_given_type_and_params(
+            type=trigger_4.type, parameters=None
+        )
         self.assertEqual(trigger_db, None)
 
     def test_add_trigger_type_no_params(self):
@@ -193,7 +201,7 @@ class TriggerServiceTests(CleanDbTestCase):
             'pack': 'dummy_pack_1',
             'description': 'Words cannot describe how awesome I am.',
             'parameters_schema': {},
-            'payload_schema': {}
+            'payload_schema': {},
         }
         trigtype_dbs = trigger_service.add_trigger_models(trigger_types=[trig_type])
         trigger_type, trigger = trigtype_dbs[0]
@@ -214,18 +222,16 @@ class TriggerServiceTests(CleanDbTestCase):
         # Trigger type with params should not create a trigger.
         PARAMETERS_SCHEMA = {
             "type": "object",
-            "properties": {
-                "url": {"type": "string"}
-            },
+            "properties": {"url": {"type": "string"}},
             "required": ['url'],
-            "additionalProperties": False
+            "additionalProperties": False,
         }
         trig_type = {
             'name': 'myawesometriggertype2',
             'pack': 'my_pack_1',
             'description': 'Words cannot describe how awesome I am.',
             'parameters_schema': PARAMETERS_SCHEMA,
-            'payload_schema': {}
+            'payload_schema': {},
         }
         trigtype_dbs = trigger_service.add_trigger_models(trigger_types=[trig_type])
         trigger_type, trigger = trigtype_dbs[0]
@@ -239,6 +245,7 @@ class TriggerServiceTests(CleanDbTestCase):
         """
         This sensor has misconfigured trigger type. We shouldn't explode.
         """
+
         class FailTestSensor(object):
             started = False
 
@@ -252,9 +259,7 @@ class TriggerServiceTests(CleanDbTestCase):
                 pass
 
             def get_trigger_types(self):
-                return [
-                    {'description': 'Ain\'t got no name'}
-                ]
+                return [{'description': 'Ain\'t got no name'}]
 
         try:
             trigger_service.add_trigger_models(FailTestSensor().get_trigger_types())

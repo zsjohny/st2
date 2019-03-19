@@ -25,20 +25,16 @@ from st2common.constants import action as action_constants
 REGEX_SEARCH_STRINGS = [
     "Your address is 567 Elsewhere Dr. My address is 123 Somewhere Ave.",
     "567 Elsewhere Dr is your address. My address is 123 Somewhere Ave.",
-    "No address to be found here! Well, maybe 127.0.0.1"
+    "No address to be found here! Well, maybe 127.0.0.1",
 ]
 
 REGEX_PATTERN = '([0-9]{3} \\w+ (?:Ave|St|Dr))'
 
 
 class FromJsonStringFiltersTest(base.TestWorkflowExecution):
-
     def test_from_json_string(self):
         ex = self._execute_workflow(
-            'examples.mistral-test-func-from-json-string',
-            parameters={
-                "input_str": '{"a": "b"}'
-            }
+            'examples.mistral-test-func-from-json-string', parameters={"input_str": '{"a": "b"}'}
         )
 
         ex = self._wait_for_completion(ex)
@@ -52,13 +48,9 @@ class FromJsonStringFiltersTest(base.TestWorkflowExecution):
 
 
 class FromYamlStringFiltersTest(base.TestWorkflowExecution):
-
     def test_from_yaml_string(self):
         ex = self._execute_workflow(
-            'examples.mistral-test-func-from-yaml-string',
-            parameters={
-                "input_str": 'a: b'
-            }
+            'examples.mistral-test-func-from-yaml-string', parameters={"input_str": 'a: b'}
         )
 
         ex = self._wait_for_completion(ex)
@@ -72,7 +64,6 @@ class FromYamlStringFiltersTest(base.TestWorkflowExecution):
 
 
 class JsonEscapeFiltersTest(base.TestWorkflowExecution):
-
     def test_json_escape(self):
         breaking_str = 'This text """ breaks JSON'
         params = {'input_str': breaking_str}
@@ -88,18 +79,21 @@ class JsonEscapeFiltersTest(base.TestWorkflowExecution):
 
 
 class JsonpathQueryFiltersTest(base.TestWorkflowExecution):
-
     def test_jsonpath_query(self):
 
         ex = self._execute_workflow(
             'examples.mistral-test-func-jsonpath-query',
             parameters={
-                "input_obj": {'people': [{'first': 'James', 'last': 'Smith'},
-                                         {'first': 'Jacob', 'last': 'Alberts'},
-                                         {'first': 'Jayden', 'last': 'Davis'},
-                                         {'missing': 'different'}]},
-                "input_query": "people[*].last"
-            }
+                "input_obj": {
+                    'people': [
+                        {'first': 'James', 'last': 'Smith'},
+                        {'first': 'Jacob', 'last': 'Alberts'},
+                        {'first': 'Jayden', 'last': 'Davis'},
+                        {'missing': 'different'},
+                    ]
+                },
+                "input_query": "people[*].last",
+            },
         )
         expected_result = ['Smith', 'Alberts', 'Davis']
 
@@ -114,7 +108,6 @@ class JsonpathQueryFiltersTest(base.TestWorkflowExecution):
 
 
 class RegexMatchFiltersTest(base.TestWorkflowExecution):
-
     def test_regex_match(self):
         params = {'input_str': REGEX_SEARCH_STRINGS[1], 'regex_pattern': REGEX_PATTERN}
         ex = self._execute_workflow('examples.mistral-test-func-regex-match', params)
@@ -133,12 +126,11 @@ class RegexMatchFiltersTest(base.TestWorkflowExecution):
 
 
 class RegexReplaceFiltersTest(base.TestWorkflowExecution):
-
     def test_regex_replace(self):
         params = {
             'input_str': REGEX_SEARCH_STRINGS[1],
             'regex_pattern': REGEX_PATTERN,
-            'replacement_str': 'foo'
+            'replacement_str': 'foo',
         }
 
         ex = self._execute_workflow('examples.mistral-test-func-regex-replace', params)
@@ -150,7 +142,6 @@ class RegexReplaceFiltersTest(base.TestWorkflowExecution):
 
 
 class RegexSearchFiltersTest(base.TestWorkflowExecution):
-
     def test_regex_search(self):
         params = {'input_str': REGEX_SEARCH_STRINGS[0], 'regex_pattern': REGEX_PATTERN}
         ex = self._execute_workflow('examples.mistral-test-func-regex-search', params)
@@ -169,7 +160,6 @@ class RegexSearchFiltersTest(base.TestWorkflowExecution):
 
 
 class RegexSubstringFiltersTest(base.TestWorkflowExecution):
-
     def test_regex_substring(self):
         params = {'input_str': REGEX_SEARCH_STRINGS[0], 'regex_pattern': REGEX_PATTERN}
         ex = self._execute_workflow('examples.mistral-test-func-regex-substring', params)
@@ -182,7 +172,6 @@ class RegexSubstringFiltersTest(base.TestWorkflowExecution):
 
 
 class ToHumanTimeFromSecondsFiltersTest(base.TestWorkflowExecution):
-
     def test_to_human_time_from_seconds(self):
         action_ref = 'examples.mistral-test-func-to-human-time-from-seconds'
         params = {'seconds': 4587}
@@ -194,7 +183,6 @@ class ToHumanTimeFromSecondsFiltersTest(base.TestWorkflowExecution):
 
 
 class UseNoneFiltersTest(base.TestWorkflowExecution):
-
     def test_use_none(self):
         params = {'input_str': 'foo'}
         ex = self._execute_workflow('examples.mistral-test-func-use-none', params)
@@ -207,7 +195,6 @@ class UseNoneFiltersTest(base.TestWorkflowExecution):
 
 
 class ToComplexFiltersTest(base.TestWorkflowExecution):
-
     def test_to_complex(self):
         params = {'input_obj': {'a': 'b'}}
         ex = self._execute_workflow('examples.mistral-test-func-to-complex', params)
@@ -222,7 +209,6 @@ class ToComplexFiltersTest(base.TestWorkflowExecution):
 
 
 class ToJsonStringFiltersTest(base.TestWorkflowExecution):
-
     def test_to_json_string(self):
         params = {'input_obj': {'a': 'b'}}
         ex = self._execute_workflow('examples.mistral-test-func-to-json-string', params)
@@ -237,7 +223,6 @@ class ToJsonStringFiltersTest(base.TestWorkflowExecution):
 
 
 class ToYamlStringFiltersTest(base.TestWorkflowExecution):
-
     def test_to_yaml_string(self):
         params = {'input_obj': {'a': 'b'}}
         ex = self._execute_workflow('examples.mistral-test-func-to-yaml-string', params)
@@ -252,13 +237,8 @@ class ToYamlStringFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionCompareFiltersTest(base.TestWorkflowExecution):
-
     def test_version_compare(self):
-        versions = {
-            '0.9.3': 1,
-            '0.10.1': 0,
-            '0.10.2': -1
-        }
+        versions = {'0.9.3': 1, '0.10.1': 0, '0.10.2': -1}
 
         for compare_version, expected_result in versions.items():
             action_ref = 'examples.mistral-test-func-version-compare'
@@ -271,13 +251,8 @@ class VersionCompareFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionMoreThanFiltersTest(base.TestWorkflowExecution):
-
     def test_version_more_than(self):
-        versions = {
-            '0.9.3': True,
-            '0.10.1': False,
-            '0.10.2': False
-        }
+        versions = {'0.9.3': True, '0.10.1': False, '0.10.2': False}
 
         for compare_version, expected_result in versions.items():
             action_ref = 'examples.mistral-test-func-version-more-than'
@@ -290,13 +265,8 @@ class VersionMoreThanFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionLessThanFiltersTest(base.TestWorkflowExecution):
-
     def test_version_less_than(self):
-        versions = {
-            '0.9.3': False,
-            '0.10.1': False,
-            '0.10.2': True
-        }
+        versions = {'0.9.3': False, '0.10.1': False, '0.10.2': True}
 
         for compare_version, expected_result in versions.items():
             action_ref = 'examples.mistral-test-func-version-less-than'
@@ -309,13 +279,8 @@ class VersionLessThanFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionEqualFiltersTest(base.TestWorkflowExecution):
-
     def test_version_equal(self):
-        versions = {
-            '0.9.3': False,
-            '0.10.1': True,
-            '0.10.2': False
-        }
+        versions = {'0.9.3': False, '0.10.1': True, '0.10.2': False}
 
         for compare_version, expected_result in versions.items():
             action_ref = 'examples.mistral-test-func-version-equal'
@@ -328,14 +293,13 @@ class VersionEqualFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionMatchFiltersTest(base.TestWorkflowExecution):
-
     def test_version_match(self):
         versions = {
             '>=0.9.3': True,
             '>0.11.3': False,
             '==0.9.3': False,
             '<=0.10.1': True,
-            '<0.10.2': True
+            '<0.10.2': True,
         }
 
         for compare_version, expected_result in versions.items():
@@ -349,7 +313,6 @@ class VersionMatchFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionBumpMajorFiltersTest(base.TestWorkflowExecution):
-
     def test_version_bump_major(self):
         params = {'version': '0.10.1'}
         ex = self._execute_workflow('examples.mistral-test-func-version-bump-major', params)
@@ -360,7 +323,6 @@ class VersionBumpMajorFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionBumpMinorFiltersTest(base.TestWorkflowExecution):
-
     def test_version_bump_minor(self):
         params = {'version': '0.10.1'}
         ex = self._execute_workflow('examples.mistral-test-func-version-bump-minor', params)
@@ -371,7 +333,6 @@ class VersionBumpMinorFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionBumpPatchFiltersTest(base.TestWorkflowExecution):
-
     def test_version_bump_patch(self):
         params = {'version': '0.10.1'}
         ex = self._execute_workflow('examples.mistral-test-func-version-bump-patch', params)
@@ -382,7 +343,6 @@ class VersionBumpPatchFiltersTest(base.TestWorkflowExecution):
 
 
 class VersionStripPatchFiltersTest(base.TestWorkflowExecution):
-
     def test_version_strip_patch(self):
         params = {'version': '0.10.1'}
         ex = self._execute_workflow('examples.mistral-test-func-version-strip-patch', params)

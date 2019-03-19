@@ -39,7 +39,7 @@ __all__ = [
     'ShellScriptAction',
     'RemoteAction',
     'RemoteScriptAction',
-    'ResolvedActionParameters'
+    'ResolvedActionParameters',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -47,9 +47,7 @@ LOG = logging.getLogger(__name__)
 LOGGED_USER_USERNAME = pwd.getpwuid(os.getuid())[0]
 
 # Flags which are passed to every sudo invocation
-SUDO_COMMON_OPTIONS = [
-    '-E'  # we want to preserve the environment of the user which ran sudo
-]
+SUDO_COMMON_OPTIONS = ['-E']  # we want to preserve the environment of the user which ran sudo
 
 # Flags which are only passed to sudo when not running as current user and when
 # -u flag is used
@@ -61,8 +59,18 @@ SUDO_DIFFERENT_USER_OPTIONS = [
 class ShellCommandAction(object):
     EXPORT_CMD = 'export'
 
-    def __init__(self, name, action_exec_id, command, user, env_vars=None, sudo=False,
-                 timeout=None, cwd=None, sudo_password=None):
+    def __init__(
+        self,
+        name,
+        action_exec_id,
+        command,
+        user,
+        env_vars=None,
+        sudo=False,
+        timeout=None,
+        cwd=None,
+        sudo_password=None,
+    ):
         self.name = name
         self.action_exec_id = action_exec_id
         self.command = command
@@ -159,8 +167,7 @@ class ShellCommandAction(object):
             # Environment variables could contain spaces and open us to shell
             # injection attacks. Always quote the key and the value.
             exports = ' '.join(
-                '%s=%s' % (quote_unix(k), quote_unix(v))
-                for k, v in six.iteritems(env_vars)
+                '%s=%s' % (quote_unix(k), quote_unix(v)) for k, v in six.iteritems(env_vars)
             )
             shell_env_str = '%s %s' % (ShellCommandAction.EXPORT_CMD, exports)
         else:
@@ -206,13 +213,31 @@ class ShellCommandAction(object):
 
 
 class ShellScriptAction(ShellCommandAction):
-    def __init__(self, name, action_exec_id, script_local_path_abs, named_args=None,
-                 positional_args=None, env_vars=None, user=None, sudo=False, timeout=None,
-                 cwd=None, sudo_password=None):
-        super(ShellScriptAction, self).__init__(name=name, action_exec_id=action_exec_id,
-                                                command=None, user=user, env_vars=env_vars,
-                                                sudo=sudo, timeout=timeout,
-                                                cwd=cwd, sudo_password=sudo_password)
+    def __init__(
+        self,
+        name,
+        action_exec_id,
+        script_local_path_abs,
+        named_args=None,
+        positional_args=None,
+        env_vars=None,
+        user=None,
+        sudo=False,
+        timeout=None,
+        cwd=None,
+        sudo_password=None,
+    ):
+        super(ShellScriptAction, self).__init__(
+            name=name,
+            action_exec_id=action_exec_id,
+            command=None,
+            user=user,
+            env_vars=env_vars,
+            sudo=sudo,
+            timeout=timeout,
+            cwd=cwd,
+            sudo_password=sudo_password,
+        )
         self.script_local_path_abs = script_local_path_abs
         self.named_args = named_args
         self.positional_args = positional_args
@@ -221,8 +246,9 @@ class ShellScriptAction(ShellCommandAction):
         return self._format_command()
 
     def _format_command(self):
-        script_arguments = self._get_script_arguments(named_args=self.named_args,
-                                                      positional_args=self.positional_args)
+        script_arguments = self._get_script_arguments(
+            named_args=self.named_args, positional_args=self.positional_args
+        )
         if self.sudo:
             if script_arguments:
                 command = quote_unix('%s %s' % (self.script_local_path_abs, script_arguments))
@@ -290,13 +316,34 @@ class ShellScriptAction(ShellCommandAction):
 
 
 class SSHCommandAction(ShellCommandAction):
-    def __init__(self, name, action_exec_id, command, env_vars, user, password=None, pkey=None,
-                 hosts=None, parallel=True, sudo=False, timeout=None, cwd=None, passphrase=None,
-                 sudo_password=None):
-        super(SSHCommandAction, self).__init__(name=name, action_exec_id=action_exec_id,
-                                               command=command, env_vars=env_vars, user=user,
-                                               sudo=sudo, timeout=timeout, cwd=cwd,
-                                               sudo_password=sudo_password)
+    def __init__(
+        self,
+        name,
+        action_exec_id,
+        command,
+        env_vars,
+        user,
+        password=None,
+        pkey=None,
+        hosts=None,
+        parallel=True,
+        sudo=False,
+        timeout=None,
+        cwd=None,
+        passphrase=None,
+        sudo_password=None,
+    ):
+        super(SSHCommandAction, self).__init__(
+            name=name,
+            action_exec_id=action_exec_id,
+            command=command,
+            env_vars=env_vars,
+            user=user,
+            sudo=sudo,
+            timeout=timeout,
+            cwd=cwd,
+            sudo_password=sudo_password,
+        )
         self.hosts = hosts
         self.parallel = parallel
         self.pkey = pkey
@@ -340,14 +387,38 @@ class SSHCommandAction(ShellCommandAction):
 
 
 class RemoteAction(SSHCommandAction):
-    def __init__(self, name, action_exec_id, command, env_vars=None, on_behalf_user=None,
-                 user=None, password=None, private_key=None, hosts=None, parallel=True, sudo=False,
-                 timeout=None, cwd=None, passphrase=None, sudo_password=None):
-        super(RemoteAction, self).__init__(name=name, action_exec_id=action_exec_id,
-                                           command=command, env_vars=env_vars, user=user,
-                                           hosts=hosts, parallel=parallel, sudo=sudo,
-                                           timeout=timeout, cwd=cwd, passphrase=passphrase,
-                                           sudo_password=sudo_password)
+    def __init__(
+        self,
+        name,
+        action_exec_id,
+        command,
+        env_vars=None,
+        on_behalf_user=None,
+        user=None,
+        password=None,
+        private_key=None,
+        hosts=None,
+        parallel=True,
+        sudo=False,
+        timeout=None,
+        cwd=None,
+        passphrase=None,
+        sudo_password=None,
+    ):
+        super(RemoteAction, self).__init__(
+            name=name,
+            action_exec_id=action_exec_id,
+            command=command,
+            env_vars=env_vars,
+            user=user,
+            hosts=hosts,
+            parallel=parallel,
+            sudo=sudo,
+            timeout=timeout,
+            cwd=cwd,
+            passphrase=passphrase,
+            sudo_password=sudo_password,
+        )
         self.password = password
         self.private_key = private_key
         self.passphrase = passphrase
@@ -373,17 +444,40 @@ class RemoteAction(SSHCommandAction):
 
 
 class RemoteScriptAction(ShellScriptAction):
-    def __init__(self, name, action_exec_id, script_local_path_abs, script_local_libs_path_abs,
-                 named_args=None, positional_args=None, env_vars=None, on_behalf_user=None,
-                 user=None, password=None, private_key=None, remote_dir=None, hosts=None,
-                 parallel=True, sudo=False, timeout=None, cwd=None, sudo_password=None):
-        super(RemoteScriptAction, self).__init__(name=name, action_exec_id=action_exec_id,
-                                                 script_local_path_abs=script_local_path_abs,
-                                                 user=user,
-                                                 named_args=named_args,
-                                                 positional_args=positional_args, env_vars=env_vars,
-                                                 sudo=sudo, timeout=timeout, cwd=cwd,
-                                                 sudo_password=sudo_password)
+    def __init__(
+        self,
+        name,
+        action_exec_id,
+        script_local_path_abs,
+        script_local_libs_path_abs,
+        named_args=None,
+        positional_args=None,
+        env_vars=None,
+        on_behalf_user=None,
+        user=None,
+        password=None,
+        private_key=None,
+        remote_dir=None,
+        hosts=None,
+        parallel=True,
+        sudo=False,
+        timeout=None,
+        cwd=None,
+        sudo_password=None,
+    ):
+        super(RemoteScriptAction, self).__init__(
+            name=name,
+            action_exec_id=action_exec_id,
+            script_local_path_abs=script_local_path_abs,
+            user=user,
+            named_args=named_args,
+            positional_args=positional_args,
+            env_vars=env_vars,
+            sudo=sudo,
+            timeout=timeout,
+            cwd=cwd,
+            sudo_password=sudo_password,
+        )
         self.script_local_libs_path_abs = script_local_libs_path_abs
         self.script_local_dir, self.script_name = os.path.split(self.script_local_path_abs)
         self.remote_dir = remote_dir if remote_dir is not None else '/tmp'
@@ -413,8 +507,9 @@ class RemoteScriptAction(ShellScriptAction):
         return self.remote_dir
 
     def _format_command(self):
-        script_arguments = self._get_script_arguments(named_args=self.named_args,
-                                                      positional_args=self.positional_args)
+        script_arguments = self._get_script_arguments(
+            named_args=self.named_args, positional_args=self.positional_args
+        )
 
         if script_arguments:
             command = '%s %s' % (self.remote_script, script_arguments)
@@ -465,10 +560,12 @@ class ResolvedActionParameters(DictSerializableClassMixin):
         secret_runner_parameters = get_secret_parameters(parameters=runner_parameters_specs)
         secret_action_parameters = get_secret_parameters(parameters=action_parameters_sepcs)
 
-        runner_parameters = mask_secret_parameters(parameters=runner_parameters,
-                                                   secret_parameters=secret_runner_parameters)
-        action_parameters = mask_secret_parameters(parameters=action_parameters,
-                                                   secret_parameters=secret_action_parameters)
+        runner_parameters = mask_secret_parameters(
+            parameters=runner_parameters, secret_parameters=secret_runner_parameters
+        )
+        action_parameters = mask_secret_parameters(
+            parameters=action_parameters, secret_parameters=secret_action_parameters
+        )
         result['runner_parameters'] = runner_parameters
         result['action_parameters'] = action_parameters
 

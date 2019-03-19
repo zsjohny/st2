@@ -45,7 +45,7 @@ __all__ = [
     'DbConnectionTestCase',
     'ReactorModelTestCase',
     'ActionModelTestCase',
-    'KeyValuePairModelTestCase'
+    'KeyValuePairModelTestCase',
 ]
 
 SKIP_DELETE = False
@@ -53,7 +53,6 @@ DUMMY_DESCRIPTION = 'Sample Description.'
 
 
 class DbConnectionTestCase(DbTestCase):
-
     def test_check_connect(self):
         """
         Tests connectivity to the db server. Requires the db server to be
@@ -75,80 +74,91 @@ class DbConnectionTestCase(DbTestCase):
 
         # 2. authentication_mechanism kwarg provided
         ssl_kwargs = _get_ssl_kwargs(authentication_mechanism='MONGODB-X509')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_match_hostname': True,
-            'authentication_mechanism': 'MONGODB-X509'
-        })
+        self.assertEqual(
+            ssl_kwargs,
+            {'ssl': True, 'ssl_match_hostname': True, 'authentication_mechanism': 'MONGODB-X509'},
+        )
 
         # 3. ssl_keyfile provided
         ssl_kwargs = _get_ssl_kwargs(ssl_keyfile='/tmp/keyfile')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_keyfile': '/tmp/keyfile',
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            ssl_kwargs, {'ssl': True, 'ssl_keyfile': '/tmp/keyfile', 'ssl_match_hostname': True}
+        )
 
         # 4. ssl_certfile provided
         ssl_kwargs = _get_ssl_kwargs(ssl_certfile='/tmp/certfile')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_certfile': '/tmp/certfile',
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            ssl_kwargs, {'ssl': True, 'ssl_certfile': '/tmp/certfile', 'ssl_match_hostname': True}
+        )
 
         # 5. ssl_ca_certs provided
         ssl_kwargs = _get_ssl_kwargs(ssl_ca_certs='/tmp/ca_certs')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_ca_certs': '/tmp/ca_certs',
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            ssl_kwargs, {'ssl': True, 'ssl_ca_certs': '/tmp/ca_certs', 'ssl_match_hostname': True}
+        )
 
         # 6. ssl_ca_certs and ssl_cert_reqs combinations
         ssl_kwargs = _get_ssl_kwargs(ssl_ca_certs='/tmp/ca_certs', ssl_cert_reqs='none')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_ca_certs': '/tmp/ca_certs',
-            'ssl_cert_reqs': ssl.CERT_NONE,
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            ssl_kwargs,
+            {
+                'ssl': True,
+                'ssl_ca_certs': '/tmp/ca_certs',
+                'ssl_cert_reqs': ssl.CERT_NONE,
+                'ssl_match_hostname': True,
+            },
+        )
 
         ssl_kwargs = _get_ssl_kwargs(ssl_ca_certs='/tmp/ca_certs', ssl_cert_reqs='optional')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_ca_certs': '/tmp/ca_certs',
-            'ssl_cert_reqs': ssl.CERT_OPTIONAL,
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            ssl_kwargs,
+            {
+                'ssl': True,
+                'ssl_ca_certs': '/tmp/ca_certs',
+                'ssl_cert_reqs': ssl.CERT_OPTIONAL,
+                'ssl_match_hostname': True,
+            },
+        )
 
         ssl_kwargs = _get_ssl_kwargs(ssl_ca_certs='/tmp/ca_certs', ssl_cert_reqs='required')
-        self.assertEqual(ssl_kwargs, {
-            'ssl': True,
-            'ssl_ca_certs': '/tmp/ca_certs',
-            'ssl_cert_reqs': ssl.CERT_REQUIRED,
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            ssl_kwargs,
+            {
+                'ssl': True,
+                'ssl_ca_certs': '/tmp/ca_certs',
+                'ssl_cert_reqs': ssl.CERT_REQUIRED,
+                'ssl_match_hostname': True,
+            },
+        )
 
     @mock.patch('st2common.models.db.mongoengine')
     def test_db_setup(self, mock_mongoengine):
-        db_setup(db_name='name', db_host='host', db_port=12345, username='username',
-                 password='password', authentication_mechanism='MONGODB-X509')
+        db_setup(
+            db_name='name',
+            db_host='host',
+            db_port=12345,
+            username='username',
+            password='password',
+            authentication_mechanism='MONGODB-X509',
+        )
 
         call_args = mock_mongoengine.connection.connect.call_args_list[0][0]
         call_kwargs = mock_mongoengine.connection.connect.call_args_list[0][1]
 
         self.assertEqual(call_args, ('name',))
-        self.assertEqual(call_kwargs, {
-            'host': 'host',
-            'port': 12345,
-            'username': 'username',
-            'password': 'password',
-            'tz_aware': True,
-            'authentication_mechanism': 'MONGODB-X509',
-            'ssl': True,
-            'ssl_match_hostname': True
-        })
+        self.assertEqual(
+            call_kwargs,
+            {
+                'host': 'host',
+                'port': 12345,
+                'username': 'username',
+                'password': 'password',
+                'tz_aware': True,
+                'authentication_mechanism': 'MONGODB-X509',
+                'ssl': True,
+                'ssl_match_hostname': True,
+            },
+        )
 
     @mock.patch('st2common.models.db.mongoengine')
     @mock.patch('st2common.models.db.LOG')
@@ -163,16 +173,18 @@ class DbConnectionTestCase(DbTestCase):
         db_host = 'localhost'
         username = 'user_st2'
         password = 'pass_st2'
-        db_setup(db_name=db_name, db_host=db_host, db_port=db_port, username=username,
-                 password=password)
+        db_setup(
+            db_name=db_name, db_host=db_host, db_port=db_port, username=username, password=password
+        )
 
         expected_message = 'Connecting to database "st2" @ "localhost:27017" as user "user_st2".'
         actual_message = mock_log.info.call_args_list[0][0][0]
         self.assertEqual(expected_message, actual_message)
 
         # Check for helpful error messages if the connection is successful
-        expected_log_message = ('Successfully connected to database "st2" @ "localhost:27017" as '
-                                'user "user_st2".')
+        expected_log_message = (
+            'Successfully connected to database "st2" @ "localhost:27017" as ' 'user "user_st2".'
+        )
         actual_log_message = mock_log.info.call_args_list[1][0][0]
         self.assertEqual(expected_log_message, actual_log_message)
 
@@ -180,15 +192,17 @@ class DbConnectionTestCase(DbTestCase):
         db_host = 'mongodb://user_st22:pass_st22@127.0.0.2:5555'
         username = None
         password = None
-        db_setup(db_name=db_name, db_host=db_host, db_port=db_port, username=username,
-                 password=password)
+        db_setup(
+            db_name=db_name, db_host=db_host, db_port=db_port, username=username, password=password
+        )
 
         expected_message = 'Connecting to database "st2" @ "127.0.0.2:5555" as user "user_st22".'
         actual_message = mock_log.info.call_args_list[2][0][0]
         self.assertEqual(expected_message, actual_message)
 
-        expected_log_message = ('Successfully connected to database "st2" @ "127.0.0.2:5555" as '
-                                'user "user_st22".')
+        expected_log_message = (
+            'Successfully connected to database "st2" @ "127.0.0.2:5555" as ' 'user "user_st22".'
+        )
         actual_log_message = mock_log.info.call_args_list[3][0][0]
         self.assertEqual(expected_log_message, actual_log_message)
 
@@ -197,15 +211,17 @@ class DbConnectionTestCase(DbTestCase):
         db_host = 'mongodb://user_st210:pass_st23@127.0.0.2:5555'
         username = 'user_st23'
         password = None
-        db_setup(db_name=db_name, db_host=db_host, db_port=db_port, username=username,
-                 password=password)
+        db_setup(
+            db_name=db_name, db_host=db_host, db_port=db_port, username=username, password=password
+        )
 
         expected_message = 'Connecting to database "st2" @ "127.0.0.2:5555" as user "user_st23".'
         actual_message = mock_log.info.call_args_list[4][0][0]
         self.assertEqual(expected_message, actual_message)
 
-        expected_log_message = ('Successfully connected to database "st2" @ "127.0.0.2:5555" as '
-                                'user "user_st23".')
+        expected_log_message = (
+            'Successfully connected to database "st2" @ "127.0.0.2:5555" as ' 'user "user_st23".'
+        )
         actual_log_message = mock_log.info.call_args_list[5][0][0]
         self.assertEqual(expected_log_message, actual_log_message)
 
@@ -213,15 +229,17 @@ class DbConnectionTestCase(DbTestCase):
         db_host = 'mongodb://127.0.0.2:5555'
         username = 'user_st24'
         password = 'foobar'
-        db_setup(db_name=db_name, db_host=db_host, db_port=db_port, username=username,
-                 password=password)
+        db_setup(
+            db_name=db_name, db_host=db_host, db_port=db_port, username=username, password=password
+        )
 
         expected_message = 'Connecting to database "st2" @ "127.0.0.2:5555" as user "user_st24".'
         actual_message = mock_log.info.call_args_list[6][0][0]
         self.assertEqual(expected_message, actual_message)
 
-        expected_log_message = ('Successfully connected to database "st2" @ "127.0.0.2:5555" as '
-                                'user "user_st24".')
+        expected_log_message = (
+            'Successfully connected to database "st2" @ "127.0.0.2:5555" as ' 'user "user_st24".'
+        )
         actual_log_message = mock_log.info.call_args_list[7][0][0]
         self.assertEqual(expected_log_message, actual_log_message)
 
@@ -229,17 +247,22 @@ class DbConnectionTestCase(DbTestCase):
         db_host = 'mongodb://user6:pass6@host1,host2,host3'
         username = None
         password = 'foobar'
-        db_setup(db_name=db_name, db_host=db_host, db_port=db_port, username=username,
-                 password=password)
+        db_setup(
+            db_name=db_name, db_host=db_host, db_port=db_port, username=username, password=password
+        )
 
-        expected_message = ('Connecting to database "st2" @ "host1:27017,host2:27017,host3:27017 '
-                            '(replica set)" as user "user6".')
+        expected_message = (
+            'Connecting to database "st2" @ "host1:27017,host2:27017,host3:27017 '
+            '(replica set)" as user "user6".'
+        )
         actual_message = mock_log.info.call_args_list[8][0][0]
         self.assertEqual(expected_message, actual_message)
 
-        expected_log_message = ('Successfully connected to database "st2" @ '
-                                '"host1:27017,host2:27017,host3:27017 '
-                                '(replica set)" as user "user6".')
+        expected_log_message = (
+            'Successfully connected to database "st2" @ '
+            '"host1:27017,host2:27017,host3:27017 '
+            '(replica set)" as user "user6".'
+        )
         actual_log_message = mock_log.info.call_args_list[9][0][0]
         self.assertEqual(expected_log_message, actual_log_message)
 
@@ -253,16 +276,25 @@ class DbConnectionTestCase(DbTestCase):
         password = 'pass_st2'
 
         expected_msg = 'Failed to connect'
-        self.assertRaisesRegexp(ConnectionFailure, expected_msg, db_setup,
-                                db_name=db_name, db_host=db_host, db_port=db_port,
-                                username=username, password=password)
+        self.assertRaisesRegexp(
+            ConnectionFailure,
+            expected_msg,
+            db_setup,
+            db_name=db_name,
+            db_host=db_host,
+            db_port=db_port,
+            username=username,
+            password=password,
+        )
 
         expected_message = 'Connecting to database "st2" @ "localhost:9797" as user "user_st2".'
         actual_message = mock_log.info.call_args_list[10][0][0]
         self.assertEqual(expected_message, actual_message)
 
-        expected_message = ('Failed to connect to database "st2" @ "localhost:9797" as user '
-                            '"user_st2": Failed to connect')
+        expected_message = (
+            'Failed to connect to database "st2" @ "localhost:9797" as user '
+            '"user_st2": Failed to connect'
+        )
         actual_message = mock_log.error.call_args_list[0][0][0]
         self.assertEqual(expected_message, actual_message)
 
@@ -283,12 +315,10 @@ class DbCleanupTestCase(DbTestCase):
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
 class ReactorModelTestCase(DbTestCase):
-
     def test_triggertype_crud(self):
         saved = ReactorModelTestCase._create_save_triggertype()
         retrieved = TriggerType.get_by_id(saved.id)
-        self.assertEqual(saved.name, retrieved.name,
-                         'Same triggertype was not returned.')
+        self.assertEqual(saved.name, retrieved.name, 'Same triggertype was not returned.')
         # test update
         self.assertEqual(retrieved.description, '')
         retrieved.description = DUMMY_DESCRIPTION
@@ -307,8 +337,7 @@ class ReactorModelTestCase(DbTestCase):
         triggertype = ReactorModelTestCase._create_save_triggertype()
         saved = ReactorModelTestCase._create_save_trigger(triggertype)
         retrieved = Trigger.get_by_id(saved.id)
-        self.assertEqual(saved.name, retrieved.name,
-                         'Same trigger was not returned.')
+        self.assertEqual(saved.name, retrieved.name, 'Same trigger was not returned.')
         # test update
         self.assertEqual(retrieved.description, '')
         retrieved.description = DUMMY_DESCRIPTION
@@ -376,12 +405,12 @@ class ReactorModelTestCase(DbTestCase):
         runnertype = ActionModelTestCase._create_save_runnertype()
         action = ActionModelTestCase._create_save_action(runnertype)
         saved = ReactorModelTestCase._create_save_rule(trigger, action)
-        retrievedrules = Rule.query(trigger=reference.get_str_resource_ref_from_model(trigger),
-                                    enabled=True)
+        retrievedrules = Rule.query(
+            trigger=reference.get_str_resource_ref_from_model(trigger), enabled=True
+        )
         self.assertEqual(1, len(retrievedrules), 'Error looking up enabled rules.')
         for retrievedrule in retrievedrules:
-            self.assertEqual(saved.id, retrievedrule.id,
-                             'Incorrect rule returned.')
+            self.assertEqual(saved.id, retrievedrule.id, 'Incorrect rule returned.')
         ReactorModelTestCase._delete([saved, trigger, action, runnertype, triggertype])
 
     def test_rule_lookup_disabled(self):
@@ -390,8 +419,9 @@ class ReactorModelTestCase(DbTestCase):
         runnertype = ActionModelTestCase._create_save_runnertype()
         action = ActionModelTestCase._create_save_action(runnertype)
         saved = ReactorModelTestCase._create_save_rule(trigger, action, False)
-        retrievedrules = Rule.query(trigger=reference.get_str_resource_ref_from_model(trigger),
-                                    enabled=False)
+        retrievedrules = Rule.query(
+            trigger=reference.get_str_resource_ref_from_model(trigger), enabled=False
+        )
         self.assertEqual(1, len(retrievedrules), 'Error looking up enabled rules.')
         for retrievedrule in retrievedrules:
             self.assertEqual(saved.id, retrievedrule.id, 'Incorrect rule returned.')
@@ -403,27 +433,39 @@ class ReactorModelTestCase(DbTestCase):
         retrievedtriggers = Trigger.query(name=saved.name)
         self.assertEqual(1, len(retrievedtriggers), 'No triggers found.')
         for retrievedtrigger in retrievedtriggers:
-            self.assertEqual(saved.id, retrievedtrigger.id,
-                             'Incorrect trigger returned.')
+            self.assertEqual(saved.id, retrievedtrigger.id, 'Incorrect trigger returned.')
         ReactorModelTestCase._delete([saved, triggertype])
 
     @staticmethod
     def _create_save_triggertype():
-        created = TriggerTypeDB(pack='dummy_pack_1', name='triggertype-1', description='',
-                                payload_schema={}, parameters_schema={})
+        created = TriggerTypeDB(
+            pack='dummy_pack_1',
+            name='triggertype-1',
+            description='',
+            payload_schema={},
+            parameters_schema={},
+        )
         return Trigger.add_or_update(created)
 
     @staticmethod
     def _create_save_trigger(triggertype):
-        created = TriggerDB(pack='dummy_pack_1', name='trigger-1', description='',
-                            type=triggertype.get_reference().ref, parameters={})
+        created = TriggerDB(
+            pack='dummy_pack_1',
+            name='trigger-1',
+            description='',
+            type=triggertype.get_reference().ref,
+            parameters={},
+        )
         return Trigger.add_or_update(created)
 
     @staticmethod
     def _create_save_triggerinstance(trigger):
-        created = TriggerInstanceDB(trigger=trigger.get_reference().ref, payload={},
-                                    occurrence_time=date_utils.get_datetime_utc_now(),
-                                    status=TRIGGER_INSTANCE_PROCESSED)
+        created = TriggerInstanceDB(
+            trigger=trigger.get_reference().ref,
+            payload={},
+            occurrence_time=date_utils.get_datetime_utc_now(),
+            status=TRIGGER_INSTANCE_PROCESSED,
+        )
         return TriggerInstance.add_or_update(created)
 
     @staticmethod
@@ -464,38 +506,18 @@ PARAM_SCHEMA = {
     "description": "awesomeness",
     "type": "object",
     "properties": {
-        "r1": {
-            "type": "object",
-            "properties": {
-                "r1a": {
-                    "type": "string"
-                }
-            }
-        },
-        "r2": {
-            "type": "string",
-            "required": True
-        },
-        "p1": {
-            "type": "string",
-            "required": True
-        },
-        "p2": {
-            "type": "number",
-            "default": 2868
-        },
-        "p3": {
-            "type": "boolean",
-            "default": False
-        }
+        "r1": {"type": "object", "properties": {"r1a": {"type": "string"}}},
+        "r2": {"type": "string", "required": True},
+        "p1": {"type": "string", "required": True},
+        "p2": {"type": "number", "default": 2868},
+        "p3": {"type": "boolean", "default": False},
     },
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
 class ActionModelTestCase(DbTestCase):
-
     def tearDown(self):
         runnertype = RunnerType.get_by_name('python')
         self._delete([runnertype])
@@ -505,8 +527,7 @@ class ActionModelTestCase(DbTestCase):
         runnertype = self._create_save_runnertype(metadata=False)
         saved = self._create_save_action(runnertype, metadata=False)
         retrieved = Action.get_by_id(saved.id)
-        self.assertEqual(saved.name, retrieved.name,
-                         'Same Action was not returned.')
+        self.assertEqual(saved.name, retrieved.name, 'Same Action was not returned.')
 
         # test update
         self.assertEqual(retrieved.description, 'awesomeness')
@@ -564,12 +585,23 @@ class ActionModelTestCase(DbTestCase):
         # use schema to validate parameters
         jsonschema.validate({"r2": "abc", "p1": "def"}, schema, validator)
         jsonschema.validate({"r2": "abc", "p1": "def", "r1": {"r1a": "ghi"}}, schema, validator)
-        self.assertRaises(jsonschema.ValidationError, jsonschema.validate,
-                          '{"r2": "abc", "p1": "def"}', schema, validator)
-        self.assertRaises(jsonschema.ValidationError, jsonschema.validate,
-                          {"r2": "abc"}, schema, validator)
-        self.assertRaises(jsonschema.ValidationError, jsonschema.validate,
-                          {"r2": "abc", "p1": "def", "r1": 123}, schema, validator)
+        self.assertRaises(
+            jsonschema.ValidationError,
+            jsonschema.validate,
+            '{"r2": "abc", "p1": "def"}',
+            schema,
+            validator,
+        )
+        self.assertRaises(
+            jsonschema.ValidationError, jsonschema.validate, {"r2": "abc"}, schema, validator
+        )
+        self.assertRaises(
+            jsonschema.ValidationError,
+            jsonschema.validate,
+            {"r2": "abc", "p1": "def", "r1": 123},
+            schema,
+            validator,
+        )
 
         # cleanup
         self._delete([retrieved])
@@ -592,12 +624,8 @@ class ActionModelTestCase(DbTestCase):
         schema = util_schema.get_schema_for_action_parameters(action_db=action_db)
         expected = {
             u'type': u'object',
-            u'properties': {
-                u'r1a': {
-                    u'type': u'string'
-                }
-            },
-            'immutable': True
+            u'properties': {u'r1a': {u'type': u'string'}},
+            'immutable': True,
         }
         self.assertEqual(schema['properties']['r1'], expected)
 
@@ -611,7 +639,7 @@ class ActionModelTestCase(DbTestCase):
         else:
             created.runner_parameters = {
                 'r1': {'type': 'object', 'properties': {'r1a': {'type': 'string'}}},
-                'r2': {'type': 'string', 'required': True}
+                'r2': {'type': 'string', 'required': True},
             }
         created.runner_module = 'nomodule'
         return RunnerType.add_or_update(created)
@@ -621,10 +649,15 @@ class ActionModelTestCase(DbTestCase):
         name = 'action-1'
         pack = 'wolfpack'
         ref = ResourceReference(pack=pack, name=name).ref
-        created = ActionDB(name=name, description='awesomeness', enabled=True,
-                           entry_point='/tmp/action.py', pack=pack,
-                           ref=ref,
-                           runner_type={'name': runnertype.name})
+        created = ActionDB(
+            name=name,
+            description='awesomeness',
+            enabled=True,
+            entry_point='/tmp/action.py',
+            pack=pack,
+            ref=ref,
+            runner_type={'name': runnertype.name},
+        )
 
         if not metadata:
             created.parameters = {'p1': None, 'p2': None, 'p3': None}
@@ -632,7 +665,7 @@ class ActionModelTestCase(DbTestCase):
             created.parameters = {
                 'p1': {'type': 'string', 'required': True},
                 'p2': {'type': 'number', 'default': 2868},
-                'p3': {'type': 'boolean', 'default': False}
+                'p3': {'type': 'boolean', 'default': False},
             }
         return Action.add_or_update(created)
 
@@ -650,20 +683,17 @@ from st2common.persistence.keyvalue import KeyValuePair
 
 
 class KeyValuePairModelTestCase(DbTestCase):
-
     def test_kvp_crud(self):
         saved = KeyValuePairModelTestCase._create_save_kvp()
         retrieved = KeyValuePair.get_by_name(saved.name)
-        self.assertEqual(saved.id, retrieved.id,
-                         'Same KeyValuePair was not returned.')
+        self.assertEqual(saved.id, retrieved.id, 'Same KeyValuePair was not returned.')
 
         # test update
         self.assertEqual(retrieved.value, '0123456789ABCDEF')
         retrieved.value = 'ABCDEF0123456789'
         saved = KeyValuePair.add_or_update(retrieved)
         retrieved = KeyValuePair.get_by_name(saved.name)
-        self.assertEqual(retrieved.value, 'ABCDEF0123456789',
-                         'Update of key value failed')
+        self.assertEqual(retrieved.value, 'ABCDEF0123456789', 'Update of key value failed')
 
         # cleanup
         KeyValuePairModelTestCase._delete([retrieved])

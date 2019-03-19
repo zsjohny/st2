@@ -36,18 +36,16 @@ TOKEN_VERIFY_PATH = '/v1/tokens/validate'
 
 
 class TestTokenController(FunctionalTest):
-
     @classmethod
     def setUpClass(cls, **kwargs):
-        kwargs['extra_environ'] = {
-            'REMOTE_USER': USERNAME
-        }
+        kwargs['extra_environ'] = {'REMOTE_USER': USERNAME}
         super(TestTokenController, cls).setUpClass(**kwargs)
 
     def test_token_model(self):
         dt = date_utils.get_datetime_utc_now()
-        tk1 = TokenAPI(user='stanley', token=uuid.uuid4().hex,
-                       expiry=isotime.format(dt, offset=False))
+        tk1 = TokenAPI(
+            user='stanley', token=uuid.uuid4().hex, expiry=isotime.format(dt, offset=False)
+        )
         tkdb1 = TokenAPI.to_model(tk1)
         self.assertIsNotNone(tkdb1)
         self.assertIsInstance(tkdb1, TokenDB)
@@ -90,35 +88,25 @@ class TestTokenController(FunctionalTest):
         self.assertLess(actual_expiry, expected_expiry)
 
     def test_token_post_unauthorized(self):
-        response = self.app.post_json(TOKEN_V1_PATH, {}, expect_errors=True, extra_environ={
-            'REMOTE_USER': ''
-        })
+        response = self.app.post_json(
+            TOKEN_V1_PATH, {}, expect_errors=True, extra_environ={'REMOTE_USER': ''}
+        )
         self.assertEqual(response.status_int, 401)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(side_effect=Exception()))
-    @mock.patch.object(
-        User, 'add_or_update',
-        mock.Mock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(User, 'add_or_update', mock.Mock(return_value=UserDB(name=USERNAME)))
     def test_token_post_new_user(self):
         self._test_token_post()
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_post_existing_user(self):
         self._test_token_post()
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_post_default_url_path(self):
         self._test_token_post(path=TOKEN_DEFAULT_PATH)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_post_set_ttl(self):
         timestamp = date_utils.add_utc_tz(date_utils.get_datetime_utc_now())
         response = self.app.post_json(TOKEN_V1_PATH, {'ttl': 60}, expect_errors=False)
@@ -128,37 +116,27 @@ class TestTokenController(FunctionalTest):
         self.assertLess(timestamp, actual_expiry)
         self.assertLess(actual_expiry, expected_expiry)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_post_no_data_in_body_text_plain_context_type_used(self):
         response = self.app.post(TOKEN_V1_PATH, expect_errors=False, content_type='text/plain')
         self.assertEqual(response.status_int, 201)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_post_set_ttl_over_policy(self):
         ttl = cfg.CONF.auth.token_ttl
         response = self.app.post_json(TOKEN_V1_PATH, {'ttl': ttl + 60}, expect_errors=True)
         self.assertEqual(response.status_int, 400)
-        message = 'TTL specified %s is greater than max allowed %s.' % (
-                  ttl + 60, ttl
-        )
+        message = 'TTL specified %s is greater than max allowed %s.' % (ttl + 60, ttl)
         self.assertEqual(response.json['faultstring'], message)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_post_set_bad_ttl(self):
         response = self.app.post_json(TOKEN_V1_PATH, {'ttl': -1}, expect_errors=True)
         self.assertEqual(response.status_int, 400)
         response = self.app.post_json(TOKEN_V1_PATH, {'ttl': 0}, expect_errors=True)
         self.assertEqual(response.status_int, 400)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_get_unauthorized(self):
         # Create a new token.
         response = self.app.post_json(TOKEN_V1_PATH, expect_errors=False)
@@ -168,9 +146,7 @@ class TestTokenController(FunctionalTest):
         response = self.app.post_json(TOKEN_VERIFY_PATH, data, expect_errors=True)
         self.assertEqual(response.status_int, 401)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_get_unauthorized_bad_api_key(self):
         # Create a new token.
         response = self.app.post_json(TOKEN_V1_PATH, expect_errors=False)
@@ -181,9 +157,7 @@ class TestTokenController(FunctionalTest):
         response = self.app.post_json(TOKEN_VERIFY_PATH, data, headers=headers, expect_errors=True)
         self.assertEqual(response.status_int, 401)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_get_unauthorized_bad_token(self):
         # Create a new token.
         response = self.app.post_json(TOKEN_V1_PATH, expect_errors=False)
@@ -194,12 +168,10 @@ class TestTokenController(FunctionalTest):
         response = self.app.post_json(TOKEN_VERIFY_PATH, data, headers=headers, expect_errors=True)
         self.assertEqual(response.status_int, 401)
 
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
-    @mock.patch.object(
-        ApiKey, 'get',
-        mock.MagicMock(return_value=ApiKeyDB(user=USERNAME, key_hash='foobar')))
+        ApiKey, 'get', mock.MagicMock(return_value=ApiKeyDB(user=USERNAME, key_hash='foobar'))
+    )
     def test_token_get_auth_with_api_key(self):
         # Create a new token.
         response = self.app.post_json(TOKEN_V1_PATH, expect_errors=False)
@@ -211,9 +183,7 @@ class TestTokenController(FunctionalTest):
         self.assertEqual(response.status_int, 200)
         self.assertTrue(response.json['valid'])
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     def test_token_get_auth_with_token(self):
         # Create a new token.
         response = self.app.post_json(TOKEN_V1_PATH, {}, expect_errors=False)
@@ -225,18 +195,21 @@ class TestTokenController(FunctionalTest):
         self.assertEqual(response.status_int, 200)
         self.assertTrue(response.json['valid'])
 
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name=USERNAME)))
     @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name=USERNAME)))
+        ApiKey, 'get', mock.MagicMock(return_value=ApiKeyDB(user=USERNAME, key_hash='foobar'))
+    )
     @mock.patch.object(
-        ApiKey, 'get',
-        mock.MagicMock(return_value=ApiKeyDB(user=USERNAME, key_hash='foobar')))
-    @mock.patch.object(
-        Token, 'get',
+        Token,
+        'get',
         mock.MagicMock(
             return_value=TokenDB(
-                user=USERNAME, token='12345',
-                expiry=date_utils.get_datetime_utc_now() - datetime.timedelta(minutes=1))))
+                user=USERNAME,
+                token='12345',
+                expiry=date_utils.get_datetime_utc_now() - datetime.timedelta(minutes=1),
+            )
+        ),
+    )
     def test_token_get_unauthorized_bad_ttl(self):
         # Verify the token. 400 is expected because the token has expired.
         headers = {'St2-Api-Key': 'foobar'}

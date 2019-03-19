@@ -58,15 +58,12 @@ class MistralWorkflowValidator(WorkflowValidator):
             project_name=cfg.CONF.mistral.keystone_project_name,
             auth_url=cfg.CONF.mistral.keystone_auth_url,
             cacert=cfg.CONF.mistral.cacert,
-            insecure=cfg.CONF.mistral.insecure)
+            insecure=cfg.CONF.mistral.insecure,
+        )
 
     @staticmethod
     def parse(message):
-        result = {
-            'type': None,
-            'path': None,
-            'message': message
-        }
+        result = {'type': None, 'path': None, 'message': message}
 
         # Check message for schema specific error.
         m1 = re.search('^Invalid DSL: (.+)\n', message)
@@ -88,23 +85,33 @@ class MistralWorkflowValidator(WorkflowValidator):
             result['message'] = m2.group(1)
 
         # Check message for action parameters specific error.
-        if any([candidate in message
-                for candidate in ['Missing required parameters',
-                                  'Unexpected parameters',
-                                  'st2.callback is deprecated']]):
+        if any(
+            [
+                candidate in message
+                for candidate in [
+                    'Missing required parameters',
+                    'Unexpected parameters',
+                    'st2.callback is deprecated',
+                ]
+            ]
+        ):
             result['type'] = 'action'
 
         return result
 
     def validate(self, definition):
         def_dict = yaml.safe_load(definition)
-        is_workbook = ('workflows' in def_dict)
+        is_workbook = 'workflows' in def_dict
 
         if not is_workbook:
             # Non-workbook definition containing multiple workflows is not supported.
             if len([k for k, _ in six.iteritems(def_dict) if k != 'version']) != 1:
-                return [self.parse('Multiple workflows is not supported workflow '
-                                   'only (not a workbook) definition.')]
+                return [
+                    self.parse(
+                        'Multiple workflows is not supported workflow '
+                        'only (not a workbook) definition.'
+                    )
+                ]
 
         # Select validation function.
         func = self._client.workbooks.validate if is_workbook else self._client.workflows.validate

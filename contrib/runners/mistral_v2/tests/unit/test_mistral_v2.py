@@ -30,6 +30,7 @@ from oslo_config import cfg
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 # NOTE: This has to be done before importing MistralRunner
@@ -71,16 +72,13 @@ TEST_FIXTURES = {
         'workbook_v2_name_mismatch.yaml',
         'workflow_v2_name_mismatch.yaml',
         'workflow_v2_reverse.yaml',
-    ]
+    ],
 }
 
 TEST_PACK = 'mistral_tests'
 TEST_PACK_PATH = fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 # Action executions requirements
 MISTRAL_EXECUTION = {'id': str(uuid.uuid4()), 'state': 'RUNNING', 'workflow_name': None}
@@ -172,20 +170,18 @@ WF3_REVERSE_TARGET_TASK_NAME = WF3_META_CONTENT['parameters']['task_name']['defa
 NOTIFY = [{'type': 'st2'}]
 
 
-@mock.patch.object(
-    CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+)
 class MistralRunnerTest(ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(MistralRunnerTest, cls).setUpClass()
@@ -197,8 +193,7 @@ class MistralRunnerTest(ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -216,13 +211,13 @@ class MistralRunnerTest(ExecutionDbTestCase):
                 'task_tags': None,
                 'task_name': 'some_fancy_wf_task',
                 'task_id': '6c7d4334-3e7d-49c6-918d-698e846affaf',
-                'action_execution_id': '24da5c88-834c-4a65-8b56-4ddbd654eb68'
+                'action_execution_id': '24da5c88-834c-4a65-8b56-4ddbd654eb68',
             }
         }
 
         current = {
             'workflow_name': 'foo.subwf',
-            'workflow_execution_id': '135e3446-4c89-4afe-821f-6ec6a0849b27'
+            'workflow_execution_id': '135e3446-4c89-4afe-821f-6ec6a0849b27',
         }
 
         context = MistralRunner._build_mistral_context(parent, current)
@@ -231,29 +226,26 @@ class MistralRunnerTest(ExecutionDbTestCase):
 
         parent_dict = {
             'workflow_name': parent['mistral']['workflow_name'],
-            'workflow_execution_id': parent['mistral']['workflow_execution_id']
+            'workflow_execution_id': parent['mistral']['workflow_execution_id'],
         }
 
         self.assertDictEqual(context['mistral']['parent'], parent_dict)
-        self.assertEqual(context['mistral']['workflow_execution_id'],
-                         current['workflow_execution_id'])
+        self.assertEqual(
+            context['mistral']['workflow_execution_id'], current['workflow_execution_id']
+        )
 
         parent = None
         context = MistralRunner._build_mistral_context(parent, current)
         self.assertDictEqual(context['mistral'], current)
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -276,32 +268,26 @@ class MistralRunnerTest(ExecutionDbTestCase):
                     'st2_context': {
                         'api_url': 'http://0.0.0.0:9101/v1',
                         'endpoint': 'http://0.0.0.0:9101/v1/actionexecutions',
-                        'parent': {
-                            'pack': 'mistral_tests',
-                            'execution_id': str(execution.id)
-                        },
+                        'parent': {'pack': 'mistral_tests', 'execution_id': str(execution.id)},
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_under_parent_chain_with_jinja_params(self):
         ac_ctx = {
             'chain': {
@@ -309,12 +295,8 @@ class MistralRunnerTest(ExecutionDbTestCase):
                     'var1': 'foobar',
                     'var2': '{{foobar}}',
                     'var3': ['{{foo}}', '{{bar}}'],
-                    'var4': {
-                        'foobar': '{{foobar}}'
-                    },
-                    'var5': {
-                        'foobar': '{% for item in items %}foobar{% end for %}'
-                    }
+                    'var4': {'foobar': '{{foobar}}'},
+                    'var5': {'foobar': '{% for item in items %}foobar{% end for %}'},
                 }
             }
         }
@@ -349,42 +331,37 @@ class MistralRunnerTest(ExecutionDbTestCase):
                                     'var2': '{% raw %}{{foobar}}{% endraw %}',
                                     'var3': [
                                         '{% raw %}{{foo}}{% endraw %}',
-                                        '{% raw %}{{bar}}{% endraw %}'
+                                        '{% raw %}{{bar}}{% endraw %}',
                                     ],
-                                    'var4': {
-                                        'foobar': '{% raw %}{{foobar}}{% endraw %}'
-                                    },
+                                    'var4': {'foobar': '{% raw %}{{foobar}}{% endraw %}'},
                                     'var5': {
                                         'foobar': (
                                             '{% raw %}{% for item in items %}'
                                             'foobar{% end for %}{% endraw %}'
                                         )
-                                    }
+                                    },
                                 }
-                            }
+                            },
                         },
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_under_parent_chain_with_jinja_parameters(self):
         ac_ctx = {
             'chain': {
@@ -392,9 +369,7 @@ class MistralRunnerTest(ExecutionDbTestCase):
                     'var1': 'foobar',
                     'var2': '{{foobar}}',
                     'var3': ['{{foo}}', '{{bar}}'],
-                    'var4': {
-                        'foobar': '{{foobar}}'
-                    },
+                    'var4': {'foobar': '{{foobar}}'},
                 }
             }
         }
@@ -429,36 +404,31 @@ class MistralRunnerTest(ExecutionDbTestCase):
                                     'var2': '{% raw %}{{foobar}}{% endraw %}',
                                     'var3': [
                                         '{% raw %}{{foo}}{% endraw %}',
-                                        '{% raw %}{{bar}}{% endraw %}'
+                                        '{% raw %}{{bar}}{% endraw %}',
                                     ],
-                                    'var4': {
-                                        'foobar': '{% raw %}{{foobar}}{% endraw %}'
-                                    }
+                                    'var4': {'foobar': '{% raw %}{{foobar}}{% endraw %}'},
                                 }
-                            }
+                            },
                         },
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_under_parent_chain_with_nonetype_in_chain_context(self):
         ac_ctx = {'chain': None}
 
@@ -486,30 +456,27 @@ class MistralRunnerTest(ExecutionDbTestCase):
                         'parent': {
                             'pack': 'mistral_tests',
                             'execution_id': str(execution.id),
-                            'chain': None
+                            'chain': None,
                         },
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_under_parent_chain_with_nonetype_in_params_context(self):
         ac_ctx = {'chain': {'params': None}}
 
@@ -537,32 +504,27 @@ class MistralRunnerTest(ExecutionDbTestCase):
                         'parent': {
                             'pack': 'mistral_tests',
                             'execution_id': str(execution.id),
-                            'chain': {
-                                'params': None
-                            }
+                            'chain': {'params': None},
                         },
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_with_st2_https(self):
         cfg.CONF.set_override('api_url', 'https://0.0.0.0:9101', group='auth')
 
@@ -587,35 +549,34 @@ class MistralRunnerTest(ExecutionDbTestCase):
                     'st2_context': {
                         'api_url': 'https://0.0.0.0:9101/v1',
                         'endpoint': 'https://0.0.0.0:9101/v1/actionexecutions',
-                        'parent': {
-                            'pack': 'mistral_tests',
-                            'execution_id': str(execution.id)
-                        },
+                        'parent': {'pack': 'mistral_tests', 'execution_id': str(execution.id)},
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_with_notifications(self):
-        notify_data = {'on_complete': {'routes': ['slack'],
-                       'message': '"@channel: Action succeeded."', 'data': {}}}
+        notify_data = {
+            'on_complete': {
+                'routes': ['slack'],
+                'message': '"@channel: Action succeeded."',
+                'data': {},
+            }
+        }
 
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, notify=notify_data)
         liveaction, execution = action_service.request(liveaction)
@@ -638,23 +599,23 @@ class MistralRunnerTest(ExecutionDbTestCase):
                     'st2_context': {
                         'api_url': 'http://0.0.0.0:9101/v1',
                         'endpoint': 'http://0.0.0.0:9101/v1/actionexecutions',
-                        'parent': {
-                            'pack': 'mistral_tests',
-                            'execution_id': str(execution.id)
-                        },
+                        'parent': {'pack': 'mistral_tests', 'execution_id': str(execution.id)},
                         'notify': NotificationsHelper.from_model(liveaction.notify),
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(side_effect=requests.exceptions.ConnectionError('Connection refused')))
+        workflows.WorkflowManager,
+        'list',
+        mock.MagicMock(side_effect=requests.exceptions.ConnectionError('Connection refused')),
+    )
     def test_launch_workflow_mistral_offline(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -662,17 +623,17 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertIn('Connection refused', liveaction.result['error'])
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError(), []]))
+        workflows.WorkflowManager,
+        'list',
+        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError(), []]),
+    )
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_mistral_retry(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -683,18 +644,18 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WF1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WF1_EXEC.get('workflow_name'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        workflows.WorkflowManager,
+        'create',
+        mock.MagicMock(side_effect=[APIException(error_message='Duplicate entry.'), WF1]),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(side_effect=[APIException(error_message='Duplicate entry.'), WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_duplicate_error(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -705,21 +666,15 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WF1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WF1_EXEC.get('workflow_name'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1_OLD))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
+    @mock.patch.object(workflows.WorkflowManager, 'update', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1_OLD))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'update',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_when_workflow_definition_changed(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -730,21 +685,15 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WF1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WF1_EXEC.get('workflow_name'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(workbooks.WorkbookManager, 'delete', mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(side_effect=Exception()))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'delete',
-        mock.MagicMock(side_effect=Exception()))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_when_workflow_not_exists(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -755,24 +704,16 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WF1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WF1_EXEC.get('workflow_name'))
 
-    @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF2))
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF2))
     def test_launch_workflow_with_many_workflows(self):
         liveaction = LiveActionDB(action=WF2_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
         liveaction = self._wait_on_status(liveaction, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('Multiple workflows is not supported.', liveaction.result['error'])
 
-    @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(side_effect=Exception()))
     def test_launch_workflow_name_mistmatch(self):
         action_ref = TEST_PACK + '.workflow_v2_name_mismatch'
         liveaction = LiveActionDB(action=action_ref, parameters=ACTION_PARAMS)
@@ -780,18 +721,14 @@ class MistralRunnerTest(ExecutionDbTestCase):
         liveaction = self._wait_on_status(liveaction, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('Name of the workflow must be the same', liveaction.result['error'])
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF3))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF3]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF3))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF3]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF3_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF3_EXEC)),
+    )
     def test_launch_workflow_reverse(self):
         # no differences for liveaction (direct == reverse)
         liveaction = LiveActionDB(action=WF3_NAME, parameters=ACTION_PARAMS)
@@ -817,39 +754,30 @@ class MistralRunnerTest(ExecutionDbTestCase):
                     'st2_context': {
                         'api_url': 'http://0.0.0.0:9101/v1',
                         'endpoint': 'http://0.0.0.0:9101/v1/actionexecutions',
-                        'parent': {
-                            'pack': 'mistral_tests',
-                            'execution_id': str(execution.id)
-                        },
+                        'parent': {'pack': 'mistral_tests', 'execution_id': str(execution.id)},
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         # task_name must be passed to mistral.executions.create for reverse workflows
         task_name = WF3_REVERSE_TARGET_TASK_NAME
 
         executions.ExecutionManager.create.assert_called_with(
-            WF3_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY,
-            task_name=task_name)
+            WF3_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY, task_name=task_name
+        )
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workbooks.WorkbookManager, 'get', mock.MagicMock(return_value=WB1))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB1))
+    @mock.patch.object(workbooks.WorkbookManager, 'update', mock.MagicMock(return_value=WB1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'get',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'update',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_EXEC)),
+    )
     def test_launch_workbook(self):
         liveaction = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -860,21 +788,15 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WB1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WB1_EXEC.get('workflow_name'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workbooks.WorkbookManager, 'get', mock.MagicMock(return_value=WB2))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB2))
+    @mock.patch.object(workbooks.WorkbookManager, 'update', mock.MagicMock(return_value=WB2))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'get',
-        mock.MagicMock(return_value=WB2))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB2))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'update',
-        mock.MagicMock(return_value=WB2))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB2_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB2_EXEC)),
+    )
     def test_launch_workbook_with_many_workflows(self):
         liveaction = LiveActionDB(action=WB2_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -885,42 +807,30 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WB2_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WB2_EXEC.get('workflow_name'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workbooks.WorkbookManager, 'get', mock.MagicMock(return_value=WB3))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB3))
+    @mock.patch.object(workbooks.WorkbookManager, 'update', mock.MagicMock(return_value=WB3))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'get',
-        mock.MagicMock(return_value=WB3))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB3))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'update',
-        mock.MagicMock(return_value=WB3))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB3_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB3_EXEC)),
+    )
     def test_launch_workbook_with_many_workflows_no_default(self):
         liveaction = LiveActionDB(action=WB3_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
         liveaction = self._wait_on_status(liveaction, action_constants.LIVEACTION_STATUS_FAILED)
         self.assertIn('Default workflow cannot be determined.', liveaction.result['error'])
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workbooks.WorkbookManager, 'get', mock.MagicMock(return_value=WB1_OLD))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB1))
+    @mock.patch.object(workbooks.WorkbookManager, 'update', mock.MagicMock(return_value=WB1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'get',
-        mock.MagicMock(return_value=WB1_OLD))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'update',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_EXEC)),
+    )
     def test_launch_when_workbook_definition_changed(self):
         liveaction = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -931,21 +841,15 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WB1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WB1_EXEC.get('workflow_name'))
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workbooks.WorkbookManager, 'get', mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(workflows.WorkflowManager, 'delete', mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(workbooks.WorkbookManager, 'create', mock.MagicMock(return_value=WB1))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'get',
-        mock.MagicMock(side_effect=Exception()))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'delete',
-        mock.MagicMock(side_effect=Exception()))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'create',
-        mock.MagicMock(return_value=WB1))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WB1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WB1_EXEC)),
+    )
     def test_launch_when_workbook_not_exists(self):
         liveaction = LiveActionDB(action=WB1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -956,12 +860,8 @@ class MistralRunnerTest(ExecutionDbTestCase):
         self.assertEqual(mistral_context['execution_id'], WB1_EXEC.get('id'))
         self.assertEqual(mistral_context['workflow_name'], WB1_EXEC.get('workflow_name'))
 
-    @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workbooks.WorkbookManager, 'get',
-        mock.MagicMock(side_effect=Exception()))
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workbooks.WorkbookManager, 'get', mock.MagicMock(side_effect=Exception()))
     def test_launch_workbook_name_mismatch(self):
         action_ref = TEST_PACK + '.workbook_v2_name_mismatch'
         liveaction = LiveActionDB(action=action_ref, parameters=ACTION_PARAMS)

@@ -37,7 +37,7 @@ MOCK_ACTION = {
     'name': 'foobar',
     'parameters': {},
     'enabled': True,
-    'entry_point': 'workflows/foobar.yaml'
+    'entry_point': 'workflows/foobar.yaml',
 }
 
 MOCK_WF_DEF = """
@@ -56,14 +56,15 @@ def get_by_ref(**kwargs):
 
 
 class WorkflowCommandTestCase(st2cli_tests.BaseCLITestCase):
-
     def __init__(self, *args, **kwargs):
         super(WorkflowCommandTestCase, self).__init__(*args, **kwargs)
         self.shell = shell.Shell()
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'post_raw',
-        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')))
+        httpclient.HTTPClient,
+        'post_raw',
+        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')),
+    )
     def test_inspect_file(self):
         fd, path = tempfile.mkstemp(suffix='.yaml')
 
@@ -76,17 +77,17 @@ class WorkflowCommandTestCase(st2cli_tests.BaseCLITestCase):
             self.assertEqual(retcode, 0)
 
             httpclient.HTTPClient.post_raw.assert_called_with(
-                '/inspect',
-                MOCK_WF_DEF,
-                headers={'content-type': 'text/plain'}
+                '/inspect', MOCK_WF_DEF, headers={'content-type': 'text/plain'}
             )
         finally:
             os.close(fd)
             os.unlink(path)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'post_raw',
-        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')))
+        httpclient.HTTPClient,
+        'post_raw',
+        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')),
+    )
     def test_inspect_bad_file(self):
         retcode = self.shell.run(['workflow', 'inspect', '--file', '/tmp/foobar'])
 
@@ -95,31 +96,35 @@ class WorkflowCommandTestCase(st2cli_tests.BaseCLITestCase):
         self.assertFalse(httpclient.HTTPClient.post_raw.called)
 
     @mock.patch.object(
-        models.ResourceManager, 'get_by_ref_or_id',
-        mock.MagicMock(side_effect=get_by_ref))
+        models.ResourceManager, 'get_by_ref_or_id', mock.MagicMock(side_effect=get_by_ref)
+    )
     @mock.patch.object(
-        workflow.WorkflowInspectionCommand, 'get_file_content',
-        mock.MagicMock(return_value=MOCK_WF_DEF))
+        workflow.WorkflowInspectionCommand,
+        'get_file_content',
+        mock.MagicMock(return_value=MOCK_WF_DEF),
+    )
     @mock.patch.object(
-        httpclient.HTTPClient, 'post_raw',
-        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')))
+        httpclient.HTTPClient,
+        'post_raw',
+        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')),
+    )
     def test_inspect_action(self):
         retcode = self.shell.run(['workflow', 'inspect', '--action', 'mock.foobar'])
 
         self.assertEqual(retcode, 0)
 
         httpclient.HTTPClient.post_raw.assert_called_with(
-            '/inspect',
-            MOCK_WF_DEF,
-            headers={'content-type': 'text/plain'}
+            '/inspect', MOCK_WF_DEF, headers={'content-type': 'text/plain'}
         )
 
     @mock.patch.object(
-        models.ResourceManager, 'get_by_ref_or_id',
-        mock.MagicMock(return_value=None))
+        models.ResourceManager, 'get_by_ref_or_id', mock.MagicMock(return_value=None)
+    )
     @mock.patch.object(
-        httpclient.HTTPClient, 'post_raw',
-        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')))
+        httpclient.HTTPClient,
+        'post_raw',
+        mock.MagicMock(return_value=st2cli_tests.FakeResponse(json.dumps(MOCK_RESULT), 200, 'OK')),
+    )
     def test_inspect_bad_action(self):
         retcode = self.shell.run(['workflow', 'inspect', '--action', 'mock.foobar'])
 

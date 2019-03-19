@@ -58,24 +58,25 @@ def main(user, pkey, password, hosts_str, cmd, file_path, dir_path, delete_dir):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parallel SSH tester.')
-    parser.add_argument('--hosts', required=True,
-                        help='List of hosts to connect to')
-    parser.add_argument('--private-key', required=False,
-                        help='Private key to use.')
-    parser.add_argument('--password', required=False,
-                        help='Password.')
-    parser.add_argument('--user', required=True,
-                        help='SSH user name.')
-    parser.add_argument('--cmd', required=False,
-                        help='Command to run on host.')
-    parser.add_argument('--file', required=False,
-                        help='Path of file to copy to remote host.')
-    parser.add_argument('--dir', required=False,
-                        help='Path of dir to copy to remote host.')
-    parser.add_argument('--delete-dir', required=False,
-                        help='Path of dir to delete on remote host.')
+    parser.add_argument('--hosts', required=True, help='List of hosts to connect to')
+    parser.add_argument('--private-key', required=False, help='Private key to use.')
+    parser.add_argument('--password', required=False, help='Password.')
+    parser.add_argument('--user', required=True, help='SSH user name.')
+    parser.add_argument('--cmd', required=False, help='Command to run on host.')
+    parser.add_argument('--file', required=False, help='Path of file to copy to remote host.')
+    parser.add_argument('--dir', required=False, help='Path of dir to copy to remote host.')
+    parser.add_argument(
+        '--delete-dir', required=False, help='Path of dir to delete on remote host.'
+    )
     args = parser.parse_args()
 
-    main(user=args.user, pkey=args.private_key, password=args.password,
-         hosts_str=args.hosts, cmd=args.cmd,
-         file_path=args.file, dir_path=args.dir, delete_dir=args.delete_dir)
+    main(
+        user=args.user,
+        pkey=args.private_key,
+        password=args.password,
+        hosts_str=args.hosts,
+        cmd=args.cmd,
+        file_path=args.file,
+        dir_path=args.dir,
+        delete_dir=args.delete_dir,
+    )

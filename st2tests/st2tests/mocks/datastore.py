@@ -22,9 +22,7 @@ from st2common.constants.keyvalue import SYSTEM_SCOPE
 from st2common.services.datastore import BaseDatastoreService
 from st2client.models.keyvalue import KeyValuePair
 
-__all__ = [
-    'MockDatastoreService'
-]
+__all__ = ['MockDatastoreService']
 
 
 class MockDatastoreService(BaseDatastoreService):
@@ -54,17 +52,8 @@ class MockDatastoreService(BaseDatastoreService):
         """
         result = {
             'username': self._username,
-            'rbac': {
-                'is_admin': True,
-                'enabled': True,
-                'roles': [
-                    'admin'
-                ]
-            },
-            'authentication': {
-                'method': 'authentication token',
-                'location': 'header'
-            }
+            'rbac': {'is_admin': True, 'enabled': True, 'roles': ['admin']},
+            'authentication': {'method': 'authentication token', 'location': 'header'},
         }
 
         return result

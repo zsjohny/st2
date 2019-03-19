@@ -24,20 +24,13 @@ from st2common.util import date as date_utils
 from st2common.constants.rule_enforcement import RULE_ENFORCEMENT_STATUS_SUCCEEDED
 from st2common.constants.rule_enforcement import RULE_ENFORCEMENT_STATUS_FAILED
 
-__all__ = [
-    'RuleReferenceSpecDB',
-    'RuleEnforcementDB'
-]
+__all__ = ['RuleReferenceSpecDB', 'RuleEnforcementDB']
 
 
 class RuleReferenceSpecDB(me.EmbeddedDocument):
-    ref = me.StringField(unique=False,
-                         help_text='Reference to rule.',
-                         required=True)
-    id = me.StringField(required=False,
-                        help_text='Rule ID.')
-    uid = me.StringField(required=True,
-                         help_text='Rule UID.')
+    ref = me.StringField(unique=False, help_text='Reference to rule.', required=True)
+    id = me.StringField(required=False, help_text='Rule ID.')
+    uid = me.StringField(required=True, help_text='Rule UID.')
 
     def __str__(self):
         result = []
@@ -59,11 +52,13 @@ class RuleEnforcementDB(stormbase.StormFoundationDB, stormbase.TagsMixin):
     rule = me.EmbeddedDocumentField(RuleReferenceSpecDB, required=True)
     enforced_at = ComplexDateTimeField(
         default=date_utils.get_datetime_utc_now,
-        help_text='The timestamp when the rule enforcement happened.')
+        help_text='The timestamp when the rule enforcement happened.',
+    )
     status = me.StringField(
         required=True,
         default=RULE_ENFORCEMENT_STATUS_SUCCEEDED,
-        help_text='Rule enforcement status.')
+        help_text='Rule enforcement status.',
+    )
 
     meta = {
         'indexes': [
@@ -75,7 +70,8 @@ class RuleEnforcementDB(stormbase.StormFoundationDB, stormbase.TagsMixin):
             {'fields': ['-enforced_at']},
             {'fields': ['-enforced_at', 'rule.ref']},
             {'fields': ['status']},
-        ] + stormbase.TagsMixin.get_indexes()
+        ]
+        + stormbase.TagsMixin.get_indexes()
     }
 
     def __init__(self, *args, **values):

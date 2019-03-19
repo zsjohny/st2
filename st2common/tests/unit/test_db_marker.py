@@ -26,8 +26,7 @@ class DumperMarkerModelTest(DbTestCase):
     def test_dumper_marker_crud(self):
         saved = DumperMarkerModelTest._create_save_dumper_marker()
         retrieved = DumperMarker.get_by_id(saved.id)
-        self.assertEqual(saved.marker, retrieved.marker,
-                         'Same marker was not returned.')
+        self.assertEqual(saved.marker, retrieved.marker, 'Same marker was not returned.')
         # test update
         time_now = date_utils.get_datetime_utc_now()
         retrieved.updated_at = time_now

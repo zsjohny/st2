@@ -33,8 +33,9 @@ import st2tests.base as tests_base
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-PASCAL_ROW_ACTION_PATH = os.path.join(tests_base.get_resources_path(), 'packs',
-                                      'pythonactions/actions/pascal_row.py')
+PASCAL_ROW_ACTION_PATH = os.path.join(
+    tests_base.get_resources_path(), 'packs', 'pythonactions/actions/pascal_row.py'
+)
 
 MOCK_SYS = mock.Mock()
 MOCK_SYS.argv = []
@@ -43,11 +44,7 @@ MOCK_SYS.executable = sys.executable
 MOCK_EXECUTION = mock.Mock()
 MOCK_EXECUTION.id = '598dbf0c0640fd54bffc688b'
 
-FAIL_SCHEMA = {
-    "notvalid": {
-        "type": "string",
-    },
-}
+FAIL_SCHEMA = {"notvalid": {"type": "string"}}
 
 
 @mock.patch('python_runner.python_runner.sys', MOCK_SYS)
@@ -66,10 +63,7 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         runner.entry_point = PASCAL_ROW_ACTION_PATH
         runner.pre_run()
         (status, output, _) = runner.run({'row_index': 5})
-        output_schema._validate_runner(
-            config[0]['output_schema'],
-            output
-        )
+        output_schema._validate_runner(config[0]['output_schema'], output)
         self.assertEqual(status, LIVEACTION_STATUS_SUCCEEDED)
         self.assertTrue(output is not None)
         self.assertEqual(output['result'], [1, 5, 10, 10, 5, 1])
@@ -80,10 +74,7 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         runner.pre_run()
         (status, output, _) = runner.run({'row_index': 5})
         with self.assertRaises(jsonschema.ValidationError):
-            output_schema._validate_runner(
-                FAIL_SCHEMA,
-                output
-            )
+            output_schema._validate_runner(FAIL_SCHEMA, output)
 
     def _get_mock_runner_obj(self, pack=None, sandbox=None):
         runner = python_runner.get_runner()
@@ -109,7 +100,5 @@ class PythonRunnerTestCase(RunnerTestCase, CleanDbTestCase):
         action.ref = 'dummy.action'
         action.pack = SYSTEM_PACK_NAME
         action.entry_point = 'foo.py'
-        action.runner_type = {
-            'name': 'python-script'
-        }
+        action.runner_type = {'name': 'python-script'}
         return action

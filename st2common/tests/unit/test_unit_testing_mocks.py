@@ -22,11 +22,7 @@ from st2tests.mocks.sensor import MockSensorService
 from st2tests.mocks.action import MockActionWrapper
 from st2tests.mocks.action import MockActionService
 
-__all__ = [
-    'BaseSensorTestCaseTestCase',
-    'MockSensorServiceTestCase',
-    'MockActionServiceTestCase'
-]
+__all__ = ['BaseSensorTestCaseTestCase', 'MockSensorServiceTestCase', 'MockActionServiceTestCase']
 
 
 class MockSensorClass(object):
@@ -77,8 +73,9 @@ class BaseSensorTestCaseTestCase(BaseSensorTestCase):
         sensor_service = self.sensor_service
 
         expected_msg = 'Trigger "nope" hasn\'t been dispatched'
-        self.assertRaisesRegexp(AssertionError, expected_msg,
-                                self.assertTriggerDispatched, trigger='nope')
+        self.assertRaisesRegexp(
+            AssertionError, expected_msg, self.assertTriggerDispatched, trigger='nope'
+        )
 
         sensor_service.dispatch(trigger='test1', payload={'a': 'b'})
         result = self.assertTriggerDispatched(trigger='test1')
@@ -86,14 +83,16 @@ class BaseSensorTestCaseTestCase(BaseSensorTestCase):
         result = self.assertTriggerDispatched(trigger='test1', payload={'a': 'b'})
         self.assertTrue(result)
         expected_msg = 'Trigger "test1" hasn\'t been dispatched'
-        self.assertRaisesRegexp(AssertionError, expected_msg,
-                                self.assertTriggerDispatched,
-                                trigger='test1',
-                                payload={'a': 'c'})
+        self.assertRaisesRegexp(
+            AssertionError,
+            expected_msg,
+            self.assertTriggerDispatched,
+            trigger='test1',
+            payload={'a': 'c'},
+        )
 
 
 class MockSensorServiceTestCase(BaseMockResourceServiceTestCase.TestCase):
-
     def setUp(self):
         mock_sensor_wrapper = MockSensorWrapper(pack='dummy', class_name='test')
         self.mock_service = MockSensorService(sensor_wrapper=mock_sensor_wrapper)

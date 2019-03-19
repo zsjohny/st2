@@ -30,13 +30,12 @@ from st2tests.base import CleanFilesTestCase
 from st2tests.base import CleanDbTestCase
 from st2tests.fixturesloader import get_fixtures_base_path
 
-__all__ = [
-    'PythonRunnerBehaviorTestCase'
-]
+__all__ = ['PythonRunnerBehaviorTestCase']
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WRAPPER_SCRIPT_PATH = os.path.join(BASE_DIR,
-                                   '../../../python_runner/python_runner/python_action_wrapper.py')
+WRAPPER_SCRIPT_PATH = os.path.join(
+    BASE_DIR, '../../../python_runner/python_runner/python_action_wrapper.py'
+)
 WRAPPER_SCRIPT_PATH = os.path.abspath(WRAPPER_SCRIPT_PATH)
 
 
@@ -83,8 +82,9 @@ class PythonRunnerBehaviorTestCase(CleanFilesTestCase, CleanDbTestCase):
         # While a module which is in the pack's virtualenv library is specified at 'module'
         # parameter of the action, this test suite expects that file-path under the parent's
         # library is returned when 'sandbox' parameter of PythonRunner is False.
-        (_, output, _) = self._run_action(pack_name, 'get_library_path.py', {'module': 'six'},
-                                          {'_sandbox': False})
+        (_, output, _) = self._run_action(
+            pack_name, 'get_library_path.py', {'module': 'six'}, {'_sandbox': False}
+        )
         self.assertEqual(output['result'].find(self.virtualenvs_path), -1)
 
     def _run_action(self, pack, action, params, runner_params={}):
@@ -99,7 +99,8 @@ class PythonRunnerBehaviorTestCase(CleanFilesTestCase, CleanDbTestCase):
         for key, value in runner_params.items():
             setattr(runner, key, value)
 
-        runner.entry_point = os.path.join(get_fixtures_base_path(),
-                                          'packs/%s/actions/%s' % (pack, action))
+        runner.entry_point = os.path.join(
+            get_fixtures_base_path(), 'packs/%s/actions/%s' % (pack, action)
+        )
         runner.pre_run()
         return runner.run(params)

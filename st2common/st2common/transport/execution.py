@@ -22,9 +22,8 @@ from st2common.transport import publishers
 __all__ = [
     'ActionExecutionPublisher',
     'ActionExecutionOutputPublisher',
-
     'get_queue',
-    'get_output_queue'
+    'get_output_queue',
 ]
 
 EXECUTION_XCHG = Exchange('st2.execution', type='topic')
@@ -42,10 +41,16 @@ class ActionExecutionOutputPublisher(publishers.CUDPublisher):
 
 
 def get_queue(name=None, routing_key=None, exclusive=False, auto_delete=False):
-    return Queue(name, EXECUTION_XCHG, routing_key=routing_key, exclusive=exclusive,
-                 auto_delete=auto_delete)
+    return Queue(
+        name, EXECUTION_XCHG, routing_key=routing_key, exclusive=exclusive, auto_delete=auto_delete
+    )
 
 
 def get_output_queue(name=None, routing_key=None, exclusive=False, auto_delete=False):
-    return Queue(name, EXECUTION_OUTPUT_XCHG, routing_key=routing_key, exclusive=exclusive,
-                 auto_delete=auto_delete)
+    return Queue(
+        name,
+        EXECUTION_OUTPUT_XCHG,
+        routing_key=routing_key,
+        exclusive=exclusive,
+        auto_delete=auto_delete,
+    )

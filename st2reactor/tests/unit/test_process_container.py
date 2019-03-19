@@ -18,7 +18,7 @@ import os
 import time
 
 import eventlet
-from mock import (MagicMock, Mock, patch)
+from mock import MagicMock, Mock, patch
 import unittest2
 
 from st2reactor.container.process_container import ProcessSensorContainer
@@ -26,14 +26,15 @@ from st2common.models.db.pack import PackDB
 from st2common.persistence.pack import Pack
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
-MOCK_PACK_DB = PackDB(ref='wolfpack', name='wolf pack', description='',
-                      path='/opt/stackstorm/packs/wolfpack/')
+MOCK_PACK_DB = PackDB(
+    ref='wolfpack', name='wolf pack', description='', path='/opt/stackstorm/packs/wolfpack/'
+)
 
 
 class ProcessContainerTests(unittest2.TestCase):
-
     def test_no_sensors_dont_quit(self):
         process_container = ProcessSensorContainer(None, poll_interval=0.1)
         process_container_thread = eventlet.spawn(process_container.run)
@@ -43,10 +44,12 @@ class ProcessContainerTests(unittest2.TestCase):
         process_container.shutdown()
         process_container_thread.kill()
 
-    @patch.object(ProcessSensorContainer, '_get_sensor_id',
-                  MagicMock(return_value='wolfpack.StupidSensor'))
-    @patch.object(ProcessSensorContainer, '_dispatch_trigger_for_sensor_spawn',
-                  MagicMock(return_value=None))
+    @patch.object(
+        ProcessSensorContainer, '_get_sensor_id', MagicMock(return_value='wolfpack.StupidSensor')
+    )
+    @patch.object(
+        ProcessSensorContainer, '_dispatch_trigger_for_sensor_spawn', MagicMock(return_value=None)
+    )
     @patch.object(Pack, 'get_by_ref', MagicMock(return_value=MOCK_PACK_DB))
     @patch.object(os.path, 'isdir', MagicMock(return_value=True))
     @patch('subprocess.Popen')
@@ -61,8 +64,9 @@ class ProcessContainerTests(unittest2.TestCase):
         mock_create_token.return_value = 'WHOLETTHEDOGSOUT'
 
         mock_dispatcher = Mock()
-        process_container = ProcessSensorContainer(None, poll_interval=0.1,
-                                                   dispatcher=mock_dispatcher)
+        process_container = ProcessSensorContainer(
+            None, poll_interval=0.1, dispatcher=mock_dispatcher
+        )
         sensor = {
             'class_name': 'wolfpack.StupidSensor',
             'ref': 'wolfpack.StupidSensor',
@@ -70,7 +74,7 @@ class ProcessContainerTests(unittest2.TestCase):
             'trigger_types': ['some_trigga'],
             'pack': 'wolfpack',
             'file_path': '/opt/stackstorm/packs/wolfpack/sensors/stupid_sensor.py',
-            'poll_interval': 5
+            'poll_interval': 5,
         }
 
         process_container._enable_common_pack_libs = True
@@ -83,10 +87,12 @@ class ProcessContainerTests(unittest2.TestCase):
         pack_common_lib_path = '/opt/stackstorm/packs/wolfpack/lib'
         self.assertTrue(pack_common_lib_path in actual_env['PYTHONPATH'])
 
-    @patch.object(ProcessSensorContainer, '_get_sensor_id',
-                  MagicMock(return_value='wolfpack.StupidSensor'))
-    @patch.object(ProcessSensorContainer, '_dispatch_trigger_for_sensor_spawn',
-                  MagicMock(return_value=None))
+    @patch.object(
+        ProcessSensorContainer, '_get_sensor_id', MagicMock(return_value='wolfpack.StupidSensor')
+    )
+    @patch.object(
+        ProcessSensorContainer, '_dispatch_trigger_for_sensor_spawn', MagicMock(return_value=None)
+    )
     @patch.object(Pack, 'get_by_ref', MagicMock(return_value=MOCK_PACK_DB))
     @patch.object(os.path, 'isdir', MagicMock(return_value=True))
     @patch('subprocess.Popen')
@@ -101,8 +107,9 @@ class ProcessContainerTests(unittest2.TestCase):
         mock_create_token.return_value = 'WHOLETTHEDOGSOUT'
 
         mock_dispatcher = Mock()
-        process_container = ProcessSensorContainer(None, poll_interval=0.1,
-                                                   dispatcher=mock_dispatcher)
+        process_container = ProcessSensorContainer(
+            None, poll_interval=0.1, dispatcher=mock_dispatcher
+        )
         sensor = {
             'class_name': 'wolfpack.StupidSensor',
             'ref': 'wolfpack.StupidSensor',
@@ -110,7 +117,7 @@ class ProcessContainerTests(unittest2.TestCase):
             'trigger_types': ['some_trigga'],
             'pack': 'wolfpack',
             'file_path': '/opt/stackstorm/packs/wolfpack/sensors/stupid_sensor.py',
-            'poll_interval': 5
+            'poll_interval': 5,
         }
 
         process_container._enable_common_pack_libs = False
@@ -126,11 +133,10 @@ class ProcessContainerTests(unittest2.TestCase):
     @patch.object(time, 'time', MagicMock(return_value=1439441533))
     def test_dispatch_triggers_on_spawn_exit(self):
         mock_dispatcher = Mock()
-        process_container = ProcessSensorContainer(None, poll_interval=0.1,
-                                                   dispatcher=mock_dispatcher)
-        sensor = {
-            'class_name': 'pack.StupidSensor'
-        }
+        process_container = ProcessSensorContainer(
+            None, poll_interval=0.1, dispatcher=mock_dispatcher
+        )
+        sensor = {'class_name': 'pack.StupidSensor'}
         process = Mock()
         process_attrs = {'pid': 1234}
         process.configure_mock(**process_attrs)
@@ -143,13 +149,12 @@ class ProcessContainerTests(unittest2.TestCase):
                 'timestamp': 1439441533,
                 'cmd': 'sensor_wrapper.py --class-name pack.StupidSensor',
                 'pid': 1234,
-                'id': 'pack.StupidSensor'})
+                'id': 'pack.StupidSensor',
+            },
+        )
 
         process_container._dispatch_trigger_for_sensor_exit(sensor, 1)
         mock_dispatcher.dispatch.assert_called_with(
             'core.st2.sensor.process_exit',
-            payload={
-                'id': 'pack.StupidSensor',
-                'timestamp': 1439441533,
-                'exit_code': 1
-            })
+            payload={'id': 'pack.StupidSensor', 'timestamp': 1439441533, 'exit_code': 1},
+        )

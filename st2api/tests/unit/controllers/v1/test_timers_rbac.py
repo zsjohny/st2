@@ -31,9 +31,7 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'TimerControllerRBACTestCase'
-]
+__all__ = ['TimerControllerRBACTestCase']
 
 FIXTURES_PACK = 'timers'
 TEST_FIXTURES = {
@@ -46,23 +44,24 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
 
     def setUp(self):
         super(TimerControllerRBACTestCase, self).setUp()
-        self.models = self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                               fixtures_dict=TEST_FIXTURES)
+        self.models = self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
         file_name = 'cron1.yaml'
         TimerControllerRBACTestCase.TRIGGER_1 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'triggers': [file_name]})['triggers'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'triggers': [file_name]}
+        )['triggers'][file_name]
 
         file_name = 'date1.yaml'
         TimerControllerRBACTestCase.TRIGGER_2 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'triggers': [file_name]})['triggers'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'triggers': [file_name]}
+        )['triggers'][file_name]
 
         file_name = 'interval1.yaml'
         TimerControllerRBACTestCase.TRIGGER_3 = self.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'triggers': [file_name]})['triggers'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'triggers': [file_name]}
+        )['triggers'][file_name]
 
         # Insert mock users, roles and assignments
 
@@ -77,9 +76,11 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
 
         # Roles
         # timer_list
-        grant_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=ResourceType.TIMER,
-                                     permission_types=[PermissionType.TIMER_LIST])
+        grant_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.TIMER,
+            permission_types=[PermissionType.TIMER_LIST],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='timer_list', permission_grants=permission_grants)
@@ -89,9 +90,11 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
         # timer_View on timer 1
         trigger_db = self.models['triggers']['cron1.yaml']
         timer_uid = TimerDB(name=trigger_db.name, pack=trigger_db.pack).get_uid()
-        grant_db = PermissionGrantDB(resource_uid=timer_uid,
-                                     resource_type=ResourceType.TIMER,
-                                     permission_types=[PermissionType.TIMER_VIEW])
+        grant_db = PermissionGrantDB(
+            resource_uid=timer_uid,
+            resource_type=ResourceType.TIMER,
+            permission_types=[PermissionType.TIMER_VIEW],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_1_db = RoleDB(name='timer_view', permission_grants=permission_grants)
@@ -102,13 +105,15 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['timer_list'].name,
             role=self.roles['timer_list'].name,
-            source='assignments/%s.yaml' % self.users['timer_list'].name)
+            source='assignments/%s.yaml' % self.users['timer_list'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
             user=self.users['timer_view'].name,
             role=self.roles['timer_view'].name,
-            source='assignments/%s.yaml' % self.users['timer_view'].name)
+            source='assignments/%s.yaml' % self.users['timer_view'].name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_get_all_no_permissions(self):
@@ -116,7 +121,7 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.use_user(user_db)
 
         resp = self.app.get('/v1/timers', expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "timer_list"')
+        expected_msg = 'User "no_permissions" doesn\'t have required permission "timer_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -128,8 +133,10 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
         trigger_id = trigger_db.id
         timer_uid = TimerDB(name=trigger_db.name, pack=trigger_db.pack).get_uid()
         resp = self.app.get('/v1/timers/%s' % (trigger_id), expect_errors=True)
-        expected_msg = ('User "no_permissions" doesn\'t have required permission "timer_view"'
-                        ' on resource "%s"' % (timer_uid))
+        expected_msg = (
+            'User "no_permissions" doesn\'t have required permission "timer_view"'
+            ' on resource "%s"' % (timer_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -146,8 +153,10 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
         trigger_id = trigger_db.id
         timer_uid = TimerDB(name=trigger_db.name, pack=trigger_db.pack).get_uid()
         resp = self.app.get('/v1/timers/%s' % (trigger_id), expect_errors=True)
-        expected_msg = ('User "timer_list" doesn\'t have required permission "timer_view"'
-                        ' on resource "%s"' % (timer_uid))
+        expected_msg = (
+            'User "timer_list" doesn\'t have required permission "timer_view"'
+            ' on resource "%s"' % (timer_uid)
+        )
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -164,6 +173,6 @@ class TimerControllerRBACTestCase(APIControllerWithRBACTestCase):
         self.assertEqual(resp.json['uid'], trigger_uid)
 
         resp = self.app.get('/v1/timers', expect_errors=True)
-        expected_msg = ('User "timer_view" doesn\'t have required permission "timer_list"')
+        expected_msg = 'User "timer_view" doesn\'t have required permission "timer_list"'
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
         self.assertEqual(resp.json['faultstring'], expected_msg)

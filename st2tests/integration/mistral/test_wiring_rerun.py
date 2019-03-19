@@ -32,7 +32,7 @@ class RerunWiringTest(base.TestWorkflowExecution):
 
         # Create temporary directory used by the tests
         _, self.temp_dir_path = tempfile.mkstemp()
-        os.chmod(self.temp_dir_path, 0o755)   # nosec
+        os.chmod(self.temp_dir_path, 0o755)  # nosec
 
     def tearDown(self):
         if self.temp_dir_path and os.path.exists(self.temp_dir_path):
@@ -146,11 +146,7 @@ class RerunWiringTest(base.TestWorkflowExecution):
         with open(path, 'w') as f:
             f.write('0')
 
-        ex = self.st2client.executions.re_run(
-            orig_st2_ex_id,
-            tasks=['task1'],
-            no_reset=['task1']
-        )
+        ex = self.st2client.executions.re_run(orig_st2_ex_id, tasks=['task1'], no_reset=['task1'])
 
         self.assertNotEqual(ex.id, orig_st2_ex_id)
         ex = self._wait_for_state(ex, action_constants.LIVEACTION_STATUS_SUCCEEDED)
@@ -202,9 +198,7 @@ class RerunWiringTest(base.TestWorkflowExecution):
             f.write('0')
 
         ex = self.st2client.executions.re_run(
-            orig_st2_ex_id,
-            tasks=['task1.task1'],
-            no_reset=['task1.task1']
+            orig_st2_ex_id, tasks=['task1.task1'], no_reset=['task1.task1']
         )
 
         self.assertNotEqual(ex.id, orig_st2_ex_id)

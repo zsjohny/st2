@@ -29,56 +29,75 @@ DEFAULT_SCOPE = 'system'
 
 
 class InquiryBranch(resource.ResourceBranch):
-
     def __init__(self, description, app, subparsers, parent_parser=None):
 
         super(InquiryBranch, self).__init__(
-            Inquiry, description, app, subparsers,
-            parent_parser=parent_parser, read_only=True,
-            commands={'list': InquiryListCommand,
-                      'get': InquiryGetCommand})
+            Inquiry,
+            description,
+            app,
+            subparsers,
+            parent_parser=parent_parser,
+            read_only=True,
+            commands={'list': InquiryListCommand, 'get': InquiryGetCommand},
+        )
 
         # Register extended commands
-        self.commands['respond'] = InquiryRespondCommand(
-            self.resource, self.app, self.subparsers)
+        self.commands['respond'] = InquiryRespondCommand(self.resource, self.app, self.subparsers)
 
 
 class InquiryListCommand(resource.ResourceCommand):
 
     # Omitting "schema" and "response", as it doesn't really show up in a table well.
     # The user can drill into a specific Inquiry to get this
-    display_attributes = [
-        'id',
-        'roles',
-        'users',
-        'route',
-        'ttl'
-    ]
+    display_attributes = ['id', 'roles', 'users', 'route', 'ttl']
 
     def __init__(self, resource, *args, **kwargs):
 
         self.default_limit = 50
 
         super(InquiryListCommand, self).__init__(
-            resource, 'list', 'Get the list of the %s most recent %s.' %
-            (self.default_limit, resource.get_plural_display_name().lower()),
-            *args, **kwargs)
+            resource,
+            'list',
+            'Get the list of the %s most recent %s.'
+            % (self.default_limit, resource.get_plural_display_name().lower()),
+            *args,
+            **kwargs
+        )
 
         self.resource_name = resource.get_plural_display_name().lower()
-        self.parser.add_argument('-n', '--last', type=int, dest='last',
-                                 default=self.default_limit,
-                                 help=('List N most recent %s. Use -n -1 to fetch the full result \
-                                       set.' % self.resource_name))
+        self.parser.add_argument(
+            '-n',
+            '--last',
+            type=int,
+            dest='last',
+            default=self.default_limit,
+            help=(
+                'List N most recent %s. Use -n -1 to fetch the full result \
+                                       set.'
+                % self.resource_name
+            ),
+        )
 
         # Display options
-        self.parser.add_argument('-a', '--attr', nargs='+',
-                                 default=self.display_attributes,
-                                 help=('List of attributes to include in the '
-                                       'output. "all" will return all '
-                                       'attributes.'))
-        self.parser.add_argument('-w', '--width', nargs='+', type=int,
-                                 default=None,
-                                 help=('Set the width of columns in output.'))
+        self.parser.add_argument(
+            '-a',
+            '--attr',
+            nargs='+',
+            default=self.display_attributes,
+            help=(
+                'List of attributes to include in the '
+                'output. "all" will return all '
+                'attributes.'
+            ),
+        )
+        self.parser.add_argument(
+            '-w',
+            '--width',
+            nargs='+',
+            type=int,
+            default=None,
+            help=('Set the width of columns in output.'),
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -87,10 +106,14 @@ class InquiryListCommand(resource.ResourceCommand):
     def run_and_print(self, args, **kwargs):
         instances, count = self.run(args, **kwargs)
 
-        self.print_output(reversed(instances), table.MultiColumnTable,
-                          attributes=args.attr, widths=args.width,
-                          json=args.json,
-                          yaml=args.yaml)
+        self.print_output(
+            reversed(instances),
+            table.MultiColumnTable,
+            attributes=args.attr,
+            widths=args.width,
+            json=args.json,
+            yaml=args.yaml,
+        )
         if args.last and count and count > args.last:
             table.SingleRowTable.note_box(self.resource_name, args.last)
 
@@ -113,18 +136,22 @@ class InquiryRespondCommand(resource.ResourceCommand):
 
     def __init__(self, resource, *args, **kwargs):
         super(InquiryRespondCommand, self).__init__(
-            resource, 'respond',
+            resource,
+            'respond',
             'Respond to an %s.' % resource.get_display_name().lower(),
-            *args, **kwargs
+            *args,
+            **kwargs
         )
 
-        self.parser.add_argument('id',
-                                 metavar='id',
-                                 help='Inquiry ID')
-        self.parser.add_argument('-r', '--response', type=str, dest='response',
-                                 default=None,
-                                 help=('Entire response payload as JSON string '
-                                       '(bypass interactive mode)'))
+        self.parser.add_argument('id', metavar='id', help='Inquiry ID')
+        self.parser.add_argument(
+            '-r',
+            '--response',
+            type=str,
+            dest='response',
+            default=None,
+            help=('Entire response payload as JSON string ' '(bypass interactive mode)'),
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -134,13 +161,12 @@ class InquiryRespondCommand(resource.ResourceCommand):
         if args.response:
             instance.response = json.loads(args.response)
         else:
-            response = InteractiveForm(
-                inquiry.schema.get('properties')).initiate_dialog()
+            response = InteractiveForm(inquiry.schema.get('properties')).initiate_dialog()
             instance.response = response
 
-        return self.manager.respond(inquiry_id=instance.id,
-                                    inquiry_response=instance.response,
-                                    **kwargs)
+        return self.manager.respond(
+            inquiry_id=instance.id, inquiry_response=instance.response, **kwargs
+        )
 
     def run_and_print(self, args, **kwargs):
         instance = self.run(args, **kwargs)

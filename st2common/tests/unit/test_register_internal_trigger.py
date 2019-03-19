@@ -20,7 +20,6 @@ from st2tests.base import DbTestCase
 
 
 class TestRegisterInternalTriggers(DbTestCase):
-
     def test_register_internal_trigger_types(self):
         registered_trigger_types_db = register_internal_trigger_types()
         for trigger_type_db in registered_trigger_types_db:

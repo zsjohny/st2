@@ -24,6 +24,7 @@ from orquesta import statuses as wf_statuses
 import st2tests
 
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from st2common.bootstrap import actionsregistrar
@@ -38,22 +39,12 @@ from st2common.transport import publishers
 from st2tests.mocks import liveaction as mock_lv_ac_xport
 
 
-TEST_FIXTURES = {
-    'workflows': [
-        'join.yaml'
-    ],
-    'actions': [
-        'join.yaml'
-    ]
-}
+TEST_FIXTURES = {'workflows': ['join.yaml'], 'actions': ['join.yaml']}
 
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 # Temporary directory used by the tests.
 TEMP_DIR_PATH = tempfile.mkdtemp()
@@ -63,7 +54,7 @@ def mock_wf_db_update_conflict(wf_ex_db, publish=True, dispatch_trigger=True, **
     seq_len = len(wf_ex_db.state['sequence'])
 
     if seq_len > 0:
-        current_task_id = wf_ex_db.state['sequence'][seq_len - 1:][0]['id']
+        current_task_id = wf_ex_db.state['sequence'][seq_len - 1 :][0]['id']
         temp_file_path = TEMP_DIR_PATH + '/' + current_task_id
 
         if os.path.exists(temp_file_path):
@@ -73,20 +64,18 @@ def mock_wf_db_update_conflict(wf_ex_db, publish=True, dispatch_trigger=True, **
     return wf_db_access.WorkflowExecution._get_impl().update(wf_ex_db, **kwargs)
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     publishers.CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 class WorkflowExecutionWriteConflictTest(st2tests.WorkflowTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(WorkflowExecutionWriteConflictTest, cls).setUpClass()
@@ -96,16 +85,17 @@ class WorkflowExecutionWriteConflictTest(st2tests.WorkflowTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
             actions_registrar.register_from_pack(pack)
 
     @mock.patch.object(
-        wf_db_access.WorkflowExecution, 'update',
-        mock.MagicMock(side_effect=mock_wf_db_update_conflict))
+        wf_db_access.WorkflowExecution,
+        'update',
+        mock.MagicMock(side_effect=mock_wf_db_update_conflict),
+    )
     def test_retry_on_write_conflict(self):
         # Create a temporary file which will be used to signal
         # which task(s) to mock the DB write conflict.

@@ -31,13 +31,13 @@ USERNAME = 'stanley'
 PASSWORD = 'ShhhDontTell'
 HEADERS = {'content-type': 'application/json'}
 AUTH_URL = 'https://127.0.0.1:9100/tokens'
-GET_RULES_URL = ('http://127.0.0.1:9101/v1/rules/'
-                 '?include_attributes=ref,pack,description,enabled&limit=50')
+GET_RULES_URL = (
+    'http://127.0.0.1:9101/v1/rules/' '?include_attributes=ref,pack,description,enabled&limit=50'
+)
 GET_RULES_URL = GET_RULES_URL.replace(',', '%2C')
 
 
 class TestHttps(base.BaseCLITestCase):
-
     def __init__(self, *args, **kwargs):
         super(TestHttps, self).__init__(*args, **kwargs)
         self.shell = shell.Shell()
@@ -69,24 +69,24 @@ class TestHttps(base.BaseCLITestCase):
         os.unlink(self.cacert_path)
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'post', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     def test_decorate_https_without_cacert(self):
         self.shell.run(['auth', USERNAME, '-p', PASSWORD])
         kwargs = {'verify': False, 'headers': HEADERS, 'auth': (USERNAME, PASSWORD)}
         requests.post.assert_called_with(AUTH_URL, json.dumps({}), **kwargs)
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'post', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     def test_decorate_https_with_cacert_from_cli(self):
         self.shell.run(['--cacert', self.cacert_path, 'auth', USERNAME, '-p', PASSWORD])
         kwargs = {'verify': self.cacert_path, 'headers': HEADERS, 'auth': (USERNAME, PASSWORD)}
         requests.post.assert_called_with(AUTH_URL, json.dumps({}), **kwargs)
 
     @mock.patch.object(
-        requests, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'post', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     def test_decorate_https_with_cacert_from_env(self):
         os.environ['ST2_CACERT'] = self.cacert_path
         self.shell.run(['auth', USERNAME, '-p', PASSWORD])
@@ -94,22 +94,22 @@ class TestHttps(base.BaseCLITestCase):
         requests.post.assert_called_with(AUTH_URL, json.dumps({}), **kwargs)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([]), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps([]), 200, 'OK'))
+    )
     def test_decorate_http_without_cacert(self):
         self.shell.run(['rule', 'list'])
         requests.get.assert_called_with(GET_RULES_URL)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     def test_decorate_http_with_cacert_from_cli(self):
         self.shell.run(['--cacert', self.cacert_path, 'rule', 'list'])
         requests.get.assert_called_with(GET_RULES_URL)
 
     @mock.patch.object(
-        requests, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK')))
+        requests, 'get', mock.MagicMock(return_value=base.FakeResponse(json.dumps({}), 200, 'OK'))
+    )
     def test_decorate_http_with_cacert_from_env(self):
         os.environ['ST2_CACERT'] = self.cacert_path
         self.shell.run(['rule', 'list'])

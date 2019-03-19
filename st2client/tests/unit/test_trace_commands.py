@@ -23,16 +23,26 @@ from st2client.models import trace as trace_models
 
 
 class TraceCommandTestCase(base.BaseCLITestCase):
-
     def test_trace_get_filter_trace_components_executions(self):
         trace = trace_models.Trace()
-        setattr(trace, 'action_executions',
-                [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}])
-        setattr(trace, 'rules',
-                [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}])
-        setattr(trace, 'trigger_instances',
-                [{'object_id': 't1', 'caused_by': {}},
-                 {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}}])
+        setattr(
+            trace,
+            'action_executions',
+            [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}],
+        )
+        setattr(
+            trace,
+            'rules',
+            [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}],
+        )
+        setattr(
+            trace,
+            'trigger_instances',
+            [
+                {'object_id': 't1', 'caused_by': {}},
+                {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}},
+            ],
+        )
 
         args = argparse.Namespace()
         setattr(args, 'execution', 'e1')
@@ -48,13 +58,24 @@ class TraceCommandTestCase(base.BaseCLITestCase):
 
     def test_trace_get_filter_trace_components_rules(self):
         trace = trace_models.Trace()
-        setattr(trace, 'action_executions',
-                [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}])
-        setattr(trace, 'rules',
-                [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}])
-        setattr(trace, 'trigger_instances',
-                [{'object_id': 't1', 'caused_by': {}},
-                 {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}}])
+        setattr(
+            trace,
+            'action_executions',
+            [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}],
+        )
+        setattr(
+            trace,
+            'rules',
+            [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}],
+        )
+        setattr(
+            trace,
+            'trigger_instances',
+            [
+                {'object_id': 't1', 'caused_by': {}},
+                {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}},
+            ],
+        )
 
         args = argparse.Namespace()
         setattr(args, 'execution', None)
@@ -72,13 +93,24 @@ class TraceCommandTestCase(base.BaseCLITestCase):
 
     def test_trace_get_filter_trace_components_trigger_instances(self):
         trace = trace_models.Trace()
-        setattr(trace, 'action_executions',
-                [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}])
-        setattr(trace, 'rules',
-                [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}])
-        setattr(trace, 'trigger_instances',
-                [{'object_id': 't1', 'caused_by': {}},
-                 {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}}])
+        setattr(
+            trace,
+            'action_executions',
+            [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}],
+        )
+        setattr(
+            trace,
+            'rules',
+            [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}],
+        )
+        setattr(
+            trace,
+            'trigger_instances',
+            [
+                {'object_id': 't1', 'caused_by': {}},
+                {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}},
+            ],
+        )
 
         args = argparse.Namespace()
         setattr(args, 'execution', None)
@@ -181,13 +213,24 @@ class TraceCommandTestCase(base.BaseCLITestCase):
 
     def test_trace_get_apply_display_filters_hide_noop(self):
         trace = trace_models.Trace()
-        setattr(trace, 'action_executions',
-                [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}])
-        setattr(trace, 'rules',
-                [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}])
-        setattr(trace, 'trigger_instances',
-                [{'object_id': 't1', 'caused_by': {}},
-                 {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}}])
+        setattr(
+            trace,
+            'action_executions',
+            [{'object_id': 'e1', 'caused_by': {'id': 'r1:t1', 'type': 'rule'}}],
+        )
+        setattr(
+            trace,
+            'rules',
+            [{'object_id': 'r1', 'caused_by': {'id': 't1', 'type': 'trigger_instance'}}],
+        )
+        setattr(
+            trace,
+            'trigger_instances',
+            [
+                {'object_id': 't1', 'caused_by': {}},
+                {'object_id': 't2', 'caused_by': {'id': 'e1', 'type': 'execution'}},
+            ],
+        )
 
         args = argparse.Namespace()
         setattr(args, 'show_executions', False)

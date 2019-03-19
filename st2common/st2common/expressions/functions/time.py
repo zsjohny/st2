@@ -19,9 +19,7 @@ import six
 
 import datetime
 
-__all__ = [
-    'to_human_time_from_seconds'
-]
+__all__ = ['to_human_time_from_seconds']
 
 if six.PY3:
     long_int = int
@@ -39,8 +37,7 @@ def to_human_time_from_seconds(seconds):
 
     :rtype: ``str``
     """
-    assert (isinstance(seconds, int) or isinstance(seconds, int) or
-            isinstance(seconds, float))
+    assert isinstance(seconds, int) or isinstance(seconds, int) or isinstance(seconds, float)
 
     return _get_human_time(seconds)
 

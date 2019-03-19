@@ -39,16 +39,12 @@ from st2common.util.crypto import cryptography_symmetric_decrypt
 
 from st2tests.fixturesloader import get_fixtures_base_path
 
-__all__ = [
-    'CryptoUtilsTestCase',
-    'CryptoUtilsKeyczarCompatibilityTestCase'
-]
+__all__ = ['CryptoUtilsTestCase', 'CryptoUtilsKeyczarCompatibilityTestCase']
 
 KEY_FIXTURES_PATH = os.path.join(get_fixtures_base_path(), 'keyczar_keys/')
 
 
 class CryptoUtilsTestCase(TestCase):
-
     @classmethod
     def setUpClass(cls):
         super(CryptoUtilsTestCase, cls).setUpClass()
@@ -67,9 +63,8 @@ class CryptoUtilsTestCase(TestCase):
             u'££££££',
             u'č š hello đ č p ž Ž',
             u'hello 💩',
-            u'💩💩💩💩💩'
-            u'💩💩💩',
-            u'💩😁'
+            u'💩💩💩💩💩' u'💩💩💩',
+            u'💩😁',
         ]
 
         for index, original in enumerate(values):
@@ -117,8 +112,9 @@ class CryptoUtilsTestCase(TestCase):
 
         # Verify corrupted value results in an excpetion
         expected_msg = 'Invalid or malformed ciphertext'
-        self.assertRaisesRegexp(ValueError, expected_msg, cryptography_symmetric_decrypt,
-                                aes_key, encrypted_malformed)
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, cryptography_symmetric_decrypt, aes_key, encrypted_malformed
+        )
 
     def test_exception_is_thrown_on_invalid_hmac_signature(self):
         aes_key = AESKey.generate()
@@ -137,8 +133,13 @@ class CryptoUtilsTestCase(TestCase):
 
         # Verify corrupted value results in an excpetion
         expected_msg = 'Signature did not match digest'
-        self.assertRaisesRegexp(InvalidSignature, expected_msg, cryptography_symmetric_decrypt,
-                                aes_key, encrypted_malformed)
+        self.assertRaisesRegexp(
+            InvalidSignature,
+            expected_msg,
+            cryptography_symmetric_decrypt,
+            aes_key,
+            encrypted_malformed,
+        )
 
 
 class CryptoUtilsKeyczarCompatibilityTestCase(TestCase):
@@ -150,13 +151,28 @@ class CryptoUtilsKeyczarCompatibilityTestCase(TestCase):
     def test_aes_key_class(self):
         # 1. Unsupported mode
         expected_msg = 'Unsupported mode: EBC'
-        self.assertRaisesRegexp(ValueError, expected_msg, AESKey, aes_key_string='a',
-                                hmac_key_string='b', hmac_key_size=128, mode='EBC')
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            AESKey,
+            aes_key_string='a',
+            hmac_key_string='b',
+            hmac_key_size=128,
+            mode='EBC',
+        )
 
         # 2. AES key is too small
         expected_msg = 'Unsafe key size: 64'
-        self.assertRaisesRegexp(ValueError, expected_msg, AESKey, aes_key_string='a',
-                                hmac_key_string='b', hmac_key_size=128, mode='CBC', size=64)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            AESKey,
+            aes_key_string='a',
+            hmac_key_string='b',
+            hmac_key_size=128,
+            mode='CBC',
+            size=64,
+        )
 
     def test_loading_keys_from_keyczar_formatted_key_files(self):
         key_path = os.path.join(KEY_FIXTURES_PATH, 'one.json')
@@ -196,13 +212,10 @@ class CryptoUtilsKeyczarCompatibilityTestCase(TestCase):
         json_parsed = json.loads(key_json)
 
         expected = {
-            'hmacKey': {
-                'hmacKeyString': aes_key.hmac_key_string,
-                'size': aes_key.hmac_key_size
-            },
+            'hmacKey': {'hmacKeyString': aes_key.hmac_key_string, 'size': aes_key.hmac_key_size},
             'aesKeyString': aes_key.aes_key_string,
             'mode': aes_key.mode,
-            'size': aes_key.size
+            'size': aes_key.size,
         }
 
         self.assertEqual(json_parsed, expected)
@@ -214,11 +227,10 @@ class CryptoUtilsKeyczarCompatibilityTestCase(TestCase):
             'ab',
             'hello foo',
             'hell',
-            'bar5'
-            'hello hello bar bar hello',
+            'bar5' 'hello hello bar bar hello',
             'a',
             '',
-            'c'
+            'c',
         ]
 
         for plaintext in plaintexts:
@@ -229,12 +241,7 @@ class CryptoUtilsKeyczarCompatibilityTestCase(TestCase):
 
     @unittest2.skipIf(six.PY3, 'keyczar doesn\'t work under Python 3')
     def test_symmetric_encrypt_decrypt_roundtrips_1(self):
-        encrypt_keys = [
-            AESKey.generate(),
-            AESKey.generate(),
-            AESKey.generate(),
-            AESKey.generate()
-        ]
+        encrypt_keys = [AESKey.generate(), AESKey.generate(), AESKey.generate(), AESKey.generate()]
 
         # Verify all keys are unique
         aes_key_strings = set()
@@ -265,8 +272,9 @@ class CryptoUtilsKeyczarCompatibilityTestCase(TestCase):
             self.assertEqual(data_dec_keyczar_keyczar, plaintext)
             self.assertEqual(data_dec_keyczar_cryptography, plaintext)
 
-            data_dec_cryptography_cryptography = cryptography_symmetric_decrypt(key,
-                data_enc_cryptography)
+            data_dec_cryptography_cryptography = cryptography_symmetric_decrypt(
+                key, data_enc_cryptography
+            )
             data_dec_cryptography_keyczar = cryptography_symmetric_decrypt(key, data_enc_keyczar)
 
             self.assertEqual(data_dec_cryptography_cryptography, plaintext)

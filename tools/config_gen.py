@@ -24,43 +24,29 @@ import traceback
 from oslo_config import cfg
 
 
-CONFIGS = ['st2actions.config',
-           'st2actions.scheduler.config',
-           'st2actions.notifier.config',
-           'st2actions.resultstracker.config',
-           'st2actions.workflows.config',
-           'st2api.config',
-           'st2stream.config',
-           'st2auth.config',
-           'st2common.config',
-           'st2exporter.config',
-           'st2reactor.rules.config',
-           'st2reactor.sensor.config',
-           'st2reactor.timer.config',
-           'st2reactor.garbage_collector.config']
+CONFIGS = [
+    'st2actions.config',
+    'st2actions.scheduler.config',
+    'st2actions.notifier.config',
+    'st2actions.resultstracker.config',
+    'st2actions.workflows.config',
+    'st2api.config',
+    'st2stream.config',
+    'st2auth.config',
+    'st2common.config',
+    'st2exporter.config',
+    'st2reactor.rules.config',
+    'st2reactor.sensor.config',
+    'st2reactor.timer.config',
+    'st2reactor.garbage_collector.config',
+]
 
 SKIP_GROUPS = ['api_pecan', 'rbac', 'results_tracker']
 
 # We group auth options together to make it a bit more clear what applies where
 AUTH_OPTIONS = {
-    'common': [
-        'enable',
-        'mode',
-        'logging',
-        'api_url',
-        'token_ttl',
-        'service_token_ttl',
-        'debug'
-    ],
-    'standalone': [
-        'host',
-        'port',
-        'use_ssl',
-        'cert',
-        'key',
-        'backend',
-        'backend_kwargs'
-    ]
+    'common': ['enable', 'mode', 'logging', 'api_url', 'token_ttl', 'service_token_ttl', 'debug'],
+    'standalone': ['host', 'port', 'use_ssl', 'cert', 'key', 'backend', 'backend_kwargs'],
 }
 
 # Some of the config values change depending on the environment where this script is ran so we
@@ -69,11 +55,9 @@ STATIC_OPTION_VALUES = {
     'actionrunner': {
         'virtualenv_binary': '/usr/bin/virtualenv',
         'python_binary': '/usr/bin/python',
-        'python3_binary': '/usr/bin/python3'
+        'python3_binary': '/usr/bin/python3',
     },
-    'webui': {
-        'webui_base_url': 'https://localhost'
-    }
+    'webui': {'webui_base_url': 'https://localhost'},
 }
 
 COMMON_AUTH_OPTIONS_COMMENT = """
@@ -114,19 +98,21 @@ def _read_group(opt_group):
     if opt_group.name == 'auth':
         print(COMMON_AUTH_OPTIONS_COMMENT)
         print('')
-        common_options = [option for option in all_options if option['opt'].name in
-                          AUTH_OPTIONS['common']]
+        common_options = [
+            option for option in all_options if option['opt'].name in AUTH_OPTIONS['common']
+        ]
         _print_options(opt_group=opt_group, options=common_options)
 
         print('')
         print(STANDALONE_AUTH_OPTIONS_COMMENT)
         print('')
-        standalone_options = [option for option in all_options if option['opt'].name in
-                              AUTH_OPTIONS['standalone']]
+        standalone_options = [
+            option for option in all_options if option['opt'].name in AUTH_OPTIONS['standalone']
+        ]
         _print_options(opt_group=opt_group, options=standalone_options)
 
         if len(common_options) + len(standalone_options) != len(all_options):
-            msg = ('Not all options are declared in AUTH_OPTIONS dict, please update it')
+            msg = 'Not all options are declared in AUTH_OPTIONS dict, please update it'
             raise Exception(msg)
     else:
         options = all_options

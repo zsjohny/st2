@@ -22,19 +22,27 @@ from tests import FunctionalTest
 DESCENDANTS_PACK = 'descendants'
 
 DESCENDANTS_FIXTURES = {
-    'executions': ['root_execution.yaml', 'child1_level1.yaml', 'child2_level1.yaml',
-                   'child1_level2.yaml', 'child2_level2.yaml', 'child3_level2.yaml',
-                   'child1_level3.yaml', 'child2_level3.yaml', 'child3_level3.yaml']
+    'executions': [
+        'root_execution.yaml',
+        'child1_level1.yaml',
+        'child2_level1.yaml',
+        'child1_level2.yaml',
+        'child2_level2.yaml',
+        'child3_level2.yaml',
+        'child1_level3.yaml',
+        'child2_level3.yaml',
+        'child3_level3.yaml',
+    ]
 }
 
 
 class ActionExecutionControllerTestCaseDescendantsTest(FunctionalTest):
-
     @classmethod
     def setUpClass(cls):
         super(ActionExecutionControllerTestCaseDescendantsTest, cls).setUpClass()
-        cls.MODELS = FixturesLoader().save_fixtures_to_db(fixtures_pack=DESCENDANTS_PACK,
-                                                          fixtures_dict=DESCENDANTS_FIXTURES)
+        cls.MODELS = FixturesLoader().save_fixtures_to_db(
+            fixtures_pack=DESCENDANTS_PACK, fixtures_dict=DESCENDANTS_FIXTURES
+        )
 
     def test_get_all_descendants(self):
         root_execution = self.MODELS['executions']['root_execution.yaml']
@@ -45,8 +53,11 @@ class ActionExecutionControllerTestCaseDescendantsTest(FunctionalTest):
         all_descendants_ids.sort()
 
         # everything except the root_execution
-        expected_ids = [str(v.id) for _, v in six.iteritems(self.MODELS['executions'])
-                        if v.id != root_execution.id]
+        expected_ids = [
+            str(v.id)
+            for _, v in six.iteritems(self.MODELS['executions'])
+            if v.id != root_execution.id
+        ]
         expected_ids.sort()
 
         self.assertListEqual(all_descendants_ids, expected_ids)
@@ -60,8 +71,11 @@ class ActionExecutionControllerTestCaseDescendantsTest(FunctionalTest):
         all_descendants_ids.sort()
 
         # everything except the root_execution
-        expected_ids = [str(v.id) for _, v in six.iteritems(self.MODELS['executions'])
-                        if v.id != root_execution.id]
+        expected_ids = [
+            str(v.id)
+            for _, v in six.iteritems(self.MODELS['executions'])
+            if v.id != root_execution.id
+        ]
         expected_ids.sort()
 
         self.assertListEqual(all_descendants_ids, expected_ids)
@@ -75,8 +89,11 @@ class ActionExecutionControllerTestCaseDescendantsTest(FunctionalTest):
         all_descendants_ids.sort()
 
         # All children of root_execution
-        expected_ids = [str(v.id) for _, v in six.iteritems(self.MODELS['executions'])
-                        if v.parent == str(root_execution.id)]
+        expected_ids = [
+            str(v.id)
+            for _, v in six.iteritems(self.MODELS['executions'])
+            if v.parent == str(root_execution.id)
+        ]
         expected_ids.sort()
 
         self.assertListEqual(all_descendants_ids, expected_ids)

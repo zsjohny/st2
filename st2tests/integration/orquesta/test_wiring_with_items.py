@@ -74,7 +74,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         for i in range(0, num_items):
             _, f = tempfile.mkstemp()
-            os.chmod(f, 0o755)   # nosec
+            os.chmod(f, 0o755)  # nosec
             self.tempfiles.append(f)
 
         wf_input = {'tempfiles': self.tempfiles, 'concurrency': concurrency}
@@ -105,7 +105,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         for i in range(0, num_items):
             _, f = tempfile.mkstemp()
-            os.chmod(f, 0o755)   # nosec
+            os.chmod(f, 0o755)  # nosec
             self.tempfiles.append(f)
 
         wf_input = {'tempfiles': self.tempfiles, 'concurrency': concurrency}
@@ -125,10 +125,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         # Task is completed successfully for graceful exit.
         self._wait_for_task(
-            ex,
-            'task1',
-            ac_const.LIVEACTION_STATUS_SUCCEEDED,
-            num_task_exs=concurrency
+            ex, 'task1', ac_const.LIVEACTION_STATUS_SUCCEEDED, num_task_exs=concurrency
         )
 
         # Wait for the ex to be canceled.
@@ -143,7 +140,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         for i in range(0, num_items):
             _, f = tempfile.mkstemp()
-            os.chmod(f, 0o755)   # nosec
+            os.chmod(f, 0o755)  # nosec
             self.tempfiles.append(f)
 
         wf_input = {'tempfiles': self.tempfiles, 'concurrency': concurrency}
@@ -152,10 +149,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         # Wait for action executions to run.
         self._wait_for_task(
-            ex,
-            'task1',
-            ac_const.LIVEACTION_STATUS_RUNNING,
-            num_task_exs=concurrency
+            ex, 'task1', ac_const.LIVEACTION_STATUS_RUNNING, num_task_exs=concurrency
         )
 
         # Cancel the workflow execution.
@@ -171,10 +165,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         # Task is completed successfully for graceful exit.
         self._wait_for_task(
-            ex,
-            'task1',
-            ac_const.LIVEACTION_STATUS_SUCCEEDED,
-            num_task_exs=concurrency
+            ex, 'task1', ac_const.LIVEACTION_STATUS_SUCCEEDED, num_task_exs=concurrency
         )
 
         # Wait for the ex to be canceled.
@@ -188,7 +179,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         for i in range(0, num_items):
             _, f = tempfile.mkstemp()
-            os.chmod(f, 0o755)   # nosec
+            os.chmod(f, 0o755)  # nosec
             self.tempfiles.append(f)
 
         wf_input = {'tempfiles': self.tempfiles}
@@ -208,10 +199,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         # Wait for action executions for task to succeed.
         self._wait_for_task(
-            ex,
-            'task1',
-            ac_const.LIVEACTION_STATUS_SUCCEEDED,
-            num_task_exs=num_items
+            ex, 'task1', ac_const.LIVEACTION_STATUS_SUCCEEDED, num_task_exs=num_items
         )
 
         # Wait for the workflow execution to pause.
@@ -232,7 +220,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         for i in range(0, num_items):
             _, f = tempfile.mkstemp()
-            os.chmod(f, 0o755)   # nosec
+            os.chmod(f, 0o755)  # nosec
             self.tempfiles.append(f)
 
         wf_input = {'tempfiles': self.tempfiles, 'concurrency': concurrency}
@@ -252,10 +240,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         # Wait for action executions for task to succeed.
         self._wait_for_task(
-            ex,
-            'task1',
-            ac_const.LIVEACTION_STATUS_SUCCEEDED,
-            num_task_exs=concurrency
+            ex, 'task1', ac_const.LIVEACTION_STATUS_SUCCEEDED, num_task_exs=concurrency
         )
 
         # Wait for the workflow execution to pause.
@@ -271,10 +256,7 @@ class WithItemsWiringTest(base.TestWorkflowExecution):
 
         # Wait for action executions for task to succeed.
         self._wait_for_task(
-            ex,
-            'task1',
-            ac_const.LIVEACTION_STATUS_SUCCEEDED,
-            num_task_exs=num_items
+            ex, 'task1', ac_const.LIVEACTION_STATUS_SUCCEEDED, num_task_exs=num_items
         )
 
         # Wait for completion.

@@ -24,12 +24,7 @@ from st2common.metrics.base import Timer
 from st2common.transport import utils as transport_utils
 from st2common.transport.connection_retry_wrapper import ConnectionRetryWrapper
 
-__all__ = [
-    'PoolPublisher',
-    'SharedPoolPublishers',
-    'CUDPublisher',
-    'StatePublisherMixin'
-]
+__all__ = ['PoolPublisher', 'SharedPoolPublishers', 'CUDPublisher', 'StatePublisherMixin']
 
 ANY_RK = '*'
 CREATE_RK = 'create'
@@ -47,9 +42,9 @@ class PoolPublisher(object):
         :type urls: ``list``
         """
         urls = urls or transport_utils.get_messaging_urls()
-        connection = transport_utils.get_connection(urls=urls,
-                                                    connection_kwargs={'failover_strategy':
-                                                                       'round-robin'})
+        connection = transport_utils.get_connection(
+            urls=urls, connection_kwargs={'failover_strategy': 'round-robin'}
+        )
         self.pool = connection.Pool(limit=10)
         self.cluster_size = len(urls)
 
@@ -72,7 +67,7 @@ class PoolPublisher(object):
                         'exchange': exchange,
                         'routing_key': routing_key,
                         'serializer': 'pickle',
-                        'content_encoding': 'utf-8'
+                        'content_encoding': 'utf-8',
                     }
 
                     retry_wrapper.ensured(
@@ -91,6 +86,7 @@ class SharedPoolPublishers(object):
     server is usually the same. This sharing allows from the same PoolPublisher to be reused
     for publishing purposes. Sharing publishers leads to shared connections.
     """
+
     shared_publishers = {}
 
     def get_publisher(self, urls):

@@ -22,9 +22,7 @@ from st2common.models.system.action import RemoteAction
 from st2common.models.system.action import SUDO_COMMON_OPTIONS
 from st2common.util.shell import quote_unix
 
-__all__ = [
-    'ParamikoRemoteCommandAction',
-]
+__all__ = ['ParamikoRemoteCommandAction']
 
 LOG = logging.getLogger(__name__)
 
@@ -32,7 +30,6 @@ LOGGED_USER_USERNAME = pwd.getpwuid(os.getuid())[0]
 
 
 class ParamikoRemoteCommandAction(RemoteAction):
-
     def get_full_command_string(self):
         # Note: We pass -E to sudo because we want to preserve user provided environment variables
         env_str = self._get_env_vars_export_string()
@@ -48,12 +45,13 @@ class ParamikoRemoteCommandAction(RemoteAction):
             command = 'sudo %s -- bash -c %s' % (sudo_arguments, command)
 
             if self.sudo_password:
-                command = ('set +o history ; echo -e %s | %s' %
-                          (quote_unix('%s\n' % (self.sudo_password)), command))
+                command = 'set +o history ; echo -e %s | %s' % (
+                    quote_unix('%s\n' % (self.sudo_password)),
+                    command,
+                )
         else:
             if env_str:
-                command = '%s && cd %s && %s' % (env_str, cwd,
-                                                 self.command)
+                command = '%s && cd %s && %s' % (env_str, cwd, self.command)
             else:
                 command = 'cd %s && %s' % (cwd, self.command)
 

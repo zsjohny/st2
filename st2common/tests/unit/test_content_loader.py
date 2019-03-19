@@ -42,8 +42,9 @@ class ContentLoaderTest(unittest2.TestCase):
     def test_invalid_content_type(self):
         packs_base_path = os.path.join(RESOURCES_DIR, 'packs/')
         loader = ContentPackLoader()
-        self.assertRaises(ValueError, loader.get_content, base_dirs=[packs_base_path],
-                          content_type='stuff')
+        self.assertRaises(
+            ValueError, loader.get_content, base_dirs=[packs_base_path], content_type='stuff'
+        )
 
     def test_get_content_multiple_directories(self):
         packs_base_path_1 = os.path.join(RESOURCES_DIR, 'packs/')
@@ -58,9 +59,11 @@ class ContentLoaderTest(unittest2.TestCase):
         self.assertTrue('pack3' in sensors)  # from packs2/
 
         # Assert that a warning is emitted when a duplicated pack is found
-        expected_msg = ('Pack "pack1" already found in '
-                        '"%s/packs/", ignoring content from '
-                        '"%s/packs2/"' % (RESOURCES_DIR, RESOURCES_DIR))
+        expected_msg = (
+            'Pack "pack1" already found in '
+            '"%s/packs/", ignoring content from '
+            '"%s/packs2/"' % (RESOURCES_DIR, RESOURCES_DIR)
+        )
         LOG.warning.assert_called_once_with(expected_msg)
 
     def test_get_content_from_pack_success(self):
@@ -75,8 +78,13 @@ class ContentLoaderTest(unittest2.TestCase):
         pack_path = os.path.join(RESOURCES_DIR, 'packs/pack100')
 
         message_regex = 'Directory .*? doesn\'t exist'
-        self.assertRaisesRegexp(ValueError, message_regex, loader.get_content_from_pack,
-                                pack_dir=pack_path, content_type='sensors')
+        self.assertRaisesRegexp(
+            ValueError,
+            message_regex,
+            loader.get_content_from_pack,
+            pack_dir=pack_path,
+            content_type='sensors',
+        )
 
     def test_get_content_from_pack_no_sensors(self):
         loader = ContentPackLoader()

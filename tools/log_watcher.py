@@ -27,25 +27,9 @@ import six
 
 LOG_ALERT_PERCENT = 5  # default.
 
-EVILS = [
-    'info',
-    'debug',
-    'warning',
-    'exception',
-    'error',
-    'audit'
-]
+EVILS = ['info', 'debug', 'warning', 'exception', 'error', 'audit']
 
-LOG_VARS = [
-    'LOG',
-    'Log',
-    'log',
-    'LOGGER',
-    'Logger',
-    'logger',
-    'logging',
-    'LOGGING'
-]
+LOG_VARS = ['LOG', 'Log', 'log', 'LOGGER', 'Logger', 'logger', 'logging', 'LOGGING']
 
 FILE_LOG_COUNT = collections.defaultdict()
 FILE_LINE_COUNT = collections.defaultdict()
@@ -107,8 +91,10 @@ def _get_log_count_dict():
 
 
 def _alert(fil, lines, logs, logs_level):
-    print('WARNING: Too many logs!!!: File: %s, total lines: %d, log lines: %d, percent: %f, '
-          'logs: %s' % (fil, lines, logs, float(logs) / lines * 100, logs_level))
+    print(
+        'WARNING: Too many logs!!!: File: %s, total lines: %d, log lines: %d, percent: %f, '
+        'logs: %s' % (fil, lines, logs, float(logs) / lines * 100, logs_level)
+    )
 
 
 def _match(line, match_strings):
@@ -148,18 +134,29 @@ def _post_process(file_dir):
         if total_log_count > 0:
             if float(total_log_count) / lines * 100 > LOG_ALERT_PERCENT:
                 if file_dir in fil:
-                    fil = fil[len(file_dir) + 1:]
-                alerts.append([fil, lines, total_log_count, float(total_log_count) / lines * 100,
-                               log_lines_count_level['audit'],
-                               log_lines_count_level['exception'],
-                               log_lines_count_level['error'],
-                               log_lines_count_level['warning'],
-                               log_lines_count_level['info'],
-                               log_lines_count_level['debug']])
+                    fil = fil[len(file_dir) + 1 :]
+                alerts.append(
+                    [
+                        fil,
+                        lines,
+                        total_log_count,
+                        float(total_log_count) / lines * 100,
+                        log_lines_count_level['audit'],
+                        log_lines_count_level['exception'],
+                        log_lines_count_level['error'],
+                        log_lines_count_level['warning'],
+                        log_lines_count_level['info'],
+                        log_lines_count_level['debug'],
+                    ]
+                )
     # sort by percent
     alerts.sort(key=lambda alert: alert[3], reverse=True)
-    print(tabulate(alerts, headers=['File', 'Lines', 'Logs', 'Percent', 'adt', 'exc', 'err', 'wrn',
-                                    'inf', 'dbg']))
+    print(
+        tabulate(
+            alerts,
+            headers=['File', 'Lines', 'Logs', 'Percent', 'adt', 'exc', 'err', 'wrn', 'inf', 'dbg'],
+        )
+    )
 
 
 def main(args):

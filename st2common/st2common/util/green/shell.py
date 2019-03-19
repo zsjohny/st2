@@ -27,19 +27,30 @@ from eventlet.green import subprocess
 
 from st2common import log as logging
 
-__all__ = [
-    'run_command'
-]
+__all__ = ['run_command']
 
 TIMEOUT_EXIT_CODE = -9
 
 LOG = logging.getLogger(__name__)
 
 
-def run_command(cmd, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,
-                cwd=None, env=None, timeout=60, preexec_func=None, kill_func=None,
-                read_stdout_func=None, read_stderr_func=None,
-                read_stdout_buffer=None, read_stderr_buffer=None, stdin_value=None):
+def run_command(
+    cmd,
+    stdin=None,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    shell=False,
+    cwd=None,
+    env=None,
+    timeout=60,
+    preexec_func=None,
+    kill_func=None,
+    read_stdout_func=None,
+    read_stderr_func=None,
+    read_stdout_buffer=None,
+    read_stderr_buffer=None,
+    stdin_value=None,
+):
     """
     Run the provided command in a subprocess and wait until it completes.
 
@@ -91,12 +102,15 @@ def run_command(cmd, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     assert isinstance(cmd, (list, tuple) + six.string_types)
 
     if (read_stdout_func and not read_stderr_func) or (read_stderr_func and not read_stdout_func):
-        raise ValueError('Both read_stdout_func and read_stderr_func arguments need '
-                         'to be provided.')
+        raise ValueError(
+            'Both read_stdout_func and read_stderr_func arguments need ' 'to be provided.'
+        )
 
     if read_stdout_func and not (read_stdout_buffer or read_stderr_buffer):
-        raise ValueError('read_stdout_buffer and read_stderr_buffer arguments need to be provided '
-                         'when read_stdout_func is provided')
+        raise ValueError(
+            'read_stdout_buffer and read_stderr_buffer arguments need to be provided '
+            'when read_stdout_func is provided'
+        )
 
     if not env:
         LOG.debug('env argument not provided. using process env (os.environ).')
@@ -105,8 +119,16 @@ def run_command(cmd, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     # Note: We are using eventlet friendly implementation of subprocess
     # which uses GreenPipe so it doesn't block
     LOG.debug('Creating subprocess.')
-    process = subprocess.Popen(args=cmd, stdin=stdin, stdout=stdout, stderr=stderr,
-                               env=env, cwd=cwd, shell=shell, preexec_fn=preexec_func)
+    process = subprocess.Popen(
+        args=cmd,
+        stdin=stdin,
+        stdout=stdout,
+        stderr=stderr,
+        env=env,
+        cwd=cwd,
+        shell=shell,
+        preexec_fn=preexec_func,
+    )
 
     if read_stdout_func:
         LOG.debug('Spawning read_stdout_func function')

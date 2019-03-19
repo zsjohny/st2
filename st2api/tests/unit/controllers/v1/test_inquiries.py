@@ -43,12 +43,7 @@ ACTION_1 = {
     'runner_type': 'local-shell-cmd',
 }
 
-LIVE_ACTION_1 = {
-    'action': 'testpack.st2.dummy.action1',
-    'parameters': {
-        'cmd': 'uname -a'
-    }
-}
+LIVE_ACTION_1 = {'action': 'testpack.st2.dummy.action1', 'parameters': {'cmd': 'uname -a'}}
 
 INQUIRY_ACTION = {
     'name': 'st2.dummy.ask',
@@ -63,31 +58,21 @@ INQUIRY_1 = {
     'status': 'pending',
     'parameters': {},
     'context': {
-        'parent': {
-            'user': 'testu',
-            'execution_id': '59b845e132ed350d396a798f',
-            'pack': 'examples'
-        },
-        'trace_context': {'trace_tag': 'balleilaka'}
-    }
+        'parent': {'user': 'testu', 'execution_id': '59b845e132ed350d396a798f', 'pack': 'examples'},
+        'trace_context': {'trace_tag': 'balleilaka'},
+    },
 }
 
 INQUIRY_2 = {
     'action': 'testpack.st2.dummy.ask',
     'status': 'pending',
-    'parameters': {
-        'route': 'superlative',
-        'users': ['foo', 'bar']
-    }
+    'parameters': {'route': 'superlative', 'users': ['foo', 'bar']},
 }
 
 INQUIRY_TIMEOUT = {
     'action': 'testpack.st2.dummy.ask',
     'status': 'timeout',
-    'parameters': {
-        'route': 'superlative',
-        'users': ['foo', 'bar']
-    }
+    'parameters': {'route': 'superlative', 'users': ['foo', 'bar']},
 }
 
 SCHEMA_DEFAULT = {
@@ -97,7 +82,7 @@ SCHEMA_DEFAULT = {
         "continue": {
             "type": "boolean",
             "description": "Would you like to continue the workflow?",
-            "required": True
+            "required": True,
         }
     },
 }
@@ -106,75 +91,44 @@ SCHEMA_MULTIPLE = {
     "title": "response_data",
     "type": "object",
     "properties": {
-        "name": {
-            "type": "string",
-            "description": "What is your name?",
-            "required": True
-        },
-        "pin": {
-            "type": "integer",
-            "description": "What is your PIN?",
-            "required": True
-        },
-        "paradox": {
-            "type": "boolean",
-            "description": "This statement is False.",
-            "required": True
-        }
+        "name": {"type": "string", "description": "What is your name?", "required": True},
+        "pin": {"type": "integer", "description": "What is your PIN?", "required": True},
+        "paradox": {"type": "boolean", "description": "This statement is False.", "required": True},
     },
 }
 
 # This is what the result will look like if all parameters are left to their defaults
 # since each parameter's used value (meaning, when runtime parameters are taken into
 # account) are passed through to result
-RESULT_DEFAULT = {
-    "schema": SCHEMA_DEFAULT,
-    "roles": [],
-    "users": [],
-    "route": "",
-    "ttl": 1440
-}
+RESULT_DEFAULT = {"schema": SCHEMA_DEFAULT, "roles": [], "users": [], "route": "", "ttl": 1440}
 
 RESULT_2 = {
     "schema": SCHEMA_DEFAULT,
     "roles": [],
     "users": ["foo", "bar"],
     "route": "superlative",
-    "ttl": 1440
+    "ttl": 1440,
 }
 
-RESULT_MULTIPLE = {
-    "schema": SCHEMA_MULTIPLE,
-    "roles": [],
-    "users": [],
-    "route": "",
-    "ttl": 1440
-}
+RESULT_MULTIPLE = {"schema": SCHEMA_MULTIPLE, "roles": [], "users": [], "route": "", "ttl": 1440}
 
-RESPONSE_MULTIPLE = {
-    "name": "matt",
-    "pin": 1234,
-    "paradox": True
-}
+RESPONSE_MULTIPLE = {"name": "matt", "pin": 1234, "paradox": True}
 
 ROOT_LIVEACTION_DB = lv_db_models.LiveActionDB(
-    id=uuid.uuid4().hex,
-    status=action_constants.LIVEACTION_STATUS_PAUSED
+    id=uuid.uuid4().hex, status=action_constants.LIVEACTION_STATUS_PAUSED
 )
 
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
-class InquiryControllerTestCase(BaseInquiryControllerTestCase,
-                                APIControllerWithIncludeAndExcludeFilterTestCase):
+class InquiryControllerTestCase(
+    BaseInquiryControllerTestCase, APIControllerWithIncludeAndExcludeFilterTestCase
+):
     get_all_path = '/v1/inquiries'
     controller_cls = InquiriesController
     include_attribute_field_name = 'ttl'
     exclude_attribute_field_name = 'ttl'
 
-    @mock.patch.object(
-        action_validator,
-        'validate_action',
-        mock.MagicMock(return_value=True))
+    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(return_value=True))
     def setUp(cls):
         super(BaseInquiryControllerTestCase, cls).setUpClass()
 
@@ -282,11 +236,9 @@ class InquiryControllerTestCase(BaseInquiryControllerTestCase,
             self.assertEqual(get_resp.json.get(param), RESULT_2.get(param))
 
     @mock.patch.object(
-        action_service, 'get_root_liveaction',
-        mock.MagicMock(return_value=ROOT_LIVEACTION_DB))
-    @mock.patch.object(
-        action_service, 'request_resume',
-        mock.MagicMock(return_value=None))
+        action_service, 'get_root_liveaction', mock.MagicMock(return_value=ROOT_LIVEACTION_DB)
+    )
+    @mock.patch.object(action_service, 'request_resume', mock.MagicMock(return_value=None))
     def test_respond(self):
         """Test that a correct response is successful
         """
@@ -307,11 +259,9 @@ class InquiryControllerTestCase(BaseInquiryControllerTestCase,
         action_service.request_resume.assert_called_once()
 
     @mock.patch.object(
-        action_service, 'get_root_liveaction',
-        mock.MagicMock(return_value=ROOT_LIVEACTION_DB))
-    @mock.patch.object(
-        action_service, 'request_resume',
-        mock.MagicMock(return_value=None))
+        action_service, 'get_root_liveaction', mock.MagicMock(return_value=ROOT_LIVEACTION_DB)
+    )
+    @mock.patch.object(action_service, 'request_resume', mock.MagicMock(return_value=None))
     def test_respond_multiple(self):
         """Test that a more complicated response is successful
         """
@@ -350,9 +300,7 @@ class InquiryControllerTestCase(BaseInquiryControllerTestCase,
         self.assertEqual(put_resp.status_int, http_client.BAD_REQUEST)
         self.assertIn('is not an inquiry', put_resp.json['faultstring'])
 
-    @mock.patch.object(
-        action_service, 'request_resume',
-        mock.MagicMock(return_value=None))
+    @mock.patch.object(action_service, 'request_resume', mock.MagicMock(return_value=None))
     def test_respond_no_parent(self):
         """Test that a resume was not requested for an Inquiry without a parent
         """

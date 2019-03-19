@@ -23,17 +23,15 @@ from st2common.models.db import MongoDBAccess
 from st2common.models.db import stormbase
 from st2common.constants.types import ResourceType
 
-__all__ = [
-    'TriggerTypeDB',
-    'TriggerDB',
-    'TriggerInstanceDB',
-]
+__all__ = ['TriggerTypeDB', 'TriggerDB', 'TriggerInstanceDB']
 
 
-class TriggerTypeDB(stormbase.StormBaseDB,
-                    stormbase.ContentPackResourceMixin,
-                    stormbase.UIDFieldMixin,
-                    stormbase.TagsMixin):
+class TriggerTypeDB(
+    stormbase.StormBaseDB,
+    stormbase.ContentPackResourceMixin,
+    stormbase.UIDFieldMixin,
+    stormbase.TagsMixin,
+):
     """Description of a specific kind/type of a trigger. The
        (pack, name) tuple is expected uniquely identify a trigger in
        the namespace of all triggers provided by a specific trigger_source.
@@ -54,9 +52,11 @@ class TriggerTypeDB(stormbase.StormBaseDB,
     parameters_schema = me.DictField(default={})
 
     meta = {
-        'indexes': (stormbase.ContentPackResourceMixin.get_indexes() +
-                    stormbase.TagsMixin.get_indexes() +
-                    stormbase.UIDFieldMixin.get_indexes())
+        'indexes': (
+            stormbase.ContentPackResourceMixin.get_indexes()
+            + stormbase.TagsMixin.get_indexes()
+            + stormbase.UIDFieldMixin.get_indexes()
+        )
     }
 
     def __init__(self, *args, **values):
@@ -66,8 +66,7 @@ class TriggerTypeDB(stormbase.StormBaseDB,
         self.uid = self.get_uid()
 
 
-class TriggerDB(stormbase.StormBaseDB, stormbase.ContentPackResourceMixin,
-                stormbase.UIDFieldMixin):
+class TriggerDB(stormbase.StormBaseDB, stormbase.ContentPackResourceMixin, stormbase.UIDFieldMixin):
     """
     Attribute:
         name - Trigger name.
@@ -87,11 +86,8 @@ class TriggerDB(stormbase.StormBaseDB, stormbase.ContentPackResourceMixin,
     ref_count = me.IntField(default=0)
 
     meta = {
-        'indexes': [
-            {'fields': ['name']},
-            {'fields': ['type']},
-            {'fields': ['parameters']},
-        ] + stormbase.UIDFieldMixin.get_indexes()
+        'indexes': [{'fields': ['name']}, {'fields': ['type']}, {'fields': ['parameters']}]
+        + stormbase.UIDFieldMixin.get_indexes()
     }
 
     def __init__(self, *args, **values):
@@ -126,19 +122,18 @@ class TriggerInstanceDB(stormbase.StormFoundationDB):
         payload (dict): payload specific to the occurrence.
         occurrence_time (datetime): time of occurrence of the trigger.
     """
+
     trigger = me.StringField()
     payload = stormbase.EscapedDictField()
     occurrence_time = me.DateTimeField()
-    status = me.StringField(
-        required=True,
-        help_text='Processing status of TriggerInstance.')
+    status = me.StringField(required=True, help_text='Processing status of TriggerInstance.')
 
     meta = {
         'indexes': [
             {'fields': ['occurrence_time']},
             {'fields': ['trigger']},
             {'fields': ['-occurrence_time', 'trigger']},
-            {'fields': ['status']}
+            {'fields': ['status']},
         ]
     }
 

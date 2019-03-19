@@ -14,9 +14,13 @@
 # limitations under the License.
 
 from __future__ import absolute_import
-from st2common.exceptions.auth import (TokenNotFoundError, ApiKeyNotFoundError,
-                                       UserNotFoundError, AmbiguousUserError,
-                                       NoNicknameOriginProvidedError)
+from st2common.exceptions.auth import (
+    TokenNotFoundError,
+    ApiKeyNotFoundError,
+    UserNotFoundError,
+    AmbiguousUserError,
+    NoNicknameOriginProvidedError,
+)
 from st2common.models.db import MongoDBAccess
 from st2common.models.db.auth import UserDB, TokenDB, ApiKeyDB
 from st2common.persistence.base import Access

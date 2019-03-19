@@ -20,9 +20,7 @@ import six
 from st2common import log as logging
 
 
-__all__ = [
-    'AsyncActionExecutionCallbackHandler',
-]
+__all__ = ['AsyncActionExecutionCallbackHandler']
 
 
 LOG = logging.getLogger(__name__)
@@ -30,7 +28,6 @@ LOG = logging.getLogger(__name__)
 
 @six.add_metaclass(abc.ABCMeta)
 class AsyncActionExecutionCallbackHandler(object):
-
     @staticmethod
     @abc.abstractmethod
     def callback(liveaction):

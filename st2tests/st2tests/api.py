@@ -36,12 +36,7 @@ from st2tests.base import DbTestCase
 from st2tests.base import CleanDbTestCase
 from st2tests import config as tests_config
 
-__all__ = [
-    'BaseFunctionalTest',
-    'BaseAPIControllerWithRBACTestCase',
-
-    'TestApp'
-]
+__all__ = ['BaseFunctionalTest', 'BaseAPIControllerWithRBACTestCase', 'TestApp']
 
 
 SUPER_SECRET_PARAMETER = 'SUPER_SECRET_PARAMETER_THAT_SHOULD_NEVER_APPEAR_IN_RESPONSES_OR_LOGS'
@@ -67,8 +62,10 @@ class TestApp(webtest.TestApp):
         res = super(TestApp, self).do_request(req, **kwargs)
 
         if res.headers.get('Warning', None):
-            raise ResponseValidationError('Endpoint produced invalid response. Make sure the '
-                                          'response matches OpenAPI scheme for the endpoint.')
+            raise ResponseValidationError(
+                'Endpoint produced invalid response. Make sure the '
+                'response matches OpenAPI scheme for the endpoint.'
+            )
 
         if not kwargs.get('expect_errors', None):
             try:
@@ -79,10 +76,13 @@ class TestApp(webtest.TestApp):
                 else:
                     raise e
 
-            if six.b(SUPER_SECRET_PARAMETER) in body or \
-                    six.b(ANOTHER_SUPER_SECRET_PARAMETER) in body:
-                raise ResponseLeakError('Endpoint response contains secret parameter. '
-                                        'Find the leak.')
+            if (
+                six.b(SUPER_SECRET_PARAMETER) in body
+                or six.b(ANOTHER_SUPER_SECRET_PARAMETER) in body
+            ):
+                raise ResponseLeakError(
+                    'Endpoint response contains secret parameter. ' 'Find the leak.'
+                )
 
         if 'Access-Control-Allow-Origin' not in res.headers:
             raise ResponseValidationError('Response missing a required CORS header')
@@ -116,7 +116,7 @@ class BaseFunctionalTest(DbTestCase):
             self.request_context_mock.stop()
 
             if hasattr(Router, 'mock_context'):
-                del(Router.mock_context)
+                del Router.mock_context
 
     @classmethod
     def _do_setUpClass(cls):
@@ -142,10 +142,7 @@ class BaseFunctionalTest(DbTestCase):
 
         mock_context = {
             'user': user_db,
-            'auth_info': {
-                'method': 'authentication token',
-                'location': 'header'
-            }
+            'auth_info': {'method': 'authentication token', 'location': 'header'},
         }
         self.request_context_mock = mock.PropertyMock(return_value=mock_context)
         Router.mock_context = self.request_context_mock
@@ -186,8 +183,8 @@ class BaseAPIControllerWithRBACTestCase(BaseFunctionalTest, CleanDbTestCase):
             self.users[role_name] = user_db
 
             role_assignment_db = UserRoleAssignmentDB(
-                user=user_db.name, role=role_name,
-                source='assignments/%s.yaml' % user_db.name)
+                user=user_db.name, role=role_name, source='assignments/%s.yaml' % user_db.name
+            )
             UserRoleAssignment.add_or_update(role_assignment_db)
 
         # Insert a user with no permissions and role assignments
@@ -201,6 +198,8 @@ class BaseAPIControllerWithRBACTestCase(BaseFunctionalTest, CleanDbTestCase):
         self.users['system_user'] = user_2_db
 
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_2_db.name, role=SystemRole.ADMIN,
-            source='assignments/%s.yaml' % user_2_db.name)
+            user=user_2_db.name,
+            role=SystemRole.ADMIN,
+            source='assignments/%s.yaml' % user_2_db.name,
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)

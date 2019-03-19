@@ -27,5 +27,5 @@ def get_wf_fixture_meta_data(fixture_pack_path, wf_meta_file_name):
         'file_name': wf_meta_file_name,
         'file_path': wf_meta_file_path,
         'content': wf_meta_content,
-        'name': wf_name
+        'name': wf_name,
     }

@@ -15,9 +15,7 @@
 
 from st2common.util.shell import run_command
 
-__all__ = [
-    'get_repo_latest_revision_hash'
-]
+__all__ = ['get_repo_latest_revision_hash']
 
 
 def get_repo_latest_revision_hash(repo_path):
@@ -30,8 +28,7 @@ def get_repo_latest_revision_hash(repo_path):
     :rtype: ``str``
     """
     try:
-        exit_code, stdout, _ = run_command(cmd=['git', 'rev-parse', 'HEAD'],
-                                           cwd=repo_path)
+        exit_code, stdout, _ = run_command(cmd=['git', 'rev-parse', 'HEAD'], cwd=repo_path)
     except Exception:
         revision_hash = 'unknown'
     else:

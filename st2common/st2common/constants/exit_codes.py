@@ -12,12 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-__all__ = [
-    'SUCCESS_EXIT_CODE',
-    'FAILURE_EXIT_CODE',
-    'SIGKILL_EXIT_CODE',
-    'SIGTERM_EXIT_CODE'
-]
+__all__ = ['SUCCESS_EXIT_CODE', 'FAILURE_EXIT_CODE', 'SIGKILL_EXIT_CODE', 'SIGTERM_EXIT_CODE']
 
 SUCCESS_EXIT_CODE = 0
 FAILURE_EXIT_CODE = 1

@@ -24,6 +24,7 @@ import st2tests
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests.unit import base
@@ -51,38 +52,36 @@ from st2common.models.db.execution_queue import ActionExecutionSchedulingQueueIt
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state),
+)
 class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
     ensure_indexes = True
     ensure_indexes_models = [
         WorkflowExecutionDB,
         TaskExecutionDB,
-        ActionExecutionSchedulingQueueItemDB
+        ActionExecutionSchedulingQueueItemDB,
     ]
 
     @classmethod
@@ -94,8 +93,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -114,7 +112,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                 'type': 'content',
                 'message': 'The action "std.noop" is not registered in the database.',
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.action',
-                'spec_path': 'tasks.task3.action'
+                'spec_path': 'tasks.task3.action',
             },
             {
                 'type': 'context',
@@ -136,7 +134,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     r'properties.tasks.patternProperties.^\w+$.'
                     'properties.next.items.properties.when'
                 ),
-                'spec_path': 'tasks.task2.next[0].when'
+                'spec_path': 'tasks.task2.next[0].when',
             },
             {
                 'type': 'syntax',
@@ -145,8 +143,8 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'not valid under any of the given schemas'
                 ),
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.input.oneOf',
-                'spec_path': 'tasks.task2.input'
-            }
+                'spec_path': 'tasks.task2.input',
+            },
         ]
 
         wf_meta = base.get_wf_fixture_meta_data(TEST_PACK_PATH, 'fail-inspection.yaml')
@@ -166,7 +164,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'YaqlEvaluationException: Unable to evaluate expression '
                     '\'<% abs(4).value %>\'. NoFunctionRegisteredException: '
                     'Unknown function "#property#value"'
-                )
+                ),
             }
         ]
 
@@ -200,7 +198,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'YaqlEvaluationException: Unable to evaluate expression '
                     '\'<% abs(4).value %>\'. NoFunctionRegisteredException: '
                     'Unknown function "#property#value"'
-                )
+                ),
             }
         ]
 
@@ -236,7 +234,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'Unknown function "#property#value"'
                 ),
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -272,7 +270,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'Unknown function "#property#value"'
                 ),
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -307,14 +305,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
 
         msg = 'ValueError: ' + msg
 
-        expected_errors = [
-            {
-                'type': 'error',
-                'message': msg,
-                'task_id': 'task1',
-                'route': 0
-            }
-        ]
+        expected_errors = [{'type': 'error', 'message': msg, 'task_id': 'task1', 'route': 0}]
 
         expected_result = {'output': None, 'errors': expected_errors}
 
@@ -351,7 +342,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'Unknown function "#property#value"'
                 ),
                 'task_id': 'task2',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -397,7 +388,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'Unknown function "#property#value"'
                 ),
                 'task_id': 'task2',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -441,14 +432,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
 
         msg = 'ValueError: ' + msg
 
-        expected_errors = [
-            {
-                'type': 'error',
-                'message': msg,
-                'task_id': 'task2',
-                'route': 0
-            }
-        ]
+        expected_errors = [{'type': 'error', 'message': msg, 'task_id': 'task2', 'route': 0}]
 
         expected_result = {'output': None, 'errors': expected_errors}
 
@@ -497,8 +481,8 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'stderr': 'boom!',
                     'return_code': 1,
                     'failed': True,
-                    'succeeded': False
-                }
+                    'succeeded': False,
+                },
             }
         ]
 
@@ -539,7 +523,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                 ),
                 'task_transition_id': 'task2__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -585,7 +569,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                 ),
                 'task_transition_id': 'task2__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -628,7 +612,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'YaqlEvaluationException: Unable to evaluate expression '
                     '\'<% abs(4).value %>\'. NoFunctionRegisteredException: '
                     'Unknown function "#property#value"'
-                )
+                ),
             }
         ]
 
@@ -664,9 +648,7 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
         self.assertDictEqual(ac_ex_db.result, expected_result)
 
     def test_output_on_error(self):
-        expected_output = {
-            'progress': 25
-        }
+        expected_output = {'progress': 25}
 
         expected_errors = [
             {
@@ -678,15 +660,12 @@ class OrquestaErrorHandlingTest(st2tests.ExecutionDbTestCase):
                     'return_code': 1,
                     'stderr': '',
                     'stdout': '',
-                    'succeeded': False
-                }
+                    'succeeded': False,
+                },
             }
         ]
 
-        expected_result = {
-            'errors': expected_errors,
-            'output': expected_output
-        }
+        expected_result = {'errors': expected_errors, 'output': expected_output}
 
         wf_meta = base.get_wf_fixture_meta_data(TEST_PACK_PATH, 'output-on-error.yaml')
         lv_ac_db = lv_db_models.LiveActionDB(action=wf_meta['name'])

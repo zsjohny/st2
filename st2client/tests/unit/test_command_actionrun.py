@@ -20,16 +20,15 @@ import unittest2
 import mock
 
 from st2client.commands.action import ActionRunCommand
-from st2client.models.action import (Action, RunnerType)
+from st2client.models.action import Action, RunnerType
 
 
 class ActionRunCommandTest(unittest2.TestCase):
-
     def test_get_params_types(self):
         runner = RunnerType()
         runner_params = {
             'foo': {'immutable': True, 'required': True},
-            'bar': {'description': 'Some param.', 'type': 'string'}
+            'bar': {'description': 'Some param.', 'type': 'string'},
         }
         runner.runner_parameters = runner_params
         orig_runner_params = copy.deepcopy(runner.runner_parameters)
@@ -37,7 +36,7 @@ class ActionRunCommandTest(unittest2.TestCase):
         action = Action()
         action.parameters = {
             'foo': {'immutable': False},  # Should not be allowed by API.
-            'stuff': {'description': 'Some param.', 'type': 'string', 'required': True}
+            'stuff': {'description': 'Some param.', 'type': 'string', 'required': True},
         }
         orig_action_params = copy.deepcopy(action.parameters)
 
@@ -67,18 +66,14 @@ class ActionRunCommandTest(unittest2.TestCase):
 
         action = Action()
         action.ref = 'test.action'
-        action.parameters = {
-            'param_array': {'type': 'array'},
-        }
+        action.parameters = {'param_array': {'type': 'array'}}
 
         subparser = mock.Mock()
         command = ActionRunCommand(action, self, subparser, name='test')
 
         mockarg = mock.Mock()
         mockarg.inherit_env = False
-        mockarg.parameters = [
-            'param_array=foo:bar,foo2:bar2',
-        ]
+        mockarg.parameters = ['param_array=foo:bar,foo2:bar2']
 
         mockarg.auto_dict = False
         param = command._get_action_parameters_from_args(action=action, runner=runner, args=mockarg)
@@ -111,12 +106,15 @@ class ActionRunCommandTest(unittest2.TestCase):
             'param_object': {'type': 'object'},
             'param_boolean': {'type': 'boolean'},
             'param_array': {'type': 'array'},
-            'param_array_of_dicts': {'type': 'array', 'properties': {
-                'foo': {'type': 'string'},
-                'bar': {'type': 'integer'},
-                'baz': {'type': 'number'},
-                'qux': {'type': 'object'},
-                'quux': {'type': 'boolean'}}
+            'param_array_of_dicts': {
+                'type': 'array',
+                'properties': {
+                    'foo': {'type': 'string'},
+                    'bar': {'type': 'integer'},
+                    'baz': {'type': 'number'},
+                    'qux': {'type': 'object'},
+                    'quux': {'type': 'boolean'},
+                },
             },
         }
 
@@ -134,7 +132,7 @@ class ActionRunCommandTest(unittest2.TestCase):
             'param_boolean=False',
             'param_array=foo,bar,baz',
             'param_array_of_dicts=foo:HOGE,bar:1,baz:1.23,qux:foo=bar,quux:True',
-            'param_array_of_dicts=foo:FUGA,bar:2,baz:2.34,qux:bar=baz,quux:False'
+            'param_array_of_dicts=foo:FUGA,bar:2,baz:2.34,qux:bar=baz,quux:False',
         ]
 
         param = command._get_action_parameters_from_args(action=action, runner=runner, args=mockarg)
@@ -192,7 +190,7 @@ class ActionRunCommandTest(unittest2.TestCase):
             'param_array=foo',
             'param_array=bar',
             'param_array_of_dicts=foo:1,bar:2',
-            'param_array_of_dicts=hoge:A,fuga:B'
+            'param_array_of_dicts=hoge:A,fuga:B',
         ]
 
         param = command._get_action_parameters_from_args(action=action, runner=runner, args=mockarg)
@@ -200,10 +198,9 @@ class ActionRunCommandTest(unittest2.TestCase):
         # checks to accept multiple declaration only if the array type
         self.assertEqual(param['param_string'], 'fuga')
         self.assertEqual(param['param_array'], ['foo', 'bar'])
-        self.assertEqual(param['param_array_of_dicts'], [
-            {'foo': '1', 'bar': '2'},
-            {'hoge': 'A', 'fuga': 'B'}
-        ])
+        self.assertEqual(
+            param['param_array_of_dicts'], [{'foo': '1', 'bar': '2'}, {'hoge': 'A', 'fuga': 'B'}]
+        )
 
         # set auto_dict back to default
         mockarg.auto_dict = False

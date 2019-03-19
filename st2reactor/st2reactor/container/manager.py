@@ -27,13 +27,10 @@ from st2common.models.system.common import ResourceReference
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'SensorContainerManager'
-]
+__all__ = ['SensorContainerManager']
 
 
 class SensorContainerManager(object):
-
     def __init__(self, sensors_partitioner, single_sensor_mode=False):
         if not sensors_partitioner:
             raise ValueError('sensors_partitioner should be non-None.')
@@ -44,10 +41,12 @@ class SensorContainerManager(object):
         self._sensor_container = None
         self._container_thread = None
 
-        self._sensors_watcher = SensorWatcher(create_handler=self._handle_create_sensor,
-                                              update_handler=self._handle_update_sensor,
-                                              delete_handler=self._handle_delete_sensor,
-                                              queue_suffix='sensor_container')
+        self._sensors_watcher = SensorWatcher(
+            create_handler=self._handle_create_sensor,
+            update_handler=self._handle_update_sensor,
+            delete_handler=self._handle_delete_sensor,
+            queue_suffix='sensor_container',
+        )
 
     def run_sensors(self):
         """
@@ -74,8 +73,8 @@ class SensorContainerManager(object):
 
         try:
             self._sensor_container = ProcessSensorContainer(
-                sensors=sensors,
-                single_sensor_mode=self._single_sensor_mode)
+                sensors=sensors, single_sensor_mode=self._single_sensor_mode
+            )
             self._container_thread = eventlet.spawn(self._sensor_container.run)
 
             LOG.debug('Starting sensor CUD watcher...')
@@ -88,8 +87,11 @@ class SensorContainerManager(object):
             self._sensor_container.shutdown()
             self._sensors_watcher.stop()
 
-            LOG.info('(PID:%s) SensorContainer stopped. Reason - %s', os.getpid(),
-                     sys.exc_info()[0].__name__)
+            LOG.info(
+                '(PID:%s) SensorContainer stopped. Reason - %s',
+                os.getpid(),
+                sys.exc_info()[0].__name__,
+            )
 
             eventlet.kill(self._container_thread)
             self._container_thread = None
@@ -99,7 +101,6 @@ class SensorContainerManager(object):
         return exit_code
 
     def _setup_sigterm_handler(self):
-
         def sigterm_handler(signum=None, frame=None):
             # This will cause SystemExit to be throw and we call sensor_container.shutdown()
             # there which cleans things up.
@@ -119,7 +120,7 @@ class SensorContainerManager(object):
             'class_name': class_name,
             'trigger_types': sensor_db.trigger_types,
             'poll_interval': sensor_db.poll_interval,
-            'ref': self._get_sensor_ref(sensor_db)
+            'ref': self._get_sensor_ref(sensor_db),
         }
 
         return sensor_obj

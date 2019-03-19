@@ -36,7 +36,7 @@ TEST_FIXTURES = {
     'runners': ['testrunner1.yaml'],
     'actions': ['action1.yaml'],
     'triggers': ['trigger1.yaml'],
-    'triggertypes': ['triggertype1.yaml', 'triggertype_with_parameters_2.yaml']
+    'triggertypes': ['triggertype1.yaml', 'triggertype_with_parameters_2.yaml'],
 }
 
 FIXTURES_PACK = 'generic'
@@ -63,7 +63,8 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
         cls.VALIDATE_TRIGGER_PAYLOAD = cfg.CONF.system.validate_trigger_parameters
 
         models = RulesControllerTestCase.fixtures_loader.save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES)
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
         RulesControllerTestCase.RUNNER_TYPE = models['runners']['testrunner1.yaml']
         RulesControllerTestCase.ACTION = models['actions']['action1.yaml']
         RulesControllerTestCase.TRIGGER = models['triggers']['trigger1.yaml']
@@ -71,63 +72,63 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
         # Don't load rule into DB as that is what is being tested.
         file_name = 'rule1.yaml'
         RulesControllerTestCase.RULE_1 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'cron_timer_rule_invalid_parameters.yaml'
         RulesControllerTestCase.RULE_2 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule_no_enabled_attribute.yaml'
         RulesControllerTestCase.RULE_3 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'backstop_rule.yaml'
         RulesControllerTestCase.RULE_4 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'date_timer_rule_invalid_parameters.yaml'
         RulesControllerTestCase.RULE_5 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'cron_timer_rule_invalid_parameters_1.yaml'
         RulesControllerTestCase.RULE_6 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'cron_timer_rule_invalid_parameters_2.yaml'
         RulesControllerTestCase.RULE_7 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'cron_timer_rule_invalid_parameters_3.yaml'
         RulesControllerTestCase.RULE_8 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule_invalid_trigger_parameter_type.yaml'
         RulesControllerTestCase.RULE_9 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule_trigger_with_no_parameters.yaml'
         RulesControllerTestCase.RULE_10 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule_invalid_trigger_parameter_type_default_cfg.yaml'
         RulesControllerTestCase.RULE_11 = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
         file_name = 'rule space.yaml'
         RulesControllerTestCase.RULE_SPACE = RulesControllerTestCase.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
     @classmethod
     def tearDownClass(cls):
@@ -135,7 +136,8 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
         cfg.CONF.system.validate_trigger_payload = cls.VALIDATE_TRIGGER_PAYLOAD
 
         RulesControllerTestCase.fixtures_loader.delete_fixtures_from_db(
-            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES)
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
         super(RulesControllerTestCase, cls).setUpClass()
 
     def test_get_all_and_minus_one(self):
@@ -159,8 +161,9 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
 
         resp = self.app.get('/v1/rules?limit=-22', expect_errors=True)
         self.assertEqual(resp.status_int, 400)
-        self.assertEqual(resp.json['faultstring'],
-                         u'Limit, "-22" specified, must be a positive number.')
+        self.assertEqual(
+            resp.json['faultstring'], u'Limit, "-22" specified, must be a positive number.'
+        )
 
         self.__do_delete(self.__get_rule_id(post_resp_rule_1))
         self.__do_delete(self.__get_rule_id(post_resp_rule_3))
@@ -375,8 +378,9 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
         self.assertEqual(self.__get_rule_id(get_resp), rule_id)
         assigned_rule_type = get_resp.json['type']
         self.assertTrue(assigned_rule_type, 'rule_type should be assigned')
-        self.assertEqual(assigned_rule_type['ref'], RULE_TYPE_STANDARD,
-                         'rule_type should be standard')
+        self.assertEqual(
+            assigned_rule_type['ref'], RULE_TYPE_STANDARD, 'rule_type should be standard'
+        )
         self.__do_delete(rule_id)
 
     def test_rule_with_type(self):
@@ -387,8 +391,9 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
         self.assertEqual(self.__get_rule_id(get_resp), rule_id)
         assigned_rule_type = get_resp.json['type']
         self.assertTrue(assigned_rule_type, 'rule_type should be assigned')
-        self.assertEqual(assigned_rule_type['ref'], RULE_TYPE_BACKSTOP,
-                         'rule_type should be backstop')
+        self.assertEqual(
+            assigned_rule_type['ref'], RULE_TYPE_BACKSTOP, 'rule_type should be backstop'
+        )
         self.__do_delete(rule_id)
 
     def test_update_rule_no_data(self):
@@ -447,7 +452,7 @@ class RulesControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExclude
 TEST_FIXTURES_2 = {
     'runners': ['testrunner1.yaml'],
     'actions': ['action1.yaml'],
-    'triggertypes': ['triggertype_with_parameter.yaml']
+    'triggertypes': ['triggertype_with_parameter.yaml'],
 }
 
 
@@ -460,13 +465,14 @@ class RulesControllerTestCaseTriggerCreator(FunctionalTest):
     def setUpClass(cls):
         super(RulesControllerTestCaseTriggerCreator, cls).setUpClass()
         cls.models = cls.fixtures_loader.save_fixtures_to_db(
-            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES_2)
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES_2
+        )
 
         # Don't load rule into DB as that is what is being tested.
         file_name = 'rule_trigger_params.yaml'
         cls.RULE_1 = cls.fixtures_loader.load_fixtures(
-            fixtures_pack=FIXTURES_PACK,
-            fixtures_dict={'rules': [file_name]})['rules'][file_name]
+            fixtures_pack=FIXTURES_PACK, fixtures_dict={'rules': [file_name]}
+        )['rules'][file_name]
 
     def test_ref_count_trigger_increment(self):
         post_resp = self.__do_post(self.RULE_1)

@@ -17,10 +17,7 @@ from __future__ import absolute_import
 
 from st2client.models import core
 
-__all__ = [
-    'Role',
-    'UserRoleAssignment'
-]
+__all__ = ['Role', 'UserRoleAssignment']
 
 
 class Role(core.Resource):

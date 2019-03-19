@@ -15,15 +15,15 @@
 
 from oslo_config import cfg
 
-__all__ = [
-    'validate_rbac_is_correctly_configured'
-]
+__all__ = ['validate_rbac_is_correctly_configured']
 
 
 def validate_rbac_is_correctly_configured():
     if cfg.CONF.rbac.enable and not cfg.CONF.auth.enable:
-        msg = ('Authentication is not enabled. RBAC only works when authentication is enabled. '
-               'You can either enable authentication or disable RBAC.')
+        msg = (
+            'Authentication is not enabled. RBAC only works when authentication is enabled. '
+            'You can either enable authentication or disable RBAC.'
+        )
         raise ValueError(msg)
 
     return True

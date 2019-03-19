@@ -40,17 +40,7 @@ from st2common.util.jsonify import json_encode
 from st2common.util.jsonify import get_json_type_for_python_value
 from st2common.util.http import parse_content_type_header
 
-__all__ = [
-    'Router',
-
-    'Response',
-
-    'NotFoundException',
-
-    'abort',
-    'abort_unauthorized',
-    'exc'
-]
+__all__ = ['Router', 'Response', 'NotFoundException', 'abort', 'abort_unauthorized', 'exc']
 
 LOG = logging.getLogger(__name__)
 
@@ -89,14 +79,10 @@ def extend_with_default(validator_class):
             if "default" in subschema:
                 instance.setdefault(property, subschema["default"])
 
-        for error in validate_properties(
-            validator, properties, instance, schema,
-        ):
+        for error in validate_properties(validator, properties, instance, schema):
             yield error
 
-    return jsonschema.validators.extend(
-        validator_class, {"properties": set_defaults},
-    )
+    return jsonschema.validators.extend(validator_class, {"properties": set_defaults})
 
 
 def extend_with_additional_check(validator_class):
@@ -107,7 +93,7 @@ def extend_with_additional_check(validator_class):
             yield error
 
     return jsonschema.validators.extend(
-        validator_class, {"x-additional-check": set_additional_check},
+        validator_class, {"x-additional-check": set_additional_check}
     )
 
 
@@ -123,9 +109,7 @@ def extend_with_nullable(validator_class):
         for error in validate_type(validator, types, instance, schema):
             yield error
 
-    return jsonschema.validators.extend(
-        validator_class, {"type": set_type_draft4},
-    )
+    return jsonschema.validators.extend(validator_class, {"type": set_type_draft4})
 
 
 CustomValidator = jsonschema.Draft4Validator
@@ -139,8 +123,16 @@ class NotFoundException(Exception):
 
 
 class Response(webob.Response):
-    def __init__(self, body=None, status=None, headerlist=None, app_iter=None, content_type=None,
-                 *args, **kwargs):
+    def __init__(
+        self,
+        body=None,
+        status=None,
+        headerlist=None,
+        app_iter=None,
+        content_type=None,
+        *args,
+        **kwargs
+    ):
         # Do some sanity checking, and turn json_body into an actual body
         if app_iter is None and body is None and ('json_body' in kwargs or 'json' in kwargs):
             if 'json_body' in kwargs:
@@ -152,8 +144,9 @@ class Response(webob.Response):
             if content_type is None:
                 content_type = 'application/json'
 
-        super(Response, self).__init__(body, status, headerlist, app_iter, content_type,
-                                       *args, **kwargs)
+        super(Response, self).__init__(
+            body, status, headerlist, app_iter, content_type, *args, **kwargs
+        )
 
     def _json_body__get(self):
         return super(Response, self)._json_body__get()
@@ -194,16 +187,15 @@ class Router(object):
                     continue
 
                 for (method, endpoint) in six.iteritems(methods):
-                    conditions = {
-                        'method': [method.upper()]
-                    }
+                    conditions = {'method': [method.upper()]}
 
                     connect_kw = {}
                     if 'x-requirements' in endpoint:
                         connect_kw['requirements'] = endpoint['x-requirements']
 
-                    m = self.routes.submapper(_api_path=path, _api_method=method,
-                                              conditions=conditions)
+                    m = self.routes.submapper(
+                        _api_path=path, _api_method=method, conditions=conditions
+                    )
                     for transform in transforms[filter]:
                         m.connect(None, re.sub(filter, transform, path), **connect_kw)
 
@@ -293,7 +285,7 @@ class Router(object):
                             context['user'] = User.get_by_name(auth_resp.user)
                             context['auth_info'] = {
                                 'method': auth_method,
-                                'location': definition['in']
+                                'location': definition['in'],
                             }
 
                             # Also include token expiration time when authenticated via auth token
@@ -302,17 +294,18 @@ class Router(object):
 
                             if 'x-set-cookie' in definition:
                                 max_age = auth_resp.expiry - date_utils.get_datetime_utc_now()
-                                cookie_token = cookies.make_cookie(definition['x-set-cookie'],
-                                                                   token,
-                                                                   max_age=max_age,
-                                                                   httponly=True)
+                                cookie_token = cookies.make_cookie(
+                                    definition['x-set-cookie'],
+                                    token,
+                                    max_age=max_age,
+                                    httponly=True,
+                                )
 
                             break
 
                 if 'user' not in context:
                     raise auth_exc.NoAuthSourceProvidedError('One of Token or API key required.')
-            except (auth_exc.NoAuthSourceProvidedError,
-                    auth_exc.MultipleAuthSourcesError) as e:
+            except (auth_exc.NoAuthSourceProvidedError, auth_exc.MultipleAuthSourcesError) as e:
                 LOG.error(six.text_type(e))
                 return abort_unauthorized(six.text_type(e))
             except auth_exc.TokenNotProvidedError as e:
@@ -343,8 +336,7 @@ class Router(object):
                     has_permission = resolver.user_has_permission(user_db, permission_type)
 
                     if not has_permission:
-                        raise rbac_exc.ResourceTypeAccessDeniedError(user_db,
-                                                                     permission_type)
+                        raise rbac_exc.ResourceTypeAccessDeniedError(user_db, permission_type)
 
         # Collect parameters
         kw = {}
@@ -383,8 +375,10 @@ class Router(object):
                 if not self.is_gunicorn and content_type == 'text/plain':
                     operation_id = endpoint['operationId']
 
-                    if ('workflow_inspection_controller' not in operation_id and
-                            'mistral_validation_controller' not in operation_id):
+                    if (
+                        'workflow_inspection_controller' not in operation_id
+                        and 'mistral_validation_controller' not in operation_id
+                    ):
                         content_type = 'application/json'
 
                 # Note: We also want to perform validation if no body is explicitly provided - in a
@@ -397,8 +391,10 @@ class Router(object):
                         data = req.json
                     elif content_type == 'text/plain':
                         data = req.body
-                    elif content_type in ['application/x-www-form-urlencoded',
-                                          'multipart/form-data']:
+                    elif content_type in [
+                        'application/x-www-form-urlencoded',
+                        'multipart/form-data',
+                    ]:
                         data = urlparse.parse_qs(req.body)
                     else:
                         raise ValueError('Unsupported Content-Type: "%s"' % (content_type))
@@ -414,12 +410,15 @@ class Router(object):
                 try:
                     CustomValidator(schema, resolver=self.spec_resolver).validate(data)
                 except (jsonschema.ValidationError, ValueError) as e:
-                    raise exc.HTTPBadRequest(detail=getattr(e, 'message', six.text_type(e)),
-                                             comment=traceback.format_exc())
+                    raise exc.HTTPBadRequest(
+                        detail=getattr(e, 'message', six.text_type(e)),
+                        comment=traceback.format_exc(),
+                    )
 
                 if content_type == 'text/plain':
                     kw[argument_name] = data
                 else:
+
                     class Body(object):
                         def __init__(self, **entries):
                             self.__dict__.update(entries)
@@ -448,11 +447,15 @@ class Router(object):
                         try:
                             instance = instance.validate()
                         except (jsonschema.ValidationError, ValueError) as e:
-                            raise exc.HTTPBadRequest(detail=getattr(e, 'message', six.text_type(e)),
-                                                     comment=traceback.format_exc())
+                            raise exc.HTTPBadRequest(
+                                detail=getattr(e, 'message', six.text_type(e)),
+                                comment=traceback.format_exc(),
+                            )
                     else:
-                        LOG.debug('Missing x-api-model definition for %s, using generic Body '
-                                  'model.' % (endpoint['operationId']))
+                        LOG.debug(
+                            'Missing x-api-model definition for %s, using generic Body '
+                            'model.' % (endpoint['operationId'])
+                        )
                         model = Body
                         instance = self._get_model_instance(model_cls=model, data=data)
 
@@ -505,15 +508,19 @@ class Router(object):
         try:
             controller_instance, func = op_resolver(endpoint['operationId'])
         except Exception as e:
-            LOG.exception('Failed to load controller for operation "%s": %s' %
-                          (endpoint['operationId'], six.text_type(e)))
+            LOG.exception(
+                'Failed to load controller for operation "%s": %s'
+                % (endpoint['operationId'], six.text_type(e))
+            )
             raise e
 
         try:
             resp = func(**kw)
         except Exception as e:
-            LOG.exception('Failed to call controller function "%s" for operation "%s": %s' %
-                          (func.__name__, endpoint['operationId'], six.text_type(e)))
+            LOG.exception(
+                'Failed to call controller function "%s" for operation "%s": %s'
+                % (func.__name__, endpoint['operationId'], six.text_type(e))
+            )
             raise e
 
         # Handle response
@@ -532,18 +539,22 @@ class Router(object):
         has_include_or_exclude_attributes = bool(include_attributes) or bool(exclude_attributes)
 
         # NOTE: We do NOT want to process stream controller response
-        is_streamming_controller = endpoint.get('x-is-streaming-endpoint',
-                                                bool('st2stream' in operation_id))
+        is_streamming_controller = endpoint.get(
+            'x-is-streaming-endpoint', bool('st2stream' in operation_id)
+        )
 
         if not is_streamming_controller and resp.body and has_include_or_exclude_attributes:
             # NOTE: We need to check for response.body attribute since resp.json throws if JSON
             # response is not available
-            mandatory_include_fields = getattr(controller_instance,
-                                               'mandatory_include_fields_response', [])
-            data = self._process_response(data=resp.json,
-                                          mandatory_include_fields=mandatory_include_fields,
-                                          include_attributes=include_attributes,
-                                          exclude_attributes=exclude_attributes)
+            mandatory_include_fields = getattr(
+                controller_instance, 'mandatory_include_fields_response', []
+            )
+            data = self._process_response(
+                data=resp.json,
+                mandatory_include_fields=mandatory_include_fields,
+                include_attributes=include_attributes,
+                exclude_attributes=exclude_attributes,
+            )
             resp.json = data
 
         responses = endpoint.get('responses', {})
@@ -551,8 +562,10 @@ class Router(object):
         default_response_spec = responses.get('default', None)
 
         if not response_spec and default_response_spec:
-            LOG.debug('No custom response spec found for endpoint "%s", using a default one' %
-                      (endpoint['operationId']))
+            LOG.debug(
+                'No custom response spec found for endpoint "%s", using a default one'
+                % (endpoint['operationId'])
+            )
             response_spec_name = 'default'
         else:
             response_spec_name = str(resp.status_code)
@@ -562,8 +575,10 @@ class Router(object):
         if response_spec and 'schema' in response_spec and not has_include_or_exclude_attributes:
             # NOTE: We don't perform response validation when include or exclude attributes are
             # provided because this means partial response which likely won't pass the validation
-            LOG.debug('Using response spec "%s" for endpoint %s and status code %s' %
-                     (response_spec_name, endpoint['operationId'], resp.status_code))
+            LOG.debug(
+                'Using response spec "%s" for endpoint %s and status code %s'
+                % (response_spec_name, endpoint['operationId'], resp.status_code)
+            )
 
             try:
                 validator = CustomValidator(response_spec['schema'], resolver=self.spec_resolver)
@@ -599,15 +614,16 @@ class Router(object):
             # Throw a more user-friendly exception when input data is not an object
             if 'type object argument after ** must be a mapping, not' in six.text_type(e):
                 type_string = get_json_type_for_python_value(data)
-                msg = ('Input body needs to be an object, got: %s' % (type_string))
+                msg = 'Input body needs to be an object, got: %s' % (type_string)
                 raise ValueError(msg)
 
             raise e
 
         return instance
 
-    def _process_response(self, data, mandatory_include_fields=None, include_attributes=None,
-                          exclude_attributes=None):
+    def _process_response(
+        self, data, mandatory_include_fields=None, include_attributes=None, exclude_attributes=None
+    ):
         """
         Process controller response data such as removing attributes based on the values of
         exclude_attributes and include_attributes query param filters and similar.
@@ -621,8 +637,10 @@ class Router(object):
 
         # NOTE: include_attributes and exclude_attributes are mutually exclusive
         if include_attributes and exclude_attributes:
-            msg = ('exclude_attributes and include_attributes arguments are mutually exclusive. '
-                   'You need to provide either one or another, but not both.')
+            msg = (
+                'exclude_attributes and include_attributes arguments are mutually exclusive. '
+                'You need to provide either one or another, but not both.'
+            )
             raise ValueError(msg)
 
         #  Common case - filters are not provided

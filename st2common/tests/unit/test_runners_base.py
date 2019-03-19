@@ -33,8 +33,9 @@ class RunnersLoaderUtilsTestCase(DbTestCase):
 
     def test_get_runner_failure_not_found(self):
         expected_msg = 'Failed to find runner invalid-name-not-found.*'
-        self.assertRaisesRegexp(ActionRunnerCreateError, expected_msg,
-                                get_runner, 'invalid-name-not-found')
+        self.assertRaisesRegexp(
+            ActionRunnerCreateError, expected_msg, get_runner, 'invalid-name-not-found'
+        )
 
     def test_get_query_module_success(self):
         query_module = get_query_module('mistral-v2')
@@ -44,8 +45,7 @@ class RunnersLoaderUtilsTestCase(DbTestCase):
 
     def test_get_query_module_failure_not_found(self):
         expected_msg = 'No .*? driver found.*'
-        self.assertRaisesRegexp(NoMatches, expected_msg,
-                                get_query_module, 'invalid-name-not-found')
+        self.assertRaisesRegexp(NoMatches, expected_msg, get_query_module, 'invalid-name-not-found')
 
     def test_get_callback_module_success(self):
         callback_module = get_callback_module('mistral-v2')
@@ -55,5 +55,6 @@ class RunnersLoaderUtilsTestCase(DbTestCase):
 
     def test_get_callback_module_failure_not_found(self):
         expected_msg = 'No .*? driver found.*'
-        self.assertRaisesRegexp(NoMatches, expected_msg,
-                                get_callback_module, 'invalid-name-not-found')
+        self.assertRaisesRegexp(
+            NoMatches, expected_msg, get_callback_module, 'invalid-name-not-found'
+        )

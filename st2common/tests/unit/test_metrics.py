@@ -33,7 +33,7 @@ __all__ = [
     'TestStatsDMetricsDriver',
     'TestCounterContextManager',
     'TestTimerContextManager',
-    'TestCounterWithTimerContextManager'
+    'TestCounterWithTimerContextManager',
 ]
 
 cfg.CONF.set_override('driver', 'noop', group='metrics')
@@ -67,9 +67,7 @@ class TestStatsDMetricsDriver(unittest2.TestCase):
         self._driver = StatsdDriver()
 
         statsd.Connection.set_defaults.assert_called_once_with(
-            host=cfg.CONF.metrics.host,
-            port=cfg.CONF.metrics.port,
-            sample_rate=1.0
+            host=cfg.CONF.metrics.host, port=cfg.CONF.metrics.port, sample_rate=1.0
         )
 
     @patch('st2common.metrics.drivers.statsd_driver.statsd')
@@ -267,37 +265,23 @@ class TestTimerContextManager(unittest2.TestCase):
         start_time = get_datetime_utc_now()
         middle_time = start_time + timedelta(seconds=1)
         end_time = middle_time + timedelta(seconds=1)
-        datetime_patch.side_effect = [
-            start_time,
-            middle_time,
-            middle_time,
-            middle_time,
-            end_time
-        ]
+        datetime_patch.side_effect = [start_time, middle_time, middle_time, middle_time, end_time]
         test_key = "test_key"
         with base.Timer(test_key) as timer:
             self.assertTrue(isinstance(timer._start_time, datetime))
             metrics_patch.time.assert_not_called()
             timer.send_time()
             metrics_patch.time.assert_called_with(
-                test_key,
-                (end_time - middle_time).total_seconds()
+                test_key, (end_time - middle_time).total_seconds()
             )
             second_test_key = "lakshmi_has_toes"
             timer.send_time(second_test_key)
             metrics_patch.time.assert_called_with(
-                second_test_key,
-                (end_time - middle_time).total_seconds()
+                second_test_key, (end_time - middle_time).total_seconds()
             )
             time_delta = timer.get_time_delta()
-            self.assertEquals(
-                time_delta.total_seconds(),
-                (end_time - middle_time).total_seconds()
-            )
-        metrics_patch.time.assert_called_with(
-            test_key,
-            (end_time - start_time).total_seconds()
-        )
+            self.assertEquals(time_delta.total_seconds(), (end_time - middle_time).total_seconds())
+        metrics_patch.time.assert_called_with(test_key, (end_time - start_time).total_seconds())
 
 
 class TestCounterWithTimerContextManager(unittest2.TestCase):
@@ -314,32 +298,29 @@ class TestCounterWithTimerContextManager(unittest2.TestCase):
             self.middle_time,
             self.middle_time,
             self.middle_time,
-            self.end_time
+            self.end_time,
         ]
         test_key = "test_key"
         with base.CounterWithTimer(test_key) as timer:
             self.assertTrue(isinstance(timer._start_time, datetime))
             metrics_patch.time.assert_not_called()
             timer.send_time()
-            metrics_patch.time.assert_called_with(test_key,
-                (self.end_time - self.middle_time).total_seconds()
+            metrics_patch.time.assert_called_with(
+                test_key, (self.end_time - self.middle_time).total_seconds()
             )
             second_test_key = "lakshmi_has_a_nose"
             timer.send_time(second_test_key)
             metrics_patch.time.assert_called_with(
-                second_test_key,
-                (self.end_time - self.middle_time).total_seconds()
+                second_test_key, (self.end_time - self.middle_time).total_seconds()
             )
             time_delta = timer.get_time_delta()
             self.assertEquals(
-                time_delta.total_seconds(),
-                (self.end_time - self.middle_time).total_seconds()
+                time_delta.total_seconds(), (self.end_time - self.middle_time).total_seconds()
             )
             metrics_patch.inc_counter.assert_called_with(test_key)
             metrics_patch.dec_counter.assert_not_called()
         metrics_patch.time.assert_called_with(
-            test_key,
-            (self.end_time - self.start_time).total_seconds()
+            test_key, (self.end_time - self.start_time).total_seconds()
         )
 
 
@@ -350,13 +331,7 @@ class TestCounterWithTimerDecorator(unittest2.TestCase):
         start_time = get_datetime_utc_now()
         middle_time = start_time + timedelta(seconds=1)
         end_time = middle_time + timedelta(seconds=1)
-        datetime_patch.side_effect = [
-            start_time,
-            middle_time,
-            middle_time,
-            middle_time,
-            end_time
-        ]
+        datetime_patch.side_effect = [start_time, middle_time, middle_time, middle_time, end_time]
         test_key = "test_key"
 
         @base.CounterWithTimer(test_key, include_parameter=True)
@@ -364,28 +339,22 @@ class TestCounterWithTimerDecorator(unittest2.TestCase):
             self.assertTrue(isinstance(metrics_counter_with_timer._start_time, datetime))
             metrics_patch.time.assert_not_called()
             metrics_counter_with_timer.send_time()
-            metrics_patch.time.assert_called_with(test_key,
-                (end_time - middle_time).total_seconds()
+            metrics_patch.time.assert_called_with(
+                test_key, (end_time - middle_time).total_seconds()
             )
             second_test_key = "lakshmi_has_a_nose"
             metrics_counter_with_timer.send_time(second_test_key)
             metrics_patch.time.assert_called_with(
-                second_test_key,
-                (end_time - middle_time).total_seconds()
+                second_test_key, (end_time - middle_time).total_seconds()
             )
             time_delta = metrics_counter_with_timer.get_time_delta()
-            self.assertEquals(
-                time_delta.total_seconds(),
-                (end_time - middle_time).total_seconds()
-            )
+            self.assertEquals(time_delta.total_seconds(), (end_time - middle_time).total_seconds())
             metrics_patch.inc_counter.assert_called_with(test_key)
             metrics_patch.dec_counter.assert_not_called()
 
         _get_tested()
 
-        metrics_patch.time.assert_called_with(test_key,
-            (end_time - start_time).total_seconds()
-        )
+        metrics_patch.time.assert_called_with(test_key, (end_time - start_time).total_seconds())
 
 
 class TestCounterDecorator(unittest2.TestCase):
@@ -397,6 +366,7 @@ class TestCounterDecorator(unittest2.TestCase):
         def _get_tested():
             metrics_patch.inc_counter.assert_called_with(test_key)
             metrics_patch.dec_counter.assert_not_called()
+
         _get_tested()
 
 
@@ -407,13 +377,7 @@ class TestTimerDecorator(unittest2.TestCase):
         start_time = get_datetime_utc_now()
         middle_time = start_time + timedelta(seconds=1)
         end_time = middle_time + timedelta(seconds=1)
-        datetime_patch.side_effect = [
-            start_time,
-            middle_time,
-            middle_time,
-            middle_time,
-            end_time
-        ]
+        datetime_patch.side_effect = [start_time, middle_time, middle_time, middle_time, end_time]
         test_key = "test_key"
 
         @base.Timer(test_key, include_parameter=True)
@@ -422,22 +386,15 @@ class TestTimerDecorator(unittest2.TestCase):
             metrics_patch.time.assert_not_called()
             metrics_timer.send_time()
             metrics_patch.time.assert_called_with(
-                test_key,
-                (end_time - middle_time).total_seconds()
+                test_key, (end_time - middle_time).total_seconds()
             )
             second_test_key = "lakshmi_has_toes"
             metrics_timer.send_time(second_test_key)
             metrics_patch.time.assert_called_with(
-                second_test_key,
-                (end_time - middle_time).total_seconds()
+                second_test_key, (end_time - middle_time).total_seconds()
             )
             time_delta = metrics_timer.get_time_delta()
-            self.assertEquals(
-                time_delta.total_seconds(),
-                (end_time - middle_time).total_seconds()
-            )
+            self.assertEquals(time_delta.total_seconds(), (end_time - middle_time).total_seconds())
+
         _get_tested()
-        metrics_patch.time.assert_called_with(
-            test_key,
-            (end_time - start_time).total_seconds()
-        )
+        metrics_patch.time.assert_called_with(test_key, (end_time - start_time).total_seconds())

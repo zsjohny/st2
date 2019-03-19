@@ -42,16 +42,15 @@ from st2common.garbage_collection.executions import purge_execution_output_objec
 from st2common.garbage_collection.inquiries import purge_inquiries
 from st2common.garbage_collection.trigger_instances import purge_trigger_instances
 
-__all__ = [
-    'GarbageCollectorService'
-]
+__all__ = ['GarbageCollectorService']
 
 LOG = logging.getLogger(__name__)
 
 
 class GarbageCollectorService(object):
-    def __init__(self, collection_interval=DEFAULT_COLLECTION_INTERVAL,
-                 sleep_delay=DEFAULT_SLEEP_DELAY):
+    def __init__(
+        self, collection_interval=DEFAULT_COLLECTION_INTERVAL, sleep_delay=DEFAULT_SLEEP_DELAY
+    ):
         """
         :param collection_interval: How often to check database for old data and perform garbage
                collection.
@@ -108,8 +107,10 @@ class GarbageCollectorService(object):
         while self._running:
             self._perform_garbage_collection()
 
-            LOG.info('Sleeping for %s seconds before next garbage collection...' %
-                     (self._collection_interval))
+            LOG.info(
+                'Sleeping for %s seconds before next garbage collection...'
+                % (self._collection_interval)
+            )
             eventlet.sleep(self._collection_interval)
 
     def _validate_ttl_values(self):
@@ -117,17 +118,23 @@ class GarbageCollectorService(object):
         Validate that a user has supplied reasonable TTL values.
         """
         if self._action_executions_ttl and self._action_executions_ttl < MINIMUM_TTL_DAYS:
-            raise ValueError('Minimum possible TTL for action_executions_ttl in days is %s' %
-                             (MINIMUM_TTL_DAYS))
+            raise ValueError(
+                'Minimum possible TTL for action_executions_ttl in days is %s' % (MINIMUM_TTL_DAYS)
+            )
 
         if self._trigger_instances_ttl and self._trigger_instances_ttl < MINIMUM_TTL_DAYS:
-            raise ValueError('Minimum possible TTL for trigger_instances_ttl in days is %s' %
-                             (MINIMUM_TTL_DAYS))
+            raise ValueError(
+                'Minimum possible TTL for trigger_instances_ttl in days is %s' % (MINIMUM_TTL_DAYS)
+            )
 
-        if self._action_executions_output_ttl and \
-                self._action_executions_output_ttl < MINIMUM_TTL_DAYS_EXECUTION_OUTPUT:
-            raise ValueError(('Minimum possible TTL for action_executions_output_ttl in days '
-                              'is %s') % (MINIMUM_TTL_DAYS_EXECUTION_OUTPUT))
+        if (
+            self._action_executions_output_ttl
+            and self._action_executions_output_ttl < MINIMUM_TTL_DAYS_EXECUTION_OUTPUT
+        ):
+            raise ValueError(
+                ('Minimum possible TTL for action_executions_output_ttl in days ' 'is %s')
+                % (MINIMUM_TTL_DAYS_EXECUTION_OUTPUT)
+            )
 
     def _perform_garbage_collection(self):
         LOG.info('Performing garbage collection...')
@@ -138,30 +145,35 @@ class GarbageCollectorService(object):
             self._purge_action_executions()
             eventlet.sleep(self._sleep_delay)
         else:
-            LOG.debug('Skipping garbage collection for action executions since it\'s not '
-                      'configured')
+            LOG.debug(
+                'Skipping garbage collection for action executions since it\'s not ' 'configured'
+            )
 
-        if self._action_executions_output_ttl and \
-                self._action_executions_output_ttl >= MINIMUM_TTL_DAYS_EXECUTION_OUTPUT:
+        if (
+            self._action_executions_output_ttl
+            and self._action_executions_output_ttl >= MINIMUM_TTL_DAYS_EXECUTION_OUTPUT
+        ):
             self._purge_action_executions_output()
             eventlet.sleep(self._sleep_delay)
         else:
-            LOG.debug('Skipping garbage collection for action executions output since it\'s not '
-                      'configured')
+            LOG.debug(
+                'Skipping garbage collection for action executions output since it\'s not '
+                'configured'
+            )
 
         if self._trigger_instances_ttl and self._trigger_instances_ttl >= MINIMUM_TTL_DAYS:
             self._purge_trigger_instances()
             eventlet.sleep(self._sleep_delay)
         else:
-            LOG.debug('Skipping garbage collection for trigger instances since it\'s not '
-                      'configured')
+            LOG.debug(
+                'Skipping garbage collection for trigger instances since it\'s not ' 'configured'
+            )
 
         if self._purge_inquiries:
             self._timeout_inquiries()
             eventlet.sleep(self._sleep_delay)
         else:
-            LOG.debug('Skipping garbage collection for Inquiries since it\'s not '
-                      'configured')
+            LOG.debug('Skipping garbage collection for Inquiries since it\'s not ' 'configured')
 
     def _purge_action_executions(self):
         """
@@ -171,7 +183,7 @@ class GarbageCollectorService(object):
         LOG.info('Performing garbage collection for action executions and related objects')
 
         utc_now = get_datetime_utc_now()
-        timestamp = (utc_now - datetime.timedelta(days=self._action_executions_ttl))
+        timestamp = utc_now - datetime.timedelta(days=self._action_executions_ttl)
 
         # Another sanity check to make sure we don't delete new executions
         if timestamp > (utc_now - datetime.timedelta(days=MINIMUM_TTL_DAYS)):
@@ -193,7 +205,7 @@ class GarbageCollectorService(object):
         LOG.info('Performing garbage collection for action executions output objects')
 
         utc_now = get_datetime_utc_now()
-        timestamp = (utc_now - datetime.timedelta(days=self._action_executions_output_ttl))
+        timestamp = utc_now - datetime.timedelta(days=self._action_executions_output_ttl)
 
         # Another sanity check to make sure we don't delete new objects
         if timestamp > (utc_now - datetime.timedelta(days=MINIMUM_TTL_DAYS_EXECUTION_OUTPUT)):
@@ -218,7 +230,7 @@ class GarbageCollectorService(object):
         LOG.info('Performing garbage collection for trigger instances')
 
         utc_now = get_datetime_utc_now()
-        timestamp = (utc_now - datetime.timedelta(days=self._trigger_instances_ttl))
+        timestamp = utc_now - datetime.timedelta(days=self._trigger_instances_ttl)
 
         # Another sanity check to make sure we don't delete new executions
         if timestamp > (utc_now - datetime.timedelta(days=MINIMUM_TTL_DAYS)):

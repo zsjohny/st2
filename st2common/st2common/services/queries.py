@@ -31,7 +31,7 @@ def setup_query(liveaction_id, runnertype_db, query_context):
     state_db = ActionExecutionStateDB(
         execution_id=liveaction_id,
         query_module=runnertype_db.query_module,
-        query_context=query_context
+        query_context=query_context,
     )
 
     ActionExecutionState.add_or_update(state_db)

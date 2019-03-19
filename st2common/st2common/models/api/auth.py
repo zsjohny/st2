@@ -36,13 +36,8 @@ class UserAPI(BaseAPI):
     schema = {
         "title": "User",
         "type": "object",
-        "properties": {
-            "name": {
-                "type": "string",
-                "required": True
-            }
-        },
-        "additionalProperties": False
+        "properties": {"name": {"type": "string", "required": True}},
+        "additionalProperties": False,
     }
 
     @classmethod
@@ -58,28 +53,14 @@ class TokenAPI(BaseAPI):
         "title": "Token",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string"
-            },
-            "user": {
-                "type": ["string", "null"]
-            },
-            "token": {
-                "type": ["string", "null"]
-            },
-            "ttl": {
-                "type": "integer",
-                "minimum": 1
-            },
-            "expiry": {
-                "type": ["string", "null"],
-                "pattern": isotime.ISO8601_UTC_REGEX
-            },
-            "metadata": {
-                "type": ["object", "null"]
-            }
+            "id": {"type": "string"},
+            "user": {"type": ["string", "null"]},
+            "token": {"type": ["string", "null"]},
+            "ttl": {"type": "integer", "minimum": 1},
+            "expiry": {"type": ["string", "null"], "pattern": isotime.ISO8601_UTC_REGEX},
+            "metadata": {"type": ["object", "null"]},
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
@@ -104,41 +85,31 @@ class ApiKeyAPI(BaseAPI, APIUIDMixin):
         "title": "ApiKey",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string"
-            },
-            "uid": {
-                "type": "string"
-            },
-            "user": {
-                "type": ["string", "null"],
-                "default": ""
-            },
-            "key_hash": {
-                "type": ["string", "null"]
-            },
-            "metadata": {
-                "type": ["object", "null"]
-            },
+            "id": {"type": "string"},
+            "uid": {"type": "string"},
+            "user": {"type": ["string", "null"], "default": ""},
+            "key_hash": {"type": ["string", "null"]},
+            "metadata": {"type": ["object", "null"]},
             'created_at': {
                 'description': 'The start time when the action is executed.',
                 'type': 'string',
-                'pattern': isotime.ISO8601_UTC_REGEX
+                'pattern': isotime.ISO8601_UTC_REGEX,
             },
             "enabled": {
                 "description": "Enable or disable the action from invocation.",
                 "type": "boolean",
-                "default": True
-            }
+                "default": True,
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
     def from_model(cls, model, mask_secrets=False):
         doc = super(cls, cls)._from_model(model, mask_secrets=mask_secrets)
-        doc['created_at'] = isotime.format(model.created_at, offset=False) if model.created_at \
-            else None
+        doc['created_at'] = (
+            isotime.format(model.created_at, offset=False) if model.created_at else None
+        )
         return cls(**doc)
 
     @classmethod
@@ -158,42 +129,32 @@ class ApiKeyCreateResponseAPI(BaseAPI):
         "title": "APIKeyCreateResponse",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string"
-            },
-            "uid": {
-                "type": "string"
-            },
-            "user": {
-                "type": ["string", "null"],
-                "default": ""
-            },
-            "key": {
-                "type": ["string", "null"]
-            },
-            "metadata": {
-                "type": ["object", "null"]
-            },
+            "id": {"type": "string"},
+            "uid": {"type": "string"},
+            "user": {"type": ["string", "null"], "default": ""},
+            "key": {"type": ["string", "null"]},
+            "metadata": {"type": ["object", "null"]},
             'created_at': {
                 'description': 'The start time when the action is executed.',
                 'type': 'string',
-                'pattern': isotime.ISO8601_UTC_REGEX
+                'pattern': isotime.ISO8601_UTC_REGEX,
             },
             "enabled": {
                 "description": "Enable or disable the action from invocation.",
                 "type": "boolean",
-                "default": True
-            }
+                "default": True,
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
     def from_model(cls, model, mask_secrets=False):
         doc = cls._from_model(model=model, mask_secrets=mask_secrets)
         attrs = {attr: value for attr, value in six.iteritems(doc) if value is not None}
-        attrs['created_at'] = isotime.format(model.created_at, offset=False) if model.created_at \
-            else None
+        attrs['created_at'] = (
+            isotime.format(model.created_at, offset=False) if model.created_at else None
+        )
         # key_hash is ignored.
         attrs.pop('key_hash', None)
         # key is unknown so the calling code will have to update after conversion.

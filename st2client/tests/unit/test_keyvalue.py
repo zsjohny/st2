@@ -28,19 +28,14 @@ from st2client import shell
 
 LOG = logging.getLogger(__name__)
 
-KEYVALUE = {
-    'id': 'kv_name',
-    'name': 'kv_name.',
-    'value': 'super cool value',
-    'scope': 'system'
-}
+KEYVALUE = {'id': 'kv_name', 'name': 'kv_name.', 'value': 'super cool value', 'scope': 'system'}
 
 KEYVALUE_USER = {
     'id': 'kv_name',
     'name': 'kv_name.',
     'value': 'super cool value',
     'scope': 'system',
-    'user': 'stanley'
+    'user': 'stanley',
 }
 
 KEYVALUE_SECRET = {
@@ -48,7 +43,7 @@ KEYVALUE_SECRET = {
     'name': 'kv_name.',
     'value': 'super cool value',
     'scope': 'system',
-    'secret': True
+    'secret': True,
 }
 
 KEYVALUE_PRE_ENCRYPTED = {
@@ -57,7 +52,7 @@ KEYVALUE_PRE_ENCRYPTED = {
     'value': 'AAABBBCCC1234',
     'scope': 'system',
     'encrypted': True,
-    'secret': True
+    'secret': True,
 }
 
 KEYVALUE_TTL = {
@@ -65,7 +60,7 @@ KEYVALUE_TTL = {
     'name': 'kv_name.',
     'value': 'super cool value',
     'scope': 'system',
-    'ttl': 100
+    'ttl': 100,
 }
 
 KEYVALUE_OBJECT = {
@@ -83,18 +78,12 @@ KEYVALUE_ALL = {
     'user': 'stanley',
     'secret': True,
     'encrypted': True,
-    'ttl': 100
+    'ttl': 100,
 }
 
-KEYVALUE_MISSING_NAME = {
-    'id': 'kv_name',
-    'value': 'super cool value'
-}
+KEYVALUE_MISSING_NAME = {'id': 'kv_name', 'value': 'super cool value'}
 
-KEYVALUE_MISSING_VALUE = {
-    'id': 'kv_name',
-    'name': 'kv_name.'
-}
+KEYVALUE_MISSING_VALUE = {'id': 'kv_name', 'name': 'kv_name.'}
 
 
 class TestKeyValueBase(base.BaseCLITestCase):
@@ -119,11 +108,13 @@ class TestKeyValueBase(base.BaseCLITestCase):
 
 
 class TestKeyValueSet(TestKeyValueBase):
-
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_PRE_ENCRYPTED), 200,
-                                                      'OK')))
+        requests,
+        'put',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps(KEYVALUE_PRE_ENCRYPTED), 200, 'OK')
+        ),
+    )
     def test_set_keyvalue(self):
         """Test setting key/value pair with optional pre_encrypted field
         """
@@ -139,15 +130,16 @@ class TestKeyValueSet(TestKeyValueBase):
         self.stderr.seek(0)
         stderr = self.stderr.read()
 
-        expected_msg = ('error: argument --encrypted: not allowed with argument -e/--encrypt')
+        expected_msg = 'error: argument --encrypted: not allowed with argument -e/--encrypt'
         self.assertTrue(expected_msg in stderr)
 
 
 class TestKeyValueLoad(TestKeyValueBase):
-
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE), 200, 'OK')),
+    )
     def test_load_keyvalue_json(self):
         """Test loading of key/value pair in JSON format
         """
@@ -164,8 +156,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE), 200, 'OK')),
+    )
     def test_load_keyvalue_yaml(self):
         """Test loading of key/value pair in YAML format
         """
@@ -182,8 +176,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_USER), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_USER), 200, 'OK')),
+    )
     def test_load_keyvalue_user(self):
         """Test loading of key/value pair with the optional user field
         """
@@ -200,8 +196,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_SECRET), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_SECRET), 200, 'OK')),
+    )
     def test_load_keyvalue_secret(self):
         """Test loading of key/value pair with the optional secret field
         """
@@ -218,9 +216,12 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_PRE_ENCRYPTED), 200,
-                                                      'OK')))
+        requests,
+        'put',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps(KEYVALUE_PRE_ENCRYPTED), 200, 'OK')
+        ),
+    )
     def test_load_keyvalue_already_encrypted(self):
         """Test loading of key/value pair with the pre-encrypted value
         """
@@ -237,8 +238,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_TTL), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_TTL), 200, 'OK')),
+    )
     def test_load_keyvalue_ttl(self):
         """Test loading of key/value pair with the optional ttl field
         """
@@ -255,8 +258,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_OBJECT), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_OBJECT), 200, 'OK')),
+    )
     def test_load_keyvalue_object(self):
         """Test loading of key/value pair where the value is an object
         """
@@ -279,8 +284,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_OBJECT), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_OBJECT), 200, 'OK')),
+    )
     def test_load_keyvalue_object_fail(self):
         """Test failure to load key/value pair where the value is an object
            and the -c/--convert option is not passed
@@ -299,8 +306,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_ALL), 200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_ALL), 200, 'OK')),
+    )
     def test_load_keyvalue_all(self):
         """Test loading of key/value pair with all optional fields
         """
@@ -317,9 +326,10 @@ class TestKeyValueLoad(TestKeyValueBase):
             os.unlink(path)
 
     @mock.patch.object(
-        requests, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_ALL),
-                                                      200, 'OK')))
+        requests,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(KEYVALUE_ALL), 200, 'OK')),
+    )
     def test_load_keyvalue_array(self):
         """Test loading an array of key/value pairs
         """

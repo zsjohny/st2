@@ -23,9 +23,7 @@ from st2common.persistence.pack import ConfigSchema
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'PackConfigSchemasController'
-]
+__all__ = ['PackConfigSchemasController']
 
 
 class PackConfigSchemasController(ResourceController):
@@ -48,11 +46,13 @@ class PackConfigSchemasController(ResourceController):
             GET /config_schema/
         """
 
-        return super(PackConfigSchemasController, self)._get_all(sort=sort,
-                                                                 offset=offset,
-                                                                 limit=limit,
-                                                                 raw_filters=raw_filters,
-                                                                 requester_user=requester_user)
+        return super(PackConfigSchemasController, self)._get_all(
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, pack_ref, requester_user):
         """

@@ -42,10 +42,14 @@ def migrate_datastore():
             if scope == SYSTEM_SCOPE:
                 scope = FULL_SYSTEM_SCOPE
 
-            new_kvp_db = KeyValuePairDB(id=kvp_id, name=kvp.name,
-                                        expire_timestamp=kvp.expire_timestamp,
-                                        value=kvp.value, secret=secret,
-                                        scope=scope)
+            new_kvp_db = KeyValuePairDB(
+                id=kvp_id,
+                name=kvp.name,
+                expire_timestamp=kvp.expire_timestamp,
+                value=kvp.value,
+                secret=secret,
+                scope=scope,
+            )
             KeyValuePair.add_or_update(new_kvp_db)
     except:
         print('ERROR: Failed migrating datastore item with name: %s' % kvp.name)

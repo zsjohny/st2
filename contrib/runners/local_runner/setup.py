@@ -34,8 +34,10 @@ apply_vagrant_workaround()
 setup(
     name='stackstorm-runner-local',
     version=__version__,
-    description=('Local Shell Command and Script action runner for StackStorm event-driven '
-                 'automation platform'),
+    description=(
+        'Local Shell Command and Script action runner for StackStorm event-driven '
+        'automation platform'
+    ),
     author='StackStorm',
     author_email='info@stackstorm.com',
     license='Apache License (2.0)',
@@ -52,6 +54,6 @@ setup(
         'st2common.runners.runner': [
             'local-shell-cmd = local_runner.local_shell_command_runner',
             'local-shell-script = local_runner.local_shell_script_runner',
-        ],
-    }
+        ]
+    },
 )

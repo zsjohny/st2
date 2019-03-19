@@ -23,12 +23,7 @@ from st2common.exceptions.db import StackStormDBObjectConflictError
 from st2common.models.system.common import ResourceReference
 
 
-__all__ = [
-    'Access',
-
-    'ContentPackResource',
-    'StatusBasedResource'
-]
+__all__ = ['Access', 'ContentPackResource', 'StatusBasedResource']
 
 LOG = logging.getLogger(__name__)
 
@@ -123,8 +118,9 @@ class Access(object):
         return cls._get_impl().aggregate(*args, **kwargs)
 
     @classmethod
-    def insert(cls, model_object, publish=True, dispatch_trigger=True,
-               log_not_unique_error_as_debug=False):
+    def insert(
+        cls, model_object, publish=True, dispatch_trigger=True, log_not_unique_error_as_debug=False
+    ):
         # Late import to avoid very expensive in-direct import (~1 second) when this function
         # is not called / used
         from mongoengine import NotUniqueError
@@ -143,8 +139,9 @@ class Access(object):
             conflict_object = cls._get_by_object(model_object)
             conflict_id = str(conflict_object.id) if conflict_object else None
             message = six.text_type(e)
-            raise StackStormDBObjectConflictError(message=message, conflict_id=conflict_id,
-                                                  model_object=model_object)
+            raise StackStormDBObjectConflictError(
+                message=message, conflict_id=conflict_id, model_object=model_object
+            )
 
         # Publish internal event on the message bus
         if publish:
@@ -163,8 +160,14 @@ class Access(object):
         return model_object
 
     @classmethod
-    def add_or_update(cls, model_object, publish=True, dispatch_trigger=True, validate=True,
-                      log_not_unique_error_as_debug=False):
+    def add_or_update(
+        cls,
+        model_object,
+        publish=True,
+        dispatch_trigger=True,
+        validate=True,
+        log_not_unique_error_as_debug=False,
+    ):
         # Late import to avoid very expensive in-direct import (~1 second) when this function
         # is not called / used
         from mongoengine import NotUniqueError
@@ -182,8 +185,9 @@ class Access(object):
             conflict_object = cls._get_by_object(model_object)
             conflict_id = str(conflict_object.id) if conflict_object else None
             message = six.text_type(e)
-            raise StackStormDBObjectConflictError(message=message, conflict_id=conflict_id,
-                                                  model_object=model_object)
+            raise StackStormDBObjectConflictError(
+                message=message, conflict_id=conflict_id, model_object=model_object
+            )
 
         is_update = str(pre_persist_id) == str(model_object.id)
 
@@ -323,9 +327,7 @@ class Access(object):
         trigger = cls._get_trigger_ref_for_operation(operation=operation)
 
         object_payload = cls.api_model_cls.from_model(model_object, mask_secrets=True).__json__()
-        payload = {
-            'object': object_payload
-        }
+        payload = {'object': object_payload}
         return cls._dispatch_trigger(operation=operation, trigger=trigger, payload=payload)
 
     @classmethod
@@ -338,15 +340,13 @@ class Access(object):
 
 
 class ContentPackResource(Access):
-
     @classmethod
     def get_by_ref(cls, ref):
         if not ref:
             return None
 
         ref_obj = ResourceReference.from_string_reference(ref=ref)
-        result = cls.query(name=ref_obj.name,
-                           pack=ref_obj.pack).first()
+        result = cls.query(name=ref_obj.name, pack=ref_obj.pack).first()
         return result
 
     @classmethod

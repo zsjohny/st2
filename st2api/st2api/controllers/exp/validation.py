@@ -33,7 +33,6 @@ http_client = six.moves.http_client
 
 
 class MistralValidationController(object):
-
     def __init__(self):
         super(MistralValidationController, self).__init__()
         self.validator = mistral_validation_utils.get_validator()

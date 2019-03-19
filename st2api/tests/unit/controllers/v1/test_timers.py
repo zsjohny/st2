@@ -42,8 +42,9 @@ class TestTimersHolder(DbTestCase):
         super(TestTimersHolder, cls).setUpClass()
 
         loader = FixturesLoader()
-        TestTimersHolder.MODELS = loader.load_fixtures(
-            fixtures_pack=PACK, fixtures_dict=FIXTURES)['triggers']
+        TestTimersHolder.MODELS = loader.load_fixtures(fixtures_pack=PACK, fixtures_dict=FIXTURES)[
+            'triggers'
+        ]
         loader.save_fixtures_to_db(fixtures_pack=PACK, fixtures_dict=FIXTURES)
 
     def test_add_trigger(self):
@@ -51,7 +52,7 @@ class TestTimersHolder(DbTestCase):
         for _, model in TestTimersHolder.MODELS.items():
             holder.add_trigger(
                 ref=ResourceReference.to_string_reference(pack=model['pack'], name=model['name']),
-                trigger=model
+                trigger=model,
             )
         self.assertEqual(len(holder._timers), 5)
 
@@ -70,7 +71,7 @@ class TestTimersHolder(DbTestCase):
         for _, model in TestTimersHolder.MODELS.items():
             holder.add_trigger(
                 ref=ResourceReference.to_string_reference(pack=model['pack'], name=model['name']),
-                trigger=model
+                trigger=model,
             )
         self.assertEqual(len(holder.get_all()), 5)
 
@@ -79,7 +80,7 @@ class TestTimersHolder(DbTestCase):
         for _, model in TestTimersHolder.MODELS.items():
             holder.add_trigger(
                 ref=ResourceReference.to_string_reference(pack=model['pack'], name=model['name']),
-                trigger=model
+                trigger=model,
             )
         self.assertEqual(len(holder.get_all(timer_type=INTERVAL_TIMER_TRIGGER_REF)), 3)
         self.assertEqual(len(holder.get_all(timer_type=DATE_TIMER_TRIGGER_REF)), 1)
@@ -95,7 +96,8 @@ class TestTimersController(FunctionalTest, DbTestCase):
 
         loader = FixturesLoader()
         TestTimersController.MODELS = loader.save_fixtures_to_db(
-            fixtures_pack=PACK, fixtures_dict=FIXTURES)['triggers']
+            fixtures_pack=PACK, fixtures_dict=FIXTURES
+        )['triggers']
 
     def test_timerscontroller_get_one_with_id(self):
         model = TestTimersController.MODELS['interval1.yaml']

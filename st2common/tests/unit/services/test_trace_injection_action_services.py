@@ -27,7 +27,7 @@ TEST_MODELS = {
     'executions': ['traceable_execution.yaml'],
     'liveactions': ['traceable_liveaction.yaml'],
     'actions': ['chain1.yaml'],
-    'runners': ['actionchain.yaml']
+    'runners': ['actionchain.yaml'],
 }
 
 
@@ -41,8 +41,9 @@ class TraceInjectionTests(DbTestCase):
     @classmethod
     def setUpClass(cls):
         super(TraceInjectionTests, cls).setUpClass()
-        cls.models = FixturesLoader().save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                          fixtures_dict=TEST_MODELS)
+        cls.models = FixturesLoader().save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_MODELS
+        )
 
         cls.traceable_liveaction = cls.models['liveactions']['traceable_liveaction.yaml']
         cls.traceable_execution = cls.models['executions']['traceable_execution.yaml']
@@ -77,8 +78,9 @@ class TraceInjectionTests(DbTestCase):
         self.assertEqual(len(liveactions), 1)  # fixtures loads it.
         self.traceable_liveaction['context']['trace_context'] = {'id_': 'balleilaka'}
 
-        self.assertRaises(TraceNotFoundException, action_services.request,
-                          self.traceable_liveaction)
+        self.assertRaises(
+            TraceNotFoundException, action_services.request, self.traceable_liveaction
+        )
 
         # Make sure no liveactions are left behind
         liveactions = LiveAction.get_all()

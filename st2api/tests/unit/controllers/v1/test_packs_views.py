@@ -48,7 +48,7 @@ class PacksViewsControllerTestCase(FunctionalTest):
             'icon.png',
             'etc/permissions.png',
             'etc/travisci.png',
-            'etc/generate_new_token.png'
+            'etc/generate_new_token.png',
         ]
 
         pack_db = Pack.get_by_ref('dummy_pack_1')
@@ -96,22 +96,29 @@ class PacksViewsControllerTestCase(FunctionalTest):
         self.assertTrue(b'name : dummy_pack_1' in resp.body)
 
         # Confirm NOT_MODIFIED
-        resp = self.app.get('/v1/packs/views/file/dummy_pack_1/pack.yaml',
-                            headers={'If-None-Match': resp.headers['ETag']})
+        resp = self.app.get(
+            '/v1/packs/views/file/dummy_pack_1/pack.yaml',
+            headers={'If-None-Match': resp.headers['ETag']},
+        )
         self.assertEqual(resp.status_code, http_client.NOT_MODIFIED)
 
-        resp = self.app.get('/v1/packs/views/file/dummy_pack_1/pack.yaml',
-                            headers={'If-Modified-Since': resp.headers['Last-Modified']})
+        resp = self.app.get(
+            '/v1/packs/views/file/dummy_pack_1/pack.yaml',
+            headers={'If-Modified-Since': resp.headers['Last-Modified']},
+        )
         self.assertEqual(resp.status_code, http_client.NOT_MODIFIED)
 
         # Confirm value is returned if header do not match
-        resp = self.app.get('/v1/packs/views/file/dummy_pack_1/pack.yaml',
-                            headers={'If-None-Match': 'ETAG'})
+        resp = self.app.get(
+            '/v1/packs/views/file/dummy_pack_1/pack.yaml', headers={'If-None-Match': 'ETAG'}
+        )
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertTrue(b'name : dummy_pack_1' in resp.body)
 
-        resp = self.app.get('/v1/packs/views/file/dummy_pack_1/pack.yaml',
-                            headers={'If-Modified-Since': 'Last-Modified'})
+        resp = self.app.get(
+            '/v1/packs/views/file/dummy_pack_1/pack.yaml',
+            headers={'If-Modified-Since': 'Last-Modified'},
+        )
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertTrue(b'name : dummy_pack_1' in resp.body)
 

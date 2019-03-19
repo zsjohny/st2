@@ -27,7 +27,6 @@ from six.moves import range
 
 
 class TestPersistence(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestPersistence, cls).setUpClass()
@@ -83,8 +82,9 @@ class TestPersistence(DbTestCase):
         self.assertEqual(obj1.id, obj2.id)
         self.assertEqual(obj1.name, obj2.name)
         self.assertDictEqual(obj1.context, obj2.context)
-        self.assertRaises(StackStormDBObjectNotFoundError,
-                          self.access.get_by_id, str(bson.ObjectId()))
+        self.assertRaises(
+            StackStormDBObjectNotFoundError, self.access.get_by_id, str(bson.ObjectId())
+        )
 
     def test_query_by_name(self):
         obj1 = FakeModelDB(name=uuid.uuid4().hex, context={'user': 'system'})
@@ -94,8 +94,9 @@ class TestPersistence(DbTestCase):
         self.assertEqual(obj1.id, obj2.id)
         self.assertEqual(obj1.name, obj2.name)
         self.assertDictEqual(obj1.context, obj2.context)
-        self.assertRaises(StackStormDBObjectNotFoundError, self.access.get_by_name,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            StackStormDBObjectNotFoundError, self.access.get_by_name, uuid.uuid4().hex
+        )
 
     def test_query_filter(self):
         obj1 = FakeModelDB(name=uuid.uuid4().hex, context={'user': 'system'})
@@ -151,16 +152,18 @@ class TestPersistence(DbTestCase):
         for user in users:
             context = {'user': user}
             for i in range(count):
-                self.access.add_or_update(FakeModelDB(name=uuid.uuid4().hex,
-                                                      context=context, index=i))
+                self.access.add_or_update(
+                    FakeModelDB(name=uuid.uuid4().hex, context=context, index=i)
+                )
 
         self.assertEqual(self.access.count(), len(users) * count)
 
         for user in users:
             for i in range(pages):
                 offset = i * page_size
-                objs = self.access.query(context__user=user, order_by=['index'],
-                                         offset=offset, limit=page_size)
+                objs = self.access.query(
+                    context__user=user, order_by=['index'], offset=offset, limit=page_size
+                )
                 self.assertEqual(len(objs), page_size)
                 for j in range(page_size):
                     self.assertEqual(objs[j].context['user'], user)

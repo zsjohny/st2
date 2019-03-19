@@ -51,8 +51,18 @@ DEFAULT_API_VERSION = 'v1'
 
 
 class Client(object):
-    def __init__(self, base_url=None, auth_url=None, api_url=None, stream_url=None,
-                 api_version=None, cacert=None, debug=False, token=None, api_key=None):
+    def __init__(
+        self,
+        base_url=None,
+        auth_url=None,
+        api_url=None,
+        stream_url=None,
+        api_version=None,
+        cacert=None,
+        debug=False,
+        token=None,
+        api_key=None,
+    ):
         # Get CLI options. If not given, then try to get it from the environment.
         self.endpoints = dict()
 
@@ -70,24 +80,22 @@ class Client(object):
             self.endpoints['api'] = api_url
         else:
             self.endpoints['api'] = os.environ.get(
-                'ST2_API_URL', '%s:%s/%s' % (self.endpoints['base'], DEFAULT_API_PORT, api_version))
+                'ST2_API_URL', '%s:%s/%s' % (self.endpoints['base'], DEFAULT_API_PORT, api_version)
+            )
 
         if auth_url:
             self.endpoints['auth'] = auth_url
         else:
             self.endpoints['auth'] = os.environ.get(
-                'ST2_AUTH_URL', '%s:%s' % (self.endpoints['base'], DEFAULT_AUTH_PORT))
+                'ST2_AUTH_URL', '%s:%s' % (self.endpoints['base'], DEFAULT_AUTH_PORT)
+            )
 
         if stream_url:
             self.endpoints['stream'] = stream_url
         else:
             self.endpoints['stream'] = os.environ.get(
                 'ST2_STREAM_URL',
-                '%s:%s/%s' % (
-                    self.endpoints['base'],
-                    DEFAULT_STREAM_PORT,
-                    api_version
-                )
+                '%s:%s/%s' % (self.endpoints['base'], DEFAULT_STREAM_PORT, api_version),
             )
 
         if cacert is not None:
@@ -97,7 +105,7 @@ class Client(object):
 
         # Note: boolean is also a valid value for "cacert"
         is_cacert_string = isinstance(self.cacert, six.string_types)
-        if (self.cacert and is_cacert_string and not os.path.isfile(self.cacert)):
+        if self.cacert and is_cacert_string and not os.path.isfile(self.cacert):
             raise ValueError('CA cert file "%s" does not exist.' % (self.cacert))
 
         self.debug = debug
@@ -116,74 +124,103 @@ class Client(object):
         # Instantiate resource managers and assign appropriate API endpoint.
         self.managers = dict()
         self.managers['Token'] = ResourceManager(
-            models.Token, self.endpoints['auth'], cacert=self.cacert, debug=self.debug)
+            models.Token, self.endpoints['auth'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['RunnerType'] = ResourceManager(
-            models.RunnerType, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.RunnerType, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Action'] = ResourceManager(
-            models.Action, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Action, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['ActionAlias'] = ActionAliasResourceManager(
-            models.ActionAlias, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.ActionAlias, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['ActionAliasExecution'] = ActionAliasExecutionManager(
-            models.ActionAliasExecution, self.endpoints['api'],
-            cacert=self.cacert, debug=self.debug)
+            models.ActionAliasExecution, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['ApiKey'] = ResourceManager(
-            models.ApiKey, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.ApiKey, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Config'] = ConfigManager(
-            models.Config, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Config, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['ConfigSchema'] = ResourceManager(
-            models.ConfigSchema, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.ConfigSchema, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Execution'] = ExecutionResourceManager(
-            models.Execution, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Execution, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         # NOTE: LiveAction has been deprecated in favor of Execution. It will be left here for
         # backward compatibility reasons until v3.2.0
         self.managers['LiveAction'] = self.managers['Execution']
         self.managers['Inquiry'] = InquiryResourceManager(
-            models.Inquiry, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Inquiry, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Pack'] = PackResourceManager(
-            models.Pack, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Pack, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Policy'] = ResourceManager(
-            models.Policy, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Policy, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['PolicyType'] = ResourceManager(
-            models.PolicyType, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.PolicyType, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Rule'] = ResourceManager(
-            models.Rule, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Rule, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Sensor'] = ResourceManager(
-            models.Sensor, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Sensor, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['TriggerType'] = ResourceManager(
-            models.TriggerType, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.TriggerType, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Trigger'] = ResourceManager(
-            models.Trigger, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Trigger, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['TriggerInstance'] = TriggerInstanceResourceManager(
-            models.TriggerInstance, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.TriggerInstance, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['KeyValuePair'] = ResourceManager(
-            models.KeyValuePair, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.KeyValuePair, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Webhook'] = WebhookManager(
-            models.Webhook, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Webhook, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Timer'] = ResourceManager(
-            models.Timer, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Timer, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Trace'] = ResourceManager(
-            models.Trace, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Trace, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['RuleEnforcement'] = ResourceManager(
-            models.RuleEnforcement, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.RuleEnforcement, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Stream'] = StreamManager(
-            self.endpoints['stream'], cacert=self.cacert, debug=self.debug)
+            self.endpoints['stream'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['Workflow'] = WorkflowManager(
-            self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
 
         # Service Registry
         self.managers['ServiceRegistryGroups'] = ServiceRegistryGroupsManager(
-            models.ServiceRegistryGroup, self.endpoints['api'], cacert=self.cacert,
-            debug=self.debug)
+            models.ServiceRegistryGroup, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
 
         self.managers['ServiceRegistryMembers'] = ServiceRegistryMembersManager(
-            models.ServiceRegistryMember, self.endpoints['api'], cacert=self.cacert,
-            debug=self.debug)
+            models.ServiceRegistryMember,
+            self.endpoints['api'],
+            cacert=self.cacert,
+            debug=self.debug,
+        )
 
         # RBAC
         self.managers['Role'] = ResourceManager(
-            models.Role, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.Role, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         self.managers['UserRoleAssignment'] = ResourceManager(
-            models.UserRoleAssignment, self.endpoints['api'], cacert=self.cacert, debug=self.debug)
+            models.UserRoleAssignment, self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
 
     @add_auth_token_to_kwargs_from_env
     def get_user_info(self, **kwargs):
@@ -193,8 +230,9 @@ class Client(object):
         :rtype: ``dict``
         """
         url = '/user'
-        client = httpclient.HTTPClient(root=self.endpoints['api'], cacert=self.cacert,
-                                       debug=self.debug)
+        client = httpclient.HTTPClient(
+            root=self.endpoints['api'], cacert=self.cacert, debug=self.debug
+        )
         response = client.get(url=url, **kwargs)
 
         if response.status_code != 200:
@@ -222,8 +260,13 @@ class Client(object):
     # backward compatibility reasons until v3.2.0
     @property
     def liveactions(self):
-        warnings.warn(('st2client.liveactions has been renamed to st2client.executions, please '
-                       'update your code'), DeprecationWarning)
+        warnings.warn(
+            (
+                'st2client.liveactions has been renamed to st2client.executions, please '
+                'update your code'
+            ),
+            DeprecationWarning,
+        )
         return self.executions
 
     @property

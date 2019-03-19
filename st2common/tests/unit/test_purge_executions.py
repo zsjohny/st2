@@ -34,18 +34,10 @@ from six.moves import range
 
 LOG = logging.getLogger(__name__)
 
-TEST_FIXTURES = {
-    'executions': [
-        'execution1.yaml'
-    ],
-    'liveactions': [
-        'liveaction4.yaml'
-    ]
-}
+TEST_FIXTURES = {'executions': ['execution1.yaml'], 'liveactions': ['liveaction4.yaml']}
 
 
 class TestPurgeExecutions(CleanDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         CleanDbTestCase.setUpClass()
@@ -54,8 +46,9 @@ class TestPurgeExecutions(CleanDbTestCase):
     def setUp(self):
         super(TestPurgeExecutions, self).setUp()
         fixtures_loader = FixturesLoader()
-        self.models = fixtures_loader.load_models(fixtures_pack='generic',
-                                                  fixtures_dict=TEST_FIXTURES)
+        self.models = fixtures_loader.load_models(
+            fixtures_pack='generic', fixtures_dict=TEST_FIXTURES
+        )
 
     def test_no_timestamp_doesnt_delete_things(self):
         now = date_utils.get_datetime_utc_now()
@@ -77,8 +70,9 @@ class TestPurgeExecutions(CleanDbTestCase):
         self.assertEqual(len(stderr_dbs), 3)
 
         expected_msg = 'Specify a valid timestamp'
-        self.assertRaisesRegexp(ValueError, expected_msg, purge_executions,
-                                logger=LOG, timestamp=None)
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, purge_executions, logger=LOG, timestamp=None
+        )
         execs = ActionExecution.get_all()
         self.assertEqual(len(execs), 1)
         stdout_dbs = ActionExecutionOutput.query(output_type='stdout')
@@ -269,8 +263,9 @@ class TestPurgeExecutions(CleanDbTestCase):
 
     @mock.patch('st2common.garbage_collection.executions.LiveAction')
     @mock.patch('st2common.garbage_collection.executions.ActionExecution')
-    def test_purge_executions_whole_model_is_not_loaded_in_memory(self, mock_ActionExecution,
-                                                                  mock_LiveAction):
+    def test_purge_executions_whole_model_is_not_loaded_in_memory(
+        self, mock_ActionExecution, mock_LiveAction
+    ):
         # Verify that whole execution objects are not loaded in memory and we just retrieve the
         # id field
         self.assertEqual(mock_ActionExecution.query.call_count, 0)
@@ -293,18 +288,22 @@ class TestPurgeExecutions(CleanDbTestCase):
 
         stdout_dbs, stderr_dbs = [], []
         for i in range(0, count):
-            stdout_db = ActionExecutionOutputDB(execution_id=execution_id,
-                                                action_ref='dummy.pack',
-                                                runner_ref='dummy',
-                                                output_type='stdout',
-                                                data='stdout %s' % (i))
+            stdout_db = ActionExecutionOutputDB(
+                execution_id=execution_id,
+                action_ref='dummy.pack',
+                runner_ref='dummy',
+                output_type='stdout',
+                data='stdout %s' % (i),
+            )
             ActionExecutionOutput.add_or_update(stdout_db)
 
-            stderr_db = ActionExecutionOutputDB(execution_id=execution_id,
-                                                action_ref='dummy.pack',
-                                                runner_ref='dummy',
-                                                output_type='stderr',
-                                                data='stderr%s' % (i))
+            stderr_db = ActionExecutionOutputDB(
+                execution_id=execution_id,
+                action_ref='dummy.pack',
+                runner_ref='dummy',
+                output_type='stderr',
+                data='stderr%s' % (i),
+            )
             ActionExecutionOutput.add_or_update(stderr_db)
 
         return stdout_dbs, stderr_dbs

@@ -32,16 +32,19 @@ from st2common.persistence.reactor import Rule, TriggerInstance, Trigger
 from st2reactor.rules.enforcer import RuleEnforcer
 from st2reactor.rules.matcher import RulesMatcher
 
-__all__ = [
-    'RuleTester'
-]
+__all__ = ['RuleTester']
 
 LOG = logging.getLogger(__name__)
 
 
 class RuleTester(object):
-    def __init__(self, rule_file_path=None, rule_ref=None, trigger_instance_file_path=None,
-                 trigger_instance_id=None):
+    def __init__(
+        self,
+        rule_file_path=None,
+        rule_ref=None,
+        trigger_instance_file_path=None,
+        trigger_instance_id=None,
+    ):
         """
         :param rule_file_path: Path to the file containing rule definition.
         :type rule_file_path: ``str``
@@ -69,13 +72,20 @@ class RuleTester(object):
         # The trigger check needs to be performed here as that is not performed
         # by RulesMatcher.
         if rule_db.trigger != trigger_db.ref:
-            LOG.info('rule.trigger "%s" and trigger.ref "%s" do not match.',
-                     rule_db.trigger, trigger_db.ref)
+            LOG.info(
+                'rule.trigger "%s" and trigger.ref "%s" do not match.',
+                rule_db.trigger,
+                trigger_db.ref,
+            )
             return False
 
         # Check if rule matches criteria.
-        matcher = RulesMatcher(trigger_instance=trigger_instance_db, trigger=trigger_db,
-                               rules=[rule_db], extra_info=True)
+        matcher = RulesMatcher(
+            trigger_instance=trigger_instance_db,
+            trigger=trigger_db,
+            rules=[rule_db],
+            extra_info=True,
+        )
         matching_rules = matcher.get_matching_rules()
 
         # Rule does not match so early exit.
@@ -91,19 +101,22 @@ class RuleTester(object):
         action_db.parameters = {}
         params = rule_db.action.parameters  # pylint: disable=no-member
 
-        context, additional_contexts = enforcer.get_action_execution_context(action_db=action_db,
-                                                                             trace_context=None)
+        context, additional_contexts = enforcer.get_action_execution_context(
+            action_db=action_db, trace_context=None
+        )
 
         # Note: We only return partially resolved parameters.
         # To be able to return all parameters we would need access to corresponding ActionDB,
         # RunnerTypeDB and ConfigDB object, but this would add a dependency on the database and the
         # tool is meant to be used standalone.
         try:
-            params = enforcer.get_resolved_parameters(action_db=action_db,
-                                                      runnertype_db=runner_type_db,
-                                                      params=params,
-                                                      context=context,
-                                                      additional_contexts=additional_contexts)
+            params = enforcer.get_resolved_parameters(
+                action_db=action_db,
+                runnertype_db=runner_type_db,
+                params=params,
+                context=context,
+                additional_contexts=additional_contexts,
+            )
 
             LOG.info('Action parameters resolved to:')
             for param in six.iteritems(params):
@@ -118,8 +131,7 @@ class RuleTester(object):
 
     def _get_rule_db(self):
         if self._rule_file_path:
-            return self._get_rule_db_from_file(
-                file_path=os.path.realpath(self._rule_file_path))
+            return self._get_rule_db_from_file(file_path=os.path.realpath(self._rule_file_path))
         elif self._rule_ref:
             return Rule.get_by_ref(self._rule_ref)
         raise ValueError('One of _rule_file_path or _rule_ref should be specified.')
@@ -127,13 +139,15 @@ class RuleTester(object):
     def _get_trigger_instance_db(self):
         if self._trigger_instance_file_path:
             return self._get_trigger_instance_db_from_file(
-                file_path=os.path.realpath(self._trigger_instance_file_path))
+                file_path=os.path.realpath(self._trigger_instance_file_path)
+            )
         elif self._trigger_instance_id:
             trigger_instance_db = TriggerInstance.get_by_id(self._trigger_instance_id)
             trigger_db = Trigger.get_by_ref(trigger_instance_db.trigger)
             return trigger_instance_db, trigger_db
-        raise ValueError('One of _trigger_instance_file_path or'
-                         '_trigger_instance_id should be specified.')
+        raise ValueError(
+            'One of _trigger_instance_file_path or' '_trigger_instance_id should be specified.'
+        )
 
     def _get_rule_db_from_file(self, file_path):
         data = self._meta_loader.load(file_path=file_path)
@@ -143,8 +157,9 @@ class RuleTester(object):
         criteria = data.get('criteria', None)
         action = data.get('action', {})
 
-        rule_db = RuleDB(pack=pack, name=name, trigger=trigger, criteria=criteria, action=action,
-                         enabled=True)
+        rule_db = RuleDB(
+            pack=pack, name=name, trigger=trigger, criteria=criteria, action=action, enabled=True
+        )
         rule_db.id = 'rule_tester_rule'
 
         return rule_db

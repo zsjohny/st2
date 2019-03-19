@@ -19,9 +19,7 @@ import inspect
 
 from unittest2 import TestCase
 
-__all__ = [
-    'BasePackResourceTestCase'
-]
+__all__ = ['BasePackResourceTestCase']
 
 
 class BasePackResourceTestCase(TestCase):

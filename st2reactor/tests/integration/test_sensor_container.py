@@ -31,9 +31,7 @@ from st2common.util.green.shell import run_command
 from st2common.bootstrap.sensorsregistrar import register_sensors
 from st2tests.base import IntegrationTestCase
 
-__all__ = [
-    'SensorContainerTestCase'
-]
+__all__ = ['SensorContainerTestCase']
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -52,7 +50,7 @@ DEFAULT_CMD = [
     BINARY,
     '--config-file',
     ST2_CONFIG_PATH,
-    '--sensor-ref=examples.SamplePollingSensor'
+    '--sensor-ref=examples.SamplePollingSensor',
 ]
 
 
@@ -73,8 +71,13 @@ class SensorContainerTestCase(IntegrationTestCase):
         username = cfg.CONF.database.username if hasattr(cfg.CONF.database, 'username') else None
         password = cfg.CONF.database.password if hasattr(cfg.CONF.database, 'password') else None
         cls.db_connection = db_setup(
-            cfg.CONF.database.db_name, cfg.CONF.database.host, cfg.CONF.database.port,
-            username=username, password=password, ensure_indexes=False)
+            cfg.CONF.database.db_name,
+            cfg.CONF.database.host,
+            cfg.CONF.database.port,
+            username=username,
+            password=password,
+            ensure_indexes=False,
+        )
 
         # NOTE: We need to perform this patching because test fixtures are located outside of the
         # packs base paths directory. This will never happen outside the context of test fixtures.
@@ -179,14 +182,21 @@ class SensorContainerTestCase(IntegrationTestCase):
         eventlet.sleep(4)
 
         stdout = process.stdout.read()
-        self.assertTrue((b'--sensor-ref argument must be provided when running in single sensor '
-                         b'mode') in stdout)
+        self.assertTrue(
+            (b'--sensor-ref argument must be provided when running in single sensor ' b'mode')
+            in stdout
+        )
         self.assertProcessExited(proc=pp)
         self.remove_process(process=process)
 
         # 2. sensor ref provided
-        cmd = [BINARY, '--config-file', ST2_CONFIG_PATH, '--single-sensor-mode',
-               '--sensor-ref=examples.SampleSensorExit']
+        cmd = [
+            BINARY,
+            '--config-file',
+            ST2_CONFIG_PATH,
+            '--single-sensor-mode',
+            '--sensor-ref=examples.SampleSensorExit',
+        ]
 
         process = self._start_sensor_container(cmd=cmd)
         pp = psutil.Process(process.pid)
@@ -207,7 +217,8 @@ class SensorContainerTestCase(IntegrationTestCase):
         self.remove_process(process=process)
 
     def _start_sensor_container(self, cmd=DEFAULT_CMD):
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   shell=False, preexec_fn=os.setsid)
+        process = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, preexec_fn=os.setsid
+        )
         self.add_process(process=process)
         return process

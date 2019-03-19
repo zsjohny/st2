@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = [
-    'GPG_KEY',
-    'GPG_KEY_FINGERPRINT'
-]
+__all__ = ['GPG_KEY', 'GPG_KEY_FINGERPRINT']
 
 # Public part of the GPG key which is used to encrypt tarballs with debugging
 # information
@@ -86,5 +83,4 @@ S3_BUCKET_URL = 'https://st2debuginfo.s3.amazonaws.com/'
 COMPANY_NAME = 'StackStorm'
 
 # Default command line argument list
-ARG_NAMES = ['exclude_logs', 'exclude_configs', 'exclude_content',
-             'exclude_system_info']
+ARG_NAMES = ['exclude_logs', 'exclude_configs', 'exclude_content', 'exclude_system_info']

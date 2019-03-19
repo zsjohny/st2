@@ -21,19 +21,14 @@ from subprocess import list2cmdline
 from ctypes import cdll
 
 import six
+
 # NOTE: eventlet 0.19.0 removed support for sellect.poll() so we not only provide green version of
 # subprocess functionality and run_command
 from eventlet.green import subprocess
 
 from st2common import log as logging
 
-__all__ = [
-    'run_command',
-    'kill_process',
-
-    'quote_unix',
-    'quote_windows'
-]
+__all__ = ['run_command', 'kill_process', 'quote_unix', 'quote_windows']
 
 LOG = logging.getLogger(__name__)
 
@@ -42,8 +37,9 @@ PR_SET_PDEATHSIG = 1
 
 
 # pylint: disable=too-many-function-args
-def run_command(cmd, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,
-                cwd=None, env=None):
+def run_command(
+    cmd, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, cwd=None, env=None
+):
     """
     Run the provided command in a subprocess and wait until it completes.
 
@@ -76,8 +72,9 @@ def run_command(cmd, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     if not env:
         env = os.environ.copy()
 
-    process = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr,
-                               env=env, cwd=cwd, shell=shell)
+    process = subprocess.Popen(
+        cmd, stdin=stdin, stdout=stdout, stderr=stderr, env=env, cwd=cwd, shell=shell
+    )
     stdout, stderr = process.communicate()
     exit_code = process.returncode
 
@@ -148,6 +145,7 @@ def on_parent_exit(signame):
 
     Based on https://gist.github.com/evansd/2346614
     """
+
     def noop():
         pass
 
@@ -171,4 +169,5 @@ def on_parent_exit(signame):
         result = prctl(PR_SET_PDEATHSIG, signum)
         if result != 0:
             raise Exception('prctl failed with error code %s' % result)
+
     return set_parent_exit_signal

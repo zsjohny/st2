@@ -30,15 +30,13 @@ from st2common.constants.types import ResourceType
 __all__ = [
     'StormFoundationDB',
     'StormBaseDB',
-
     'EscapedDictField',
     'EscapedDynamicField',
     'TagField',
-
     'RefFieldMixin',
     'UIDFieldMixin',
     'TagsMixin',
-    'ContentPackResourceMixin'
+    'ContentPackResourceMixin',
 ]
 
 JSON_UNFRIENDLY_TYPES = (datetime.datetime, bson.ObjectId, me.EmbeddedDocument)
@@ -61,9 +59,7 @@ class StormFoundationDB(me.Document, DictSerializableClassMixin):
     # don't do that
 
     # see http://docs.mongoengine.org/guide/defining-documents.html#abstract-classes
-    meta = {
-        'abstract': True
-    }
+    meta = {'abstract': True}
 
     def __str__(self):
         attrs = list()
@@ -115,17 +111,15 @@ class StormBaseDB(StormFoundationDB):
     description = me.StringField()
 
     # see http://docs.mongoengine.org/guide/defining-documents.html#abstract-classes
-    meta = {
-        'abstract': True
-    }
+    meta = {'abstract': True}
 
 
 class EscapedDictField(me.DictField):
-
     def to_mongo(self, value, use_db_field=True, fields=None):
         value = mongoescape.escape_chars(value)
-        return super(EscapedDictField, self).to_mongo(value=value, use_db_field=use_db_field,
-                                                      fields=fields)
+        return super(EscapedDictField, self).to_mongo(
+            value=value, use_db_field=use_db_field, fields=fields
+        )
 
     def to_python(self, value):
         value = super(EscapedDictField, self).to_python(value)
@@ -140,11 +134,11 @@ class EscapedDictField(me.DictField):
 
 
 class EscapedDynamicField(me.DynamicField):
-
     def to_mongo(self, value, use_db_field=True, fields=None):
         value = mongoescape.escape_chars(value)
-        return super(EscapedDynamicField, self).to_mongo(value=value, use_db_field=use_db_field,
-                                                         fields=fields)
+        return super(EscapedDynamicField, self).to_mongo(
+            value=value, use_db_field=use_db_field, fields=fields
+        )
 
     def to_python(self, value):
         value = super(EscapedDynamicField, self).to_python(value)
@@ -156,6 +150,7 @@ class TagField(me.EmbeddedDocument):
     To be attached to a db model object for the purpose of providing supplemental
     information.
     """
+
     name = me.StringField(max_length=1024)
     value = me.StringField(max_length=1024)
 
@@ -164,6 +159,7 @@ class TagsMixin(object):
     """
     Mixin to include tags on an object.
     """
+
     tags = me.ListField(field=me.EmbeddedDocumentField(TagField))
 
     @classmethod
@@ -200,13 +196,7 @@ class UIDFieldMixin(object):
         # models in the database before ensure_indexes() is called.
         # This field gets populated in the constructor which means it will be lazily assigned next
         # time the model is saved (e.g. once register-content is ran).
-        indexes = [
-            {
-                'fields': ['uid'],
-                'unique': True,
-                'sparse': True
-            }
-        ]
+        indexes = [{'fields': ['uid'], 'unique': True, 'sparse': True}]
         return indexes
 
     def get_uid(self):
@@ -252,8 +242,11 @@ class ContentPackResourceMixin(object):
 
     metadata_file = me.StringField(
         required=False,
-        help_text=('Path to the metadata file (file on disk which contains resource definition) '
-                   'relative to the pack directory.'))
+        help_text=(
+            'Path to the metadata file (file on disk which contains resource definition) '
+            'relative to the pack directory.'
+        ),
+    )
 
     def get_pack_uid(self):
         """
@@ -280,11 +273,7 @@ class ContentPackResourceMixin(object):
 
     @classmethod
     def get_indexes(cls):
-        return [
-            {
-                'fields': ['metadata_file'],
-            }
-        ]
+        return [{'fields': ['metadata_file']}]
 
 
 class ChangeRevisionFieldMixin(object):
@@ -293,9 +282,4 @@ class ChangeRevisionFieldMixin(object):
 
     @classmethod
     def get_indexes(cls):
-        return [
-            {
-                'fields': ['id', 'rev'],
-                'unique': True
-            }
-        ]
+        return [{'fields': ['id', 'rev'], 'unique': True}]

@@ -20,19 +20,15 @@ from st2common.router import Response
 from st2common.util.jsonify import json_encode
 from st2common.stream.listener import get_listener
 
-__all__ = [
-    'StreamController'
-]
+__all__ = ['StreamController']
 
 LOG = logging.getLogger(__name__)
 
 DEFAULT_EVENTS_WHITELIST = [
     'st2.announcement__*',
-
     'st2.execution__create',
     'st2.execution__update',
     'st2.execution__delete',
-
     'st2.liveaction__create',
     'st2.liveaction__update',
     'st2.liveaction__delete',
@@ -49,8 +45,9 @@ def format(gen):
         else:
             (event, body) = pack
             # Note: gunicorn wsgi handler expect bytes, not unicode
-            yield six.binary_type((message % (event, json_encode(body,
-                                                                 indent=None))).encode('utf-8'))
+            yield six.binary_type(
+                (message % (event, json_encode(body, indent=None))).encode('utf-8')
+            )
 
 
 class StreamController(object):
@@ -61,8 +58,11 @@ class StreamController(object):
 
         def make_response():
             listener = get_listener(name='stream')
-            app_iter = format(listener.generator(events=events, action_refs=action_refs,
-                                                 execution_ids=execution_ids))
+            app_iter = format(
+                listener.generator(
+                    events=events, action_refs=action_refs, execution_ids=execution_ids
+                )
+            )
             res = Response(content_type='text/event-stream', app_iter=app_iter)
             return res
 

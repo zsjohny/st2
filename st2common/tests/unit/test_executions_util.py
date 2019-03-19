@@ -35,25 +35,28 @@ from st2tests.fixturesloader import FixturesLoader
 
 import st2tests.config as tests_config
 from six.moves import range
+
 tests_config.parse_args()
 
 FIXTURES_PACK = 'generic'
 
 TEST_FIXTURES = {
-    'liveactions': ['liveaction1.yaml', 'parentliveaction.yaml', 'childliveaction.yaml',
-                    'successful_liveaction.yaml'],
+    'liveactions': [
+        'liveaction1.yaml',
+        'parentliveaction.yaml',
+        'childliveaction.yaml',
+        'successful_liveaction.yaml',
+    ],
     'actions': ['local.yaml'],
     'executions': ['execution1.yaml'],
     'runners': ['run-local.yaml'],
     'triggertypes': ['triggertype2.yaml'],
     'rules': ['rule3.yaml'],
     'triggers': ['trigger2.yaml'],
-    'triggerinstances': ['trigger_instance_1.yaml']
+    'triggerinstances': ['trigger_instance_1.yaml'],
 }
 
-DYNAMIC_FIXTURES = {
-    'liveactions': ['liveaction3.yaml']
-}
+DYNAMIC_FIXTURES = {'liveactions': ['liveaction3.yaml']}
 
 
 class ExecutionsUtilTestCase(CleanDbTestCase):
@@ -63,18 +66,21 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
 
     def setUp(self):
         super(ExecutionsUtilTestCase, self).setUp()
-        self.MODELS = FixturesLoader().save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                           fixtures_dict=TEST_FIXTURES)
-        self.FIXTURES = FixturesLoader().load_fixtures(fixtures_pack=FIXTURES_PACK,
-                                                       fixtures_dict=DYNAMIC_FIXTURES)
+        self.MODELS = FixturesLoader().save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
+        self.FIXTURES = FixturesLoader().load_fixtures(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=DYNAMIC_FIXTURES
+        )
 
     def test_execution_creation_manual_action_run(self):
         liveaction = self.MODELS['liveactions']['liveaction1.yaml']
         pre_creation_timestamp = date_utils.get_datetime_utc_now()
         executions_util.create_execution_object(liveaction)
         post_creation_timestamp = date_utils.get_datetime_utc_now()
-        execution = self._get_action_execution(liveaction__id=str(liveaction.id),
-                                               raise_exception=True)
+        execution = self._get_action_execution(
+            liveaction__id=str(liveaction.id), raise_exception=True
+        )
         self.assertDictEqual(execution.trigger, {})
         self.assertDictEqual(execution.trigger_type, {})
         self.assertDictEqual(execution.trigger_instance, {})
@@ -107,12 +113,14 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
         self.assertIsNotNone(liveaction)
         self.assertEqual(liveaction.status, action_constants.LIVEACTION_STATUS_REQUESTED)
         executions_util.create_execution_object(liveaction)
-        execution = self._get_action_execution(liveaction__id=str(liveaction.id),
-                                               raise_exception=True)
+        execution = self._get_action_execution(
+            liveaction__id=str(liveaction.id), raise_exception=True
+        )
         self.assertDictEqual(execution.trigger, vars(TriggerAPI.from_model(trigger)))
         self.assertDictEqual(execution.trigger_type, vars(TriggerTypeAPI.from_model(trigger_type)))
-        self.assertDictEqual(execution.trigger_instance,
-                             vars(TriggerInstanceAPI.from_model(trigger_instance)))
+        self.assertDictEqual(
+            execution.trigger_instance, vars(TriggerInstanceAPI.from_model(trigger_instance))
+        )
         self.assertDictEqual(execution.rule, vars(RuleAPI.from_model(rule)))
         action = action_utils.get_action_by_ref(liveaction.action)
         self.assertDictEqual(execution.action, vars(ActionAPI.from_model(action)))
@@ -124,8 +132,9 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
     def test_execution_creation_with_web_url(self):
         liveaction = self.MODELS['liveactions']['liveaction1.yaml']
         executions_util.create_execution_object(liveaction)
-        execution = self._get_action_execution(liveaction__id=str(liveaction.id),
-                                               raise_exception=True)
+        execution = self._get_action_execution(
+            liveaction__id=str(liveaction.id), raise_exception=True
+        )
         self.assertTrue(execution.web_url is not None)
         execution_id = str(execution.id)
         self.assertTrue(('history/%s/general' % execution_id) in execution.web_url)
@@ -145,8 +154,9 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
         pre_update_timestamp = date_utils.get_datetime_utc_now()
         executions_util.update_execution(liveaction)
         post_update_timestamp = date_utils.get_datetime_utc_now()
-        execution = self._get_action_execution(liveaction__id=str(liveaction.id),
-                                               raise_exception=True)
+        execution = self._get_action_execution(
+            liveaction__id=str(liveaction.id), raise_exception=True
+        )
         self.assertEquals(len(execution.log), 2)
         self.assertEquals(execution.log[1]['status'], liveaction.status)
         self.assertGreater(execution.log[1]['timestamp'], pre_update_timestamp)
@@ -158,7 +168,8 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
         liveaction_db = self.MODELS['liveactions']['liveaction1.yaml']
         executions_util.create_execution_object(liveaction_db)
         execution_db = executions_util.abandon_execution_if_incomplete(
-            liveaction_id=str(liveaction_db.id))
+            liveaction_id=str(liveaction_db.id)
+        )
 
         self.assertEquals(execution_db.status, 'abandoned')
 
@@ -169,12 +180,17 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
     def test_abandon_executions_on_complete(self):
         liveaction_db = self.MODELS['liveactions']['successful_liveaction.yaml']
         executions_util.create_execution_object(liveaction_db)
-        expected_msg = r'LiveAction %s already in a completed state %s\.' % \
-                       (str(liveaction_db.id), liveaction_db.status)
+        expected_msg = r'LiveAction %s already in a completed state %s\.' % (
+            str(liveaction_db.id),
+            liveaction_db.status,
+        )
 
-        self.assertRaisesRegexp(ValueError, expected_msg,
-                                executions_util.abandon_execution_if_incomplete,
-                                liveaction_id=str(liveaction_db.id))
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            executions_util.abandon_execution_if_incomplete,
+            liveaction_id=str(liveaction_db.id),
+        )
 
         runners_utils.invoke_post_run.assert_not_called()
 
@@ -187,9 +203,17 @@ class ExecutionsUtilTestCase(CleanDbTestCase):
 DESCENDANTS_PACK = 'descendants'
 
 DESCENDANTS_FIXTURES = {
-    'executions': ['root_execution.yaml', 'child1_level1.yaml', 'child2_level1.yaml',
-                   'child1_level2.yaml', 'child2_level2.yaml', 'child3_level2.yaml',
-                   'child1_level3.yaml', 'child2_level3.yaml', 'child3_level3.yaml']
+    'executions': [
+        'root_execution.yaml',
+        'child1_level1.yaml',
+        'child2_level1.yaml',
+        'child1_level2.yaml',
+        'child2_level2.yaml',
+        'child3_level2.yaml',
+        'child1_level3.yaml',
+        'child2_level3.yaml',
+        'child3_level3.yaml',
+    ]
 }
 
 
@@ -200,28 +224,34 @@ class ExecutionsUtilDescendantsTestCase(CleanDbTestCase):
 
     def setUp(self):
         super(ExecutionsUtilDescendantsTestCase, self).setUp()
-        self.MODELS = FixturesLoader().save_fixtures_to_db(fixtures_pack=DESCENDANTS_PACK,
-                                                           fixtures_dict=DESCENDANTS_FIXTURES)
+        self.MODELS = FixturesLoader().save_fixtures_to_db(
+            fixtures_pack=DESCENDANTS_PACK, fixtures_dict=DESCENDANTS_FIXTURES
+        )
 
     def test_get_all_descendants_sorted(self):
         root_execution = self.MODELS['executions']['root_execution.yaml']
-        all_descendants = executions_util.get_descendants(str(root_execution.id),
-                                                          result_fmt='sorted')
+        all_descendants = executions_util.get_descendants(
+            str(root_execution.id), result_fmt='sorted'
+        )
 
         all_descendants_ids = [str(descendant.id) for descendant in all_descendants]
         all_descendants_ids.sort()
 
         # everything except the root_execution
-        expected_ids = [str(v.id) for _, v in six.iteritems(self.MODELS['executions'])
-                        if v.id != root_execution.id]
+        expected_ids = [
+            str(v.id)
+            for _, v in six.iteritems(self.MODELS['executions'])
+            if v.id != root_execution.id
+        ]
         expected_ids.sort()
 
         self.assertListEqual(all_descendants_ids, expected_ids)
 
         # verify sort order
         for idx in range(len(all_descendants) - 1):
-            self.assertLess(all_descendants[idx].start_timestamp,
-                            all_descendants[idx + 1].start_timestamp)
+            self.assertLess(
+                all_descendants[idx].start_timestamp, all_descendants[idx + 1].start_timestamp
+            )
 
     def test_get_all_descendants(self):
         root_execution = self.MODELS['executions']['root_execution.yaml']
@@ -231,38 +261,45 @@ class ExecutionsUtilDescendantsTestCase(CleanDbTestCase):
         all_descendants_ids.sort()
 
         # everything except the root_execution
-        expected_ids = [str(v.id) for _, v in six.iteritems(self.MODELS['executions'])
-                        if v.id != root_execution.id]
+        expected_ids = [
+            str(v.id)
+            for _, v in six.iteritems(self.MODELS['executions'])
+            if v.id != root_execution.id
+        ]
         expected_ids.sort()
 
         self.assertListEqual(all_descendants_ids, expected_ids)
 
     def test_get_1_level_descendants_sorted(self):
         root_execution = self.MODELS['executions']['root_execution.yaml']
-        all_descendants = executions_util.get_descendants(str(root_execution.id),
-                                                          descendant_depth=1,
-                                                          result_fmt='sorted')
+        all_descendants = executions_util.get_descendants(
+            str(root_execution.id), descendant_depth=1, result_fmt='sorted'
+        )
 
         all_descendants_ids = [str(descendant.id) for descendant in all_descendants]
         all_descendants_ids.sort()
 
         # All children of root_execution
-        expected_ids = [str(v.id) for _, v in six.iteritems(self.MODELS['executions'])
-                        if v.parent == str(root_execution.id)]
+        expected_ids = [
+            str(v.id)
+            for _, v in six.iteritems(self.MODELS['executions'])
+            if v.parent == str(root_execution.id)
+        ]
         expected_ids.sort()
 
         self.assertListEqual(all_descendants_ids, expected_ids)
 
         # verify sort order
         for idx in range(len(all_descendants) - 1):
-            self.assertLess(all_descendants[idx].start_timestamp,
-                            all_descendants[idx + 1].start_timestamp)
+            self.assertLess(
+                all_descendants[idx].start_timestamp, all_descendants[idx + 1].start_timestamp
+            )
 
     def test_get_2_level_descendants_sorted(self):
         root_execution = self.MODELS['executions']['root_execution.yaml']
-        all_descendants = executions_util.get_descendants(str(root_execution.id),
-                                                          descendant_depth=2,
-                                                          result_fmt='sorted')
+        all_descendants = executions_util.get_descendants(
+            str(root_execution.id), descendant_depth=2, result_fmt='sorted'
+        )
 
         all_descendants_ids = [str(descendant.id) for descendant in all_descendants]
         all_descendants_ids.sort()

@@ -32,8 +32,7 @@ http_client = six.moves.http_client
 
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
-class TriggerInstanceTestCase(FunctionalTest,
-                              APIControllerWithIncludeAndExcludeFilterTestCase):
+class TriggerInstanceTestCase(FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase):
     get_all_path = '/v1/triggerinstances'
     controller_cls = TriggerInstanceController
     include_attribute_field_name = 'trigger'
@@ -61,8 +60,9 @@ class TriggerInstanceTestCase(FunctionalTest,
         limit = -22
         resp = self.app.get('/v1/triggerinstances?limit=%d' % limit, expect_errors=True)
         self.assertEqual(resp.status_int, 400)
-        self.assertEqual(resp.json['faultstring'],
-                         u'Limit, "-22" specified, must be a positive number.')
+        self.assertEqual(
+            resp.json['faultstring'], u'Limit, "-22" specified, must be a positive number.'
+        )
 
     def test_get_all_filter_by_trigger(self):
         trigger = 'dummy_pack_1.st2.test.trigger0'
@@ -143,7 +143,7 @@ class TriggerInstanceTestCase(FunctionalTest,
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-            'parameters_schema': {}
+            'parameters_schema': {},
         }
         TRIGGERTYPE_1 = {
             'name': 'st2.test.triggertype1',
@@ -156,14 +156,14 @@ class TriggerInstanceTestCase(FunctionalTest,
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-            'parameters_schema': {'param1': {'type': 'object'}}
+            'parameters_schema': {'param1': {'type': 'object'}},
         }
         TRIGGERTYPE_3 = {
             'name': 'st2.test.triggertype3',
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'payload_schema': {'tp1': None, 'tp2': None, 'tp3': None},
-            'parameters_schema': {'param1': {'type': 'object'}}
+            'parameters_schema': {'param1': {'type': 'object'}},
         }
         cls.app.post_json('/v1/triggertypes', TRIGGERTYPE_0, expect_errors=False)
         cls.app.post_json('/v1/triggertypes', TRIGGERTYPE_1, expect_errors=False)
@@ -177,7 +177,7 @@ class TriggerInstanceTestCase(FunctionalTest,
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'type': 'dummy_pack_1.st2.test.triggertype0',
-            'parameters': {}
+            'parameters': {},
         }
 
         TRIGGER_1 = {
@@ -185,7 +185,7 @@ class TriggerInstanceTestCase(FunctionalTest,
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'type': 'dummy_pack_1.st2.test.triggertype1',
-            'parameters': {}
+            'parameters': {},
         }
 
         TRIGGER_2 = {
@@ -193,19 +193,18 @@ class TriggerInstanceTestCase(FunctionalTest,
             'pack': 'dummy_pack_1',
             'description': 'test trigger',
             'type': 'dummy_pack_1.st2.test.triggertype2',
-            'parameters': {
-                'param1': {
-                    'foo': 'bar'
-                }
-            }
+            'parameters': {'param1': {'foo': 'bar'}},
         }
         cls.app.post_json('/v1/triggers', TRIGGER_0, expect_errors=False)
         cls.app.post_json('/v1/triggers', TRIGGER_1, expect_errors=False)
         cls.app.post_json('/v1/triggers', TRIGGER_2, expect_errors=False)
 
     def _insert_mock_models(self):
-        return [self.triggerinstance_1['id'], self.triggerinstance_2['id'],
-                self.triggerinstance_3['id']]
+        return [
+            self.triggerinstance_1['id'],
+            self.triggerinstance_2['id'],
+            self.triggerinstance_3['id'],
+        ]
 
     def _delete_mock_models(self, object_ids):
         return None
@@ -216,15 +215,18 @@ class TriggerInstanceTestCase(FunctionalTest,
         cls.triggerinstance_1 = cls._create_trigger_instance(
             trigger_ref='dummy_pack_1.st2.test.trigger0',
             payload={'tp1': 1, 'tp2': 2, 'tp3': 3},
-            seconds=1)
+            seconds=1,
+        )
         cls.triggerinstance_2 = cls._create_trigger_instance(
             trigger_ref='dummy_pack_1.st2.test.trigger1',
             payload={'tp1': 'a', 'tp2': 'b', 'tp3': 'c'},
-            seconds=2)
+            seconds=2,
+        )
         cls.triggerinstance_3 = cls._create_trigger_instance(
             trigger_ref='dummy_pack_1.st2.test.trigger2',
             payload={'tp1': None, 'tp2': None, 'tp3': None},
-            seconds=3)
+            seconds=3,
+        )
 
     @classmethod
     def _create_trigger_instance(cls, trigger_ref, payload, seconds):

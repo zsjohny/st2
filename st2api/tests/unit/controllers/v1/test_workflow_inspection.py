@@ -28,7 +28,6 @@ PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() 
 
 
 class WorkflowInspectionControllerTest(st2api_tests.FunctionalTest, st2tests.WorkflowTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(WorkflowInspectionControllerTest, cls).setUpClass()
@@ -39,8 +38,7 @@ class WorkflowInspectionControllerTest(st2api_tests.FunctionalTest, st2tests.Wor
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -48,10 +46,7 @@ class WorkflowInspectionControllerTest(st2api_tests.FunctionalTest, st2tests.Wor
 
     def _do_post(self, wf_def, expect_errors=False):
         return self.app.post(
-            '/v1/workflows/inspect',
-            wf_def,
-            expect_errors=expect_errors,
-            content_type='text/plain'
+            '/v1/workflows/inspect', wf_def, expect_errors=expect_errors, content_type='text/plain'
         )
 
     def test_inspection(self):
@@ -74,7 +69,7 @@ class WorkflowInspectionControllerTest(st2api_tests.FunctionalTest, st2tests.Wor
                 'type': 'content',
                 'message': 'The action "std.noop" is not registered in the database.',
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.action',
-                'spec_path': 'tasks.task3.action'
+                'spec_path': 'tasks.task3.action',
             },
             {
                 'type': 'context',
@@ -96,7 +91,7 @@ class WorkflowInspectionControllerTest(st2api_tests.FunctionalTest, st2tests.Wor
                     r'properties.tasks.patternProperties.^\w+$.'
                     'properties.next.items.properties.when'
                 ),
-                'spec_path': 'tasks.task2.next[0].when'
+                'spec_path': 'tasks.task2.next[0].when',
             },
             {
                 'type': 'syntax',
@@ -105,8 +100,8 @@ class WorkflowInspectionControllerTest(st2api_tests.FunctionalTest, st2tests.Wor
                     'not valid under any of the given schemas'
                 ),
                 'schema_path': r'properties.tasks.patternProperties.^\w+$.properties.input.oneOf',
-                'spec_path': 'tasks.task2.input'
-            }
+                'spec_path': 'tasks.task2.input',
+            },
         ]
 
         response = self._do_post(wf_def, expect_errors=False)

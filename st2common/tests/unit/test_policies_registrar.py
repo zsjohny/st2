@@ -29,9 +29,7 @@ from st2common.persistence.policy import PolicyType
 from st2tests.base import CleanDbTestCase
 from st2tests.fixturesloader import get_fixtures_packs_base_path
 
-__all__ = [
-    'PoliciesRegistrarTestCase'
-]
+__all__ = ['PoliciesRegistrarTestCase']
 
 
 class PoliciesRegistrarTestCase(CleanDbTestCase):
@@ -66,7 +64,7 @@ class PoliciesRegistrarTestCase(CleanDbTestCase):
             policies_db.name: {
                 'pack': policies_db.pack,
                 'type': policies_db.policy_type,
-                'parameters': policies_db.parameters
+                'parameters': policies_db.parameters,
             }
             for policies_db in policies_dbs
         }
@@ -75,44 +73,28 @@ class PoliciesRegistrarTestCase(CleanDbTestCase):
             'test_policy_1': {
                 'pack': 'dummy_pack_1',
                 'type': 'action.concurrency',
-                'parameters': {
-                    'action': 'delay',
-                    'threshold': 3
-                }
+                'parameters': {'action': 'delay', 'threshold': 3},
             },
             'test_policy_3': {
                 'pack': 'dummy_pack_1',
                 'type': 'action.retry',
-                'parameters': {
-                    'retry_on': 'timeout',
-                    'max_retry_count': 5
-                }
+                'parameters': {'retry_on': 'timeout', 'max_retry_count': 5},
             },
             'cancel_on_concurrency': {
                 'pack': 'mistral_tests',
                 'type': 'action.concurrency',
-                'parameters': {
-                    'action': 'cancel',
-                    'threshold': 3
-                }
+                'parameters': {'action': 'cancel', 'threshold': 3},
             },
             'cancel_on_concurrency_by_attr': {
                 'pack': 'mistral_tests',
                 'type': 'action.concurrency.attr',
-                'parameters': {
-                    'action': 'cancel',
-                    'threshold': 1,
-                    'attributes': ['friend']
-                }
+                'parameters': {'action': 'cancel', 'threshold': 1, 'attributes': ['friend']},
             },
             'sequential.retry_on_failure': {
                 'pack': 'orquesta_tests',
                 'type': 'action.retry',
-                'parameters': {
-                    'retry_on': 'failure',
-                    'max_retry_count': 1
-                }
-            }
+                'parameters': {'retry_on': 'failure', 'max_retry_count': 1},
+            },
         }
 
         self.assertEqual(len(expected_policies), count)
@@ -138,21 +120,31 @@ class PoliciesRegistrarTestCase(CleanDbTestCase):
     def test_register_policy_invalid_policy_type_references(self):
         # Policy references an invalid (inexistent) policy type
         registrar = PolicyRegistrar()
-        policy_path = os.path.join(get_fixtures_packs_base_path(),
-                                   'dummy_pack_1/policies/policy_2.yaml')
+        policy_path = os.path.join(
+            get_fixtures_packs_base_path(), 'dummy_pack_1/policies/policy_2.yaml'
+        )
 
         expected_msg = 'Referenced policy_type "action.mock_policy_error" doesnt exist'
-        self.assertRaisesRegexp(ValueError, expected_msg, registrar._register_policy,
-                                pack='dummy_pack_1', policy=policy_path)
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            registrar._register_policy,
+            pack='dummy_pack_1',
+            policy=policy_path,
+        )
 
     def test_make_sure_policy_parameters_are_validated_during_register(self):
         # Policy where specified parameters fail schema validation
         registrar = PolicyRegistrar()
-        policy_path = os.path.join(get_fixtures_packs_base_path(),
-                                   'dummy_pack_2/policies/policy_3.yaml')
+        policy_path = os.path.join(
+            get_fixtures_packs_base_path(), 'dummy_pack_2/policies/policy_3.yaml'
+        )
 
         expected_msg = '100 is greater than the maximum of 5'
-        self.assertRaisesRegexp(jsonschema.ValidationError, expected_msg,
-                                registrar._register_policy,
-                                pack='dummy_pack_2',
-                                policy=policy_path)
+        self.assertRaisesRegexp(
+            jsonschema.ValidationError,
+            expected_msg,
+            registrar._register_policy,
+            pack='dummy_pack_2',
+            policy=policy_path,
+        )

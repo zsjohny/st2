@@ -23,7 +23,6 @@ from st2common.constants import action as ac_const
 
 
 class WiringTest(base.TestWorkflowExecution):
-
     def test_sequential(self):
         wf_name = 'examples.orquesta-sequential'
         wf_input = {'name': 'Thanos'}
@@ -45,7 +44,7 @@ class WiringTest(base.TestWorkflowExecution):
                 'Fee fi fo fum',
                 'I smell the blood of an English man',
                 'Be alive, or be he dead',
-                'I\'ll grind his bones to make my bread'
+                'I\'ll grind his bones to make my bread',
             ]
         }
 
@@ -118,9 +117,7 @@ class WiringTest(base.TestWorkflowExecution):
         ex = self._execute_workflow(wf_name)
         ex = self._wait_for_completion(ex)
 
-        expected_output = {
-            'progress': 25
-        }
+        expected_output = {'progress': 25}
 
         expected_errors = [
             {
@@ -132,15 +129,12 @@ class WiringTest(base.TestWorkflowExecution):
                     'return_code': 1,
                     'stderr': '',
                     'stdout': '',
-                    'succeeded': False
-                }
+                    'succeeded': False,
+                },
             }
         ]
 
-        expected_result = {
-            'errors': expected_errors,
-            'output': expected_output
-        }
+        expected_result = {'errors': expected_errors, 'output': expected_output}
 
         self.assertEqual(ex.status, ac_const.LIVEACTION_STATUS_FAILED)
         self.assertDictEqual(ex.result, expected_result)

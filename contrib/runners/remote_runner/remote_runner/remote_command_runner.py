@@ -24,12 +24,7 @@ from st2common.runners.paramiko_ssh_runner import BaseParallelSSHRunner
 from st2common.runners.base import get_metadata as get_runner_metadata
 from st2common.models.system.paramiko_command_action import ParamikoRemoteCommandAction
 
-__all__ = [
-    'ParamikoRemoteCommandRunner',
-
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['ParamikoRemoteCommandRunner', 'get_runner', 'get_metadata']
 
 LOG = logging.getLogger(__name__)
 
@@ -53,27 +48,31 @@ class ParamikoRemoteCommandRunner(BaseParallelSSHRunner):
         # remote script actions with entry_point don't make sense, user probably wanted to use
         # "remote-shell-script" action
         if self.entry_point:
-            msg = ('Action "%s" specified "entry_point" attribute. Perhaps wanted to use '
-                   '"remote-shell-script" runner?' % (self.action_name))
+            msg = (
+                'Action "%s" specified "entry_point" attribute. Perhaps wanted to use '
+                '"remote-shell-script" runner?' % (self.action_name)
+            )
             raise Exception(msg)
 
         command = self.runner_parameters.get(RUNNER_COMMAND, None)
         env_vars = self._get_env_vars()
-        return ParamikoRemoteCommandAction(self.action_name,
-                                           str(self.liveaction_id),
-                                           command,
-                                           env_vars=env_vars,
-                                           on_behalf_user=self._on_behalf_user,
-                                           user=self._username,
-                                           password=self._password,
-                                           private_key=self._private_key,
-                                           passphrase=self._passphrase,
-                                           hosts=self._hosts,
-                                           parallel=self._parallel,
-                                           sudo=self._sudo,
-                                           sudo_password=self._sudo_password,
-                                           timeout=self._timeout,
-                                           cwd=self._cwd)
+        return ParamikoRemoteCommandAction(
+            self.action_name,
+            str(self.liveaction_id),
+            command,
+            env_vars=env_vars,
+            on_behalf_user=self._on_behalf_user,
+            user=self._username,
+            password=self._password,
+            private_key=self._private_key,
+            passphrase=self._passphrase,
+            hosts=self._hosts,
+            parallel=self._parallel,
+            sudo=self._sudo,
+            sudo_password=self._sudo_password,
+            timeout=self._timeout,
+            cwd=self._cwd,
+        )
 
 
 def get_runner():
@@ -82,6 +81,7 @@ def get_runner():
 
 def get_metadata():
     metadata = get_runner_metadata('remote_runner')
-    metadata = [runner for runner in metadata if
-                runner['runner_module'] == __name__.split('.')[-1]][0]
+    metadata = [
+        runner for runner in metadata if runner['runner_module'] == __name__.split('.')[-1]
+    ][0]
     return metadata

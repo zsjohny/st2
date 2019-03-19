@@ -20,6 +20,7 @@ from st2common.runners import get_available_backends
 from st2common.runners import get_backend_instance
 
 from st2common import config
+
 config.parse_args()
 
 runner_names = get_available_backends()
@@ -30,5 +31,7 @@ for name in runner_names:
     runner_instance = runner_driver.get_runner()
     runner_metadata = runner_driver.get_metadata()
 
-    print('- %s (runner_module=%s,cls=%s)' % (name, runner_metadata['runner_module'],
-                                              runner_instance.__class__))
+    print(
+        '- %s (runner_module=%s,cls=%s)'
+        % (name, runner_metadata['runner_module'], runner_instance.__class__)
+    )

@@ -4,10 +4,7 @@ import abc
 import six
 import eventlet
 
-__all__ = [
-    'Sensor',
-    'PollingSensor'
-]
+__all__ = ['Sensor', 'PollingSensor']
 
 
 @six.add_metaclass(abc.ABCMeta)

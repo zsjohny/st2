@@ -35,17 +35,18 @@ class KeyValuePair(Access):
     dispatch_trigger_for_operations = ['create', 'update', 'value_change', 'delete']
     operation_to_trigger_ref_map = {
         'create': ResourceReference.to_string_reference(
-            name=KEY_VALUE_PAIR_CREATE_TRIGGER['name'],
-            pack=KEY_VALUE_PAIR_CREATE_TRIGGER['pack']),
+            name=KEY_VALUE_PAIR_CREATE_TRIGGER['name'], pack=KEY_VALUE_PAIR_CREATE_TRIGGER['pack']
+        ),
         'update': ResourceReference.to_string_reference(
-            name=KEY_VALUE_PAIR_UPDATE_TRIGGER['name'],
-            pack=KEY_VALUE_PAIR_UPDATE_TRIGGER['pack']),
+            name=KEY_VALUE_PAIR_UPDATE_TRIGGER['name'], pack=KEY_VALUE_PAIR_UPDATE_TRIGGER['pack']
+        ),
         'value_change': ResourceReference.to_string_reference(
             name=KEY_VALUE_PAIR_VALUE_CHANGE_TRIGGER['name'],
-            pack=KEY_VALUE_PAIR_VALUE_CHANGE_TRIGGER['pack']),
+            pack=KEY_VALUE_PAIR_VALUE_CHANGE_TRIGGER['pack'],
+        ),
         'delete': ResourceReference.to_string_reference(
-            name=KEY_VALUE_PAIR_DELETE_TRIGGER['name'],
-            pack=KEY_VALUE_PAIR_DELETE_TRIGGER['pack']),
+            name=KEY_VALUE_PAIR_DELETE_TRIGGER['name'], pack=KEY_VALUE_PAIR_DELETE_TRIGGER['pack']
+        ),
     }
 
     @classmethod
@@ -60,14 +61,15 @@ class KeyValuePair(Access):
             # Not an update
             existing_model_object = None
 
-        model_object = super(KeyValuePair, cls).add_or_update(model_object=model_object,
-                                                              publish=publish,
-                                                              dispatch_trigger=dispatch_trigger)
+        model_object = super(KeyValuePair, cls).add_or_update(
+            model_object=model_object, publish=publish, dispatch_trigger=dispatch_trigger
+        )
 
         # Dispatch a value_change event which is specific to this resource
         if existing_model_object and existing_model_object.value != model_object.value:
-            cls.dispatch_value_change_trigger(old_model_object=existing_model_object,
-                                              new_model_object=model_object)
+            cls.dispatch_value_change_trigger(
+                old_model_object=existing_model_object, new_model_object=model_object
+            )
 
         return model_object
 
@@ -76,14 +78,13 @@ class KeyValuePair(Access):
         operation = 'value_change'
         trigger = cls._get_trigger_ref_for_operation(operation=operation)
 
-        old_object_payload = cls.api_model_cls.from_model(old_model_object,
-                                                          mask_secrets=True).__json__()
-        new_object_payload = cls.api_model_cls.from_model(new_model_object,
-                                                          mask_secrets=True).__json__()
-        payload = {
-            'old_object': old_object_payload,
-            'new_object': new_object_payload
-        }
+        old_object_payload = cls.api_model_cls.from_model(
+            old_model_object, mask_secrets=True
+        ).__json__()
+        new_object_payload = cls.api_model_cls.from_model(
+            new_model_object, mask_secrets=True
+        ).__json__()
+        payload = {'old_object': old_object_payload, 'new_object': new_object_payload}
 
         return cls._dispatch_trigger(operation=operation, trigger=trigger, payload=payload)
 

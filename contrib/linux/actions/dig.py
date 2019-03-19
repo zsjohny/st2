@@ -7,7 +7,6 @@ from st2common.runners.base_action import Action
 
 
 class DigAction(Action):
-
     def run(self, rand, count, nameserver, hostname, queryopts):
         opt_list = []
         output = []
@@ -25,11 +24,12 @@ class DigAction(Action):
             cmd_args.append('+' + v)
 
         cmd_args.append(hostname)
-        result_list = filter(None, subprocess.Popen(cmd_args,
-                                                    stderr=subprocess.PIPE,
-                                                    stdout=subprocess.PIPE)
-                                             .communicate()[0]
-                                             .split('\n'))
+        result_list = filter(
+            None,
+            subprocess.Popen(cmd_args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            .communicate()[0]
+            .split('\n'),
+        )
         if int(count) > len(result_list) or count <= 0:
             count = len(result_list)
 

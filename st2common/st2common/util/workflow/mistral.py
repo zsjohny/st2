@@ -29,6 +29,7 @@ except ImportError:
     class APIException(Exception):
         pass
 
+
 from st2common.exceptions.workflow import WorkflowDefinitionException
 from st2common import log as logging
 from st2common.models.system.common import ResourceReference
@@ -51,21 +52,21 @@ _FALSE = "false"
 _NULL = "null"
 
 ALL = (
-    _ALL_IN_QUOTES, _ALL_IN_APOSTROPHES, INLINE_YAQL,
-    _ALL_IN_BRACKETS, _TRUE, _FALSE, _NULL, _DIGITS
+    _ALL_IN_QUOTES,
+    _ALL_IN_APOSTROPHES,
+    INLINE_YAQL,
+    _ALL_IN_BRACKETS,
+    _TRUE,
+    _FALSE,
+    _NULL,
+    _DIGITS,
 )
 
 PARAMS_PTRN = re.compile(r"([\w]+)=(%s)" % "|".join(ALL))
 
 SPEC_TYPES = {
-    'adhoc': {
-        'action_key': 'base',
-        'input_key': 'base-input'
-    },
-    'task': {
-        'action_key': 'action',
-        'input_key': 'input'
-    }
+    'adhoc': {'action_key': 'base', 'input_key': 'base-input'},
+    'task': {'action_key': 'action', 'input_key': 'input'},
 }
 
 JINJA_REGEX_WITH_ST2KV = r'{{st2kv\..*?|.*?\sst2kv\..*?}}'
@@ -132,19 +133,22 @@ def _validate_action_parameters(name, action, action_params):
     requires, unexpected = action_param_utils.validate_action_parameters(action.ref, action_params)
 
     if requires:
-        raise WorkflowDefinitionException('Missing required parameters in "%s" for action "%s": '
-                                          '"%s"' % (name, action.ref, '", "'.join(requires)))
+        raise WorkflowDefinitionException(
+            'Missing required parameters in "%s" for action "%s": '
+            '"%s"' % (name, action.ref, '", "'.join(requires))
+        )
 
     if unexpected:
-        raise WorkflowDefinitionException('Unexpected parameters in "%s" for action "%s": '
-                                          '"%s"' % (name, action.ref, '", "'.join(unexpected)))
+        raise WorkflowDefinitionException(
+            'Unexpected parameters in "%s" for action "%s": '
+            '"%s"' % (name, action.ref, '", "'.join(unexpected))
+        )
 
 
 def _transform_action_param(action_ref, param_name, param_value):
     if isinstance(param_value, list):
         param_value = [
-            _transform_action_param(action_ref, param_name, value)
-            for value in param_value
+            _transform_action_param(action_ref, param_name, value) for value in param_value
         ]
 
     if isinstance(param_value, dict):
@@ -158,10 +162,12 @@ def _transform_action_param(action_ref, param_name, param_value):
         local_ctx_matches = JINJA_REGEX_WITH_LOCAL_CTX_PTRN.findall(param_value)
 
         if st2kv_matches and local_ctx_matches:
-            raise WorkflowDefinitionException('Parameter "%s" for action "%s" containing '
-                                              'references to both local context (i.e. _.var1) '
-                                              'and st2kv (i.e. st2kv.system.var1) is not '
-                                              'supported.' % (param_name, action_ref))
+            raise WorkflowDefinitionException(
+                'Parameter "%s" for action "%s" containing '
+                'references to both local context (i.e. _.var1) '
+                'and st2kv (i.e. st2kv.system.var1) is not '
+                'supported.' % (param_name, action_ref)
+            )
 
         if st2kv_matches:
             param_value = '{% raw %}' + param_value + '{% endraw %}'
@@ -204,7 +210,7 @@ def _transform_action(name, spec):
     #     var2: <% $.value2 %>
     _eval_inline_params(spec, action_key, input_key)
 
-    transformed = (spec[action_key] == 'st2.action')
+    transformed = spec[action_key] == 'st2.action'
 
     action_ref = spec[input_key]['ref'] if transformed else spec[action_key]
 
@@ -232,8 +238,7 @@ def _transform_action(name, spec):
 
         for param_name in action_params.keys():
             param_value = copy.deepcopy(action_params[param_name])
-            xformed_param_value = _transform_action_param(
-                action_ref, param_name, param_value)
+            xformed_param_value = _transform_action_param(action_ref, param_name, param_value)
             xformed_action_params[param_name] = xformed_param_value
 
         if xformed_action_params != action_params:

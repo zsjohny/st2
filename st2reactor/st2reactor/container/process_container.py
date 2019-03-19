@@ -32,7 +32,7 @@ from st2common.constants.error_messages import PACK_VIRTUALENV_DOESNT_EXIST
 from st2common.constants.error_messages import PACK_VIRTUALENV_USES_PYTHON3
 from st2common.constants.system import API_URL_ENV_VARIABLE_NAME
 from st2common.constants.system import AUTH_TOKEN_ENV_VARIABLE_NAME
-from st2common.constants.triggers import (SENSOR_SPAWN_TRIGGER, SENSOR_EXIT_TRIGGER)
+from st2common.constants.triggers import SENSOR_SPAWN_TRIGGER, SENSOR_EXIT_TRIGGER
 from st2common.constants.exit_codes import SUCCESS_EXIT_CODE
 from st2common.constants.exit_codes import FAILURE_EXIT_CODE
 from st2common.models.system.common import ResourceReference
@@ -46,9 +46,7 @@ from st2common.util.sandboxing import get_sandbox_python_binary_path
 from st2common.util.sandboxing import get_sandbox_virtualenv_path
 from st2common.util.sandboxing import is_pack_virtualenv_using_python3
 
-__all__ = [
-    'ProcessSensorContainer'
-]
+__all__ = ['ProcessSensorContainer']
 
 LOG = logging.getLogger('st2reactor.process_sensor_container')
 
@@ -176,18 +174,19 @@ class ProcessSensorContainer(object):
                 sensor = self._sensors[sensor_id]
                 self._delete_sensor(sensor_id)
 
-                self._dispatch_trigger_for_sensor_exit(sensor=sensor,
-                                                       exit_code=status)
+                self._dispatch_trigger_for_sensor_exit(sensor=sensor, exit_code=status)
 
                 # Try to respawn a dead process (maybe it was a simple failure which can be
                 # resolved with a restart)
-                eventlet.spawn_n(self._respawn_sensor, sensor_id=sensor_id, sensor=sensor,
-                                 exit_code=status)
+                eventlet.spawn_n(
+                    self._respawn_sensor, sensor_id=sensor_id, sensor=sensor, exit_code=status
+                )
             else:
                 sensor_start_time = self._sensor_start_times[sensor_id]
                 sensor_respawn_count = self._sensor_respawn_counts[sensor_id]
-                successfully_started = ((now - sensor_start_time) >=
-                                        SENSOR_SUCCESSFUL_START_THRESHOLD)
+                successfully_started = (
+                    now - sensor_start_time
+                ) >= SENSOR_SUCCESSFUL_START_THRESHOLD
 
                 if successfully_started and sensor_respawn_count >= 1:
                     # Sensor has been successfully running more than threshold seconds, clear the
@@ -307,14 +306,15 @@ class ProcessSensorContainer(object):
             '--file-path=%s' % (sensor['file_path']),
             '--class-name=%s' % (sensor['class_name']),
             '--trigger-type-refs=%s' % (trigger_type_refs),
-            '--parent-args=%s' % (parent_args)
+            '--parent-args=%s' % (parent_args),
         ]
 
         if sensor['poll_interval']:
             args.append('--poll-interval=%s' % (sensor['poll_interval']))
 
-        sandbox_python_path = get_sandbox_python_path(inherit_from_parent=True,
-                                                      inherit_parent_virtualenv=True)
+        sandbox_python_path = get_sandbox_python_path(
+            inherit_from_parent=True, inherit_parent_virtualenv=True
+        )
 
         if self._enable_common_pack_libs:
             pack_common_libs_path = get_pack_common_libs_path_for_pack_ref(pack_ref=pack_ref)
@@ -333,10 +333,11 @@ class ProcessSensorContainer(object):
         metadata = {
             'service': 'sensors_container',
             'sensor_path': sensor['file_path'],
-            'sensor_class': sensor['class_name']
+            'sensor_class': sensor['class_name'],
         }
-        temporary_token = create_token(username='sensors_container', ttl=ttl, metadata=metadata,
-                                       service=True)
+        temporary_token = create_token(
+            username='sensors_container', ttl=ttl, metadata=metadata, service=True
+        )
 
         env[API_URL_ENV_VARIABLE_NAME] = get_full_public_api_url()
         env[AUTH_TOKEN_ENV_VARIABLE_NAME] = temporary_token.token
@@ -349,13 +350,22 @@ class ProcessSensorContainer(object):
 
         # TODO: Intercept stdout and stderr for aggregated logging purposes
         try:
-            process = subprocess.Popen(args=args, stdin=None, stdout=None,
-                                       stderr=None, shell=False, env=env,
-                                       preexec_fn=on_parent_exit('SIGTERM'))
+            process = subprocess.Popen(
+                args=args,
+                stdin=None,
+                stdout=None,
+                stderr=None,
+                shell=False,
+                env=env,
+                preexec_fn=on_parent_exit('SIGTERM'),
+            )
         except Exception as e:
             cmd = ' '.join(args)
-            message = ('Failed to spawn process for sensor %s ("%s"): %s' %
-                       (sensor_id, cmd, six.text_type(e)))
+            message = 'Failed to spawn process for sensor %s ("%s"): %s' % (
+                sensor_id,
+                cmd,
+                six.text_type(e),
+            )
             raise Exception(message)
 
         self._processes[sensor_id] = process
@@ -413,8 +423,7 @@ class ProcessSensorContainer(object):
 
         if self._single_sensor_mode:
             # In single sensor mode we want to exit immediately on failure
-            LOG.info('Not respawning a sensor since running in single sensor mode',
-                     extra=extra)
+            LOG.info('Not respawning a sensor since running in single sensor mode', extra=extra)
 
             self._stopped = True
             self._exit_code = exit_code
@@ -424,8 +433,9 @@ class ProcessSensorContainer(object):
             LOG.debug('Stopped, not respawning a dead sensor', extra=extra)
             return
 
-        should_respawn = self._should_respawn_sensor(sensor_id=sensor_id, sensor=sensor,
-                                                     exit_code=exit_code)
+        should_respawn = self._should_respawn_sensor(
+            sensor_id=sensor_id, sensor=sensor, exit_code=exit_code
+        )
 
         if not should_respawn:
             LOG.debug('Not respawning a dead sensor', extra=extra)
@@ -434,7 +444,7 @@ class ProcessSensorContainer(object):
         LOG.debug('Respawning dead sensor', extra=extra)
 
         self._sensor_respawn_counts[sensor_id] += 1
-        sleep_delay = (SENSOR_RESPAWN_DELAY * self._sensor_respawn_counts[sensor_id])
+        sleep_delay = SENSOR_RESPAWN_DELAY * self._sensor_respawn_counts[sensor_id]
         eventlet.sleep(sleep_delay)
 
         try:
@@ -471,27 +481,18 @@ class ProcessSensorContainer(object):
 
     def _dispatch_trigger_for_sensor_spawn(self, sensor, process, cmd):
         trigger = ResourceReference.to_string_reference(
-            name=SENSOR_SPAWN_TRIGGER['name'],
-            pack=SENSOR_SPAWN_TRIGGER['pack'])
+            name=SENSOR_SPAWN_TRIGGER['name'], pack=SENSOR_SPAWN_TRIGGER['pack']
+        )
         now = int(time.time())
-        payload = {
-            'id': sensor['class_name'],
-            'timestamp': now,
-            'pid': process.pid,
-            'cmd': cmd
-        }
+        payload = {'id': sensor['class_name'], 'timestamp': now, 'pid': process.pid, 'cmd': cmd}
         self._dispatcher.dispatch(trigger, payload=payload)
 
     def _dispatch_trigger_for_sensor_exit(self, sensor, exit_code):
         trigger = ResourceReference.to_string_reference(
-            name=SENSOR_EXIT_TRIGGER['name'],
-            pack=SENSOR_EXIT_TRIGGER['pack'])
+            name=SENSOR_EXIT_TRIGGER['name'], pack=SENSOR_EXIT_TRIGGER['pack']
+        )
         now = int(time.time())
-        payload = {
-            'id': sensor['class_name'],
-            'timestamp': now,
-            'exit_code': exit_code
-        }
+        payload = {'id': sensor['class_name'], 'timestamp': now, 'exit_code': exit_code}
         self._dispatcher.dispatch(trigger, payload=payload)
 
     def _delete_sensor(self, sensor_id):

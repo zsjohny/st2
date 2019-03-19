@@ -51,10 +51,8 @@ class TriggerInstanceDispatcher(consumers.StagedMessageHandler):
         # Accomodate for not being able to create a TrigegrInstance if a TriggerDB
         # is not found.
         trigger_instance = container_utils.create_trigger_instance(
-            trigger,
-            payload or {},
-            date_utils.get_datetime_utc_now(),
-            raise_on_no_trigger=True)
+            trigger, payload or {}, date_utils.get_datetime_utc_now(), raise_on_no_trigger=True
+        )
 
         return self._compose_pre_ack_process_response(trigger_instance, message)
 
@@ -70,30 +68,31 @@ class TriggerInstanceDispatcher(consumers.StagedMessageHandler):
             # and use the trigger_instance.id as trace_tag.
             trace_context = message.get(TRACE_CONTEXT, None)
             if not trace_context:
-                trace_context = {
-                    TRACE_ID: 'trigger_instance-%s' % str(trigger_instance.id)
-                }
+                trace_context = {TRACE_ID: 'trigger_instance-%s' % str(trigger_instance.id)}
             # add a trace or update an existing trace with trigger_instance
             trace_service.add_or_update_given_trace_context(
                 trace_context=trace_context,
                 trigger_instances=[
                     trace_service.get_trace_component_for_trigger_instance(trigger_instance)
-                ]
+                ],
             )
 
             container_utils.update_trigger_instance_status(
-                trigger_instance, trigger_constants.TRIGGER_INSTANCE_PROCESSING)
+                trigger_instance, trigger_constants.TRIGGER_INSTANCE_PROCESSING
+            )
 
             with CounterWithTimer(key='rule.processed'):
                 with Timer(key='trigger.%s.processed' % (trigger_instance.trigger)):
                     self.rules_engine.handle_trigger_instance(trigger_instance)
 
             container_utils.update_trigger_instance_status(
-                trigger_instance, trigger_constants.TRIGGER_INSTANCE_PROCESSED)
+                trigger_instance, trigger_constants.TRIGGER_INSTANCE_PROCESSED
+            )
         except:
             # TODO : Capture the reason for failure.
             container_utils.update_trigger_instance_status(
-                trigger_instance, trigger_constants.TRIGGER_INSTANCE_PROCESSING_FAILED)
+                trigger_instance, trigger_constants.TRIGGER_INSTANCE_PROCESSING_FAILED
+            )
             # This could be a large message but at least in case of an exception
             # we get to see more context.
             # Beyond this point code cannot really handle the exception anyway so

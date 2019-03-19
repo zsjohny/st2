@@ -27,21 +27,12 @@ from st2tests.fixturesloader import FixturesLoader
 from tests.base import FunctionalTest
 from tests.base import APIControllerWithIncludeAndExcludeFilterTestCase
 
-__all__ = [
-    'PolicyTypeControllerTestCase',
-    'PolicyControllerTestCase'
-]
+__all__ = ['PolicyTypeControllerTestCase', 'PolicyControllerTestCase']
 
 
 TEST_FIXTURES = {
-    'policytypes': [
-        'fake_policy_type_1.yaml',
-        'fake_policy_type_2.yaml'
-    ],
-    'policies': [
-        'policy_1.yaml',
-        'policy_2.yaml'
-    ]
+    'policytypes': ['fake_policy_type_1.yaml', 'fake_policy_type_2.yaml'],
+    'policies': ['policy_1.yaml', 'policy_2.yaml'],
 }
 
 PACK = 'generic'
@@ -49,8 +40,9 @@ LOADER = FixturesLoader()
 FIXTURES = LOADER.load_fixtures(fixtures_pack=PACK, fixtures_dict=TEST_FIXTURES)
 
 
-class PolicyTypeControllerTestCase(FunctionalTest,
-                               APIControllerWithIncludeAndExcludeFilterTestCase):
+class PolicyTypeControllerTestCase(
+    FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase
+):
     get_all_path = '/v1/policytypes'
     controller_cls = PolicyTypeController
     include_attribute_field_name = 'module'
@@ -80,8 +72,9 @@ class PolicyTypeControllerTestCase(FunctionalTest,
         self.assertGreater(len(resp.json), 0)
         selected = resp.json[0]
 
-        resp = self.__do_get_all(filter='resource_type=%s&name=%s' %
-                                 (selected['resource_type'], selected['name']))
+        resp = self.__do_get_all(
+            filter='resource_type=%s&name=%s' % (selected['resource_type'], selected['name'])
+        )
         self.assertEqual(resp.status_int, 200)
         self.assertEqual(len(resp.json), 1)
         self.assertEqual(self.__get_obj_id(resp, idx=0), selected['id'])
@@ -140,8 +133,7 @@ class PolicyTypeControllerTestCase(FunctionalTest,
         return self.app.get('%s/%s' % (self.base_url, id), expect_errors=True)
 
 
-class PolicyControllerTestCase(FunctionalTest,
-                               APIControllerWithIncludeAndExcludeFilterTestCase):
+class PolicyControllerTestCase(FunctionalTest, APIControllerWithIncludeAndExcludeFilterTestCase):
     get_all_path = '/v1/policies'
     controller_cls = PolicyController
     include_attribute_field_name = 'policy_type'
@@ -257,8 +249,10 @@ class PolicyControllerTestCase(FunctionalTest,
         updated_input['enabled'] = not updated_input['enabled']
         put_resp = self.__do_put(self.__get_obj_id(post_resp), updated_input)
         self.assertEqual(put_resp.status_int, http_client.BAD_REQUEST)
-        self.assertEqual(put_resp.json['faultstring'],
-                         "Resources belonging to system level packs can't be manipulated")
+        self.assertEqual(
+            put_resp.json['faultstring'],
+            "Resources belonging to system level packs can't be manipulated",
+        )
 
         # Clean up manually since API won't delete object in sys pack.
         Policy.delete(Policy.get_by_id(self.__get_obj_id(post_resp)))
@@ -276,8 +270,10 @@ class PolicyControllerTestCase(FunctionalTest,
 
         del_resp = self.__do_delete(self.__get_obj_id(post_resp))
         self.assertEqual(del_resp.status_int, http_client.BAD_REQUEST)
-        self.assertEqual(del_resp.json['faultstring'],
-                         "Resources belonging to system level packs can't be manipulated")
+        self.assertEqual(
+            del_resp.json['faultstring'],
+            "Resources belonging to system level packs can't be manipulated",
+        )
 
         # Clean up manually since API won't delete object in sys pack.
         Policy.delete(Policy.get_by_id(self.__get_obj_id(post_resp)))
@@ -299,9 +295,7 @@ class PolicyControllerTestCase(FunctionalTest,
             'pack': 'mypack',
             'resource_ref': 'mypack.myaction',
             'policy_type': 'action.mock_policy_error',
-            'parameters': {
-                'k1': 'v1'
-            }
+            'parameters': {'k1': 'v1'},
         }
 
     @staticmethod

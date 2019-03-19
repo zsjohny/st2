@@ -17,12 +17,7 @@
 
 from __future__ import absolute_import
 
-__all__ = [
-    'BACKENDS_NAMESPACE',
-
-    'get_available_backends',
-    'get_backend_instance'
-]
+__all__ = ['BACKENDS_NAMESPACE', 'get_available_backends', 'get_backend_instance']
 
 BACKENDS_NAMESPACE = 'st2common.runners.runner'
 

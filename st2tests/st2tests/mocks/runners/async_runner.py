@@ -14,13 +14,14 @@
 # limitations under the License.
 
 from __future__ import absolute_import
+
 try:
     import simplejson as json
 except:
     import json
 
 from st2common.runners.base import AsyncActionRunner
-from st2common.constants.action import (LIVEACTION_STATUS_RUNNING)
+from st2common.constants.action import LIVEACTION_STATUS_RUNNING
 
 RAISE_PROPERTY = 'raise'
 
@@ -45,10 +46,7 @@ class AsyncTestRunner(AsyncActionRunner):
         if self.runner_parameters.get(RAISE_PROPERTY, False):
             raise Exception('Raise required.')
         else:
-            result = {
-                'ran': True,
-                'action_params': action_params
-            }
+            result = {'ran': True, 'action_params': action_params}
 
         return (LIVEACTION_STATUS_RUNNING, json.dumps(result), {'id': 'foo'})
 

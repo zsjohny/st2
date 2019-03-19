@@ -36,10 +36,7 @@ from st2common.rbac.resolvers import get_resolver_for_resource_type
 from st2common.rbac.migrations import insert_system_roles
 from st2tests.base import CleanDbTestCase
 
-__all__ = [
-    'BasePermissionsResolverTestCase',
-    'PermissionsResolverUtilsTestCase'
-]
+__all__ = ['BasePermissionsResolverTestCase', 'PermissionsResolverUtilsTestCase']
 
 
 class BasePermissionsResolverTestCase(CleanDbTestCase):
@@ -65,12 +62,13 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
         """
         self.assertTrue(isinstance(permission_type, six.string_types))
 
-        result = resolver.user_has_permission(user_db=user_db,
-                                              permission_type=permission_type)
+        result = resolver.user_has_permission(user_db=user_db, permission_type=permission_type)
 
         if not result:
-            msg = ('Expected permission grant "%s" for user "%s" but no grant was found' %
-                   (permission_type, user_db.name))
+            msg = 'Expected permission grant "%s" for user "%s" but no grant was found' % (
+                permission_type,
+                user_db.name,
+            )
             raise AssertionError(msg)
 
         return True
@@ -81,12 +79,13 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
         """
         self.assertTrue(isinstance(permission_type, six.string_types))
 
-        result = resolver.user_has_permission(user_db=user_db,
-                                              permission_type=permission_type)
+        result = resolver.user_has_permission(user_db=user_db, permission_type=permission_type)
 
         if result:
-            msg = ('Found permission grant "%s" for user "%s" which shouldn\'t exist' %
-                   (permission_type, user_db.name))
+            msg = 'Found permission grant "%s" for user "%s" which shouldn\'t exist' % (
+                permission_type,
+                user_db.name,
+            )
             raise AssertionError(msg)
 
         return True
@@ -97,29 +96,36 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
         """
         self.assertTrue(isinstance(permission_type, six.string_types))
 
-        result = resolver.user_has_resource_db_permission(user_db=user_db, resource_db=resource_db,
-                                                          permission_type=permission_type)
+        result = resolver.user_has_resource_db_permission(
+            user_db=user_db, resource_db=resource_db, permission_type=permission_type
+        )
 
         if not result:
-            msg = ('Expected permission grant "%s" for user "%s" on resource DB "%s", but no '
-                   'grant was found' % (permission_type, user_db.name, resource_db.get_uid()))
+            msg = (
+                'Expected permission grant "%s" for user "%s" on resource DB "%s", but no '
+                'grant was found' % (permission_type, user_db.name, resource_db.get_uid())
+            )
             raise AssertionError(msg)
 
         return True
 
-    def assertUserDoesntHaveResourceDbPermission(self, resolver, user_db, resource_db,
-                                                 permission_type):
+    def assertUserDoesntHaveResourceDbPermission(
+        self, resolver, user_db, resource_db, permission_type
+    ):
         """
         Assert that the user has the provided permission on the provided resource.
         """
         self.assertTrue(isinstance(permission_type, six.string_types))
 
-        result = resolver.user_has_resource_db_permission(user_db=user_db, resource_db=resource_db,
-                                                          permission_type=permission_type)
+        result = resolver.user_has_resource_db_permission(
+            user_db=user_db, resource_db=resource_db, permission_type=permission_type
+        )
 
         if result:
-            msg = ('Found permission grant "%s" for user "%s" on resource DB "%s", which '
-                   'shouldn\'t exist' % (permission_type, user_db.name, resource_db.get_uid()))
+            msg = (
+                'Found permission grant "%s" for user "%s" on resource DB "%s", which '
+                'shouldn\'t exist' % (permission_type, user_db.name, resource_db.get_uid())
+            )
             raise AssertionError(msg)
 
         return True
@@ -134,14 +140,18 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
         self.assertTrue(len(permission_types) > 1)
 
         for permission_type in permission_types:
-            self.assertUserHasResourceDbPermission(resolver=resolver, user_db=user_db,
-                                                   resource_db=resource_db,
-                                                   permission_type=permission_type)
+            self.assertUserHasResourceDbPermission(
+                resolver=resolver,
+                user_db=user_db,
+                resource_db=resource_db,
+                permission_type=permission_type,
+            )
 
         return True
 
-    def assertUserDoesntHaveResourceDbPermissions(self, resolver, user_db, resource_db,
-                                                  permission_types):
+    def assertUserDoesntHaveResourceDbPermissions(
+        self, resolver, user_db, resource_db, permission_types
+    ):
         """
         Assert that the user doesn't have all the specified permissions on the provided resource.
 
@@ -151,37 +161,45 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
         self.assertTrue(len(permission_types) > 1)
 
         for permission_type in permission_types:
-            self.assertUserDoesntHaveResourceDbPermission(resolver=resolver, user_db=user_db,
-                                                          resource_db=resource_db,
-                                                          permission_type=permission_type)
+            self.assertUserDoesntHaveResourceDbPermission(
+                resolver=resolver,
+                user_db=user_db,
+                resource_db=resource_db,
+                permission_type=permission_type,
+            )
 
         return True
 
     def assertUserHasResourceApiPermission(self, resolver, user_db, resource_api, permission_type):
         self.assertTrue(isinstance(permission_type, six.string_types))
 
-        result = resolver.user_has_resource_api_permission(user_db=user_db,
-                                                           resource_api=resource_api,
-                                                           permission_type=permission_type)
+        result = resolver.user_has_resource_api_permission(
+            user_db=user_db, resource_api=resource_api, permission_type=permission_type
+        )
 
         if not result:
-            msg = ('Expected permission grant "%s" for user "%s" on resource API "%s", but no '
-                   'grant was found' % (permission_type, user_db.name, resource_api.get_uid()))
+            msg = (
+                'Expected permission grant "%s" for user "%s" on resource API "%s", but no '
+                'grant was found' % (permission_type, user_db.name, resource_api.get_uid())
+            )
             raise AssertionError(msg)
 
         return True
 
-    def assertUserDoesntHaveResourceApiPermission(self, resolver, user_db, resource_api,
-                                                  permission_type):
+    def assertUserDoesntHaveResourceApiPermission(
+        self, resolver, user_db, resource_api, permission_type
+    ):
         self.assertTrue(isinstance(permission_type, six.string_types))
 
-        result = resolver.user_has_resource_api_permission(user_db=user_db,
-                                                           resource_api=resource_api,
-                                                           permission_type=permission_type)
+        result = resolver.user_has_resource_api_permission(
+            user_db=user_db, resource_api=resource_api, permission_type=permission_type
+        )
 
         if result:
-            msg = ('Found permission grant "%s" for user "%s" on resource API "%s", which '
-                   'shouldn\'t exist' % (permission_type, user_db.name, resource_api.get_uid()))
+            msg = (
+                'Found permission grant "%s" for user "%s" on resource API "%s", which '
+                'shouldn\'t exist' % (permission_type, user_db.name, resource_api.get_uid())
+            )
             raise AssertionError(msg)
 
         return True
@@ -215,13 +233,25 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
         self.users['custom_role_pack_grant'] = user_5_db
 
     def _insert_common_mock_resources(self):
-        pack_1_db = PackDB(name='test_pack_1', ref='test_pack_1', description='',
-                           version='0.1.0', author='foo', email='test@example.com')
+        pack_1_db = PackDB(
+            name='test_pack_1',
+            ref='test_pack_1',
+            description='',
+            version='0.1.0',
+            author='foo',
+            email='test@example.com',
+        )
         pack_1_db = Pack.add_or_update(pack_1_db)
         self.resources['pack_1'] = pack_1_db
 
-        pack_2_db = PackDB(name='test_pack_2', ref='test_pack_2', description='',
-                           version='0.1.0', author='foo', email='test@example.com')
+        pack_2_db = PackDB(
+            name='test_pack_2',
+            ref='test_pack_2',
+            description='',
+            version='0.1.0',
+            author='foo',
+            email='test@example.com',
+        )
         pack_2_db = Pack.add_or_update(pack_2_db)
         self.resources['pack_2'] = pack_2_db
 
@@ -238,9 +268,11 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
 
         # Custom role 2 - one grant on pack_1
         # "pack_create" on pack_1
-        grant_db = PermissionGrantDB(resource_uid=self.resources['pack_1'].get_uid(),
-                                     resource_type=ResourceType.PACK,
-                                     permission_types=[PermissionType.PACK_CREATE])
+        grant_db = PermissionGrantDB(
+            resource_uid=self.resources['pack_1'].get_uid(),
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.PACK_CREATE],
+        )
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_3_db = RoleDB(name='custom_role_pack_grant', permission_grants=permission_grants)
@@ -250,39 +282,52 @@ class BasePermissionsResolverTestCase(CleanDbTestCase):
     def _insert_common_mock_role_assignments(self):
         # Insert common mock role assignments
         role_assignment_admin = UserRoleAssignmentDB(
-            user=self.users['admin'].name, role=self.roles['admin_role'].name,
-            source='assignments/admin.yaml')
+            user=self.users['admin'].name,
+            role=self.roles['admin_role'].name,
+            source='assignments/admin.yaml',
+        )
 
         role_assignment_admin = UserRoleAssignment.add_or_update(role_assignment_admin)
 
         role_assignment_observer = UserRoleAssignmentDB(
-            user=self.users['observer'].name, role=self.roles['observer_role'].name,
-            source='assignments/observer.yaml')
+            user=self.users['observer'].name,
+            role=self.roles['observer_role'].name,
+            source='assignments/observer.yaml',
+        )
 
         role_assignment_observer = UserRoleAssignment.add_or_update(role_assignment_observer)
 
         user_db = self.users['1_custom_role_no_permissions']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_1'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_1'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
 
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         user_db = self.users['custom_role_pack_grant']
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_db.name, role=self.roles['custom_role_pack_grant'].name,
-            source='assignments/%s.yaml' % user_db.name)
+            user=user_db.name,
+            role=self.roles['custom_role_pack_grant'].name,
+            source='assignments/%s.yaml' % user_db.name,
+        )
 
         UserRoleAssignment.add_or_update(role_assignment_db)
 
 
 class PermissionsResolverUtilsTestCase(unittest2.TestCase):
     def test_get_resolver_for_resource_type_valid_resource_type(self):
-        valid_resources_types = [ResourceType.PACK, ResourceType.SENSOR, ResourceType.ACTION,
-                                 ResourceType.RULE, ResourceType.RULE_ENFORCEMENT,
-                                 ResourceType.EXECUTION,
-                                 ResourceType.KEY_VALUE_PAIR,
-                                 ResourceType.WEBHOOK]
+        valid_resources_types = [
+            ResourceType.PACK,
+            ResourceType.SENSOR,
+            ResourceType.ACTION,
+            ResourceType.RULE,
+            ResourceType.RULE_ENFORCEMENT,
+            ResourceType.EXECUTION,
+            ResourceType.KEY_VALUE_PAIR,
+            ResourceType.WEBHOOK,
+        ]
 
         for resource_type in valid_resources_types:
             resolver_instance = get_resolver_for_resource_type(resource_type=resource_type)
@@ -292,5 +337,6 @@ class PermissionsResolverUtilsTestCase(unittest2.TestCase):
 
     def test_get_resolver_for_resource_type_unsupported_resource_type(self):
         expected_msg = 'Unsupported resource: alias'
-        self.assertRaisesRegexp(ValueError, expected_msg, get_resolver_for_resource_type,
-                                resource_type='alias')
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, get_resolver_for_resource_type, resource_type='alias'
+        )

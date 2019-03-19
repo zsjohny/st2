@@ -27,10 +27,7 @@ from st2common.util.secrets import mask_inquiry_response
 from st2common.util.secrets import mask_secret_parameters
 from st2common.constants.types import ResourceType
 
-__all__ = [
-    'ActionExecutionDB',
-    'ActionExecutionOutputDB'
-]
+__all__ = ['ActionExecutionDB', 'ActionExecutionOutputDB']
 
 
 LOG = logging.getLogger(__name__)
@@ -51,23 +48,19 @@ class ActionExecutionDB(stormbase.StormFoundationDB):
     liveaction = stormbase.EscapedDictField(required=True)
     workflow_execution = me.StringField()
     task_execution = me.StringField()
-    status = me.StringField(
-        required=True,
-        help_text='The current status of the liveaction.')
+    status = me.StringField(required=True, help_text='The current status of the liveaction.')
     start_timestamp = ComplexDateTimeField(
         default=date_utils.get_datetime_utc_now,
-        help_text='The timestamp when the liveaction was created.')
+        help_text='The timestamp when the liveaction was created.',
+    )
     end_timestamp = ComplexDateTimeField(
-        help_text='The timestamp when the liveaction has finished.')
+        help_text='The timestamp when the liveaction has finished.'
+    )
     parameters = stormbase.EscapedDynamicField(
-        default={},
-        help_text='The key-value pairs passed as to the action runner & action.')
-    result = stormbase.EscapedDynamicField(
-        default={},
-        help_text='Action defined result.')
-    context = me.DictField(
-        default={},
-        help_text='Contextual information on the action execution.')
+        default={}, help_text='The key-value pairs passed as to the action runner & action.'
+    )
+    result = stormbase.EscapedDynamicField(default={}, help_text='Action defined result.')
+    context = me.DictField(default={}, help_text='Contextual information on the action execution.')
     parent = me.StringField()
     children = me.ListField(field=me.StringField())
     log = me.ListField(field=me.DictField())
@@ -92,7 +85,7 @@ class ActionExecutionDB(stormbase.StormFoundationDB):
             {'fields': ['context.user']},
             {'fields': ['-start_timestamp', 'action.ref', 'status']},
             {'fields': ['workflow_execution']},
-            {'fields': ['task_execution']}
+            {'fields': ['task_execution']},
         ]
     }
 
@@ -111,12 +104,14 @@ class ActionExecutionDB(stormbase.StormFoundationDB):
         parameters.update(value.get('runner', {}).get('runner_parameters', {}))
 
         secret_parameters = get_secret_parameters(parameters=parameters)
-        result['parameters'] = mask_secret_parameters(parameters=result.get('parameters', {}),
-                                                      secret_parameters=secret_parameters)
+        result['parameters'] = mask_secret_parameters(
+            parameters=result.get('parameters', {}), secret_parameters=secret_parameters
+        )
 
         if 'parameters' in liveaction:
-            liveaction['parameters'] = mask_secret_parameters(parameters=liveaction['parameters'],
-                                                              secret_parameters=secret_parameters)
+            liveaction['parameters'] = mask_secret_parameters(
+                parameters=liveaction['parameters'], secret_parameters=secret_parameters
+            )
 
             if liveaction.get('action', '') == 'st2.inquiry.respond':
                 # Special case to mask parameters for `st2.inquiry.respond` action
@@ -132,7 +127,7 @@ class ActionExecutionDB(stormbase.StormFoundationDB):
                 #       mask it.
                 result['parameters']['response'] = mask_secret_parameters(
                     parameters=liveaction['parameters']['response'],
-                    secret_parameters={p: 'string' for p in liveaction['parameters']['response']}
+                    secret_parameters={p: 'string' for p in liveaction['parameters']['response']},
                 )
 
         # TODO(mierdin): This logic should be moved to the dedicated Inquiry
@@ -174,6 +169,7 @@ class ActionExecutionOutputDB(stormbase.StormFoundationDB):
         data: Actual output data. This could either be line, chunk or similar, depending on the
               runner.
     """
+
     execution_id = me.StringField(required=True)
     action_ref = me.StringField(required=True)
     runner_ref = me.StringField(required=True)
@@ -189,7 +185,7 @@ class ActionExecutionOutputDB(stormbase.StormFoundationDB):
             {'fields': ['action_ref']},
             {'fields': ['runner_ref']},
             {'fields': ['timestamp']},
-            {'fields': ['output_type']}
+            {'fields': ['output_type']},
         ]
     }
 

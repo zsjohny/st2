@@ -25,14 +25,13 @@ from st2common.service_setup import setup as common_setup
 from st2common.service_setup import teardown as common_teardown
 from st2common.util.monkey_patch import monkey_patch
 from st2api import config
+
 config.register_opts()
 from st2api import app
 
 from st2api.validation import validate_rbac_is_correctly_configured
 
-__all__ = [
-    'main'
-]
+__all__ = ['main']
 
 monkey_patch()
 
@@ -47,12 +46,19 @@ def _setup():
         'name': 'api',
         'listen_host': cfg.CONF.api.host,
         'listen_port': cfg.CONF.api.port,
-        'type': 'active'
+        'type': 'active',
     }
 
-    common_setup(service='api', config=config, setup_db=True, register_mq_exchanges=True,
-                 register_signal_handlers=True, register_internal_trigger_types=True,
-                 service_registry=True, capabilities=capabilities)
+    common_setup(
+        service='api',
+        config=config,
+        setup_db=True,
+        register_mq_exchanges=True,
+        register_signal_handlers=True,
+        register_internal_trigger_types=True,
+        service_registry=True,
+        capabilities=capabilities,
+    )
 
     # Additional pre-run time checks
     validate_rbac_is_correctly_configured()

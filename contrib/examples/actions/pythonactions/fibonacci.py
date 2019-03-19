@@ -12,6 +12,7 @@ def fib(n):
         return n
     return fib(n - 2) + fib(n - 1)
 
+
 if __name__ == '__main__':
     try:
         startNumber = int(float(sys.argv[1]))

@@ -24,7 +24,6 @@ from st2common.services.keyvalues import KeyValueLookup
 
 
 class JinjaUtilsDataFilterTestCase(unittest2.TestCase):
-
     def test_filter_from_json_string(self):
         env = jinja_utils.get_jinja_environment()
         expected_obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
@@ -52,12 +51,7 @@ class JinjaUtilsDataFilterTestCase(unittest2.TestCase):
     def test_filter_from_yaml_string(self):
         env = jinja_utils.get_jinja_environment()
         expected_obj = {'a': 'b', 'c': {'d': 'e', 'f': 1, 'g': True}}
-        obj_yaml_str = ("---\n"
-                        "a: b\n"
-                        "c:\n"
-                        "  d: e\n"
-                        "  f: 1\n"
-                        "  g: true\n")
+        obj_yaml_str = "---\n" "a: b\n" "c:\n" "  d: e\n" "  f: 1\n" "  g: true\n"
 
         template = '{{k1 | from_yaml_string}}'
         obj_str = env.from_string(template).render({'k1': obj_yaml_str})
@@ -66,10 +60,7 @@ class JinjaUtilsDataFilterTestCase(unittest2.TestCase):
 
         # With KeyValueLookup object
         env = jinja_utils.get_jinja_environment()
-        obj_yaml_str = ("---\n"
-                        "- a\n"
-                        "- b\n"
-                        "- c\n")
+        obj_yaml_str = "---\n" "- a\n" "- b\n" "- c\n"
         expected_obj = ['a', 'b', 'c']
 
         template = '{{ k1 | from_yaml_string }}'

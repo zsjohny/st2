@@ -22,10 +22,7 @@ from st2common.persistence.rule import Rule
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'get_rules_given_trigger',
-    'get_rules_with_trigger_ref'
-]
+__all__ = ['get_rules_given_trigger', 'get_rules_with_trigger_ref']
 
 
 def get_rules_given_trigger(trigger):

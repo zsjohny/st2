@@ -27,10 +27,7 @@ from st2common.models.db.auth import TokenDB, UserDB
 from st2common.persistence.auth import Token, User
 from st2common import log as logging
 
-__all__ = [
-    'create_token',
-    'delete_token'
-]
+__all__ = ['create_token', 'delete_token']
 
 LOG = logging.getLogger(__name__)
 
@@ -57,8 +54,10 @@ def create_token(username, ttl=None, metadata=None, add_missing_user=True, servi
     if ttl:
         # Note: We allow arbitrary large TTLs for service tokens.
         if not service and ttl > cfg.CONF.auth.token_ttl:
-            msg = ('TTL specified %s is greater than max allowed %s.' % (ttl,
-                                                                         cfg.CONF.auth.token_ttl))
+            msg = 'TTL specified %s is greater than max allowed %s.' % (
+                ttl,
+                cfg.CONF.auth.token_ttl,
+            )
             raise TTLTooLargeException(msg)
     else:
         ttl = cfg.CONF.auth.token_ttl
@@ -85,8 +84,11 @@ def create_token(username, ttl=None, metadata=None, add_missing_user=True, servi
     token_expire_string = isotime.format(expiry, offset=False)
     extra = {'username': username, 'token_expiration': token_expire_string}
 
-    LOG.audit('Access granted to "%s" with the token set to expire at "%s".' %
-              (username_string, token_expire_string), extra=extra)
+    LOG.audit(
+        'Access granted to "%s" with the token set to expire at "%s".'
+        % (username_string, token_expire_string),
+        extra=extra,
+    )
 
     return token
 

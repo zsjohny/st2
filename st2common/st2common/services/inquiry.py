@@ -59,9 +59,7 @@ def check_inquiry(inquiry):
 def check_permission(inquiry, requester):
     # Normalize user object.
     user_db = (
-        auth_db_models.UserDB(requester)
-        if isinstance(requester, six.string_types)
-        else requester
+        auth_db_models.UserDB(requester) if isinstance(requester, six.string_types) else requester
     )
 
     # Deny by default
@@ -105,7 +103,7 @@ def validate_response(inquiry, response):
             schema=schema,
             cls=schema_utils.CustomValidator,
             use_default=True,
-            allow_default_none=True
+            allow_default_none=True,
         )
     except Exception as e:
         msg = 'Response for inquiry "%s" did not pass schema validation.'
@@ -153,7 +151,7 @@ def respond(inquiry, response, requester=None):
         end_timestamp=date_utils.get_datetime_utc_now(),
         runner_info=sys_info_utils.get_process_info(),
         result=result,
-        liveaction_id=str(liveaction_db.id)
+        liveaction_id=str(liveaction_db.id),
     )
 
     # Sync the liveaction with the corresponding action execution.

@@ -21,6 +21,7 @@ import st2tests
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from orquesta_functions import st2kv
@@ -39,7 +40,6 @@ MOCK_ORCHESTRA_CTX_NO_USER = {'__vars': {'st2': {}}}
 
 
 class DatastoreFunctionTest(unittest2.TestCase):
-
     def test_missing_user_context(self):
         self.assertRaises(KeyError, st2kv.st2kv_, MOCK_ORCHESTRA_CTX_NO_USER, 'foo')
 
@@ -52,7 +52,6 @@ class DatastoreFunctionTest(unittest2.TestCase):
 
 
 class UserScopeDatastoreFunctionTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(UserScopeDatastoreFunctionTest, cls).setUpClass()
@@ -88,10 +87,7 @@ class UserScopeDatastoreFunctionTest(st2tests.ExecutionDbTestCase):
 
     def test_key_does_not_exist(self):
         self.assertRaises(
-            exc.ExpressionEvaluationException,
-            st2kv.st2kv_,
-            MOCK_ORCHESTRA_CTX,
-            'foobar'
+            exc.ExpressionEvaluationException, st2kv.st2kv_, MOCK_ORCHESTRA_CTX, 'foobar'
         )
 
     def test_key_decrypt(self):
@@ -99,7 +95,6 @@ class UserScopeDatastoreFunctionTest(st2tests.ExecutionDbTestCase):
 
 
 class SystemScopeDatastoreFunctionTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(SystemScopeDatastoreFunctionTest, cls).setUpClass()
@@ -135,10 +130,7 @@ class SystemScopeDatastoreFunctionTest(st2tests.ExecutionDbTestCase):
 
     def test_key_does_not_exist(self):
         self.assertRaises(
-            exc.ExpressionEvaluationException,
-            st2kv.st2kv_,
-            MOCK_ORCHESTRA_CTX,
-            'foo'
+            exc.ExpressionEvaluationException, st2kv.st2kv_, MOCK_ORCHESTRA_CTX, 'foo'
         )
 
     def test_key_decrypt(self):

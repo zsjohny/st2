@@ -22,6 +22,7 @@ import tempfile
 import hashlib
 
 from st2common.util.monkey_patch import use_select_poll_workaround
+
 use_select_poll_workaround()
 
 from lockfile import LockFile
@@ -44,7 +45,7 @@ PACK_INDEX = {
         "author": "st2-dev",
         "keywords": ["some", "search", "another", "terms"],
         "email": "info@stackstorm.com",
-        "description": "st2 pack to test package management pipeline"
+        "description": "st2 pack to test package management pipeline",
     },
     "test2": {
         "version": "0.5.0",
@@ -53,7 +54,7 @@ PACK_INDEX = {
         "author": "stanley",
         "keywords": ["some", "special", "terms"],
         "email": "info@stackstorm.com",
-        "description": "another st2 pack to test package management pipeline"
+        "description": "another st2 pack to test package management pipeline",
     },
     "test3": {
         "version": "0.5.0",
@@ -63,8 +64,8 @@ PACK_INDEX = {
         "author": "stanley",
         "keywords": ["some", "special", "terms"],
         "email": "info@stackstorm.com",
-        "description": "another st2 pack to test package management pipeline"
-    }
+        "description": "another st2 pack to test package management pipeline",
+    },
 }
 
 
@@ -80,8 +81,9 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
         self.addCleanup(clone_from.stop)
         self.clone_from = clone_from.start()
 
-        expand_user = mock.patch.object(os.path, 'expanduser',
-                                        mock.MagicMock(return_value=tempfile.mkdtemp()))
+        expand_user = mock.patch.object(
+            os.path, 'expanduser', mock.MagicMock(return_value=tempfile.mkdtemp())
+        )
 
         self.addCleanup(expand_user.stop)
         self.expand_user = expand_user.start()
@@ -110,8 +112,9 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
         temp_dir = hashlib.md5(PACK_INDEX['test']['repo_url'].encode()).hexdigest()
 
         self.assertEqual(result, {'test': 'Success.'})
-        self.clone_from.assert_called_once_with(PACK_INDEX['test']['repo_url'],
-                                                os.path.join(os.path.expanduser('~'), temp_dir))
+        self.clone_from.assert_called_once_with(
+            PACK_INDEX['test']['repo_url'], os.path.join(os.path.expanduser('~'), temp_dir)
+        )
         self.assertTrue(os.path.isfile(os.path.join(self.repo_base, 'test/pack.yaml')))
 
         self.repo_instance.git.checkout.assert_called()
@@ -132,14 +135,16 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
         result = action.run(packs=['test', 'test2'], abs_repo_base=self.repo_base)
         temp_dirs = [
             hashlib.md5(PACK_INDEX['test']['repo_url'].encode()).hexdigest(),
-            hashlib.md5(PACK_INDEX['test2']['repo_url'].encode()).hexdigest()
+            hashlib.md5(PACK_INDEX['test2']['repo_url'].encode()).hexdigest(),
         ]
 
         self.assertEqual(result, {'test': 'Success.', 'test2': 'Success.'})
-        self.clone_from.assert_any_call(PACK_INDEX['test']['repo_url'],
-                                        os.path.join(os.path.expanduser('~'), temp_dirs[0]))
-        self.clone_from.assert_any_call(PACK_INDEX['test2']['repo_url'],
-                                        os.path.join(os.path.expanduser('~'), temp_dirs[1]))
+        self.clone_from.assert_any_call(
+            PACK_INDEX['test']['repo_url'], os.path.join(os.path.expanduser('~'), temp_dirs[0])
+        )
+        self.clone_from.assert_any_call(
+            PACK_INDEX['test2']['repo_url'], os.path.join(os.path.expanduser('~'), temp_dirs[1])
+        )
         self.assertEqual(self.clone_from.call_count, 2)
         self.assertTrue(os.path.isfile(os.path.join(self.repo_base, 'test/pack.yaml')))
         self.assertTrue(os.path.isfile(os.path.join(self.repo_base, 'test2/pack.yaml')))
@@ -155,8 +160,9 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
         self.repo_instance.commit.side_effect = BadName
 
         action = self.get_action_instance()
-        self.assertRaises(ValueError, action.run, packs=['test=1.2.3'],
-                          abs_repo_base=self.repo_base)
+        self.assertRaises(
+            ValueError, action.run, packs=['test=1.2.3'], abs_repo_base=self.repo_base
+        )
 
     def test_run_pack_lock_is_already_acquired(self):
         action = self.get_action_instance()
@@ -177,8 +183,9 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
                 fp.write('')
 
             expected_msg = 'Timeout waiting to acquire lock for'
-            self.assertRaisesRegexp(LockTimeout, expected_msg, action.run, packs=['test'],
-                                    abs_repo_base=self.repo_base)
+            self.assertRaisesRegexp(
+                LockTimeout, expected_msg, action.run, packs=['test'], abs_repo_base=self.repo_base
+            )
         finally:
             os.unlink(lock_file.lock_file)
             LockFile.acquire = original_acquire
@@ -216,8 +223,7 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
 
         self.repo_instance.commit.side_effect = side_effect
         self.repo_instance.git = mock.MagicMock(
-            branch=(lambda *args: 'master'),
-            checkout=(lambda *args: True)
+            branch=(lambda *args: 'master'), checkout=(lambda *args: True)
         )
 
         action = self.get_action_instance()
@@ -225,17 +231,22 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
 
         self.assertEqual(result, {'test': 'Success.'})
 
-    @mock.patch.object(st2common.util.pack_management, 'get_valid_versions_for_repo',
-                       mock.Mock(return_value=['1.0.0', '2.0.0']))
+    @mock.patch.object(
+        st2common.util.pack_management,
+        'get_valid_versions_for_repo',
+        mock.Mock(return_value=['1.0.0', '2.0.0']),
+    )
     def test_run_pack_download_invalid_version(self):
         self.repo_instance.commit.side_effect = lambda ref: None
 
         action = self.get_action_instance()
 
-        expected_msg = ('is not a valid version, hash, tag or branch.*?'
-                        'Available versions are: 1.0.0, 2.0.0.')
-        self.assertRaisesRegexp(ValueError, expected_msg, action.run,
-                                packs=['test=2.2.3'], abs_repo_base=self.repo_base)
+        expected_msg = (
+            'is not a valid version, hash, tag or branch.*?' 'Available versions are: 1.0.0, 2.0.0.'
+        )
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, action.run, packs=['test=2.2.3'], abs_repo_base=self.repo_base
+        )
 
     def test_download_pack_stackstorm_version_identifier_check(self):
         action = self.get_action_instance()
@@ -248,28 +259,36 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
 
         # Pack requires a version which is not satisfied by current StackStorm version
         st2common.util.pack_management.CURRENT_STACKSTORM_VERSION = '2.2.0'
-        expected_msg = ('Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but '
-                        'current version is "2.2.0"')
-        self.assertRaisesRegexp(ValueError, expected_msg, action.run, packs=['test3'],
-                                abs_repo_base=self.repo_base)
+        expected_msg = (
+            'Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but ' 'current version is "2.2.0"'
+        )
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, action.run, packs=['test3'], abs_repo_base=self.repo_base
+        )
 
         st2common.util.pack_management.CURRENT_STACKSTORM_VERSION = '2.3.0'
-        expected_msg = ('Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but '
-                        'current version is "2.3.0"')
-        self.assertRaisesRegexp(ValueError, expected_msg, action.run, packs=['test3'],
-                                abs_repo_base=self.repo_base)
+        expected_msg = (
+            'Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but ' 'current version is "2.3.0"'
+        )
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, action.run, packs=['test3'], abs_repo_base=self.repo_base
+        )
 
         st2common.util.pack_management.CURRENT_STACKSTORM_VERSION = '1.5.9'
-        expected_msg = ('Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but '
-                        'current version is "1.5.9"')
-        self.assertRaisesRegexp(ValueError, expected_msg, action.run, packs=['test3'],
-                                abs_repo_base=self.repo_base)
+        expected_msg = (
+            'Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but ' 'current version is "1.5.9"'
+        )
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, action.run, packs=['test3'], abs_repo_base=self.repo_base
+        )
 
         st2common.util.pack_management.CURRENT_STACKSTORM_VERSION = '1.5.0'
-        expected_msg = ('Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but '
-                        'current version is "1.5.0"')
-        self.assertRaisesRegexp(ValueError, expected_msg, action.run, packs=['test3'],
-                                abs_repo_base=self.repo_base)
+        expected_msg = (
+            'Pack "test3" requires StackStorm ">=1.6.0, <2.2.0", but ' 'current version is "1.5.0"'
+        )
+        self.assertRaisesRegexp(
+            ValueError, expected_msg, action.run, packs=['test3'], abs_repo_base=self.repo_base
+        )
 
         # Version is not met, but force=true parameter is provided
         st2common.util.pack_management.CURRENT_STACKSTORM_VERSION = '1.5.0'
@@ -280,12 +299,13 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
         action = self.get_action_instance()
 
         # No python_versions attribute specified in the metadata file
-        with mock.patch('st2common.util.pack_management.get_pack_metadata') as \
-                mock_get_pack_metadata:
+        with mock.patch(
+            'st2common.util.pack_management.get_pack_metadata'
+        ) as mock_get_pack_metadata:
             mock_get_pack_metadata.return_value = {
                 'name': 'test3',
                 'stackstorm_version': '',
-                'python_versions': []
+                'python_versions': [],
             }
 
             st2common.util.pack_management.six.PY2 = True
@@ -296,12 +316,13 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
             self.assertEqual(result['test3'], 'Success.')
 
         # Pack works with Python 2.x installation is running 2.7
-        with mock.patch('st2common.util.pack_management.get_pack_metadata') as \
-                mock_get_pack_metadata:
+        with mock.patch(
+            'st2common.util.pack_management.get_pack_metadata'
+        ) as mock_get_pack_metadata:
             mock_get_pack_metadata.return_value = {
                 'name': 'test3',
                 'stackstorm_version': '',
-                'python_versions': ['2']
+                'python_versions': ['2'],
             }
 
             st2common.util.pack_management.six.PY2 = True
@@ -317,12 +338,13 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
             self.assertEqual(result['test3'], 'Success.')
 
         # Pack works with Python 2.x installation is running 3.5
-        with mock.patch('st2common.util.pack_management.get_pack_metadata') as \
-                mock_get_pack_metadata:
+        with mock.patch(
+            'st2common.util.pack_management.get_pack_metadata'
+        ) as mock_get_pack_metadata:
             mock_get_pack_metadata.return_value = {
                 'name': 'test3',
                 'stackstorm_version': '',
-                'python_versions': ['2']
+                'python_versions': ['2'],
             }
 
             st2common.util.pack_management.six.PY2 = False
@@ -330,36 +352,52 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
 
             st2common.util.pack_management.CURRENT_PYTHON_VERSION = '3.5.2'
 
-            expected_msg = (r'Pack "test3" requires Python 2.x, but current Python version is '
-                            '"3.5.2"')
-            self.assertRaisesRegexp(ValueError, expected_msg, action.run,
-                                    packs=['test3'], abs_repo_base=self.repo_base, force=False)
+            expected_msg = (
+                r'Pack "test3" requires Python 2.x, but current Python version is ' '"3.5.2"'
+            )
+            self.assertRaisesRegexp(
+                ValueError,
+                expected_msg,
+                action.run,
+                packs=['test3'],
+                abs_repo_base=self.repo_base,
+                force=False,
+            )
 
         # Pack works with Python 3.x installation is running 2.7
-        with mock.patch('st2common.util.pack_management.get_pack_metadata') as \
-                mock_get_pack_metadata:
+        with mock.patch(
+            'st2common.util.pack_management.get_pack_metadata'
+        ) as mock_get_pack_metadata:
             mock_get_pack_metadata.return_value = {
                 'name': 'test3',
                 'stackstorm_version': '',
-                'python_versions': ['3']
+                'python_versions': ['3'],
             }
 
             st2common.util.pack_management.six.PY2 = True
             st2common.util.pack_management.six.PY3 = False
             st2common.util.pack_management.CURRENT_PYTHON_VERSION = '2.7.2'
 
-            expected_msg = (r'Pack "test3" requires Python 3.x, but current Python version is '
-                            '"2.7.2"')
-            self.assertRaisesRegexp(ValueError, expected_msg, action.run,
-                                    packs=['test3'], abs_repo_base=self.repo_base, force=False)
+            expected_msg = (
+                r'Pack "test3" requires Python 3.x, but current Python version is ' '"2.7.2"'
+            )
+            self.assertRaisesRegexp(
+                ValueError,
+                expected_msg,
+                action.run,
+                packs=['test3'],
+                abs_repo_base=self.repo_base,
+                force=False,
+            )
 
         # Pack works with Python 2.x and 3.x installation is running 2.7 and 3.6.1
-        with mock.patch('st2common.util.pack_management.get_pack_metadata') as \
-                mock_get_pack_metadata:
+        with mock.patch(
+            'st2common.util.pack_management.get_pack_metadata'
+        ) as mock_get_pack_metadata:
             mock_get_pack_metadata.return_value = {
                 'name': 'test3',
                 'stackstorm_version': '',
-                'python_versions': ['2', '3']
+                'python_versions': ['2', '3'],
             }
 
             st2common.util.pack_management.six.PY2 = True
@@ -377,12 +415,10 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
             self.assertEqual(result['test3'], 'Success.')
 
     def test_resolve_urls(self):
-        url = eval_repo_url(
-            "https://github.com/StackStorm-Exchange/stackstorm-test")
+        url = eval_repo_url("https://github.com/StackStorm-Exchange/stackstorm-test")
         self.assertEqual(url, "https://github.com/StackStorm-Exchange/stackstorm-test")
 
-        url = eval_repo_url(
-            "https://github.com/StackStorm-Exchange/stackstorm-test.git")
+        url = eval_repo_url("https://github.com/StackStorm-Exchange/stackstorm-test.git")
         self.assertEqual(url, "https://github.com/StackStorm-Exchange/stackstorm-test.git")
 
         url = eval_repo_url("StackStorm-Exchange/stackstorm-test")
@@ -436,13 +472,12 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
             ('default-branch', '1.2.3'),
             ('default-branch', 'some-branch'),
             ('default-branch', 'default-branch'),
-            ('default-branch', None)
+            ('default-branch', None),
         ]
 
         for default_branch, ref in edge_cases:
             self.repo_instance.git = mock.MagicMock(
-                branch=(lambda *args: default_branch),
-                checkout=(lambda *args: True)
+                branch=(lambda *args: default_branch), checkout=(lambda *args: True)
             )
 
             # Set default branch
@@ -459,6 +494,7 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
                     return gitref
                 else:
                     raise BadName()
+
             self.repo_instance.commit = fake_commit
             self.repo_instance.active_branch.object = gitref
 
@@ -475,8 +511,9 @@ class DownloadGitRepoActionTestCase(BaseActionTestCase):
     def test_run_pack_dowload_local_git_repo_detached_head_state(self):
         action = self.get_action_instance()
 
-        type(self.repo_instance).active_branch = \
-            mock.PropertyMock(side_effect=TypeError('detached head'))
+        type(self.repo_instance).active_branch = mock.PropertyMock(
+            side_effect=TypeError('detached head')
+        )
 
         result = action.run(packs=['file:///stackstorm-test'], abs_repo_base=self.repo_base)
         self.assertEqual(result, {'test': 'Success.'})

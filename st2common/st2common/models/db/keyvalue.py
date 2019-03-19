@@ -21,9 +21,7 @@ from st2common.constants.types import ResourceType
 from st2common.models.db import MongoDBAccess
 from st2common.models.db import stormbase
 
-__all__ = [
-    'KeyValuePairDB'
-]
+__all__ = ['KeyValuePairDB']
 
 
 class KeyValuePairDB(stormbase.StormBaseDB, stormbase.UIDFieldMixin):
@@ -43,13 +41,8 @@ class KeyValuePairDB(stormbase.StormBaseDB, stormbase.UIDFieldMixin):
     expire_timestamp = me.DateTimeField()
 
     meta = {
-        'indexes': [
-            {'fields': ['name']},
-            {
-                'fields': ['expire_timestamp'],
-                'expireAfterSeconds': 0
-            }
-        ] + stormbase.UIDFieldMixin.get_indexes()
+        'indexes': [{'fields': ['name']}, {'fields': ['expire_timestamp'], 'expireAfterSeconds': 0}]
+        + stormbase.UIDFieldMixin.get_indexes()
     }
 
     def __init__(self, *args, **values):

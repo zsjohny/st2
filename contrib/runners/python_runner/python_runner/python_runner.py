@@ -56,12 +56,7 @@ from st2common.runners.utils import make_read_and_store_stream_func
 
 from python_runner import python_action_wrapper
 
-__all__ = [
-    'PythonRunner',
-
-    'get_runner',
-    'get_metadata',
-]
+__all__ = ['PythonRunner', 'get_runner', 'get_metadata']
 
 LOG = logging.getLogger(__name__)
 
@@ -82,9 +77,15 @@ WRAPPER_SCRIPT_PATH = os.path.join(BASE_DIR, WRAPPER_SCRIPT_NAME)
 
 
 class PythonRunner(GitWorktreeActionRunner):
-
-    def __init__(self, runner_id, config=None, timeout=PYTHON_RUNNER_DEFAULT_ACTION_TIMEOUT,
-                 log_level=None, sandbox=True, use_parent_args=True):
+    def __init__(
+        self,
+        runner_id,
+        config=None,
+        timeout=PYTHON_RUNNER_DEFAULT_ACTION_TIMEOUT,
+        log_level=None,
+        sandbox=True,
+        use_parent_args=True,
+    ):
 
         """
         :param timeout: Action execution timeout in seconds.
@@ -195,9 +196,8 @@ class PythonRunner(GitWorktreeActionRunner):
         env['PATH'] = get_sandbox_path(virtualenv_path=virtualenv_path)
 
         sandbox_python_path = get_sandbox_python_path_for_python_action(
-            pack=pack,
-            inherit_from_parent=True,
-            inherit_parent_virtualenv=True)
+            pack=pack, inherit_from_parent=True, inherit_parent_virtualenv=True
+        )
 
         if self._enable_common_pack_libs:
             try:
@@ -235,34 +235,46 @@ class PythonRunner(GitWorktreeActionRunner):
         stdout = StringIO()
         stderr = StringIO()
 
-        store_execution_stdout_line = functools.partial(store_execution_output_data,
-                                                        output_type='stdout')
-        store_execution_stderr_line = functools.partial(store_execution_output_data,
-                                                        output_type='stderr')
+        store_execution_stdout_line = functools.partial(
+            store_execution_output_data, output_type='stdout'
+        )
+        store_execution_stderr_line = functools.partial(
+            store_execution_output_data, output_type='stderr'
+        )
 
-        read_and_store_stdout = make_read_and_store_stream_func(execution_db=self.execution,
-            action_db=self.action, store_data_func=store_execution_stdout_line)
-        read_and_store_stderr = make_read_and_store_stream_func(execution_db=self.execution,
-            action_db=self.action, store_data_func=store_execution_stderr_line)
+        read_and_store_stdout = make_read_and_store_stream_func(
+            execution_db=self.execution,
+            action_db=self.action,
+            store_data_func=store_execution_stdout_line,
+        )
+        read_and_store_stderr = make_read_and_store_stream_func(
+            execution_db=self.execution,
+            action_db=self.action,
+            store_data_func=store_execution_stderr_line,
+        )
 
         command_string = list2cmdline(args)
         if stdin_params:
             command_string = 'echo %s | %s' % (quote_unix(stdin_params), command_string)
 
-        LOG.debug('Running command: PATH=%s PYTHONPATH=%s %s' % (env['PATH'], env['PYTHONPATH'],
-                                                                 command_string))
-        exit_code, stdout, stderr, timed_out = run_command(cmd=args,
-                                                           stdin=stdin,
-                                                           stdout=subprocess.PIPE,
-                                                           stderr=subprocess.PIPE,
-                                                           shell=False,
-                                                           env=env,
-                                                           timeout=self._timeout,
-                                                           read_stdout_func=read_and_store_stdout,
-                                                           read_stderr_func=read_and_store_stderr,
-                                                           read_stdout_buffer=stdout,
-                                                           read_stderr_buffer=stderr,
-                                                           stdin_value=stdin_params)
+        LOG.debug(
+            'Running command: PATH=%s PYTHONPATH=%s %s'
+            % (env['PATH'], env['PYTHONPATH'], command_string)
+        )
+        exit_code, stdout, stderr, timed_out = run_command(
+            cmd=args,
+            stdin=stdin,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+            env=env,
+            timeout=self._timeout,
+            read_stdout_func=read_and_store_stdout,
+            read_stderr_func=read_and_store_stderr,
+            read_stdout_buffer=stdout,
+            read_stderr_buffer=stderr,
+            stdin_value=stdin_params,
+        )
         LOG.debug('Returning values: %s, %s, %s, %s', exit_code, stdout, stderr, timed_out)
         LOG.debug('Returning.')
         return self._get_output_values(exit_code, stdout, stderr, timed_out)
@@ -326,8 +338,9 @@ class PythonRunner(GitWorktreeActionRunner):
             action_result = json.loads(action_result)
         except Exception as e:
             # Failed to de-serialize the result, probably it contains non-simple type or similar
-            LOG.warning('Failed to de-serialize result "%s": %s' % (str(action_result),
-                                                                    six.text_type(e)))
+            LOG.warning(
+                'Failed to de-serialize result "%s": %s' % (str(action_result), six.text_type(e))
+            )
 
         if action_result:
             if isinstance(action_result, dict):
@@ -346,18 +359,14 @@ class PythonRunner(GitWorktreeActionRunner):
             result = 'None'
             status = None
 
-        output = {
-            'stdout': stdout,
-            'stderr': stderr,
-            'exit_code': exit_code,
-            'result': result
-        }
+        output = {'stdout': stdout, 'stderr': stderr, 'exit_code': exit_code, 'result': result}
 
         if error:
             output['error'] = error
 
-        status = self._get_final_status(action_status=status, timed_out=timed_out,
-                                        exit_code=exit_code)
+        status = self._get_final_status(
+            action_status=status, timed_out=timed_out, exit_code=exit_code
+        )
         return (status, output, None)
 
     def _get_final_status(self, action_status, timed_out, exit_code):
@@ -406,8 +415,7 @@ class PythonRunner(GitWorktreeActionRunner):
                 to_delete.append(key)
 
         for key in to_delete:
-            LOG.debug('User specified environment variable "%s" which is being ignored...' %
-                      (key))
+            LOG.debug('User specified environment variable "%s" which is being ignored...' % (key))
             del env_vars[key]
 
         return env_vars

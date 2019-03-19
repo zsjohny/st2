@@ -28,6 +28,7 @@ from oslo_config import cfg
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from mistral_v2.mistral_v2 import MistralRunner
@@ -49,22 +50,12 @@ from st2tests import fixturesloader
 from st2tests.mocks.liveaction import MockLiveActionPublisher
 
 
-TEST_FIXTURES = {
-    'workflows': [
-        'workflow_v2.yaml'
-    ],
-    'actions': [
-        'workflow_v2.yaml'
-    ]
-}
+TEST_FIXTURES = {'workflows': ['workflow_v2.yaml'], 'actions': ['workflow_v2.yaml']}
 
 TEST_PACK = 'mistral_tests'
 TEST_PACK_PATH = fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 # Action executions requirements
 MISTRAL_EXECUTION = {'id': str(uuid.uuid4()), 'state': 'RUNNING', 'workflow_name': None}
@@ -91,25 +82,25 @@ NOTIFY = [{'type': 'st2'}]
 
 # Token for auth test cases
 TOKEN_API = TokenAPI(
-    user=ACTION_CONTEXT['user'], token=uuid.uuid4().hex,
-    expiry=isotime.format(date_utils.get_datetime_utc_now(), offset=False))
+    user=ACTION_CONTEXT['user'],
+    token=uuid.uuid4().hex,
+    expiry=isotime.format(date_utils.get_datetime_utc_now(), offset=False),
+)
 TOKEN_DB = TokenAPI.to_model(TOKEN_API)
 
 
-@mock.patch.object(
-    CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+)
 class MistralAuthTest(ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(MistralAuthTest, cls).setUpClass()
@@ -126,8 +117,7 @@ class MistralAuthTest(ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -148,21 +138,15 @@ class MistralAuthTest(ExecutionDbTestCase):
         cfg.CONF.set_default('keystone_project_name', None, group='mistral')
         cfg.CONF.set_default('keystone_auth_url', None, group='mistral')
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        access_service, 'create_token',
-        mock.MagicMock(return_value=TOKEN_DB))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
+    @mock.patch.object(access_service, 'create_token', mock.MagicMock(return_value=TOKEN_DB))
     def test_launch_workflow_with_st2_auth(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS, context=ACTION_CONTEXT)
         liveaction, execution = action_service.request(liveaction)
@@ -189,33 +173,30 @@ class MistralAuthTest(ExecutionDbTestCase):
                         'parent': {
                             'pack': 'mistral_tests',
                             'user': liveaction.context['user'],
-                            'execution_id': str(execution.id)
+                            'execution_id': str(execution.id),
                         },
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )
 
     @mock.patch.object(
-        keystone.KeystoneAuthHandler, 'authenticate',
-        mock.MagicMock(return_value={}))
+        keystone.KeystoneAuthHandler, 'authenticate', mock.MagicMock(return_value={})
+    )
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     def test_launch_workflow_with_mistral_auth(self):
         cfg.CONF.set_default('keystone_username', 'foo', group='mistral')
         cfg.CONF.set_default('keystone_password', 'bar', group='mistral')
@@ -243,15 +224,12 @@ class MistralAuthTest(ExecutionDbTestCase):
                     'st2_context': {
                         'api_url': 'http://0.0.0.0:9101/v1',
                         'endpoint': 'http://0.0.0.0:9101/v1/actionexecutions',
-                        'parent': {
-                            'pack': 'mistral_tests',
-                            'execution_id': str(execution.id)
-                        },
+                        'parent': {'pack': 'mistral_tests', 'execution_id': str(execution.id)},
                         'notify': {},
-                        'skip_notify_tasks': []
+                        'skip_notify_tasks': [],
                     }
                 }
-            }
+            },
         }
 
         auth_req = {
@@ -261,10 +239,11 @@ class MistralAuthTest(ExecutionDbTestCase):
             'username': cfg.CONF.mistral.keystone_username,
             'api_key': cfg.CONF.mistral.keystone_password,
             'insecure': False,
-            'cacert': None
+            'cacert': None,
         }
 
         keystone.KeystoneAuthHandler.authenticate.assert_called_with(auth_req, session=None)
 
         executions.ExecutionManager.create.assert_called_with(
-            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY)
+            WF1_NAME, workflow_input=workflow_input, env=env, notify=NOTIFY
+        )

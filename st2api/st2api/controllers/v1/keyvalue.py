@@ -41,9 +41,7 @@ http_client = six.moves.http_client
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'KeyValuePairController'
-]
+__all__ = ['KeyValuePairController']
 
 
 class KeyValuePairController(ResourceController):
@@ -53,10 +51,7 @@ class KeyValuePairController(ResourceController):
 
     model = KeyValuePairAPI
     access = KeyValuePair
-    supported_filters = {
-        'prefix': 'name__startswith',
-        'scope': 'scope'
-    }
+    supported_filters = {'prefix': 'name__startswith', 'scope': 'scope'}
 
     def __init__(self):
         super(KeyValuePairController, self).__init__()
@@ -85,8 +80,9 @@ class KeyValuePairController(ResourceController):
         self._validate_scope(scope=scope)
 
         # User needs to be either admin or requesting item for itself
-        self._validate_decrypt_query_parameter(decrypt=decrypt, scope=scope,
-                                               requester_user=requester_user)
+        self._validate_decrypt_query_parameter(
+            decrypt=decrypt, scope=scope, requester_user=requester_user
+        )
 
         user_query_param_filter = bool(user)
 
@@ -94,9 +90,9 @@ class KeyValuePairController(ResourceController):
         user = user or requester_user.name
 
         # Validate that the authenticated user is admin if user query param is provided
-        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user,
-                                                             user=user,
-                                                             require_rbac=True)
+        assert_user_is_admin_if_user_query_param_is_provided(
+            user_db=requester_user, user=user, require_rbac=True
+        )
 
         # Additional guard to ensure there is no information leakage across users
         is_admin = rbac_utils.user_is_admin(user_db=requester_user)
@@ -107,8 +103,7 @@ class KeyValuePairController(ResourceController):
         else:
             # RBAC not enabled or user is not an admin, retrieve user scoped values for the
             # current user
-            user_scope_prefix = get_key_reference(name=name, scope=USER_SCOPE,
-                                                  user=current_user)
+            user_scope_prefix = get_key_reference(name=name, scope=USER_SCOPE, user=current_user)
 
         if scope == FULL_USER_SCOPE:
             key_ref = user_scope_prefix
@@ -119,15 +114,23 @@ class KeyValuePairController(ResourceController):
 
         from_model_kwargs = {'mask_secrets': not decrypt}
         kvp_api = self._get_one_by_scope_and_name(
-            name=key_ref,
-            scope=scope,
-            from_model_kwargs=from_model_kwargs
+            name=key_ref, scope=scope, from_model_kwargs=from_model_kwargs
         )
 
         return kvp_api
 
-    def get_all(self, requester_user, prefix=None, scope=FULL_SYSTEM_SCOPE, user=None,
-                decrypt=False, sort=None, offset=0, limit=None, **raw_filters):
+    def get_all(
+        self,
+        requester_user,
+        prefix=None,
+        scope=FULL_SYSTEM_SCOPE,
+        user=None,
+        decrypt=False,
+        sort=None,
+        offset=0,
+        limit=None,
+        **raw_filters
+    ):
         """
             List all keys.
 
@@ -151,8 +154,9 @@ class KeyValuePairController(ResourceController):
         self._validate_all_scope(scope=scope, requester_user=requester_user)
 
         # User needs to be either admin or requesting items for themselves
-        self._validate_decrypt_query_parameter(decrypt=decrypt, scope=scope,
-                                               requester_user=requester_user)
+        self._validate_decrypt_query_parameter(
+            decrypt=decrypt, scope=scope, requester_user=requester_user
+        )
 
         user_query_param_filter = bool(user)
 
@@ -160,9 +164,9 @@ class KeyValuePairController(ResourceController):
         user = user or requester_user.name
 
         # Validate that the authenticated user is admin if user query param is provided
-        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user,
-                                                             user=user,
-                                                             require_rbac=True)
+        assert_user_is_admin_if_user_query_param_is_provided(
+            user_db=requester_user, user=user, require_rbac=True
+        )
 
         from_model_kwargs = {'mask_secrets': not decrypt}
 
@@ -181,8 +185,9 @@ class KeyValuePairController(ResourceController):
         else:
             # RBAC not enabled or user is not an admin, retrieve user scoped values for the
             # current user
-            user_scope_prefix = get_key_reference(name=prefix or '', scope=USER_SCOPE,
-                                                  user=current_user)
+            user_scope_prefix = get_key_reference(
+                name=prefix or '', scope=USER_SCOPE, user=current_user
+            )
 
         if scope == ALL_SCOPE:
             # Special case for ALL_SCOPE
@@ -197,7 +202,8 @@ class KeyValuePairController(ResourceController):
                 offset=offset,
                 limit=limit,
                 raw_filters=raw_filters,
-                requester_user=requester_user)
+                requester_user=requester_user,
+            )
 
             # 2. Retrieve user scoped items for current user or for all the users (depending if the
             # authenticated user is admin and if ?user is provided)
@@ -217,7 +223,8 @@ class KeyValuePairController(ResourceController):
                 offset=offset,
                 limit=limit,
                 raw_filters=raw_filters,
-                requester_user=requester_user)
+                requester_user=requester_user,
+            )
 
             # Combine the result
             kvp_apis = []
@@ -236,7 +243,8 @@ class KeyValuePairController(ResourceController):
                 offset=offset,
                 limit=limit,
                 raw_filters=raw_filters,
-                requester_user=requester_user)
+                requester_user=requester_user,
+            )
         elif scope in [SYSTEM_SCOPE, FULL_SYSTEM_SCOPE]:
             raw_filters['prefix'] = prefix
 
@@ -247,7 +255,8 @@ class KeyValuePairController(ResourceController):
                 offset=offset,
                 limit=limit,
                 raw_filters=raw_filters,
-                requester_user=requester_user)
+                requester_user=requester_user,
+            )
         else:
             raise ValueError('Invalid scope: %s' % (scope))
 
@@ -270,14 +279,15 @@ class KeyValuePairController(ResourceController):
         user = getattr(kvp, 'user', requester_user.name) or requester_user.name
 
         # Validate that the authenticated user is admin if user query param is provided
-        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user,
-                                                             user=user,
-                                                             require_rbac=True)
+        assert_user_is_admin_if_user_query_param_is_provided(
+            user_db=requester_user, user=user, require_rbac=True
+        )
 
         # Validate that encrypted option can only be used by admins
         encrypted = getattr(kvp, 'encrypted', False)
-        self._validate_encrypted_query_parameter(encrypted=encrypted, scope=scope,
-                                                 requester_user=requester_user)
+        self._validate_encrypted_query_parameter(
+            encrypted=encrypted, scope=scope, requester_user=requester_user
+        )
 
         key_ref = get_key_reference(scope=scope, name=name, user=user)
         lock_name = self._get_lock_name_for_key(name=key_ref, scope=scope)
@@ -287,10 +297,7 @@ class KeyValuePairController(ResourceController):
         # Note: We use lock to avoid a race
         with self._coordinator.get_lock(lock_name):
             try:
-                existing_kvp_api = self._get_one_by_scope_and_name(
-                    scope=scope,
-                    name=key_ref
-                )
+                existing_kvp_api = self._get_one_by_scope_and_name(scope=scope, name=key_ref)
             except StackStormDBObjectNotFoundError:
                 existing_kvp_api = None
 
@@ -346,9 +353,9 @@ class KeyValuePairController(ResourceController):
         user = user or requester_user.name
 
         # Validate that the authenticated user is admin if user query param is provided
-        assert_user_is_admin_if_user_query_param_is_provided(user_db=requester_user,
-                                                             user=user,
-                                                             require_rbac=True)
+        assert_user_is_admin_if_user_query_param_is_provided(
+            user_db=requester_user, user=user, require_rbac=True
+        )
 
         key_ref = get_key_reference(scope=scope, name=name, user=user)
         lock_name = self._get_lock_name_for_key(name=key_ref, scope=scope)
@@ -357,21 +364,21 @@ class KeyValuePairController(ResourceController):
         with self._coordinator.get_lock(lock_name):
             from_model_kwargs = {'mask_secrets': True}
             kvp_api = self._get_one_by_scope_and_name(
-                name=key_ref,
-                scope=scope,
-                from_model_kwargs=from_model_kwargs
+                name=key_ref, scope=scope, from_model_kwargs=from_model_kwargs
             )
 
             kvp_db = KeyValuePairAPI.to_model(kvp_api)
 
-            LOG.debug('DELETE /keys/ lookup with scope=%s name=%s found object: %s',
-                      scope, name, kvp_db)
+            LOG.debug(
+                'DELETE /keys/ lookup with scope=%s name=%s found object: %s', scope, name, kvp_db
+            )
 
             try:
                 KeyValuePair.delete(kvp_db)
             except Exception as e:
-                LOG.exception('Database delete encountered exception during '
-                              'delete of name="%s". ', name)
+                LOG.exception(
+                    'Database delete encountered exception during ' 'delete of name="%s". ', name
+                )
                 abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
                 return
 
@@ -395,7 +402,7 @@ class KeyValuePairController(ResourceController):
         Validate that "all" scope can only be provided by admins on RBAC installations.
         """
         scope = get_datastore_full_scope(scope)
-        is_all_scope = (scope == ALL_SCOPE)
+        is_all_scope = scope == ALL_SCOPE
         is_admin = rbac_utils.user_is_admin(user_db=requester_user)
 
         if is_all_scope and not is_admin:
@@ -408,7 +415,7 @@ class KeyValuePairController(ResourceController):
         themselves.
         """
         is_admin = rbac_utils.user_is_admin(user_db=requester_user)
-        is_user_scope = (scope == USER_SCOPE or scope == FULL_USER_SCOPE)
+        is_user_scope = scope == USER_SCOPE or scope == FULL_USER_SCOPE
 
         if decrypt and (not is_user_scope and not is_admin):
             msg = 'Decrypt option requires administrator access'

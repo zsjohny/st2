@@ -40,13 +40,11 @@ __all__ = [
     'PackAPI',
     'ConfigSchemaAPI',
     'ConfigAPI',
-
     'ConfigItemSetAPI',
-
     'PackInstallRequestAPI',
     'PackRegisterRequestAPI',
     'PackSearchRequestAPI',
-    'PackAsyncAPI'
+    'PackAsyncAPI',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -61,111 +59,104 @@ class PackAPI(BaseAPI):
             'id': {
                 'type': 'string',
                 'description': 'Unique identifier for the pack.',
-                'default': None
+                'default': None,
             },
             'name': {
                 'type': 'string',
                 'description': 'Display name of the pack. If the name only contains lowercase'
-                               'letters, digits and underscores, the "ref" field is not required.',
-                'required': True
+                'letters, digits and underscores, the "ref" field is not required.',
+                'required': True,
             },
             'ref': {
                 'type': 'string',
                 'description': 'Reference for the pack, used as an internal id.',
                 'default': None,
-                'pattern': PACK_REF_WHITELIST_REGEX
+                'pattern': PACK_REF_WHITELIST_REGEX,
             },
-            'uid': {
-                'type': 'string'
-            },
+            'uid': {'type': 'string'},
             'description': {
                 'type': 'string',
                 'description': 'Brief description of the pack and the service it integrates with.',
-                'required': True
+                'required': True,
             },
             'keywords': {
                 'type': 'array',
                 'description': 'Keywords describing the pack.',
                 'items': {'type': 'string'},
-                'default': []
+                'default': [],
             },
             'version': {
                 'type': 'string',
                 'description': 'Pack version. Must follow the semver format '
-                               '(for instance, "0.1.0").',
+                '(for instance, "0.1.0").',
                 'pattern': PACK_VERSION_REGEX,
-                'required': True
+                'required': True,
             },
             'stackstorm_version': {
                 'type': 'string',
                 'description': 'Required StackStorm version. Examples: ">1.6.0", '
-                               '">=1.8.0, <2.2.0"',
+                '">=1.8.0, <2.2.0"',
                 'pattern': ST2_VERSION_REGEX,
             },
             'python_versions': {
                 'type': 'array',
-                'description': ('Major Python versions supported by this pack. E.g. '
-                                '"2" for Python 2.7.x and "3" for Python 3.6.x'),
-                'items': {
-                    'type': 'string',
-                    'enum': [
-                        '2',
-                        '3'
-                    ]
-                },
+                'description': (
+                    'Major Python versions supported by this pack. E.g. '
+                    '"2" for Python 2.7.x and "3" for Python 3.6.x'
+                ),
+                'items': {'type': 'string', 'enum': ['2', '3']},
                 'minItems': 1,
                 'maxItems': 2,
                 'uniqueItems': True,
-                'additionalItems': True
+                'additionalItems': True,
             },
             'author': {
                 'type': 'string',
                 'description': 'Pack author or authors.',
-                'required': True
+                'required': True,
             },
             'email': {
                 'type': 'string',
                 'description': 'E-mail of the pack author.',
-                'format': 'email'
+                'format': 'email',
             },
             'contributors': {
                 'type': 'array',
-                'items': {
-                    'type': 'string',
-                    'maxLength': 100
-                },
-                'description': ('A list of people who have contributed to the pack. Format is: '
-                                'Name <email address> e.g. Tomaz Muraus <tomaz@stackstorm.com>.')
+                'items': {'type': 'string', 'maxLength': 100},
+                'description': (
+                    'A list of people who have contributed to the pack. Format is: '
+                    'Name <email address> e.g. Tomaz Muraus <tomaz@stackstorm.com>.'
+                ),
             },
             'files': {
                 'type': 'array',
                 'description': 'A list of files inside the pack.',
                 'items': {'type': 'string'},
-                'default': []
+                'default': [],
             },
             'dependencies': {
                 'type': 'array',
                 'description': 'A list of other StackStorm packs this pack depends upon. '
-                               'The same format as in "st2 pack install" is used: '
-                               '"<name or full URL>[=<version or git ref>]".',
+                'The same format as in "st2 pack install" is used: '
+                '"<name or full URL>[=<version or git ref>]".',
                 'items': {'type': 'string'},
-                'default': []
+                'default': [],
             },
             'system': {
                 'type': 'object',
                 'description': 'Specification for the system components and packages '
-                               'required for the pack.',
-                'default': {}
+                'required for the pack.',
+                'default': {},
             },
             'path': {
                 'type': 'string',
                 'description': 'Location of the pack on disk in st2 system.',
-                'required': False
-            }
+                'required': False,
+            },
         },
         # NOTE: We add this here explicitly so we can gracefuly add new attributs to pack.yaml
         # without breaking existing installations
-        'additionalProperties': True
+        'additionalProperties': True,
     }
 
     def __init__(self, **values):
@@ -186,16 +177,19 @@ class PackAPI(BaseAPI):
 
             # Invalid version
             if "Failed validating 'pattern' in schema['properties']['version']" in msg:
-                new_msg = ('Pack version "%s" doesn\'t follow a valid semver format. Valid '
-                           'versions and formats include: 0.1.0, 0.2.1, 1.1.0, etc.' %
-                           (self.version))
+                new_msg = (
+                    'Pack version "%s" doesn\'t follow a valid semver format. Valid '
+                    'versions and formats include: 0.1.0, 0.2.1, 1.1.0, etc.' % (self.version)
+                )
                 new_msg += '\n\n' + msg
                 raise jsonschema.ValidationError(new_msg)
 
             # Invalid ref / name
             if "Failed validating 'pattern' in schema['properties']['ref']" in msg:
-                new_msg = ('Pack ref / name can only contain valid word characters (a-z, 0-9 and '
-                           '_), dashes are not allowed.')
+                new_msg = (
+                    'Pack ref / name can only contain valid word characters (a-z, 0-9 and '
+                    '_), dashes are not allowed.'
+                )
                 new_msg += '\n\n' + msg
                 raise jsonschema.ValidationError(new_msg)
 
@@ -219,11 +213,22 @@ class PackAPI(BaseAPI):
         dependencies = getattr(pack, 'dependencies', [])
         system = getattr(pack, 'system', {})
 
-        model = cls.model(ref=ref, name=name, description=description, keywords=keywords,
-                          version=version, author=author, email=email, contributors=contributors,
-                          files=files, dependencies=dependencies, system=system,
-                          stackstorm_version=stackstorm_version, path=pack_dir,
-                          python_versions=python_versions)
+        model = cls.model(
+            ref=ref,
+            name=name,
+            description=description,
+            keywords=keywords,
+            version=version,
+            author=author,
+            email=email,
+            contributors=contributors,
+            files=files,
+            dependencies=dependencies,
+            system=system,
+            stackstorm_version=stackstorm_version,
+            path=pack_dir,
+            python_versions=python_versions,
+        )
         return model
 
 
@@ -234,25 +239,20 @@ class ConfigSchemaAPI(BaseAPI):
         "description": "Pack config schema.",
         "type": "object",
         "properties": {
-            "id": {
-                "description": "The unique identifier for the config schema.",
-                "type": "string"
-            },
+            "id": {"description": "The unique identifier for the config schema.", "type": "string"},
             "pack": {
                 "description": "The content pack this config schema belongs to.",
-                "type": "string"
+                "type": "string",
             },
             "attributes": {
                 "description": "Config schema attributes.",
                 "type": "object",
-                "patternProperties": {
-                    r"^\w+$": util_schema.get_action_parameters_schema()
-                },
+                "patternProperties": {r"^\w+$": util_schema.get_action_parameters_schema()},
                 'additionalProperties': False,
-                "default": {}
-            }
+                "default": {},
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
@@ -271,21 +271,11 @@ class ConfigAPI(BaseAPI):
         "description": "Pack config.",
         "type": "object",
         "properties": {
-            "id": {
-                "description": "The unique identifier for the config.",
-                "type": "string"
-            },
-            "pack": {
-                "description": "The content pack this config belongs to.",
-                "type": "string"
-            },
-            "values": {
-                "description": "Config values.",
-                "type": "object",
-                "default": {}
-            }
+            "id": {"description": "The unique identifier for the config.", "type": "string"},
+            "pack": {"description": "The content pack this config belongs to.", "type": "string"},
+            "values": {"description": "Config values.", "type": "object", "default": {}},
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     def validate(self, validate_against_schema=False):
@@ -313,10 +303,12 @@ class ConfigAPI(BaseAPI):
         configs_path = os.path.join(cfg.CONF.system.base_path, 'configs/')
         config_path = os.path.join(configs_path, '%s.yaml' % (self.pack))
 
-        cleaned = validate_config_against_schema(config_schema=schema,
-                                                 config_object=instance,
-                                                 config_path=config_path,
-                                                 pack_name=self.pack)
+        cleaned = validate_config_against_schema(
+            config_schema=schema,
+            config_object=instance,
+            config_path=config_path,
+            pack_name=self.pack,
+        )
 
         return cleaned
 
@@ -330,48 +322,40 @@ class ConfigAPI(BaseAPI):
 
 
 class ConfigUpdateRequestAPI(BaseAPI):
-    schema = {
-        "type": "object"
-    }
+    schema = {"type": "object"}
 
 
 class ConfigItemSetAPI(BaseAPI):
     """
     API class used with the config set API endpoint.
     """
+
     model = None
     schema = {
         "title": "",
         "description": "",
         "type": "object",
         "properties": {
-            "name": {
-                "description": "Config item name (key)",
-                "type": "string",
-                "required": True
-            },
+            "name": {"description": "Config item name (key)", "type": "string", "required": True},
             "value": {
                 "description": "Config item value.",
                 "type": ["string", "number", "boolean", "array", "object"],
-                "required": True
+                "required": True,
             },
             "scope": {
                 "description": "Config item scope (system / user)",
                 "type": "string",
                 "default": SYSTEM_SCOPE,
-                "enum": [
-                    SYSTEM_SCOPE,
-                    USER_SCOPE
-                ]
+                "enum": [SYSTEM_SCOPE, USER_SCOPE],
             },
             "user": {
                 "description": "User for user-scoped items (only available to admins).",
                 "type": "string",
                 "required": False,
-                "default": None
-            }
+                "default": None,
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
 
@@ -379,15 +363,13 @@ class PackInstallRequestAPI(BaseAPI):
     schema = {
         "type": "object",
         "properties": {
-            "packs": {
-                "type": "array"
-            },
+            "packs": {"type": "array"},
             "force": {
                 "type": "boolean",
                 "description": "Force pack installation",
-                "default": False
-            }
-        }
+                "default": False,
+            },
+        },
     }
 
 
@@ -395,24 +377,14 @@ class PackRegisterRequestAPI(BaseAPI):
     schema = {
         "type": "object",
         "properties": {
-            "types": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "packs": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
+            "types": {"type": "array", "items": {"type": "string"}},
+            "packs": {"type": "array", "items": {"type": "string"}},
             "fail_on_failure": {
                 "type": "boolean",
                 "description": "True to fail on failure",
-                "default": True
-            }
-        }
+                "default": True,
+            },
+        },
     }
 
 
@@ -421,35 +393,20 @@ class PackSearchRequestAPI(BaseAPI):
         "type": "object",
         "oneOf": [
             {
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "required": True,
-                    },
-                },
+                "properties": {"query": {"type": "string", "required": True}},
                 "additionalProperties": False,
             },
             {
-                "properties": {
-                    "pack": {
-                        "type": "string",
-                        "required": True,
-                    },
-                },
+                "properties": {"pack": {"type": "string", "required": True}},
                 "additionalProperties": False,
             },
-        ]
+        ],
     }
 
 
 class PackAsyncAPI(BaseAPI):
     schema = {
         "type": "object",
-        "properties": {
-            "execution_id": {
-                "type": "string",
-                "required": True
-            }
-        },
-        "additionalProperties": False
+        "properties": {"execution_id": {"type": "string", "required": True}},
+        "additionalProperties": False,
     }

@@ -34,8 +34,9 @@ apply_vagrant_workaround()
 setup(
     name='stackstorm-runner-action-chain',
     version=__version__,
-    description=('Action-Chain workflow action runner for StackStorm event-driven '
-                 'automation platform'),
+    description=(
+        'Action-Chain workflow action runner for StackStorm event-driven ' 'automation platform'
+    ),
     author='StackStorm',
     author_email='info@stackstorm.com',
     license='Apache License (2.0)',
@@ -49,8 +50,6 @@ setup(
     package_data={'action_chain_runner': ['runner.yaml']},
     scripts=[],
     entry_points={
-        'st2common.runners.runner': [
-            'action-chain = action_chain_runner.action_chain_runner',
-        ],
-    }
+        'st2common.runners.runner': ['action-chain = action_chain_runner.action_chain_runner']
+    },
 )

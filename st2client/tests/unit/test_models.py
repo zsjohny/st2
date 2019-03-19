@@ -29,7 +29,6 @@ LOG = logging.getLogger(__name__)
 
 
 class TestSerialization(unittest2.TestCase):
-
     def test_resource_serialize(self):
         instance = base.FakeResource(id='123', name='abc')
         self.assertDictEqual(instance.serialize(), base.RESOURCES[0])
@@ -41,10 +40,11 @@ class TestSerialization(unittest2.TestCase):
 
 
 class TestResourceManager(unittest2.TestCase):
-
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')),
+    )
     def test_resource_get_all(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resources = mgr.get_all()
@@ -53,8 +53,10 @@ class TestResourceManager(unittest2.TestCase):
         self.assertListEqual(actual, expected)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')),
+    )
     def test_resource_get_all_with_limit(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resources = mgr.get_all(limit=50)
@@ -63,15 +65,19 @@ class TestResourceManager(unittest2.TestCase):
         self.assertListEqual(actual, expected)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_get_all_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         self.assertRaises(Exception, mgr.get_all)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES[0]), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES[0]), 200, 'OK')),
+    )
     def test_resource_get_by_id(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resource = mgr.get_by_id('123')
@@ -80,24 +86,31 @@ class TestResourceManager(unittest2.TestCase):
         self.assertEqual(actual, expected)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND')),
+    )
     def test_resource_get_by_id_404(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resource = mgr.get_by_id('123')
         self.assertIsNone(resource)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_get_by_id_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         self.assertRaises(Exception, mgr.get_by_id)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK',
-                                                      {})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK', {})
+        ),
+    )
     def test_resource_query(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resources = mgr.query(name='abc')
@@ -106,9 +119,14 @@ class TestResourceManager(unittest2.TestCase):
         self.assertEqual(actual, expected)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK',
-                                                      {'X-Total-Count': '50'})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse(
+                json.dumps([base.RESOURCES[0]]), 200, 'OK', {'X-Total-Count': '50'}
+            )
+        ),
+    )
     def test_resource_query_with_count(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resources, count = mgr.query_with_count(name='abc')
@@ -118,9 +136,12 @@ class TestResourceManager(unittest2.TestCase):
         self.assertEqual(count, 50)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK',
-                                                      {})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK', {})
+        ),
+    )
     def test_resource_query_with_limit(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resources = mgr.query(name='abc', limit=50)
@@ -129,9 +150,12 @@ class TestResourceManager(unittest2.TestCase):
         self.assertEqual(actual, expected)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND',
-                                                      {'X-Total-Count': '30'})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse('', 404, 'NOT FOUND', {'X-Total-Count': '30'})
+        ),
+    )
     def test_resource_query_404(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         # No X-Total-Count
@@ -139,9 +163,12 @@ class TestResourceManager(unittest2.TestCase):
         self.assertListEqual(resources, [])
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND',
-                                                      {'X-Total-Count': '30'})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse('', 404, 'NOT FOUND', {'X-Total-Count': '30'})
+        ),
+    )
     def test_resource_query_with_count_404(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resources, count = mgr.query_with_count(name='abc')
@@ -149,16 +176,21 @@ class TestResourceManager(unittest2.TestCase):
         self.assertIsNone(count)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_query_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         self.assertRaises(Exception, mgr.query, name='abc')
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK',
-                                                      {})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK', {})
+        ),
+    )
     def test_resource_get_by_name(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         # No X-Total-Count
@@ -168,30 +200,38 @@ class TestResourceManager(unittest2.TestCase):
         self.assertEqual(actual, expected)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND')),
+    )
     def test_resource_get_by_name_404(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         resource = mgr.get_by_name('abc')
         self.assertIsNone(resource)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES), 200, 'OK')),
+    )
     def test_resource_get_by_name_ambiguous(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         self.assertRaises(Exception, mgr.get_by_name, 'abc')
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_get_by_name_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         self.assertRaises(Exception, mgr.get_by_name)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'post',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES[0]), 200, 'OK')))
+        httpclient.HTTPClient,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES[0]), 200, 'OK')),
+    )
     def test_resource_create(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         instance = base.FakeResource.deserialize('{"name": "abc"}')
@@ -199,16 +239,20 @@ class TestResourceManager(unittest2.TestCase):
         self.assertIsNotNone(resource)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'post',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'post',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_create_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         instance = base.FakeResource.deserialize('{"name": "abc"}')
         self.assertRaises(Exception, mgr.create, instance)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'put',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES[0]), 200, 'OK')))
+        httpclient.HTTPClient,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse(json.dumps(base.RESOURCES[0]), 200, 'OK')),
+    )
     def test_resource_update(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         text = '{"id": "123", "name": "cba"}'
@@ -217,8 +261,10 @@ class TestResourceManager(unittest2.TestCase):
         self.assertIsNotNone(resource)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'put',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'put',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_update_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         text = '{"id": "123", "name": "cba"}'
@@ -226,32 +272,44 @@ class TestResourceManager(unittest2.TestCase):
         self.assertRaises(Exception, mgr.update, instance)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK',
-                                                      {})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK', {})
+        ),
+    )
     @mock.patch.object(
-        httpclient.HTTPClient, 'delete',
-        mock.MagicMock(return_value=base.FakeResponse('', 204, 'NO CONTENT')))
+        httpclient.HTTPClient,
+        'delete',
+        mock.MagicMock(return_value=base.FakeResponse('', 204, 'NO CONTENT')),
+    )
     def test_resource_delete(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         instance = mgr.get_by_name('abc')
         mgr.delete(instance)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'delete',
-        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND')))
+        httpclient.HTTPClient,
+        'delete',
+        mock.MagicMock(return_value=base.FakeResponse('', 404, 'NOT FOUND')),
+    )
     def test_resource_delete_404(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         instance = base.FakeResource.deserialize(base.RESOURCES[0])
         mgr.delete(instance)
 
     @mock.patch.object(
-        httpclient.HTTPClient, 'get',
-        mock.MagicMock(return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK',
-                                                      {})))
+        httpclient.HTTPClient,
+        'get',
+        mock.MagicMock(
+            return_value=base.FakeResponse(json.dumps([base.RESOURCES[0]]), 200, 'OK', {})
+        ),
+    )
     @mock.patch.object(
-        httpclient.HTTPClient, 'delete',
-        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')))
+        httpclient.HTTPClient,
+        'delete',
+        mock.MagicMock(return_value=base.FakeResponse('', 500, 'INTERNAL SERVER ERROR')),
+    )
     def test_resource_delete_failed(self):
         mgr = models.ResourceManager(base.FakeResource, base.FAKE_ENDPOINT)
         instance = mgr.get_by_name('abc')

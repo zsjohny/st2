@@ -24,10 +24,7 @@ from st2common.bootstrap.base import ResourceRegistrar
 import st2common.content.utils as content_utils
 from st2common.models.utils import sensor_type_utils
 
-__all__ = [
-    'TriggersRegistrar',
-    'register_triggers'
-]
+__all__ = ['TriggersRegistrar', 'register_triggers']
 
 LOG = logging.getLogger(__name__)
 
@@ -47,8 +44,7 @@ class TriggersRegistrar(ResourceRegistrar):
         self.register_packs(base_dirs=base_dirs)
 
         registered_count = 0
-        content = self._pack_loader.get_content(base_dirs=base_dirs,
-                                                content_type='triggers')
+        content = self._pack_loader.get_content(base_dirs=base_dirs, content_type='triggers')
 
         for pack, triggers_dir in six.iteritems(content):
             if not triggers_dir:
@@ -63,8 +59,11 @@ class TriggersRegistrar(ResourceRegistrar):
                 if self._fail_on_failure:
                     raise e
 
-                LOG.exception('Failed registering all triggers from pack "%s": %s', triggers_dir,
-                              six.text_type(e))
+                LOG.exception(
+                    'Failed registering all triggers from pack "%s": %s',
+                    triggers_dir,
+                    six.text_type(e),
+                )
 
         return registered_count
 
@@ -77,8 +76,9 @@ class TriggersRegistrar(ResourceRegistrar):
         """
         pack_dir = pack_dir[:-1] if pack_dir.endswith('/') else pack_dir
         _, pack = os.path.split(pack_dir)
-        triggers_dir = self._pack_loader.get_content_from_pack(pack_dir=pack_dir,
-                                                               content_type='triggers')
+        triggers_dir = self._pack_loader.get_content_from_pack(
+            pack_dir=pack_dir, content_type='triggers'
+        )
 
         # Register pack first
         self.register_pack(pack_name=pack, pack_dir=pack_dir)
@@ -96,8 +96,9 @@ class TriggersRegistrar(ResourceRegistrar):
             if self._fail_on_failure:
                 raise e
 
-            LOG.exception('Failed registering all triggers from pack "%s": %s', triggers_dir,
-                          six.text_type(e))
+            LOG.exception(
+                'Failed registering all triggers from pack "%s": %s', triggers_dir, six.text_type(e)
+            )
 
         return registered_count
 
@@ -107,17 +108,22 @@ class TriggersRegistrar(ResourceRegistrar):
     def _register_triggers_from_pack(self, pack, triggers):
         registered_count = 0
 
-        pack_base_path = content_utils.get_pack_base_path(pack_name=pack,
-                                                          include_trailing_slash=True)
+        pack_base_path = content_utils.get_pack_base_path(
+            pack_name=pack, include_trailing_slash=True
+        )
 
         for trigger in triggers:
             try:
-                self._register_trigger_from_pack(pack_base_path=pack_base_path, pack=pack,
-                                                 trigger=trigger)
+                self._register_trigger_from_pack(
+                    pack_base_path=pack_base_path, pack=pack, trigger=trigger
+                )
             except Exception as e:
                 if self._fail_on_failure:
-                    msg = ('Failed to register trigger "%s" from pack "%s": %s' % (trigger, pack,
-                        six.text_type(e)))
+                    msg = 'Failed to register trigger "%s" from pack "%s": %s' % (
+                        trigger,
+                        pack,
+                        six.text_type(e),
+                    )
                     raise ValueError(msg)
 
                 LOG.debug('Failed to register trigger "%s": %s', trigger, six.text_type(e))
@@ -138,8 +144,9 @@ class TriggersRegistrar(ResourceRegistrar):
             content['pack'] = pack
             pack_field = pack
         if pack_field != pack:
-            raise Exception('Model is in pack "%s" but field "pack" is different: %s' %
-                            (pack, pack_field))
+            raise Exception(
+                'Model is in pack "%s" but field "pack" is different: %s' % (pack, pack_field)
+            )
 
         # Add in "metadata_file" attribute which stores path to the pack metadata file relative to
         # the pack directory
@@ -151,16 +158,16 @@ class TriggersRegistrar(ResourceRegistrar):
         return result[0] if result else None
 
 
-def register_triggers(packs_base_paths=None, pack_dir=None, use_pack_cache=True,
-                      fail_on_failure=False):
+def register_triggers(
+    packs_base_paths=None, pack_dir=None, use_pack_cache=True, fail_on_failure=False
+):
     if packs_base_paths:
         assert isinstance(packs_base_paths, list)
 
     if not packs_base_paths:
         packs_base_paths = content_utils.get_packs_base_paths()
 
-    registrar = TriggersRegistrar(use_pack_cache=use_pack_cache,
-                                  fail_on_failure=fail_on_failure)
+    registrar = TriggersRegistrar(use_pack_cache=use_pack_cache, fail_on_failure=fail_on_failure)
 
     if pack_dir:
         result = registrar.register_from_pack(pack_dir=pack_dir)

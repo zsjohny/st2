@@ -27,12 +27,7 @@ from st2common.runners.paramiko_ssh_runner import BaseParallelSSHRunner
 from st2common.runners.base import get_metadata as get_runner_metadata
 from st2common.models.system.paramiko_script_action import ParamikoRemoteScriptAction
 
-__all__ = [
-    'ParamikoRemoteScriptRunner',
-
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['ParamikoRemoteScriptRunner', 'get_runner', 'get_metadata']
 
 LOG = logging.getLogger(__name__)
 
@@ -65,8 +60,7 @@ class ParamikoRemoteScriptRunner(BaseParallelSSHRunner):
             try:
                 remote_dir = remote_action.get_remote_base_dir()
                 LOG.debug('Deleting remote execution dir.', extra={'_remote_dir': remote_dir})
-                delete_results = self._parallel_ssh_client.delete_dir(path=remote_dir,
-                                                                      force=True)
+                delete_results = self._parallel_ssh_client.delete_dir(path=remote_dir, force=True)
                 LOG.debug('Deleted remote execution dir.', extra={'_result': delete_results})
             except:
                 LOG.exception('Failed deleting remote dir.', extra={'_remote_dir': remote_dir})
@@ -89,21 +83,27 @@ class ParamikoRemoteScriptRunner(BaseParallelSSHRunner):
         local_script_abs_path = remote_action.get_local_script_abs_path()
         remote_script_abs_path = remote_action.get_remote_script_abs_path()
         file_mode = 0o744
-        extra = {'_local_script': local_script_abs_path, '_remote_script': remote_script_abs_path,
-                 'mode': file_mode}
+        extra = {
+            '_local_script': local_script_abs_path,
+            '_remote_script': remote_script_abs_path,
+            'mode': file_mode,
+        }
         LOG.debug('Copying local script to remote box.', extra=extra)
-        put_result_1 = self._parallel_ssh_client.put(local_path=local_script_abs_path,
-                                                     remote_path=remote_script_abs_path,
-                                                     mirror_local_mode=False, mode=file_mode)
+        put_result_1 = self._parallel_ssh_client.put(
+            local_path=local_script_abs_path,
+            remote_path=remote_script_abs_path,
+            mirror_local_mode=False,
+            mode=file_mode,
+        )
 
         # If `lib` exist for the script, copy that to remote host.
         local_libs_path = remote_action.get_local_libs_path_abs()
         if os.path.exists(local_libs_path):
             extra = {'_local_libs': local_libs_path, '_remote_path': remote_dir}
             LOG.debug('Copying libs to remote host.', extra=extra)
-            put_result_2 = self._parallel_ssh_client.put(local_path=local_libs_path,
-                                                         remote_path=remote_dir,
-                                                         mirror_local_mode=True)
+            put_result_2 = self._parallel_ssh_client.put(
+                local_path=local_libs_path, remote_path=remote_dir, mirror_local_mode=True
+            )
 
         result = mkdir_result or put_result_1 or put_result_2
         return result
@@ -119,35 +119,38 @@ class ParamikoRemoteScriptRunner(BaseParallelSSHRunner):
         # remote script actions without entry_point don't make sense, user probably wanted to use
         # "remote-shell-cmd" action
         if not self.entry_point:
-            msg = ('Action "%s" is missing "entry_point" attribute. Perhaps wanted to use '
-                   '"remote-shell-script" runner?' % (self.action_name))
+            msg = (
+                'Action "%s" is missing "entry_point" attribute. Perhaps wanted to use '
+                '"remote-shell-script" runner?' % (self.action_name)
+            )
             raise Exception(msg)
 
         script_local_path_abs = self.entry_point
         pos_args, named_args = self._get_script_args(action_parameters)
         named_args = self._transform_named_args(named_args)
         env_vars = self._get_env_vars()
-        remote_dir = self.runner_parameters.get(RUNNER_REMOTE_DIR,
-                                                cfg.CONF.ssh_runner.remote_dir)
+        remote_dir = self.runner_parameters.get(RUNNER_REMOTE_DIR, cfg.CONF.ssh_runner.remote_dir)
         remote_dir = os.path.join(remote_dir, self.liveaction_id)
-        return ParamikoRemoteScriptAction(self.action_name,
-                                          str(self.liveaction_id),
-                                          script_local_path_abs,
-                                          self.libs_dir_path,
-                                          named_args=named_args,
-                                          positional_args=pos_args,
-                                          env_vars=env_vars,
-                                          on_behalf_user=self._on_behalf_user,
-                                          user=self._username,
-                                          password=self._password,
-                                          private_key=self._private_key,
-                                          remote_dir=remote_dir,
-                                          hosts=self._hosts,
-                                          parallel=self._parallel,
-                                          sudo=self._sudo,
-                                          sudo_password=self._sudo_password,
-                                          timeout=self._timeout,
-                                          cwd=self._cwd)
+        return ParamikoRemoteScriptAction(
+            self.action_name,
+            str(self.liveaction_id),
+            script_local_path_abs,
+            self.libs_dir_path,
+            named_args=named_args,
+            positional_args=pos_args,
+            env_vars=env_vars,
+            on_behalf_user=self._on_behalf_user,
+            user=self._username,
+            password=self._password,
+            private_key=self._private_key,
+            remote_dir=remote_dir,
+            hosts=self._hosts,
+            parallel=self._parallel,
+            sudo=self._sudo,
+            sudo_password=self._sudo_password,
+            timeout=self._timeout,
+            cwd=self._cwd,
+        )
 
     @staticmethod
     def _generate_error_results(error, tb):
@@ -156,7 +159,7 @@ class ParamikoRemoteScriptRunner(BaseParallelSSHRunner):
             'traceback': ''.join(traceback.format_tb(tb, 20)) if tb else '',
             'failed': True,
             'succeeded': False,
-            'return_code': 255
+            'return_code': 255,
         }
         return error_dict
 
@@ -167,6 +170,7 @@ def get_runner():
 
 def get_metadata():
     metadata = get_runner_metadata('remote_runner')
-    metadata = [runner for runner in metadata if
-                runner['runner_module'] == __name__.split('.')[-1]][0]
+    metadata = [
+        runner for runner in metadata if runner['runner_module'] == __name__.split('.')[-1]
+    ][0]
     return metadata

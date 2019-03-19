@@ -26,26 +26,27 @@ from st2common.persistence.marker import DumperMarker
 from st2common.util import date as date_utils
 from st2common.util import isotime
 
-__all__ = [
-    'Dumper'
-]
+__all__ = ['Dumper']
 
 ALLOWED_EXTENSIONS = ['json']
 
-CONVERTERS = {
-    'json': JsonConverter
-}
+CONVERTERS = {'json': JsonConverter}
 
 LOG = logging.getLogger(__name__)
 
 
 class Dumper(object):
-
-    def __init__(self, queue, export_dir, file_format='json',
-                 file_prefix='st2-executions-',
-                 batch_size=1000, sleep_interval=60,
-                 max_files_per_sleep=5,
-                 file_writer=None):
+    def __init__(
+        self,
+        queue,
+        export_dir,
+        file_format='json',
+        file_prefix='st2-executions-',
+        batch_size=1000,
+        sleep_interval=60,
+        max_files_per_sleep=5,
+        file_writer=None,
+    ):
         if not queue:
             raise Exception('Need a queue to consume data from.')
 
@@ -54,8 +55,9 @@ class Dumper(object):
 
         self._export_dir = export_dir
         if not os.path.exists(self._export_dir):
-            raise Exception('Dir path %s does not exist. Create one before using exporter.' %
-                            self._export_dir)
+            raise Exception(
+                'Dir path %s does not exist. Create one before using exporter.' % self._export_dir
+            )
 
         self._file_format = file_format.lower()
         if self._file_format not in ALLOWED_EXTENSIONS:

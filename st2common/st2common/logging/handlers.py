@@ -23,10 +23,7 @@ from oslo_config import cfg
 
 from st2common.util import date as date_utils
 
-__all__ = [
-    'FormatNamedFileHandler',
-    'ConfigurableSyslogHandler',
-]
+__all__ = ['FormatNamedFileHandler', 'ConfigurableSyslogHandler']
 
 
 class FormatNamedFileHandler(logging.handlers.RotatingFileHandler):
@@ -35,15 +32,16 @@ class FormatNamedFileHandler(logging.handlers.RotatingFileHandler):
         timestamp = int(time.time())
         isotime_str = str(date_utils.get_datetime_utc_now()).replace(' ', '_')
         pid = os.getpid()
-        format_values = {
-            'timestamp': timestamp,
-            'ts': isotime_str,
-            'pid': pid
-        }
+        format_values = {'timestamp': timestamp, 'ts': isotime_str, 'pid': pid}
         filename = filename.format(**format_values)
-        super(FormatNamedFileHandler, self).__init__(filename, mode=mode, maxBytes=maxBytes,
-                                                     backupCount=backupCount, encoding=encoding,
-                                                     delay=delay)
+        super(FormatNamedFileHandler, self).__init__(
+            filename,
+            mode=mode,
+            maxBytes=maxBytes,
+            backupCount=backupCount,
+            encoding=encoding,
+            delay=delay,
+        )
 
 
 class ConfigurableSyslogHandler(logging.handlers.SysLogHandler):

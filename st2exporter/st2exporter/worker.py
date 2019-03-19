@@ -18,8 +18,11 @@ from six.moves import queue
 from oslo_config import cfg
 
 from st2common import log as logging
-from st2common.constants.action import (LIVEACTION_STATUS_SUCCEEDED, LIVEACTION_STATUS_FAILED,
-                                        LIVEACTION_STATUS_CANCELED)
+from st2common.constants.action import (
+    LIVEACTION_STATUS_SUCCEEDED,
+    LIVEACTION_STATUS_FAILED,
+    LIVEACTION_STATUS_CANCELED,
+)
 from st2common.models.api.execution import ActionExecutionAPI
 from st2common.models.db.execution import ActionExecutionDB
 from st2common.persistence.execution import ActionExecution
@@ -30,13 +33,13 @@ from st2common.util import isotime
 from st2exporter.exporter.dumper import Dumper
 from st2common.transport.queues import EXPORTER_WORK_QUEUE
 
-__all__ = [
-    'ExecutionsExporter',
-    'get_worker'
-]
+__all__ = ['ExecutionsExporter', 'get_worker']
 
-COMPLETION_STATUSES = [LIVEACTION_STATUS_SUCCEEDED, LIVEACTION_STATUS_FAILED,
-                       LIVEACTION_STATUS_CANCELED]
+COMPLETION_STATUSES = [
+    LIVEACTION_STATUS_SUCCEEDED,
+    LIVEACTION_STATUS_FAILED,
+    LIVEACTION_STATUS_CANCELED,
+]
 LOG = logging.getLogger(__name__)
 
 
@@ -46,8 +49,7 @@ class ExecutionsExporter(consumers.MessageHandler):
     def __init__(self, connection, queues):
         super(ExecutionsExporter, self).__init__(connection, queues)
         self.pending_executions = queue.Queue()
-        self._dumper = Dumper(queue=self.pending_executions,
-                              export_dir=cfg.CONF.exporter.dump_dir)
+        self._dumper = Dumper(queue=self.pending_executions, export_dir=cfg.CONF.exporter.dump_dir)
         self._consumer_thread = None
 
     def start(self, wait=False):

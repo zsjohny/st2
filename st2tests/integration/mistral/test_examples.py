@@ -21,7 +21,6 @@ from st2common.constants import action as action_constants
 
 
 class ExamplesTest(base.TestWorkflowExecution):
-
     def test_environment(self):
         ex = self._execute_workflow('examples.mistral-env-var')
         ex = self._wait_for_completion(ex)

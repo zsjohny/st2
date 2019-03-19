@@ -48,17 +48,10 @@ TEST_FIXTURES = {
         WF_NO_REQ_PARAM_FILE,
         WF_UNEXP_PARAM_FILE,
         WF_INVALID_SYNTAX_FILE,
-        WF_INVALID_YAQL_FILE
+        WF_INVALID_YAQL_FILE,
     ],
-    'actions': [
-        'a1.yaml',
-        'a2.yaml',
-        'action1.yaml'
-    ],
-    'runners': [
-        'testrunner1.yaml',
-        'testrunner2.yaml'
-    ]
+    'actions': ['a1.yaml', 'a2.yaml', 'action1.yaml'],
+    'runners': ['testrunner1.yaml', 'testrunner2.yaml'],
 }
 
 PACK = 'generic'
@@ -75,7 +68,6 @@ WF_INVALID_YAQL_PATH = LOADER.get_fixture_file_path_abs(PACK, 'workflows', WF_IN
 
 
 class MistralValidationControllerTest(FunctionalTest):
-
     @classmethod
     def setUpClass(cls):
         super(MistralValidationControllerTest, cls).setUpClass()
@@ -97,58 +89,55 @@ class MistralValidationControllerTest(FunctionalTest):
         return yaml.safe_load(def_yaml)
 
     def __do_post(self, definition, expect_errors=False):
-        return self.app.post('/exp/validation/mistral', definition, expect_errors=expect_errors,
-                             content_type='text/plain')
+        return self.app.post(
+            '/exp/validation/mistral',
+            definition,
+            expect_errors=expect_errors,
+            content_type='text/plain',
+        )
 
     @mock.patch.object(
-        workbooks.WorkbookManager, 'validate',
+        workbooks.WorkbookManager,
+        'validate',
         mock.MagicMock(
             return_value={
                 'valid': False,
-                'error': 'Invalid DSL: \'version\' is a required property\n'}))
+                'error': 'Invalid DSL: \'version\' is a required property\n',
+            }
+        ),
+    )
     def test_missing_version(self):
         def_dict = self._read_yaml_file_as_json(WB_PRE_XFORM_PATH)
         del def_dict['version']
         def_yaml = yaml.safe_dump(def_dict)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'schema',
-                'path': '',
-                'message': '\'version\' is a required property'
-            }
-        ]
+        expected = [{'type': 'schema', 'path': '', 'message': '\'version\' is a required property'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workbooks.WorkbookManager, 'validate',
+        workbooks.WorkbookManager,
+        'validate',
         mock.MagicMock(
-            return_value={
-                'valid': False,
-                'error': 'Invalid DSL: Unsupported DSL version\n'}))
+            return_value={'valid': False, 'error': 'Invalid DSL: Unsupported DSL version\n'}
+        ),
+    )
     def test_unsupported_version(self):
         def_dict = self._read_yaml_file_as_json(WB_PRE_XFORM_PATH)
         def_dict['version'] = '1.0'
         def_yaml = yaml.safe_dump(def_dict)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'schema',
-                'path': '',
-                'message': 'Unsupported DSL version'
-            }
-        ]
+        expected = [{'type': 'schema', 'path': '', 'message': 'Unsupported DSL version'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'validate',
-        mock.MagicMock(return_value={'valid': True}))
+        workflows.WorkflowManager, 'validate', mock.MagicMock(return_value={'valid': True})
+    )
     def test_required_action_params_failure(self):
         def_yaml = self._read_file_content(WF_NO_REQ_PARAM_PATH)
         resp = self.__do_post(def_yaml)
@@ -158,7 +147,7 @@ class MistralValidationControllerTest(FunctionalTest):
                 'type': 'action',
                 'path': '',
                 'message': 'Missing required parameters in "task1" '
-                           'for action "wolfpack.action-1": "actionstr"'
+                'for action "wolfpack.action-1": "actionstr"',
             }
         ]
 
@@ -166,8 +155,8 @@ class MistralValidationControllerTest(FunctionalTest):
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'validate',
-        mock.MagicMock(return_value={'valid': True}))
+        workflows.WorkflowManager, 'validate', mock.MagicMock(return_value={'valid': True})
+    )
     def test_unexpected_action_params_failure(self):
         def_yaml = self._read_file_content(WF_UNEXP_PARAM_PATH)
         resp = self.__do_post(def_yaml)
@@ -177,7 +166,7 @@ class MistralValidationControllerTest(FunctionalTest):
                 'type': 'action',
                 'path': '',
                 'message': 'Unexpected parameters in "task1" '
-                           'for action "wolfpack.action-1": "foo"'
+                'for action "wolfpack.action-1": "foo"',
             }
         ]
 
@@ -185,28 +174,22 @@ class MistralValidationControllerTest(FunctionalTest):
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workbooks.WorkbookManager, 'validate',
-        mock.MagicMock(return_value={'valid': True}))
+        workbooks.WorkbookManager, 'validate', mock.MagicMock(return_value={'valid': True})
+    )
     def test_deprecated_callback_action(self):
         def_dict = self._read_yaml_file_as_json(WB_PRE_XFORM_PATH)
         def_dict['workflows']['main']['tasks']['callback'] = {'action': 'st2.callback'}
         def_yaml = yaml.safe_dump(def_dict)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'action',
-                'path': '',
-                'message': 'st2.callback is deprecated.'
-            }
-        ]
+        expected = [{'type': 'action', 'path': '', 'message': 'st2.callback is deprecated.'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workbooks.WorkbookManager, 'validate',
-        mock.MagicMock(return_value={'valid': True}))
+        workbooks.WorkbookManager, 'validate', mock.MagicMock(return_value={'valid': True})
+    )
     def test_workbook_valid(self):
         def_yaml = self._read_file_content(WB_PRE_XFORM_PATH)
         resp = self.__do_post(def_yaml)
@@ -214,50 +197,43 @@ class MistralValidationControllerTest(FunctionalTest):
         self.assertListEqual([], resp.json)
 
     @mock.patch.object(
-        workbooks.WorkbookManager, 'validate',
+        workbooks.WorkbookManager,
+        'validate',
         mock.MagicMock(
             return_value={
                 'valid': False,
-                'error': "Invalid DSL: foobar\n\nEpic fail\nOn instance['tasks']['task1']:\n"}))
+                'error': "Invalid DSL: foobar\n\nEpic fail\nOn instance['tasks']['task1']:\n",
+            }
+        ),
+    )
     def test_workbook_invalid_syntax(self):
         def_yaml = self._read_file_content(WB_INVALID_SYNTAX_PATH)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'schema',
-                'path': 'tasks.task1',
-                'message': 'foobar'
-            }
-        ]
+        expected = [{'type': 'schema', 'path': 'tasks.task1', 'message': 'foobar'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workbooks.WorkbookManager, 'validate',
+        workbooks.WorkbookManager,
+        'validate',
         mock.MagicMock(
-            return_value={
-                'valid': False,
-                'error': 'Parse error: unexpected end of statement.'}))
+            return_value={'valid': False, 'error': 'Parse error: unexpected end of statement.'}
+        ),
+    )
     def test_workbook_invalid_yaql(self):
         def_yaml = self._read_file_content(WB_INVALID_YAQL_PATH)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'yaql',
-                'path': '',
-                'message': 'unexpected end of statement.'
-            }
-        ]
+        expected = [{'type': 'yaql', 'path': '', 'message': 'unexpected end of statement.'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'validate',
-        mock.MagicMock(return_value={'valid': True}))
+        workflows.WorkflowManager, 'validate', mock.MagicMock(return_value={'valid': True})
+    )
     def test_workflow_valid(self):
         def_yaml = self._read_file_content(WF_PRE_XFORM_PATH)
         resp = self.__do_post(def_yaml)
@@ -265,43 +241,36 @@ class MistralValidationControllerTest(FunctionalTest):
         self.assertListEqual([], resp.json)
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'validate',
+        workflows.WorkflowManager,
+        'validate',
         mock.MagicMock(
             return_value={
                 'valid': False,
-                'error': "Invalid DSL: foobar\n\nEpic fail\nOn instance['tasks']['task1']:\n"}))
+                'error': "Invalid DSL: foobar\n\nEpic fail\nOn instance['tasks']['task1']:\n",
+            }
+        ),
+    )
     def test_workflow_invalid_syntax(self):
         def_yaml = self._read_file_content(WF_INVALID_SYNTAX_PATH)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'schema',
-                'path': 'tasks.task1',
-                'message': 'foobar'
-            }
-        ]
+        expected = [{'type': 'schema', 'path': 'tasks.task1', 'message': 'foobar'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)
 
     @mock.patch.object(
-        workflows.WorkflowManager, 'validate',
+        workflows.WorkflowManager,
+        'validate',
         mock.MagicMock(
-            return_value={
-                'valid': False,
-                'error': 'Parse error: unexpected end of statement.'}))
+            return_value={'valid': False, 'error': 'Parse error: unexpected end of statement.'}
+        ),
+    )
     def test_workflow_invalid_yaql(self):
         def_yaml = self._read_file_content(WF_INVALID_YAQL_PATH)
         resp = self.__do_post(def_yaml)
 
-        expected = [
-            {
-                'type': 'yaql',
-                'path': '',
-                'message': 'unexpected end of statement.'
-            }
-        ]
+        expected = [{'type': 'yaql', 'path': '', 'message': 'unexpected end of statement.'}]
 
         self.assertEqual(200, resp.status_int)
         self.assertListEqual(expected, resp.json)

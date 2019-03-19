@@ -20,11 +20,7 @@ from st2common import log as logging
 from st2common.constants.api import DEFAULT_API_VERSION
 from st2common.util.url import get_url_without_trailing_slash
 
-__all__ = [
-    'get_base_public_api_url',
-    'get_full_public_api_url',
-    'get_mistral_api_url'
-]
+__all__ = ['get_base_public_api_url', 'get_full_public_api_url', 'get_mistral_api_url']
 
 LOG = logging.getLogger(__name__)
 

@@ -19,9 +19,7 @@ from oslo_config import cfg
 from st2common.services.keyvalues import KeyValueLookup
 from st2common.util.crypto import read_crypto_key, symmetric_decrypt
 
-__all__ = [
-    'decrypt_kv'
-]
+__all__ = ['decrypt_kv']
 
 
 def decrypt_kv(value):

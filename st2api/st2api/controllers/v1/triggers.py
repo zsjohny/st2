@@ -42,30 +42,34 @@ class TriggerTypeController(resource.ContentPackResourceController):
         Implements the RESTful web endpoint that handles
         the lifecycle of TriggerTypes in the system.
     """
+
     model = TriggerTypeAPI
     access = TriggerType
-    supported_filters = {
-        'name': 'name',
-        'pack': 'pack'
-    }
+    supported_filters = {'name': 'name', 'pack': 'pack'}
 
-    options = {
-        'sort': ['pack', 'name']
-    }
+    options = {'sort': ['pack', 'name']}
 
-    query_options = {
-        'sort': ['ref']
-    }
+    query_options = {'sort': ['ref']}
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
-        return self._get_all(exclude_fields=exclude_attributes,
-                             include_fields=include_attributes,
-                             sort=sort,
-                             offset=offset,
-                             limit=limit,
-                             raw_filters=raw_filters,
-                             requester_user=requester_user)
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
+        return self._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
     def get_one(self, triggertype_ref_or_id):
         return self._get_one(triggertype_ref_or_id, permission_type=None, requester_user=None)
@@ -106,10 +110,16 @@ class TriggerTypeController(resource.ContentPackResourceController):
 
         try:
             triggertype_db = TriggerTypeAPI.to_model(triggertype)
-            if triggertype.id is not None and len(triggertype.id) > 0 and \
-               triggertype.id != triggertype_id:
-                LOG.warning('Discarding mismatched id=%s found in payload and using uri_id=%s.',
-                            triggertype.id, triggertype_id)
+            if (
+                triggertype.id is not None
+                and len(triggertype.id) > 0
+                and triggertype.id != triggertype_id
+            ):
+                LOG.warning(
+                    'Discarding mismatched id=%s found in payload and using uri_id=%s.',
+                    triggertype.id,
+                    triggertype_id,
+                )
             triggertype_db.id = triggertype_id
             old_triggertype_db = triggertype_db
             triggertype_db = TriggerType.add_or_update(triggertype_db)
@@ -132,8 +142,7 @@ class TriggerTypeController(resource.ContentPackResourceController):
                 DELETE /triggertypes/1
                 DELETE /triggertypes/pack.name
         """
-        LOG.info('DELETE /triggertypes/ with ref_or_id=%s',
-                 triggertype_ref_or_id)
+        LOG.info('DELETE /triggertypes/ with ref_or_id=%s', triggertype_ref_or_id)
 
         triggertype_db = self._get_by_ref_or_id(ref_or_id=triggertype_ref_or_id)
         triggertype_id = triggertype_db.id
@@ -146,8 +155,9 @@ class TriggerTypeController(resource.ContentPackResourceController):
         try:
             TriggerType.delete(triggertype_db)
         except Exception as e:
-            LOG.exception('Database delete encountered exception during delete of id="%s". ',
-                          triggertype_id)
+            LOG.exception(
+                'Database delete encountered exception during delete of id="%s". ', triggertype_id
+            )
             abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
             return
         else:
@@ -162,22 +172,29 @@ class TriggerTypeController(resource.ContentPackResourceController):
     def _create_shadow_trigger(triggertype_db):
         try:
             trigger_type_ref = triggertype_db.get_reference().ref
-            trigger = {'name': triggertype_db.name,
-                       'pack': triggertype_db.pack,
-                       'type': trigger_type_ref,
-                       'parameters': {}}
+            trigger = {
+                'name': triggertype_db.name,
+                'pack': triggertype_db.pack,
+                'type': trigger_type_ref,
+                'parameters': {},
+            }
             trigger_db = TriggerService.create_or_update_trigger_db(trigger)
 
             extra = {'trigger_db': trigger_db}
-            LOG.audit('Trigger created for parameter-less TriggerType. Trigger.id=%s' %
-                      (trigger_db.id), extra=extra)
+            LOG.audit(
+                'Trigger created for parameter-less TriggerType. Trigger.id=%s' % (trigger_db.id),
+                extra=extra,
+            )
         except (ValidationError, ValueError) as e:
             LOG.exception('Validation failed for trigger data=%s.', trigger)
             # Not aborting as this is convenience.
             return
         except StackStormDBObjectConflictError as e:
-            LOG.warn('Trigger creation of "%s" failed with uniqueness conflict. Exception: %s',
-                     trigger, six.text_type(e))
+            LOG.warn(
+                'Trigger creation of "%s" failed with uniqueness conflict. Exception: %s',
+                trigger,
+                six.text_type(e),
+            )
             # Not aborting as this is convenience.
             return
 
@@ -192,8 +209,9 @@ class TriggerTypeController(resource.ContentPackResourceController):
         try:
             Trigger.delete(trigger_db)
         except Exception:
-            LOG.exception('Database delete encountered exception during delete of id="%s". ',
-                          trigger_db.id)
+            LOG.exception(
+                'Database delete encountered exception during delete of id="%s". ', trigger_db.id
+            )
 
         extra = {'trigger_db': trigger_db}
         LOG.audit('Trigger deleted. Trigger.id=%s' % (trigger_db.id), extra=extra)
@@ -204,6 +222,7 @@ class TriggerController(object):
         Implements the RESTful web endpoint that handles
         the lifecycle of Triggers in the system.
     """
+
     def get_one(self, trigger_id):
 
         """
@@ -251,8 +270,11 @@ class TriggerController(object):
         trigger_db = TriggerController.__get_by_id(trigger_id)
         try:
             if trigger.id is not None and trigger.id is not '' and trigger.id != trigger_id:
-                LOG.warning('Discarding mismatched id=%s found in payload and using uri_id=%s.',
-                            trigger.id, trigger_id)
+                LOG.warning(
+                    'Discarding mismatched id=%s found in payload and using uri_id=%s.',
+                    trigger.id,
+                    trigger_id,
+                )
             trigger_db = TriggerAPI.to_model(trigger)
             trigger_db.id = trigger_id
             trigger_db = Trigger.add_or_update(trigger_db)
@@ -279,8 +301,9 @@ class TriggerController(object):
         try:
             Trigger.delete(trigger_db)
         except Exception as e:
-            LOG.exception('Database delete encountered exception during delete of id="%s". ',
-                          trigger_id)
+            LOG.exception(
+                'Database delete encountered exception during delete of id="%s". ', trigger_id
+            )
             abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
             return
 
@@ -338,21 +361,18 @@ class TriggerInstanceResendController(TriggerInstanceControllerMixin, resource.R
             POST /triggerinstance/<id>/re_send
         """
         # Note: We only really need parameters here
-        existing_trigger_instance = self._get_one_by_id(id=trigger_instance_id,
-                                                        permission_type=None,
-                                                        requester_user=None)
+        existing_trigger_instance = self._get_one_by_id(
+            id=trigger_instance_id, permission_type=None, requester_user=None
+        )
 
         new_payload = copy.deepcopy(existing_trigger_instance.payload)
-        new_payload['__context'] = {
-            'original_id': trigger_instance_id
-        }
+        new_payload['__context'] = {'original_id': trigger_instance_id}
 
         try:
-            self.trigger_dispatcher.dispatch(existing_trigger_instance.trigger,
-                                             new_payload)
+            self.trigger_dispatcher.dispatch(existing_trigger_instance.trigger, new_payload)
             return {
                 'message': 'Trigger instance %s succesfully re-sent.' % trigger_instance_id,
-                'payload': new_payload
+                'payload': new_payload,
             }
         except Exception as e:
             abort(http_client.INTERNAL_SERVER_ERROR, six.text_type(e))
@@ -363,21 +383,20 @@ class TriggerInstanceController(TriggerInstanceControllerMixin, resource.Resourc
         Implements the RESTful web endpoint that handles
         the lifecycle of TriggerInstances in the system.
     """
+
     supported_filters = {
         'timestamp_gt': 'occurrence_time.gt',
         'timestamp_lt': 'occurrence_time.lt',
         'status': 'status',
-        'trigger': 'trigger.in'
+        'trigger': 'trigger.in',
     }
 
     filter_transform_functions = {
         'timestamp_gt': lambda value: isotime.parse(value=value),
-        'timestamp_lt': lambda value: isotime.parse(value=value)
+        'timestamp_lt': lambda value: isotime.parse(value=value),
     }
 
-    query_options = {
-        'sort': ['-occurrence_time', 'trigger']
-    }
+    query_options = {'sort': ['-occurrence_time', 'trigger']}
 
     def __init__(self):
         super(TriggerInstanceController, self).__init__()
@@ -391,8 +410,16 @@ class TriggerInstanceController(TriggerInstanceControllerMixin, resource.Resourc
         """
         return self._get_one_by_id(instance_id, permission_type=None, requester_user=None)
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
         """
             List all triggerinstances.
 
@@ -404,8 +431,9 @@ class TriggerInstanceController(TriggerInstanceControllerMixin, resource.Resourc
 
         if trigger_type_ref:
             # 1. Retrieve TriggerType object id which match this trigger_type ref
-            trigger_dbs = Trigger.query(type=trigger_type_ref,
-                                        only_fields=['ref', 'name', 'pack', 'type'])
+            trigger_dbs = Trigger.query(
+                type=trigger_type_ref, only_fields=['ref', 'name', 'pack', 'type']
+            )
             trigger_refs = [trigger_db.ref for trigger_db in trigger_dbs]
             raw_filters['trigger'] = trigger_refs
 
@@ -414,30 +442,42 @@ class TriggerInstanceController(TriggerInstanceControllerMixin, resource.Resourc
             # we should return back empty result
             return []
 
-        trigger_instances = self._get_trigger_instances(exclude_fields=exclude_attributes,
-                                                        include_fields=include_attributes,
-                                                        sort=sort,
-                                                        offset=offset,
-                                                        limit=limit,
-                                                        raw_filters=raw_filters,
-                                                        requester_user=requester_user)
+        trigger_instances = self._get_trigger_instances(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
         return trigger_instances
 
-    def _get_trigger_instances(self, exclude_fields=None, include_fields=None, sort=None, offset=0,
-                               limit=None, raw_filters=None, requester_user=None):
+    def _get_trigger_instances(
+        self,
+        exclude_fields=None,
+        include_fields=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        raw_filters=None,
+        requester_user=None,
+    ):
         if limit is None:
             limit = self.default_limit
 
         limit = int(limit)
 
         LOG.debug('Retrieving all trigger instances with filters=%s', raw_filters)
-        return super(TriggerInstanceController, self)._get_all(exclude_fields=exclude_fields,
-                                                               include_fields=include_fields,
-                                                               sort=sort,
-                                                               offset=offset,
-                                                               limit=limit,
-                                                               raw_filters=raw_filters,
-                                                               requester_user=requester_user)
+        return super(TriggerInstanceController, self)._get_all(
+            exclude_fields=exclude_fields,
+            include_fields=include_fields,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
 
 
 triggertype_controller = TriggerTypeController()

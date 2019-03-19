@@ -22,9 +22,7 @@ from st2common.persistence.trigger import TriggerType
 from st2tests.base import CleanDbTestCase
 from st2tests.fixturesloader import get_fixtures_packs_base_path
 
-__all__ = [
-    'TriggersRegistrarTestCase'
-]
+__all__ = ['TriggersRegistrarTestCase']
 
 
 class TriggersRegistrarTestCase(CleanDbTestCase):

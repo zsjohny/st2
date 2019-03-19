@@ -59,9 +59,7 @@ class StringReader(object):
         self.name = name
         self.spec = spec
         self.prefix = prefix or ''
-        self.options = {
-            'is_password': secret
-        }
+        self.options = {'is_password': secret}
 
         self._construct_description()
         self._construct_template()
@@ -93,6 +91,7 @@ class StringReader(object):
 
     def _construct_description(self):
         if 'description' in self.spec:
+
             def get_bottom_toolbar_tokens(cli):
                 return [(token.Token.Toolbar, self.spec['description'])]
 
@@ -122,9 +121,11 @@ class BooleanReader(StringReader):
             return
 
         if input.lower() not in POSITIVE_BOOLEAN | NEGATIVE_BOOLEAN:
-            raise validation.ValidationError(len(input),
-                                             'Does not look like boolean. Pick from [%s]'
-                                             % ', '.join(POSITIVE_BOOLEAN | NEGATIVE_BOOLEAN))
+            raise validation.ValidationError(
+                len(input),
+                'Does not look like boolean. Pick from [%s]'
+                % ', '.join(POSITIVE_BOOLEAN | NEGATIVE_BOOLEAN),
+            )
 
     def _construct_template(self):
         self.template = u'{0} (boolean)'
@@ -141,8 +142,9 @@ class BooleanReader(StringReader):
             return False
 
         # Hopefully, it will never happen
-        raise OperationFailureException('Response neither positive no negative. '
-                                        'Value have not been properly validated.')
+        raise OperationFailureException(
+            'Response neither positive no negative. ' 'Value have not been properly validated.'
+        )
 
 
 class NumberReader(StringReader):
@@ -260,7 +262,6 @@ class EnumReader(StringReader):
 
 
 class ObjectReader(StringReader):
-
     @staticmethod
     def condition(spec):
         return spec.get('type', None) == 'object'
@@ -268,8 +269,9 @@ class ObjectReader(StringReader):
     def read(self):
         prefix = u'{}.'.format(self.name)
 
-        result = InteractiveForm(self.spec.get('properties', {}),
-                                 prefix=prefix, reraise=True).initiate_dialog()
+        result = InteractiveForm(
+            self.spec.get('properties', {}), prefix=prefix, reraise=True
+        ).initiate_dialog()
 
         return result
 
@@ -328,9 +330,9 @@ class ArrayObjectReader(StringReader):
         index = 0
         while is_continue:
             prefix = u'{name}[{index}].'.format(name=self.name, index=index)
-            results.append(InteractiveForm(properties,
-                                           prefix=prefix,
-                                           reraise=True).initiate_dialog())
+            results.append(
+                InteractiveForm(properties, prefix=prefix, reraise=True).initiate_dialog()
+            )
 
             index += 1
             if Question(message, {'default': 'y'}).read() != 'y':
@@ -403,7 +405,7 @@ class InteractiveForm(object):
         ArrayObjectReader,
         ArrayReader,
         SecretStringReader,
-        StringReader
+        StringReader,
     ]
 
     def __init__(self, schema, prefix=None, reraise=False):

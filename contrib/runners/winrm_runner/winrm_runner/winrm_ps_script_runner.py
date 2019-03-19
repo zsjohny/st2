@@ -21,17 +21,12 @@ from st2common.runners.base import ShellRunnerMixin
 from st2common.runners.base import get_metadata as get_runner_metadata
 from winrm_runner.winrm_base import WinRmBaseRunner
 
-__all__ = [
-    'WinRmPsScriptRunner',
-    'get_runner',
-    'get_metadata'
-]
+__all__ = ['WinRmPsScriptRunner', 'get_runner', 'get_metadata']
 
 LOG = logging.getLogger(__name__)
 
 
 class WinRmPsScriptRunner(WinRmBaseRunner, ShellRunnerMixin):
-
     def run(self, action_parameters):
         if not self.entry_point:
             raise ValueError('Missing entry_point action metadata attribute')
@@ -63,6 +58,7 @@ def get_runner():
 
 def get_metadata():
     metadata = get_runner_metadata('winrm_runner')
-    metadata = [runner for runner in metadata if
-                runner['runner_module'] == __name__.split('.')[-1]][0]
+    metadata = [
+        runner for runner in metadata if runner['runner_module'] == __name__.split('.')[-1]
+    ][0]
     return metadata

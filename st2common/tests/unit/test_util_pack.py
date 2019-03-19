@@ -21,7 +21,6 @@ from st2common.util.pack import get_pack_common_libs_path_for_pack_db
 
 
 class PackUtilsTestCase(unittest2.TestCase):
-
     def test_get_pack_common_libs_path_for_pack_db(self):
         pack_model_args = {
             'name': 'Yolo CI',
@@ -29,7 +28,7 @@ class PackUtilsTestCase(unittest2.TestCase):
             'description': 'YOLO CI pack',
             'version': '0.1.0',
             'author': 'Volkswagen',
-            'path': '/opt/stackstorm/packs/yolo_ci/'
+            'path': '/opt/stackstorm/packs/yolo_ci/',
         }
         pack_db = PackDB(**pack_model_args)
         lib_path = get_pack_common_libs_path_for_pack_db(pack_db)
@@ -41,7 +40,7 @@ class PackUtilsTestCase(unittest2.TestCase):
             'ref': 'yolo_ci',
             'description': 'YOLO CI pack',
             'version': '0.1.0',
-            'author': 'Volkswagen'
+            'author': 'Volkswagen',
         }
         pack_db = PackDB(**pack_model_args)
         lib_path = get_pack_common_libs_path_for_pack_db(pack_db)

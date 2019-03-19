@@ -29,7 +29,7 @@ import st2auth.handlers as handlers
 
 HANDLER_MAPPINGS = {
     'proxy': handlers.ProxyAuthHandler,
-    'standalone': handlers.StandaloneAuthHandler
+    'standalone': handlers.StandaloneAuthHandler,
 }
 
 LOG = logging.getLogger(__name__)
@@ -59,8 +59,7 @@ class TokenController(object):
         try:
             self.handler = HANDLER_MAPPINGS[cfg.CONF.auth.mode]()
         except KeyError:
-            raise ParamException("%s is not a valid auth mode" %
-                                 cfg.CONF.auth.mode)
+            raise ParamException("%s is not a valid auth mode" % cfg.CONF.auth.mode)
 
     def post(self, request, **kwargs):
         headers = {}
@@ -71,11 +70,14 @@ class TokenController(object):
         if authorization:
             authorization = tuple(authorization.split(' '))
 
-        token = self.handler.handle_auth(request=request, headers=headers,
-                                         remote_addr=kwargs.pop('remote_addr', None),
-                                         remote_user=kwargs.pop('remote_user', None),
-                                         authorization=authorization,
-                                         **kwargs)
+        token = self.handler.handle_auth(
+            request=request,
+            headers=headers,
+            remote_addr=kwargs.pop('remote_addr', None),
+            remote_user=kwargs.pop('remote_user', None),
+            authorization=authorization,
+            **kwargs
+        )
         return process_successful_response(token=token)
 
 

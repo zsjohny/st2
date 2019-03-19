@@ -17,12 +17,7 @@ from __future__ import absolute_import
 
 from st2client.models import core
 
-__all__ = [
-    'ServiceRegistry',
-
-    'ServiceRegistryGroup',
-    'ServiceRegistryMember'
-]
+__all__ = ['ServiceRegistry', 'ServiceRegistryGroup', 'ServiceRegistryMember']
 
 
 class ServiceRegistry(core.Resource):

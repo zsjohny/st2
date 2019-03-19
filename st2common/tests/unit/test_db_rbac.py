@@ -31,7 +31,7 @@ __all__ = [
     'RoleDBModelCRUDTestCase',
     'UserRoleAssignmentDBModelCRUDTestCase',
     'PermissionGrantDBModelCRUDTestCase',
-    'GroupToRoleMappingDBModelCRUDTestCase'
+    'GroupToRoleMappingDBModelCRUDTestCase',
 ]
 
 
@@ -42,7 +42,7 @@ class RoleDBModelCRUDTestCase(BaseDBModelCRUDTestCase, DbTestCase):
         'name': 'role_one',
         'description': None,
         'system': False,
-        'permission_grants': []
+        'permission_grants': [],
     }
     update_attribute_name = 'name'
 
@@ -54,7 +54,7 @@ class UserRoleAssignmentDBModelCRUDTestCase(BaseDBModelCRUDTestCase, DbTestCase)
         'user': 'user_one',
         'role': 'role_one',
         'source': 'source_one',
-        'is_remote': True
+        'is_remote': True,
     }
     update_attribute_name = 'role'
 
@@ -65,7 +65,7 @@ class PermissionGrantDBModelCRUDTestCase(BaseDBModelCRUDTestCase, DbTestCase):
     model_class_kwargs = {
         'resource_uid': 'pack:core',
         'resource_type': 'pack',
-        'permission_types': []
+        'permission_types': [],
     }
     update_attribute_name = 'resource_uid'
 
@@ -77,6 +77,6 @@ class GroupToRoleMappingDBModelCRUDTestCase(BaseDBModelCRUDTestCase, DbTestCase)
         'group': 'some group',
         'roles': ['role_one', 'role_two'],
         'description': 'desc',
-        'enabled': True
+        'enabled': True,
     }
     update_attribute_name = 'group'

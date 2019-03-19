@@ -18,15 +18,14 @@ from st2common.constants import action as action_constants
 from st2common.policies import base
 from st2common.services import coordination
 
-__all__ = [
-    'BaseConcurrencyApplicator'
-]
+__all__ = ['BaseConcurrencyApplicator']
 
 
 class BaseConcurrencyApplicator(base.ResourcePolicyApplicator):
     def __init__(self, policy_ref, policy_type, threshold=0, action='delay'):
-        super(BaseConcurrencyApplicator, self).__init__(policy_ref=policy_ref,
-                                                        policy_type=policy_type)
+        super(BaseConcurrencyApplicator, self).__init__(
+            policy_ref=policy_ref, policy_type=policy_type
+        )
         self.threshold = threshold
         self.policy_action = action
 

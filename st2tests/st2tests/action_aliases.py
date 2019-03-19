@@ -29,9 +29,7 @@ from st2common.models.utils.action_alias_utils import extract_parameters_for_act
 from st2common.models.utils.action_alias_utils import extract_parameters
 from st2tests.pack_resource import BasePackResourceTestCase
 
-__all__ = [
-    'BaseActionAliasTestCase'
-]
+__all__ = ['BaseActionAliasTestCase']
 
 
 class BaseActionAliasTestCase(BasePackResourceTestCase):
@@ -58,19 +56,20 @@ class BaseActionAliasTestCase(BasePackResourceTestCase):
 
         for format_string in format_strings:
             try:
-                extract_parameters(format_str=format_string,
-                                   param_stream=command)
+                extract_parameters(format_str=format_string, param_stream=command)
             except ParseException:
                 continue
 
             matched_format_strings.append(format_string)
 
         if len(matched_format_strings) == 0:
-            msg = ('Command "%s" didn\'t match any of the provided format strings' % (command))
+            msg = 'Command "%s" didn\'t match any of the provided format strings' % (command)
             raise AssertionError(msg)
         elif len(matched_format_strings) > 1:
-            msg = ('Command "%s" matched multiple format strings: %s' %
-                   (command, ', '.join(matched_format_strings)))
+            msg = 'Command "%s" matched multiple format strings: %s' % (
+                command,
+                ', '.join(matched_format_strings),
+            )
             raise AssertionError(msg)
 
     def assertExtractedParametersMatch(self, format_string, command, parameters):
@@ -81,13 +80,14 @@ class BaseActionAliasTestCase(BasePackResourceTestCase):
         user input (command) also match the provided parameters.
         """
         extracted_params = extract_parameters_for_action_alias_db(
-            action_alias_db=self.action_alias_db,
-            format_str=format_string,
-            param_stream=command)
+            action_alias_db=self.action_alias_db, format_str=format_string, param_stream=command
+        )
 
         if extracted_params != parameters:
-            msg = ('Extracted parameters from command string "%s" against format string "%s"'
-                   ' didn\'t match the provided parameters: ' % (command, format_string))
+            msg = (
+                'Extracted parameters from command string "%s" against format string "%s"'
+                ' didn\'t match the provided parameters: ' % (command, format_string)
+            )
 
             # Note: We intercept the exception so we can can include diff for the dictionaries
             try:
@@ -117,13 +117,14 @@ class BaseActionAliasTestCase(BasePackResourceTestCase):
         pack_loader = ContentPackLoader()
         registrar = AliasesRegistrar(use_pack_cache=False)
 
-        aliases_path = pack_loader.get_content_from_pack(pack_dir=base_pack_path,
-                                                         content_type='aliases')
+        aliases_path = pack_loader.get_content_from_pack(
+            pack_dir=base_pack_path, content_type='aliases'
+        )
         aliases = registrar._get_aliases_from_pack(aliases_dir=aliases_path)
         for alias_path in aliases:
-            action_alias_db = registrar._get_action_alias_db(pack=pack,
-                                                             action_alias=alias_path,
-                                                             ignore_metadata_file_error=True)
+            action_alias_db = registrar._get_action_alias_db(
+                pack=pack, action_alias=alias_path, ignore_metadata_file_error=True
+            )
 
             if action_alias_db.name == name:
                 return action_alias_db

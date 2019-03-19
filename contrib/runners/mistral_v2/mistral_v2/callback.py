@@ -48,7 +48,7 @@ STATUS_MAP = {
     action_constants.LIVEACTION_STATUS_CANCELED: 'CANCELLED',
     action_constants.LIVEACTION_STATUS_PAUSING: 'PAUSED',
     action_constants.LIVEACTION_STATUS_PAUSED: 'PAUSED',
-    action_constants.LIVEACTION_STATUS_RESUMING: 'RUNNING'
+    action_constants.LIVEACTION_STATUS_RESUMING: 'RUNNING',
 }
 
 MISTRAL_ACCEPTED_STATES = copy.deepcopy(action_constants.LIVEACTION_COMPLETED_STATES)
@@ -62,20 +62,21 @@ def get_instance():
 def get_action_execution_id_from_url(url):
     match = re.search('(.+)/action_executions/(.+)', url)
     if not match or len(match.groups()) != 2:
-        raise ValueError('Unable to extract the action execution ID '
-                         'from the callback URL (%s).' % (url))
+        raise ValueError(
+            'Unable to extract the action execution ID ' 'from the callback URL (%s).' % (url)
+        )
 
     return match.group(2)
 
 
 class MistralCallbackHandler(callback.AsyncActionExecutionCallbackHandler):
-
     @classmethod
     @retrying.retry(
         retry_on_exception=utils.retry_on_exceptions,
         wait_exponential_multiplier=cfg.CONF.mistral.retry_exp_msec,
         wait_exponential_max=cfg.CONF.mistral.retry_exp_max_msec,
-        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec)
+        stop_max_delay=cfg.CONF.mistral.retry_stop_max_msec,
+    )
     def _update_action_execution(cls, url, data):
         action_execution_id = get_action_execution_id_from_url(url)
 
@@ -88,7 +89,8 @@ class MistralCallbackHandler(callback.AsyncActionExecutionCallbackHandler):
             project_name=cfg.CONF.mistral.keystone_project_name,
             auth_url=cfg.CONF.mistral.keystone_auth_url,
             cacert=cfg.CONF.mistral.cacert,
-            insecure=cfg.CONF.mistral.insecure)
+            insecure=cfg.CONF.mistral.insecure,
+        )
 
         client.action_executions.update(action_execution_id, **data)
 

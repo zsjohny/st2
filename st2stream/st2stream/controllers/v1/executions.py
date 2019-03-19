@@ -30,9 +30,7 @@ from st2common.util.jsonify import json_encode
 from st2common.rbac.types import PermissionType
 from st2common.stream.listener import get_listener
 
-__all__ = [
-    'ActionExecutionOutputStreamController'
-]
+__all__ = ['ActionExecutionOutputStreamController']
 
 LOG = logging.getLogger(__name__)
 
@@ -45,13 +43,11 @@ class ActionExecutionOutputStreamController(ResourceController):
     model = ActionExecutionAPI
     access = ActionExecution
 
-    supported_filters = {
-        'output_type': 'output_type'
-    }
+    supported_filters = {'output_type': 'output_type'}
 
     CLOSE_STREAM_LIVEACTION_STATES = action_constants.LIVEACTION_COMPLETED_STATES + [
         action_constants.LIVEACTION_STATUS_PAUSING,
-        action_constants.LIVEACTION_STATUS_RESUMING
+        action_constants.LIVEACTION_STATUS_RESUMING,
     ]
 
     def get_one(self, id, output_type='all', requester_user=None):
@@ -64,8 +60,9 @@ class ActionExecutionOutputStreamController(ResourceController):
 
             id = str(execution_db.id)
 
-        execution_db = self._get_one_by_id(id=id, requester_user=requester_user,
-                                           permission_type=PermissionType.EXECUTION_VIEW)
+        execution_db = self._get_one_by_id(
+            id=id, requester_user=requester_user, permission_type=PermissionType.EXECUTION_VIEW
+        )
         execution_id = str(execution_db.id)
 
         query_filters = {}
@@ -117,8 +114,11 @@ class ActionExecutionOutputStreamController(ResourceController):
                         # Note: gunicorn wsgi handler expect bytes, not unicode
                         # pylint: disable=no-member
                         if isinstance(model_api, ActionExecutionOutputAPI):
-                            if output_type and output_type != 'all' and \
-                               model_api.output_type != output_type:
+                            if (
+                                output_type
+                                and output_type != 'all'
+                                and model_api.output_type != output_type
+                            ):
                                 continue
 
                             output = format_output_object(model_api).encode('utf-8')

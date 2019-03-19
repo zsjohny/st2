@@ -47,8 +47,10 @@ class MongoDBProfilingTestCase(DbTestCase):
         call_args = call_args_list[0][0]
         call_kwargs = call_args_list[0][1]
 
-        expected_result = ("db.user_d_b.find({'name': {'$in': ['test1', 'test2']}})"
-                           ".sort({aa: 1, bb: -1}).limit(1);")
+        expected_result = (
+            "db.user_d_b.find({'name': {'$in': ['test1', 'test2']}})"
+            ".sort({aa: 1, bb: -1}).limit(1);"
+        )
         self.assertEqual(queryset, result)
         self.assertTrue(expected_result in call_args[0])
         self.assertTrue('mongo_query' in call_kwargs['extra'])

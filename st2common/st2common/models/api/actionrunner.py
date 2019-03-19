@@ -29,12 +29,9 @@ class ActionRunnerAPI(BaseAPI):
     Attribute:
        ...
     """
+
     schema = {
         'type': 'object',
-        'parameters': {
-            'id': {
-                'type': 'string'
-            }
-        },
-        'additionalProperties': False
+        'parameters': {'id': {'type': 'string'}},
+        'additionalProperties': False,
     }

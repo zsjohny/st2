@@ -17,9 +17,7 @@ from __future__ import absolute_import
 
 from st2client.models import core
 
-__all__ = [
-    'ActionAliasExecution'
-]
+__all__ = ['ActionAliasExecution']
 
 
 class ActionAliasExecution(core.Resource):
@@ -28,5 +26,12 @@ class ActionAliasExecution(core.Resource):
     _plural = 'ActionAliasExecutions'
     _plural_display_name = 'Runners'
     _url_path = 'aliasexecution'
-    _repr_attributes = ['name', 'format', 'command', 'user', 'source_channel',
-                        'notification_channel', 'notification_route']
+    _repr_attributes = [
+        'name',
+        'format',
+        'command',
+        'user',
+        'source_channel',
+        'notification_channel',
+        'notification_route',
+    ]

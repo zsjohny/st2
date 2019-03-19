@@ -29,21 +29,19 @@ NONRESOURCES = ['workflows']
 
 
 class TestClientEndpoints(unittest2.TestCase):
-
     def tearDown(self):
         for var in [
             'ST2_BASE_URL',
             'ST2_API_URL',
             'ST2_STREAM_URL',
             'ST2_DATASTORE_URL',
-            'ST2_AUTH_TOKEN'
+            'ST2_AUTH_TOKEN',
         ]:
             if var in os.environ:
                 del os.environ[var]
 
     def test_managers(self):
-        property_names = [k for k, v in six.iteritems(Client.__dict__)
-                          if isinstance(v, property)]
+        property_names = [k for k, v in six.iteritems(Client.__dict__) if isinstance(v, property)]
 
         client = Client()
 
@@ -135,8 +133,15 @@ class TestClientEndpoints(unittest2.TestCase):
         # Invalid value, path to the bundle doesn't exist
         cacert = os.path.abspath(__file__)
         expected_msg = 'CA cert file "doesntexist" does not exist'
-        self.assertRaisesRegexp(ValueError, expected_msg, Client, base_url=base_url,
-                                api_url=api_url, stream_url=stream_url, cacert='doesntexist')
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_msg,
+            Client,
+            base_url=base_url,
+            api_url=api_url,
+            stream_url=stream_url,
+            cacert='doesntexist',
+        )
 
     def test_args_base_only(self):
         base_url = 'http://www.stackstorm.com'

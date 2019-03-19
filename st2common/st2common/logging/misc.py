@@ -24,19 +24,15 @@ from st2common.logging.filters import LoggerFunctionNameExclusionFilter
 
 __all__ = [
     'reopen_log_files',
-
     'set_log_level_for_all_handlers',
     'set_log_level_for_all_loggers',
-
-    'add_global_filters_for_all_loggers'
+    'add_global_filters_for_all_loggers',
 ]
 
 LOG = logging.getLogger(__name__)
 
 # Because some loggers are just waste of attention span
-SPECIAL_LOGGERS = {
-    'swagger_spec_validator.ref_validators': logging.INFO
-}
+SPECIAL_LOGGERS = {'swagger_spec_validator.ref_validators': logging.INFO}
 
 # Log messages for function names which are very spammy and we want to filter out when DEBUG log
 # level is enabled
@@ -46,9 +42,7 @@ IGNORED_FUNCTION_NAMES = [
 ]
 
 # List of global filters which apply to all the loggers
-GLOBAL_FILTERS = [
-    LoggerFunctionNameExclusionFilter(exclusions=IGNORED_FUNCTION_NAMES)
-]
+GLOBAL_FILTERS = [LoggerFunctionNameExclusionFilter(exclusions=IGNORED_FUNCTION_NAMES)]
 
 
 def reopen_log_files(handlers):
@@ -65,8 +59,7 @@ def reopen_log_files(handlers):
         if not isinstance(handler, logging.FileHandler):
             continue
 
-        LOG.info('Re-opening log file "%s" with mode "%s"\n' %
-                 (handler.baseFilename, handler.mode))
+        LOG.info('Re-opening log file "%s" with mode "%s"\n' % (handler.baseFilename, handler.mode))
 
         try:
             handler.acquire()
@@ -179,7 +172,7 @@ def get_logger_name_for_module(module, exclude_module_name=False):
     start_index = 0
     for index, component in enumerate(reversed(split)):
         if component.startswith('st2'):
-            start_index = ((len(split) - 1) - index)
+            start_index = (len(split) - 1) - index
             break
 
     split = split[start_index:]

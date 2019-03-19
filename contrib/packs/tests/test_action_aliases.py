@@ -23,16 +23,14 @@ class PackGet(BaseActionAliasTestCase):
         format_strings = self.action_alias_db.get_format_strings()
 
         command = "pack get st2"
-        expected_parameters = {
-            'pack': "st2"
-        }
+        expected_parameters = {'pack': "st2"}
 
-        self.assertExtractedParametersMatch(format_string=format_string,
-                                            command=command,
-                                            parameters=expected_parameters)
+        self.assertExtractedParametersMatch(
+            format_string=format_string, command=command, parameters=expected_parameters
+        )
         self.assertCommandMatchesExactlyOneFormatString(
-            format_strings=format_strings,
-            command=command)
+            format_strings=format_strings, command=command
+        )
 
 
 class PackInstall(BaseActionAliasTestCase):
@@ -42,13 +40,11 @@ class PackInstall(BaseActionAliasTestCase):
         format_string = self.action_alias_db.formats[0]['representation'][0]
 
         command = "pack install st2"
-        expected_parameters = {
-            'packs': "st2"
-        }
+        expected_parameters = {'packs': "st2"}
 
-        self.assertExtractedParametersMatch(format_string=format_string,
-                                            command=command,
-                                            parameters=expected_parameters)
+        self.assertExtractedParametersMatch(
+            format_string=format_string, command=command, parameters=expected_parameters
+        )
 
 
 class PackSearch(BaseActionAliasTestCase):
@@ -59,16 +55,14 @@ class PackSearch(BaseActionAliasTestCase):
         format_strings = self.action_alias_db.get_format_strings()
 
         command = "pack search st2"
-        expected_parameters = {
-            'query': "st2"
-        }
+        expected_parameters = {'query': "st2"}
 
-        self.assertExtractedParametersMatch(format_string=format_string,
-                                            command=command,
-                                            parameters=expected_parameters)
+        self.assertExtractedParametersMatch(
+            format_string=format_string, command=command, parameters=expected_parameters
+        )
         self.assertCommandMatchesExactlyOneFormatString(
-            format_strings=format_strings,
-            command=command)
+            format_strings=format_strings, command=command
+        )
 
 
 class PackShow(BaseActionAliasTestCase):
@@ -79,13 +73,11 @@ class PackShow(BaseActionAliasTestCase):
         format_strings = self.action_alias_db.get_format_strings()
 
         command = "pack show st2"
-        expected_parameters = {
-            'pack': "st2"
-        }
+        expected_parameters = {'pack': "st2"}
 
-        self.assertExtractedParametersMatch(format_string=format_string,
-                                            command=command,
-                                            parameters=expected_parameters)
+        self.assertExtractedParametersMatch(
+            format_string=format_string, command=command, parameters=expected_parameters
+        )
         self.assertCommandMatchesExactlyOneFormatString(
-            format_strings=format_strings,
-            command=command)
+            format_strings=format_strings, command=command
+        )

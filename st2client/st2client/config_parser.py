@@ -30,14 +30,7 @@ import six
 from six.moves.configparser import ConfigParser
 
 
-__all__ = [
-    'CLIConfigParser',
-
-    'ST2_CONFIG_DIRECTORY',
-    'ST2_CONFIG_PATH',
-
-    'CONFIG_DEFAULT_VALUES'
-]
+__all__ = ['CLIConfigParser', 'ST2_CONFIG_DIRECTORY', 'ST2_CONFIG_PATH', 'CONFIG_DEFAULT_VALUES']
 
 ST2_CONFIG_DIRECTORY = '~/.st2'
 ST2_CONFIG_DIRECTORY = os.path.abspath(os.path.expanduser(ST2_CONFIG_DIRECTORY))
@@ -46,73 +39,25 @@ ST2_CONFIG_PATH = os.path.abspath(os.path.join(ST2_CONFIG_DIRECTORY, 'config'))
 
 CONFIG_FILE_OPTIONS = {
     'general': {
-        'base_url': {
-            'type': 'string',
-            'default': None
-        },
-        'api_version': {
-            'type': 'string',
-            'default': None
-        },
-        'cacert': {
-            'type': 'string',
-            'default': None
-        },
-        'silence_ssl_warnings': {
-            'type': 'bool',
-            'default': False
-        },
-        'silence_schema_output': {
-            'type': 'bool',
-            'default': True
-        }
+        'base_url': {'type': 'string', 'default': None},
+        'api_version': {'type': 'string', 'default': None},
+        'cacert': {'type': 'string', 'default': None},
+        'silence_ssl_warnings': {'type': 'bool', 'default': False},
+        'silence_schema_output': {'type': 'bool', 'default': True},
     },
     'cli': {
-        'debug': {
-            'type': 'bool',
-            'default': False
-        },
-        'cache_token': {
-            'type': 'boolean',
-            'default': True
-        },
-        'timezone': {
-            'type': 'string',
-            'default': 'UTC'
-        }
+        'debug': {'type': 'bool', 'default': False},
+        'cache_token': {'type': 'boolean', 'default': True},
+        'timezone': {'type': 'string', 'default': 'UTC'},
     },
     'credentials': {
-        'username': {
-            'type': 'string',
-            'default': None
-        },
-        'password': {
-            'type': 'string',
-            'default': None
-        },
-        'api_key': {
-            'type': 'string',
-            'default': None
-        }
+        'username': {'type': 'string', 'default': None},
+        'password': {'type': 'string', 'default': None},
+        'api_key': {'type': 'string', 'default': None},
     },
-    'api': {
-        'url': {
-            'type': 'string',
-            'default': None
-        }
-    },
-    'auth': {
-        'url': {
-            'type': 'string',
-            'default': None
-        }
-    },
-    'stream': {
-        'url': {
-            'type': 'string',
-            'default': None
-        }
-    }
+    'api': {'url': {'type': 'string', 'default': None}},
+    'auth': {'url': {'type': 'string', 'default': None}},
+    'stream': {'url': {'type': 'string', 'default': None}},
 }
 
 CONFIG_DEFAULT_VALUES = {}
@@ -126,8 +71,13 @@ for section, keys in six.iteritems(CONFIG_FILE_OPTIONS):
 
 
 class CLIConfigParser(object):
-    def __init__(self, config_file_path, validate_config_exists=True,
-                 validate_config_permissions=True, log=None):
+    def __init__(
+        self,
+        config_file_path,
+        validate_config_exists=True,
+        validate_config_permissions=True,
+        log=None,
+    ):
         if validate_config_exists and not os.path.isfile(config_file_path):
             raise ValueError('Config file "%s" doesn\'t exist')
 
@@ -158,19 +108,21 @@ class CLIConfigParser(object):
             if bool(os.stat(config_dir_path).st_mode & 0o7):
                 self.LOG.warn(
                     "The StackStorm configuration directory permissions are "
-                    "insecure (too permissive): others have access.")
+                    "insecure (too permissive): others have access."
+                )
 
             # Make sure the setgid bit is set on the directory
             if not bool(os.stat(config_dir_path).st_mode & 0o2000):
                 self.LOG.info(
-                    "The SGID bit is not set on the StackStorm configuration "
-                    "directory.")
+                    "The SGID bit is not set on the StackStorm configuration " "directory."
+                )
 
             # Make sure the file permissions == 0o660
             if bool(os.stat(self.config_file_path).st_mode & 0o7):
                 self.LOG.warn(
                     "The StackStorm configuration file permissions are "
-                    "insecure: others have access.")
+                    "insecure: others have access."
+                )
 
         config = ConfigParser()
         with io.open(self.config_file_path, 'r', encoding='utf8') as fp:

@@ -28,12 +28,9 @@ from st2common import log as logging
 
 __all__ = [
     'PackConfigDict',
-
     'get_logger_for_python_runner_action',
     'get_action_class_instance',
-
     'make_read_and_store_stream_func',
-
     'invoke_post_run',
 ]
 
@@ -61,6 +58,7 @@ class PackConfigDict(dict):
     This class throws a user-friendly exception in case user tries to access config item which
     doesn't exist in the dict.
     """
+
     def __init__(self, pack_name, *args):
         super(PackConfigDict, self).__init__(*args)
         self._pack_name = pack_name
@@ -136,8 +134,10 @@ def get_action_class_instance(action_cls, config=None, action_service=None):
         if 'unexpected keyword argument \'action_service\'' not in six.text_type(e):
             raise e
 
-        LOG.debug('Action class (%s) constructor doesn\'t take "action_service" argument, '
-                  'falling back to late assignment...' % (action_cls.__class__.__name__))
+        LOG.debug(
+            'Action class (%s) constructor doesn\'t take "action_service" argument, '
+            'falling back to late assignment...' % (action_cls.__class__.__name__)
+        )
 
         action_service = kwargs.pop('action_service', None)
         action_instance = action_cls(**kwargs)
@@ -201,8 +201,12 @@ def invoke_post_run(liveaction_db, action_db=None):
         LOG.error('Unable to invoke post run. Action %s no longer exists.', liveaction_db.action)
         return
 
-    LOG.info('Action execution %s runs %s of runner type %s.',
-             liveaction_db.id, action_db.name, action_db.runner_type['name'])
+    LOG.info(
+        'Action execution %s runs %s of runner type %s.',
+        liveaction_db.id,
+        action_db.name,
+        action_db.runner_type['name'],
+    )
 
     # Get instance of the action runner and related configuration.
     runner_type_db = action_db_utils.get_runnertype_by_name(action_db.runner_type['name'])
@@ -210,12 +214,12 @@ def invoke_post_run(liveaction_db, action_db=None):
     runner = runners.get_runner(name=runner_type_db.name)
 
     entry_point = content_utils.get_entry_point_abs_path(
-        pack=action_db.pack,
-        entry_point=action_db.entry_point)
+        pack=action_db.pack, entry_point=action_db.entry_point
+    )
 
     libs_dir_path = content_utils.get_action_libs_abs_path(
-        pack=action_db.pack,
-        entry_point=action_db.entry_point)
+        pack=action_db.pack, entry_point=action_db.entry_point
+    )
 
     # Configure the action runner.
     runner.runner_type_db = runner_type_db

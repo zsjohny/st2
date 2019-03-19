@@ -4,12 +4,9 @@ from st2reactor.sensor.base import PollingSensor
 
 
 class FibonacciSensor(PollingSensor):
-
     def __init__(self, sensor_service, config, poll_interval=20):
         super(FibonacciSensor, self).__init__(
-            sensor_service=sensor_service,
-            config=config,
-            poll_interval=poll_interval
+            sensor_service=sensor_service, config=config, poll_interval=poll_interval
         )
         self.a = None
         self.b = None
@@ -32,13 +29,13 @@ class FibonacciSensor(PollingSensor):
             self.b = 1
             self.count = 2
 
-        fib = (self.a + self.b)
+        fib = self.a + self.b
         self.logger.debug('Count: %d, a: %d, b: %d, fib: %s', self.count, self.a, self.b, fib)
 
         payload = {
             "count": self.count,
             "fibonacci": fib,
-            "pythonpath": os.environ.get("PYTHONPATH", None)
+            "pythonpath": os.environ.get("PYTHONPATH", None),
         }
 
         self.sensor_service.dispatch(trigger="examples.fibonacci", payload=payload)

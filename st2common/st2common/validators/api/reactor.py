@@ -28,12 +28,7 @@ from st2common.util import schema as util_schema
 import st2common.operators as criteria_operators
 from st2common.services import triggers
 
-__all__ = [
-    'validate_criteria',
-
-    'validate_trigger_parameters',
-    'validate_trigger_payload'
-]
+__all__ = ['validate_criteria', 'validate_trigger_parameters', 'validate_trigger_payload']
 
 
 LOG = logging.getLogger(__name__)
@@ -50,13 +45,19 @@ def validate_criteria(criteria):
         if operator is None:
             raise ValueValidationException('Operator not specified for field: ' + key)
         if operator not in allowed_operators:
-            raise ValueValidationException('For field: ' + key + ', operator ' + operator +
-                                           ' not in list of allowed operators: ' +
-                                           str(list(allowed_operators.keys())))
+            raise ValueValidationException(
+                'For field: '
+                + key
+                + ', operator '
+                + operator
+                + ' not in list of allowed operators: '
+                + str(list(allowed_operators.keys()))
+            )
         pattern = value.get('pattern', None)
         if pattern is None:
-            raise ValueValidationException('For field: ' + key + ', no pattern specified ' +
-                                           'for operator ' + operator)
+            raise ValueValidationException(
+                'For field: ' + key + ', no pattern specified ' + 'for operator ' + operator
+            )
 
 
 def validate_trigger_parameters(trigger_type_ref, parameters):
@@ -91,13 +92,19 @@ def validate_trigger_parameters(trigger_type_ref, parameters):
 
     # We only validate non-system triggers if config option is set (enabled)
     if not is_system_trigger and not cfg.CONF.system.validate_trigger_parameters:
-        LOG.debug('Got non-system trigger "%s", but trigger parameter validation for non-system'
-                  'triggers is disabled, skipping validation.' % (trigger_type_ref))
+        LOG.debug(
+            'Got non-system trigger "%s", but trigger parameter validation for non-system'
+            'triggers is disabled, skipping validation.' % (trigger_type_ref)
+        )
         return None
 
-    cleaned = util_schema.validate(instance=parameters, schema=parameters_schema,
-                                   cls=util_schema.CustomValidator, use_default=True,
-                                   allow_default_none=True)
+    cleaned = util_schema.validate(
+        instance=parameters,
+        schema=parameters_schema,
+        cls=util_schema.CustomValidator,
+        use_default=True,
+        allow_default_none=True,
+    )
 
     # Additional validation for CronTimer trigger
     # TODO: If we need to add more checks like this we should consider abstracting this out.
@@ -152,7 +159,7 @@ def validate_trigger_payload(trigger_type_ref, payload, throw_on_inexistent_trig
         except ValueError:
             is_trigger_db = False
         else:
-            is_trigger_db = (trigger_uuid.version == 4)
+            is_trigger_db = trigger_uuid.version == 4
 
         if is_trigger_db:
             trigger_db = triggers.get_trigger_db_by_ref(trigger_type_ref)
@@ -165,8 +172,9 @@ def validate_trigger_payload(trigger_type_ref, payload, throw_on_inexistent_trig
         if not trigger_type_db:
             # Trigger doesn't exist in the database
             if throw_on_inexistent_trigger:
-                msg = ('Trigger type with reference "%s" doesn\'t exist in the database' %
-                       (trigger_type_ref))
+                msg = 'Trigger type with reference "%s" doesn\'t exist in the database' % (
+                    trigger_type_ref
+                )
                 raise ValueError(msg)
 
             return None
@@ -178,12 +186,18 @@ def validate_trigger_payload(trigger_type_ref, payload, throw_on_inexistent_trig
 
     # We only validate non-system triggers if config option is set (enabled)
     if not is_system_trigger and not cfg.CONF.system.validate_trigger_payload:
-        LOG.debug('Got non-system trigger "%s", but trigger payload validation for non-system'
-                  'triggers is disabled, skipping validation.' % (trigger_type_ref))
+        LOG.debug(
+            'Got non-system trigger "%s", but trigger payload validation for non-system'
+            'triggers is disabled, skipping validation.' % (trigger_type_ref)
+        )
         return None
 
-    cleaned = util_schema.validate(instance=payload, schema=payload_schema,
-                                   cls=util_schema.CustomValidator, use_default=True,
-                                   allow_default_none=True)
+    cleaned = util_schema.validate(
+        instance=payload,
+        schema=payload_schema,
+        cls=util_schema.CustomValidator,
+        use_default=True,
+        allow_default_none=True,
+    )
 
     return cleaned

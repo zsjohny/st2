@@ -20,10 +20,7 @@ from st2common.models.db.execution import ActionExecutionDB
 from st2common.models.db.execution import ActionExecutionOutputDB
 from st2common.persistence.base import Access
 
-__all__ = [
-    'ActionExecution',
-    'ActionExecutionOutput',
-]
+__all__ = ['ActionExecution', 'ActionExecutionOutput']
 
 
 class ActionExecution(Access):

@@ -28,9 +28,8 @@ __all__ = [
     'QueueConsumer',
     'StagedQueueConsumer',
     'ActionsQueueConsumer',
-
     'MessageHandler',
-    'StagedMessageHandler'
+    'StagedMessageHandler',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -110,10 +109,12 @@ class ActionsQueueConsumer(QueueConsumer):
 
         workflows_pool_size = cfg.CONF.actionrunner.workflows_pool_size
         actions_pool_size = cfg.CONF.actionrunner.actions_pool_size
-        self._workflows_dispatcher = BufferedDispatcher(dispatch_pool_size=workflows_pool_size,
-                                                        name='workflows-dispatcher')
-        self._actions_dispatcher = BufferedDispatcher(dispatch_pool_size=actions_pool_size,
-                                                      name='actions-dispatcher')
+        self._workflows_dispatcher = BufferedDispatcher(
+            dispatch_pool_size=workflows_pool_size, name='workflows-dispatcher'
+        )
+        self._actions_dispatcher = BufferedDispatcher(
+            dispatch_pool_size=actions_pool_size, name='actions-dispatcher'
+        )
 
     def process(self, body, message):
         try:
@@ -164,8 +165,7 @@ class MessageHandler(object):
     message_type = None
 
     def __init__(self, connection, queues):
-        self._queue_consumer = self.get_queue_consumer(connection=connection,
-                                                       queues=queues)
+        self._queue_consumer = self.get_queue_consumer(connection=connection, queues=queues)
         self._consumer_thread = None
 
     def start(self, wait=False):

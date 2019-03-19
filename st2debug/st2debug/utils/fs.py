@@ -17,12 +17,7 @@ import os
 import glob
 import shutil
 
-__all__ = [
-    'get_full_file_list',
-    'get_dirs_in_path',
-    'copy_files',
-    'remove_file'
-]
+__all__ = ['get_full_file_list', 'get_dirs_in_path', 'copy_files', 'remove_file']
 
 
 def get_full_file_list(file_path_glob):

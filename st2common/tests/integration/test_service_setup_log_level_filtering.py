@@ -25,9 +25,7 @@ from eventlet.green import subprocess
 from st2tests.base import IntegrationTestCase
 from st2tests.fixturesloader import get_fixtures_base_path
 
-__all__ = [
-    'ServiceSetupLogLevelFilteringTestCase'
-]
+__all__ = ['ServiceSetupLogLevelFilteringTestCase']
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -42,12 +40,14 @@ ST2_CONFIG_DEBUG_LL_PATH = os.path.abspath(ST2_CONFIG_DEBUG_LL_PATH)
 ST2_CONFIG_AUDIT_LL_PATH = os.path.join(FIXTURES_DIR, 'conf/st2.tests.api.audit_log_level.conf')
 ST2_CONFIG_AUDIT_LL_PATH = os.path.abspath(ST2_CONFIG_AUDIT_LL_PATH)
 
-ST2_CONFIG_SYSTEM_DEBUG_PATH = os.path.join(FIXTURES_DIR,
-                                            'conf/st2.tests.api.system_debug_true.conf')
+ST2_CONFIG_SYSTEM_DEBUG_PATH = os.path.join(
+    FIXTURES_DIR, 'conf/st2.tests.api.system_debug_true.conf'
+)
 ST2_CONFIG_SYSTEM_DEBUG_PATH = os.path.abspath(ST2_CONFIG_SYSTEM_DEBUG_PATH)
 
-ST2_CONFIG_SYSTEM_LL_DEBUG_PATH = os.path.join(FIXTURES_DIR,
-    'conf/st2.tests.api.system_debug_true_logging_debug.conf')
+ST2_CONFIG_SYSTEM_LL_DEBUG_PATH = os.path.join(
+    FIXTURES_DIR, 'conf/st2.tests.api.system_debug_true_logging_debug.conf'
+)
 
 PYTHON_BINARY = sys.executable
 
@@ -146,7 +146,12 @@ class ServiceSetupLogLevelFilteringTestCase(IntegrationTestCase):
         cmd = CMD + [config_path]
         cwd = os.path.abspath(os.path.join(BASE_DIR, '../../../'))
         cwd = os.path.abspath(cwd)
-        process = subprocess.Popen(cmd, cwd=cwd,
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   shell=False, preexec_fn=os.setsid)
+        process = subprocess.Popen(
+            cmd,
+            cwd=cwd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+            preexec_fn=os.setsid,
+        )
         return process

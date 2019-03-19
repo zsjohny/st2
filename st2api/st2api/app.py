@@ -50,33 +50,36 @@ def setup_app(config={}):
             'name': 'api',
             'listen_host': cfg.CONF.api.host,
             'listen_port': cfg.CONF.api.port,
-            'type': 'active'
+            'type': 'active',
         }
 
         # This should be called in gunicorn case because we only want
         # workers to connect to db, rabbbitmq etc. In standalone HTTP
         # server case, this setup would have already occurred.
-        common_setup(service='api', config=st2api_config, setup_db=True,
-                     register_mq_exchanges=True,
-                     register_signal_handlers=True,
-                     register_internal_trigger_types=True,
-                     run_migrations=True,
-                     service_registry=True,
-                     capabilities=capabilities,
-                     config_args=config.get('config_args', None))
+        common_setup(
+            service='api',
+            config=st2api_config,
+            setup_db=True,
+            register_mq_exchanges=True,
+            register_signal_handlers=True,
+            register_internal_trigger_types=True,
+            run_migrations=True,
+            service_registry=True,
+            capabilities=capabilities,
+            config_args=config.get('config_args', None),
+        )
 
     # Additional pre-run time checks
     validate_rbac_is_correctly_configured()
 
-    router = Router(debug=cfg.CONF.api.debug, auth=cfg.CONF.auth.enable,
-                    is_gunicorn=is_gunicorn)
+    router = Router(debug=cfg.CONF.api.debug, auth=cfg.CONF.auth.enable, is_gunicorn=is_gunicorn)
 
     spec = spec_loader.load_spec('st2common', 'openapi.yaml.j2')
     transforms = {
         '^/api/v1/$': ['/v1'],
         '^/api/v1/': ['/', '/v1/'],
         '^/api/v1/executions': ['/actionexecutions', '/v1/actionexecutions'],
-        '^/api/exp/': ['/exp/']
+        '^/api/exp/': ['/exp/'],
     }
     router.add_spec(spec, transforms=transforms)
 

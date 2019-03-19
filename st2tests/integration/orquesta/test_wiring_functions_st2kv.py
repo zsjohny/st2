@@ -22,23 +22,13 @@ from st2common.constants import action as ac_const
 class DatastoreFunctionTest(base.TestWorkflowExecution):
     @classmethod
     def set_kvp(cls, name, value, scope='system', secret=False):
-        kvp = models.KeyValuePair(
-            id=name,
-            name=name,
-            value=value,
-            scope=scope,
-            secret=secret
-        )
+        kvp = models.KeyValuePair(id=name, name=name, value=value, scope=scope, secret=secret)
 
         cls.st2client.keys.update(kvp)
 
     @classmethod
     def del_kvp(cls, name, scope='system'):
-        kvp = models.KeyValuePair(
-            id=name,
-            name=name,
-            scope=scope
-        )
+        kvp = models.KeyValuePair(id=name, name=name, scope=scope)
 
         cls.st2client.keys.delete(kvp)
 
@@ -82,10 +72,7 @@ class DatastoreFunctionTest(base.TestWorkflowExecution):
 
         self.set_kvp(key, value, secret=True)
         wf_name = 'examples.orquesta-st2kv'
-        wf_input = {
-            'key_name': 'system.%s' % key,
-            'decrypt': True
-        }
+        wf_input = {'key_name': 'system.%s' % key, 'decrypt': True}
 
         execution = self._execute_workflow(wf_name, wf_input)
 

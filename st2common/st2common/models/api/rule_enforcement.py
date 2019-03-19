@@ -28,32 +28,18 @@ from st2common.constants.rule_enforcement import RULE_ENFORCEMENT_STATUS_SUCCEED
 from st2common.constants.rule_enforcement import RULE_ENFORCEMENT_STATUSES
 from st2common.util import isotime
 
-__all__ = [
-    'RuleEnforcementAPI',
-    'RuleEnforcementViewAPI',
-
-    'RuleReferenceSpecDB'
-]
+__all__ = ['RuleEnforcementAPI', 'RuleEnforcementViewAPI', 'RuleReferenceSpecDB']
 
 
 class RuleReferenceSpec(BaseAPI):
     schema = {
         'type': 'object',
         'properties': {
-            'ref': {
-                'type': 'string',
-                'required': True,
-            },
-            'uid': {
-                'type': 'string',
-                'required': True,
-            },
-            'id': {
-                'type': 'string',
-                'required': False,
-            },
+            'ref': {'type': 'string', 'required': True},
+            'uid': {'type': 'string', 'required': True},
+            'id': {'type': 'string', 'required': False},
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
 
@@ -65,32 +51,32 @@ class RuleEnforcementAPI(BaseAPI):
         'type': 'object',
         'properties': {
             'trigger_instance_id': {
-                'description': 'The unique identifier for the trigger instance ' +
-                               'that flipped the rule.',
+                'description': 'The unique identifier for the trigger instance '
+                + 'that flipped the rule.',
                 'type': 'string',
-                'required': True
+                'required': True,
             },
             'execution_id': {
                 'description': 'ID of the action execution that was invoked as a response.',
-                'type': 'string'
+                'type': 'string',
             },
             'failure_reason': {
                 'description': 'Reason for failure to execute the action specified in the rule.',
-                'type': 'string'
+                'type': 'string',
             },
             'rule': RuleReferenceSpec.schema,
             'enforced_at': {
                 'description': 'Timestamp when rule enforcement happened.',
                 'type': 'string',
-                'required': True
+                'required': True,
             },
             "status": {
                 "description": "Rule enforcement status.",
                 "type": "string",
-                "enum": RULE_ENFORCEMENT_STATUSES
+                "enum": RULE_ENFORCEMENT_STATUSES,
             },
         },
-        'additionalProperties': False
+        'additionalProperties': False,
     }
 
     @classmethod
@@ -102,15 +88,21 @@ class RuleEnforcementAPI(BaseAPI):
         status = getattr(rule_enforcement, 'status', RULE_ENFORCEMENT_STATUS_SUCCEEDED)
 
         rule_ref_model = dict(getattr(rule_enforcement, 'rule', {}))
-        rule = RuleReferenceSpecDB(ref=rule_ref_model['ref'], id=rule_ref_model['id'],
-                                   uid=rule_ref_model['uid'])
+        rule = RuleReferenceSpecDB(
+            ref=rule_ref_model['ref'], id=rule_ref_model['id'], uid=rule_ref_model['uid']
+        )
 
         if enforced_at:
             enforced_at = isotime.parse(enforced_at)
 
-        return cls.model(trigger_instance_id=trigger_instance_id, execution_id=execution_id,
-                         failure_reason=failure_reason, enforced_at=enforced_at, rule=rule,
-                         status=status)
+        return cls.model(
+            trigger_instance_id=trigger_instance_id,
+            execution_id=execution_id,
+            failure_reason=failure_reason,
+            enforced_at=enforced_at,
+            rule=rule,
+            status=status,
+        )
 
     @classmethod
     def from_model(cls, model, mask_secrets=False):

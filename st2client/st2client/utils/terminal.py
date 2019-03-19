@@ -24,11 +24,7 @@ from st2client.utils.color import format_status
 
 DEFAULT_TERMINAL_SIZE_COLUMNS = 150
 
-__all__ = [
-    'DEFAULT_TERMINAL_SIZE_COLUMNS',
-
-    'get_terminal_size_columns'
-]
+__all__ = ['DEFAULT_TERMINAL_SIZE_COLUMNS', 'get_terminal_size_columns']
 
 
 def get_terminal_size_columns(default=DEFAULT_TERMINAL_SIZE_COLUMNS):
@@ -56,6 +52,7 @@ def get_terminal_size_columns(default=DEFAULT_TERMINAL_SIZE_COLUMNS):
     def ioctl_GWINSZ(fd):
         import fcntl
         import termios
+
         # Return a tuple (lines, columns)
         return struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
 
@@ -78,10 +75,9 @@ def get_terminal_size_columns(default=DEFAULT_TERMINAL_SIZE_COLUMNS):
 
     # 4. try `stty size`
     try:
-        process = subprocess.Popen(['stty', 'size'],
-                                   shell=False,
-                                   stdout=subprocess.PIPE,
-                                   stderr=open(os.devnull, 'w'))
+        process = subprocess.Popen(
+            ['stty', 'size'], shell=False, stdout=subprocess.PIPE, stderr=open(os.devnull, 'w')
+        )
         result = process.communicate()
         if process.returncode == 0:
             return tuple(int(x) for x in result[0].split())[1]

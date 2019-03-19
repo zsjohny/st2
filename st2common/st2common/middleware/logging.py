@@ -33,7 +33,7 @@ LOG = logging.getLogger(__name__)
 
 SECRET_QUERY_PARAMS = [
     QUERY_PARAM_ATTRIBUTE_NAME,
-    QUERY_PARAM_API_KEY_ATTRIBUTE_NAME
+    QUERY_PARAM_API_KEY_ATTRIBUTE_NAME,
 ] + MASKED_ATTRIBUTES_BLACKLIST
 
 try:
@@ -72,11 +72,10 @@ class LoggingMiddleware(object):
             'path': request.path,
             'remote_addr': request.remote_addr,
             'query': query_params,
-            'request_id': request.headers.get(REQUEST_ID_HEADER, None)
+            'request_id': request.headers.get(REQUEST_ID_HEADER, None),
         }
 
-        LOG.info('%(request_id)s - %(method)s %(path)s with query=%(query)s' %
-                 values, extra=values)
+        LOG.info('%(request_id)s - %(method)s %(path)s with query=%(query)s' % values, extra=values)
 
         def custom_start_response(status, headers, exc_info=None):
             status_code.append(int(status.split(' ')[0]))
@@ -109,9 +108,9 @@ class LoggingMiddleware(object):
             'path': request.path,
             'remote_addr': request.remote_addr,
             'status': status_code[0],
-            'runtime': float("{0:.3f}".format((clock() - start_time) * 10**3)),
+            'runtime': float("{0:.3f}".format((clock() - start_time) * 10 ** 3)),
             'content_length': content_length[0] if content_length else len(b''.join(retval)),
-            'request_id': request.headers.get(REQUEST_ID_HEADER, None)
+            'request_id': request.headers.get(REQUEST_ID_HEADER, None),
         }
 
         log_msg = '%(request_id)s - %(status)s %(content_length)s %(runtime)sms' % (values)
@@ -119,8 +118,9 @@ class LoggingMiddleware(object):
 
         if log_result:
             values['result'] = retval[0]
-            log_msg = ('%(request_id)s - %(status)s %(content_length)s %(runtime)sms\n%(result)s' %
-                      (values))
+            log_msg = '%(request_id)s - %(status)s %(content_length)s %(runtime)sms\n%(result)s' % (
+                values
+            )
             LOG.debug(log_msg, extra=values)
 
         return retval

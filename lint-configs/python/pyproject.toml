@@ -1,7 +1,6 @@
 [tool.black]
 line-length = 100
 skip_string_normalization = true
-target_version = ['py27', 'py36', 'py37', 'py38']
 include = '\.pyi?$'
 exclude = '''
 /(

@@ -39,18 +39,12 @@ SUPPORTED_FILTERS = {
     'trigger': 'trigger.name',
     'trigger_type': 'trigger_type.name',
     'trigger_instance': 'trigger_instance.id',
-    'user': 'context.user'
+    'user': 'context.user',
 }
 
 # A list of fields for which null (None) is a valid value which we include in the list of valid
 # filters.
-FILTERS_WITH_VALID_NULL_VALUES = [
-    'parent',
-    'rule',
-    'trigger',
-    'trigger_type',
-    'trigger_instance'
-]
+FILTERS_WITH_VALID_NULL_VALUES = ['parent', 'rule', 'trigger', 'trigger_type', 'trigger_instance']
 
 # List of filters that are too broad to distinct by them and are very likely to represent 1 to 1
 # relation between filter and particular history record.

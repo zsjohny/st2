@@ -23,16 +23,15 @@ class NotificationSubSchema(me.EmbeddedDocument):
     """
         Schema for notification settings to be specified for action success/failure.
     """
+
     message = me.StringField()
     data = stormbase.EscapedDynamicField(
-        default={},
-        help_text='Payload to be sent as part of notification.')
-    routes = me.ListField(
-        default=['notify.default'],
-        help_text='Routes to post notifications to.')
+        default={}, help_text='Payload to be sent as part of notification.'
+    )
+    routes = me.ListField(default=['notify.default'], help_text='Routes to post notifications to.')
     channels = me.ListField(  # Deprecated. Only here for backward compatibility reasons.
-        default=['notify.default'],
-        help_text='Routes to post notifications to.')
+        default=['notify.default'], help_text='Routes to post notifications to.'
+    )
 
     def __str__(self):
         result = []
@@ -49,6 +48,7 @@ class NotificationSchema(me.EmbeddedDocument):
     """
         Schema for notification settings to be specified for actions.
     """
+
     on_success = me.EmbeddedDocumentField(NotificationSubSchema)
     on_failure = me.EmbeddedDocumentField(NotificationSubSchema)
     on_complete = me.EmbeddedDocumentField(NotificationSubSchema)

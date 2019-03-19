@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from __future__ import absolute_import
+
 try:
     import simplejson as json
 except ImportError:
@@ -44,8 +45,9 @@ def load_content(file_path):
     file_name, file_ext = os.path.splitext(file_path)
 
     if file_ext not in ALLOWED_EXTS:
-        raise Exception('Unsupported meta type %s, file %s. Allowed: %s' %
-                        (file_ext, file_path, ALLOWED_EXTS))
+        raise Exception(
+            'Unsupported meta type %s, file %s. Allowed: %s' % (file_ext, file_path, ALLOWED_EXTS)
+        )
 
     parser_func = PARSER_FUNCS.get(file_ext, None)
 

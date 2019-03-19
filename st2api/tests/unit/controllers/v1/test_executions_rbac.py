@@ -37,26 +37,25 @@ from st2tests.fixturesloader import FixturesLoader
 
 
 FIXTURES_PACK = 'generic'
-TEST_FIXTURES = {
-    'actions': ['action1.yaml', 'local.yaml']
-}
+TEST_FIXTURES = {'actions': ['action1.yaml', 'local.yaml']}
 
 
 @mock.patch.object(PoolPublisher, 'publish', mock.MagicMock())
-class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCase,
-                                            APIControllerWithRBACTestCase):
+class ActionExecutionRBACControllerTestCase(
+    BaseActionExecutionControllerTestCase, APIControllerWithRBACTestCase
+):
 
     fixtures_loader = FixturesLoader()
 
-    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(
-        return_value=True))
+    @mock.patch.object(action_validator, 'validate_action', mock.MagicMock(return_value=True))
     def setUp(self):
         super(ActionExecutionRBACControllerTestCase, self).setUp()
 
         runners_registrar.register_runners()
 
-        self.fixtures_loader.save_fixtures_to_db(fixtures_pack=FIXTURES_PACK,
-                                                 fixtures_dict=TEST_FIXTURES)
+        self.fixtures_loader.save_fixtures_to_db(
+            fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES
+        )
 
         # Insert mock users, roles and assignments
 
@@ -81,14 +80,17 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
 
         # action_execute, execution_list on parent pack
         # action_view on parent pack
-        grant_1_db = PermissionGrantDB(resource_uid='pack:wolfpack',
-                                       resource_type=ResourceType.PACK,
-                                       permission_types=[PermissionType.ACTION_EXECUTE,
-                                                         PermissionType.ACTION_VIEW])
+        grant_1_db = PermissionGrantDB(
+            resource_uid='pack:wolfpack',
+            resource_type=ResourceType.PACK,
+            permission_types=[PermissionType.ACTION_EXECUTE, PermissionType.ACTION_VIEW],
+        )
         grant_1_db = PermissionGrant.add_or_update(grant_1_db)
-        grant_2_db = PermissionGrantDB(resource_uid=None,
-                                     resource_type=ResourceType.EXECUTION,
-                                     permission_types=[PermissionType.EXECUTION_LIST])
+        grant_2_db = PermissionGrantDB(
+            resource_uid=None,
+            resource_type=ResourceType.EXECUTION,
+            permission_types=[PermissionType.EXECUTION_LIST],
+        )
         grant_2_db = PermissionGrant.add_or_update(grant_2_db)
         permission_grants = [str(grant_1_db.id), str(grant_2_db.id)]
 
@@ -98,38 +100,29 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
 
         # Role assignments
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_1_db.name,
-            role='admin',
-            source='assignments/%s.yaml' % user_1_db.name)
+            user=user_1_db.name, role='admin', source='assignments/%s.yaml' % user_1_db.name
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         for role in roles:
             role_assignment_db = UserRoleAssignmentDB(
-                user=user_1_db.name,
-                role=role,
-                source='assignments/%s.yaml' % user_1_db.name)
+                user=user_1_db.name, role=role, source='assignments/%s.yaml' % user_1_db.name
+            )
             UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_2_db.name,
-            role='role_4',
-            source='assignments/%s.yaml' % user_2_db.name)
+            user=user_2_db.name, role='role_4', source='assignments/%s.yaml' % user_2_db.name
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
         role_assignment_db = UserRoleAssignmentDB(
-            user=user_3_db.name,
-            role='role_4',
-            source='assignments/%s.yaml' % user_2_db.name)
+            user=user_3_db.name, role='role_4', source='assignments/%s.yaml' % user_2_db.name
+        )
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_post_rbac_info_in_context_success(self):
         # When RBAC is enabled, additional RBAC related info should be included in action_context
-        data = {
-            'action': 'wolfpack.action-1',
-            'parameters': {
-                'actionstr': 'foo'
-            }
-        }
+        data = {'action': 'wolfpack.action-1', 'parameters': {'actionstr': 'foo'}}
 
         # User with one role assignment
         user_db = self.users['admin']
@@ -141,10 +134,7 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
         expected_context = {
             'pack': 'wolfpack',
             'user': 'admin',
-            'rbac': {
-                'user': 'admin',
-                'roles': ['admin']
-            }
+            'rbac': {'user': 'admin', 'roles': ['admin']},
         }
 
         self.assertEqual(resp.json['context'], expected_context)
@@ -159,10 +149,7 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
         expected_context = {
             'pack': 'wolfpack',
             'user': 'multiple_roles',
-            'rbac': {
-                'user': 'multiple_roles',
-                'roles': ['admin', 'role_1', 'role_2', 'role_3']
-            }
+            'rbac': {'user': 'multiple_roles', 'roles': ['admin', 'role_1', 'role_2', 'role_3']},
         }
 
         self.assertEqual(resp.json['context'], expected_context)
@@ -277,8 +264,10 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
             self.assertEqual(resp.json['id'], execution_id)
             self.assertEqual(resp.json['context']['user'], 'user_two')
 
-        expected_msg = ('User "user_two" doesn\'t have access to resource "execution:%s" due to '
-                        'resource permission isolation.')
+        expected_msg = (
+            'User "user_two" doesn\'t have access to resource "execution:%s" due to '
+            'resource permission isolation.'
+        )
 
         for execution_id in result['admin']:
             resp = self.app.get('/v1/actionexecutions/%s' % (execution_id), expect_errors=True)
@@ -300,8 +289,10 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
             self.assertEqual(resp.json['id'], execution_id)
             self.assertEqual(resp.json['context']['user'], 'user_three')
 
-        expected_msg = ('User "user_three" doesn\'t have access to resource "execution:%s" due to '
-                        'resource permission isolation.')
+        expected_msg = (
+            'User "user_three" doesn\'t have access to resource "execution:%s" due to '
+            'resource permission isolation.'
+        )
 
         for execution_id in result['admin']:
             resp = self.app.get('/v1/actionexecutions/%s' % (execution_id), expect_errors=True)
@@ -317,8 +308,10 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
         user_db = self.users['observer']
         self.use_user(user_db)
 
-        expected_msg = ('User "observer" doesn\'t have access to resource "execution:%s" due to '
-                        'resource permission isolation.')
+        expected_msg = (
+            'User "observer" doesn\'t have access to resource "execution:%s" due to '
+            'resource permission isolation.'
+        )
 
         for username, execution_ids in result.items():
             for execution_id in execution_ids:
@@ -327,18 +320,9 @@ class ActionExecutionRBACControllerTestCase(BaseActionExecutionControllerTestCas
                 self.assertEqual(resp.json['faultstring'], expected_msg % (execution_id))
 
     def _insert_mock_execution_data_for_isolation_tests(self):
-        data = {
-            'action': 'wolfpack.action-1',
-            'parameters': {
-                'actionstr': 'foo'
-            }
-        }
+        data = {'action': 'wolfpack.action-1', 'parameters': {'actionstr': 'foo'}}
 
-        result = {
-            'admin': [],
-            'user_two': [],
-            'user_three': []
-        }
+        result = {'admin': [], 'user_two': [], 'user_three': []}
 
         # User with admin role assignment
         user_db = self.users['admin']

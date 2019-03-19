@@ -24,9 +24,7 @@ from tests.base import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 
-__all__ = [
-    'ServiceRegistryControllerRBACTestCase'
-]
+__all__ = ['ServiceRegistryControllerRBACTestCase']
 
 
 class ServiceRegistryControllerRBACTestCase(APIControllerWithRBACTestCase):
@@ -42,10 +40,11 @@ class ServiceRegistryControllerRBACTestCase(APIControllerWithRBACTestCase):
         cls.coordinator = coordination.get_coordinator(use_cache=False)
 
         # Register mock service in the service registry for testing purposes
-        register_service_in_service_registry(service='mock_service',
-                                             capabilities={'key1': 'value1',
-                                                           'name': 'mock_service'},
-                                             start_heart=True)
+        register_service_in_service_registry(
+            service='mock_service',
+            capabilities={'key1': 'value1', 'name': 'mock_service'},
+            start_heart=True,
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -59,7 +58,7 @@ class ServiceRegistryControllerRBACTestCase(APIControllerWithRBACTestCase):
             self.use_user(user_db)
 
             resp = self.app.get('/v1/service_registry/groups', expect_errors=True)
-            expected_msg = ('Administrator access required')
+            expected_msg = 'Administrator access required'
             self.assertEqual(resp.status_code, http_client.FORBIDDEN)
             self.assertEqual(resp.json['faultstring'], expected_msg)
 
@@ -76,9 +75,10 @@ class ServiceRegistryControllerRBACTestCase(APIControllerWithRBACTestCase):
         for user_db in [self.users['no_permissions'], self.users['observer']]:
             self.use_user(user_db)
 
-            resp = self.app.get('/v1/service_registry/groups/mock_service/members',
-                                expect_errors=True)
-            expected_msg = ('Administrator access required')
+            resp = self.app.get(
+                '/v1/service_registry/groups/mock_service/members', expect_errors=True
+            )
+            expected_msg = 'Administrator access required'
             self.assertEqual(resp.status_code, http_client.FORBIDDEN)
             self.assertEqual(resp.json['faultstring'], expected_msg)
 

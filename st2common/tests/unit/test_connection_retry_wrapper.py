@@ -21,7 +21,6 @@ from six.moves import range
 
 
 class TestClusterRetryContext(unittest.TestCase):
-
     def test_single_node_cluster_retry(self):
         retry_context = ClusterRetryContext(cluster_size=1)
         should_stop, wait = retry_context.test_should_stop()

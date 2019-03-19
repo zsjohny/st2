@@ -46,23 +46,22 @@ def list_format_strings_from_aliases(aliases, match_multiple=False):
         for format_ in alias.formats:
             display, representations, _match_multiple = normalise_alias_format_string(format_)
             if display and len(representations) == 0:
-                patterns.append({
-                    'alias': alias,
-                    'format': format_,
-                    'display': display,
-                    'representation': '',
-                })
+                patterns.append(
+                    {'alias': alias, 'format': format_, 'display': display, 'representation': ''}
+                )
             else:
-                patterns.extend([
-                    {
-                        'alias': alias,
-                        'format': format_,
-                        'display': display,
-                        'representation': representation,
-                        'match_multiple': _match_multiple,
-                    }
-                    for representation in representations
-                ])
+                patterns.extend(
+                    [
+                        {
+                            'alias': alias,
+                            'format': format_,
+                            'display': display,
+                            'representation': representation,
+                            'match_multiple': _match_multiple,
+                        }
+                        for representation in representations
+                    ]
+                )
     return patterns
 
 
@@ -95,8 +94,9 @@ def normalise_alias_format_string(alias_format):
             representation = [representation]
         match_multiple = alias_format.get('match_multiple', match_multiple)
     else:
-        raise TypeError("alias_format '%s' is neither a dictionary or string type."
-                        % repr(alias_format))
+        raise TypeError(
+            "alias_format '%s' is neither a dictionary or string type." % repr(alias_format)
+        )
     return (display, representation, match_multiple)
 
 
@@ -110,8 +110,7 @@ def match_command_to_alias(command, aliases, match_multiple=False):
         formats = list_format_strings_from_aliases([alias], match_multiple)
         for format_ in formats:
             try:
-                extract_parameters(format_str=format_['representation'],
-                                   param_stream=command)
+                extract_parameters(format_str=format_['representation'], param_stream=command)
             except ParseException:
                 continue
 
@@ -125,35 +124,35 @@ def get_matching_alias(command):
     """
     # 1. Get aliases
     action_alias_dbs = ActionAlias.query(
-        Q(formats__match_multiple=None) | Q(formats__match_multiple=False),
-        enabled=True)
+        Q(formats__match_multiple=None) | Q(formats__match_multiple=False), enabled=True
+    )
 
     # 2. Match alias(es) to command
     matches = match_command_to_alias(command=command, aliases=action_alias_dbs)
 
     if len(matches) > 1:
-        raise ActionAliasAmbiguityException("Command '%s' matched more than 1 pattern" %
-                                            command,
-                                            matches=matches,
-                                            command=command)
+        raise ActionAliasAmbiguityException(
+            "Command '%s' matched more than 1 pattern" % command, matches=matches, command=command
+        )
     elif len(matches) == 0:
         match_multiple_action_alias_dbs = ActionAlias.query(
-            formats__match_multiple=True,
-            enabled=True)
+            formats__match_multiple=True, enabled=True
+        )
 
-        matches = match_command_to_alias(command=command, aliases=match_multiple_action_alias_dbs,
-                                         match_multiple=True)
+        matches = match_command_to_alias(
+            command=command, aliases=match_multiple_action_alias_dbs, match_multiple=True
+        )
 
         if len(matches) > 1:
-            raise ActionAliasAmbiguityException("Command '%s' matched more than 1 (multi) pattern" %
-                                                command,
-                                                matches=matches,
-                                                command=command)
+            raise ActionAliasAmbiguityException(
+                "Command '%s' matched more than 1 (multi) pattern" % command,
+                matches=matches,
+                command=command,
+            )
 
         if len(matches) == 0:
-            raise ActionAliasAmbiguityException("Command '%s' matched no patterns" %
-                                                command,
-                                                matches=[],
-                                                command=command)
+            raise ActionAliasAmbiguityException(
+                "Command '%s' matched no patterns" % command, matches=[], command=command
+            )
 
     return matches[0]

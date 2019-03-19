@@ -25,10 +25,7 @@ LOG = logging.getLogger(__name__)
 
 
 def has_policies(lv_ac_db, policy_types=None):
-    query_params = {
-        'resource_ref': lv_ac_db.action,
-        'enabled': True
-    }
+    query_params = {'resource_ref': lv_ac_db.action, 'enabled': True}
 
     if policy_types:
         query_params['policy_type__in'] = policy_types

@@ -25,11 +25,7 @@ from st2common.persistence.rbac import Role
 from st2common.services.rbac import get_all_roles
 from st2common.rbac.migrations import insert_system_roles
 
-__all__ = [
-    'RBACUtilsTestCase',
-    'RBACMigrationsTestCase',
-    'RBACRoleDBTestCase'
-]
+__all__ = ['RBACUtilsTestCase', 'RBACMigrationsTestCase', 'RBACRoleDBTestCase']
 
 
 class RBACUtilsTestCase(CleanDbTestCase):
@@ -83,7 +79,6 @@ class RBACMigrationsTestCase(CleanDbTestCase):
 
 
 class RBACRoleDBTestCase(CleanDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(RBACRoleDBTestCase, cls).setUpClass()

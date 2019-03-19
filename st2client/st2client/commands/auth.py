@@ -46,23 +46,38 @@ class TokenCreateCommand(resource.ResourceCommand):
         kwargs['has_token_opt'] = False
 
         super(TokenCreateCommand, self).__init__(
-            resource, kwargs.pop('name', 'create'),
+            resource,
+            kwargs.pop('name', 'create'),
             'Authenticate user and acquire access token.',
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('username',
-                                 help='Name of the user to authenticate.')
+        self.parser.add_argument('username', help='Name of the user to authenticate.')
 
-        self.parser.add_argument('-p', '--password', dest='password',
-                                 help='Password for the user. If password is not provided, '
-                                      'it will be prompted for.')
-        self.parser.add_argument('-l', '--ttl', type=int, dest='ttl', default=None,
-                                 help='The life span of the token in seconds. '
-                                      'Max TTL configured by the admin supersedes this.')
-        self.parser.add_argument('-t', '--only-token', action='store_true', dest='only_token',
-                                 default=False,
-                                 help='On successful authentication, print only token to the '
-                                      'console.')
+        self.parser.add_argument(
+            '-p',
+            '--password',
+            dest='password',
+            help='Password for the user. If password is not provided, ' 'it will be prompted for.',
+        )
+        self.parser.add_argument(
+            '-l',
+            '--ttl',
+            type=int,
+            dest='ttl',
+            default=None,
+            help='The life span of the token in seconds. '
+            'Max TTL configured by the admin supersedes this.',
+        )
+        self.parser.add_argument(
+            '-t',
+            '--only-token',
+            action='store_true',
+            dest='only_token',
+            default=False,
+            help='On successful authentication, print only token to the ' 'console.',
+        )
 
     def run(self, args, **kwargs):
         if not args.password:
@@ -76,8 +91,13 @@ class TokenCreateCommand(resource.ResourceCommand):
         if args.only_token:
             print(instance.token)
         else:
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=self.display_attributes, json=args.json, yaml=args.yaml)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=self.display_attributes,
+                json=args.json,
+                yaml=args.yaml,
+            )
 
 
 class LoginCommand(resource.ResourceCommand):
@@ -88,23 +108,38 @@ class LoginCommand(resource.ResourceCommand):
         kwargs['has_token_opt'] = False
 
         super(LoginCommand, self).__init__(
-            resource, kwargs.pop('name', 'create'),
+            resource,
+            kwargs.pop('name', 'create'),
             'Authenticate user, acquire access token, and update CLI config directory',
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('username',
-                                 help='Name of the user to authenticate.')
+        self.parser.add_argument('username', help='Name of the user to authenticate.')
 
-        self.parser.add_argument('-p', '--password', dest='password',
-                                 help='Password for the user. If password is not provided, '
-                                      'it will be prompted for.')
-        self.parser.add_argument('-l', '--ttl', type=int, dest='ttl', default=None,
-                                 help='The life span of the token in seconds. '
-                                      'Max TTL configured by the admin supersedes this.')
-        self.parser.add_argument('-w', '--write-password', action='store_true', default=False,
-                                 dest='write_password',
-                                 help='Write the password in plain text to the config file '
-                                      '(default is to omit it)')
+        self.parser.add_argument(
+            '-p',
+            '--password',
+            dest='password',
+            help='Password for the user. If password is not provided, ' 'it will be prompted for.',
+        )
+        self.parser.add_argument(
+            '-l',
+            '--ttl',
+            type=int,
+            dest='ttl',
+            default=None,
+            help='The life span of the token in seconds. '
+            'Max TTL configured by the admin supersedes this.',
+        )
+        self.parser.add_argument(
+            '-w',
+            '--write-password',
+            action='store_true',
+            default=False,
+            dest='write_password',
+            help='Write the password in plain text to the config file ' '(default is to omit it)',
+        )
 
     def run(self, args, **kwargs):
 
@@ -166,12 +201,16 @@ class LoginCommand(resource.ResourceCommand):
             token_expire_hours = 24
 
             print('')
-            print('Note: You didn\'t use --write-password option so the password hasn\'t been '
-                  'stored in the client config and you will need to login again in %s hours when '
-                  'the auth token expires.' % (token_expire_hours))
-            print('As an alternative, you can run st2 login command with the "--write-password" '
-                  'flag, but keep it mind this will cause it to store the password in plain-text '
-                  'in the client config file (~/.st2/config).')
+            print(
+                'Note: You didn\'t use --write-password option so the password hasn\'t been '
+                'stored in the client config and you will need to login again in %s hours when '
+                'the auth token expires.' % (token_expire_hours)
+            )
+            print(
+                'As an alternative, you can run st2 login command with the "--write-password" '
+                'flag, but keep it mind this will cause it to store the password in plain-text '
+                'in the client config file (~/.st2/config).'
+            )
 
 
 class WhoamiCommand(resource.ResourceCommand):
@@ -182,9 +221,12 @@ class WhoamiCommand(resource.ResourceCommand):
         kwargs['has_token_opt'] = False
 
         super(WhoamiCommand, self).__init__(
-            resource, kwargs.pop('name', 'create'),
+            resource,
+            kwargs.pop('name', 'create'),
             'Display the currently authenticated user',
-            *args, **kwargs)
+            *args,
+            **kwargs
+        )
 
     def run(self, args, **kwargs):
         user_info = self.app.client.get_user_info(**kwargs)
@@ -196,7 +238,7 @@ class WhoamiCommand(resource.ResourceCommand):
         except Exception as e:
             response = getattr(e, 'response', None)
             status_code = getattr(response, 'status_code', None)
-            is_unathorized_error = (status_code == http_client.UNAUTHORIZED)
+            is_unathorized_error = status_code == http_client.UNAUTHORIZED
 
             if response and is_unathorized_error:
                 print('Not authenticated')
@@ -213,8 +255,10 @@ class WhoamiCommand(resource.ResourceCommand):
         print('Authentication method: %s' % (user_info['authentication']['method']))
 
         if user_info['authentication']['method'] == 'authentication token':
-            print('Authentication token expire time: %s' %
-                  (user_info['authentication']['token_expire']))
+            print(
+                'Authentication token expire time: %s'
+                % (user_info['authentication']['token_expire'])
+            )
 
         print('')
         print('RBAC:')
@@ -223,18 +267,21 @@ class WhoamiCommand(resource.ResourceCommand):
 
 
 class ApiKeyBranch(resource.ResourceBranch):
-
     def __init__(self, description, app, subparsers, parent_parser=None):
         super(ApiKeyBranch, self).__init__(
-            models.ApiKey, description, app, subparsers,
+            models.ApiKey,
+            description,
+            app,
+            subparsers,
             parent_parser=parent_parser,
             commands={
                 'list': ApiKeyListCommand,
                 'get': ApiKeyGetCommand,
                 'create': ApiKeyCreateCommand,
                 'update': NoopCommand,
-                'delete': ApiKeyDeleteCommand
-            })
+                'delete': ApiKeyDeleteCommand,
+            },
+        )
 
         self.commands['enable'] = ApiKeyEnableCommand(self.resource, self.app, self.subparsers)
         self.commands['disable'] = ApiKeyDisableCommand(self.resource, self.app, self.subparsers)
@@ -248,12 +295,15 @@ class ApiKeyListCommand(resource.ResourceListCommand):
     def __init__(self, resource, *args, **kwargs):
         super(ApiKeyListCommand, self).__init__(resource, *args, **kwargs)
 
-        self.parser.add_argument('-u', '--user', type=str,
-                                 help='Only return ApiKeys belonging to the provided user')
-        self.parser.add_argument('-d', '--detail', action='store_true',
-                                 help='Full list of attributes.')
-        self.parser.add_argument('--show-secrets', action='store_true',
-                                 help='Full list of attributes.')
+        self.parser.add_argument(
+            '-u', '--user', type=str, help='Only return ApiKeys belonging to the provided user'
+        )
+        self.parser.add_argument(
+            '-d', '--detail', action='store_true', help='Full list of attributes.'
+        )
+        self.parser.add_argument(
+            '--show-secrets', action='store_true', help='Full list of attributes.'
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -271,9 +321,14 @@ class ApiKeyListCommand(resource.ResourceListCommand):
     def run_and_print(self, args, **kwargs):
         instances = self.run(args, **kwargs)
         attr = self.detail_display_attributes if args.detail else args.attr
-        self.print_output(instances, table.MultiColumnTable,
-                          attributes=attr, widths=args.width,
-                          json=args.json, yaml=args.yaml)
+        self.print_output(
+            instances,
+            table.MultiColumnTable,
+            attributes=attr,
+            widths=args.width,
+            json=args.json,
+            yaml=args.yaml,
+        )
 
 
 class ApiKeyGetCommand(resource.ResourceGetCommand):
@@ -284,21 +339,33 @@ class ApiKeyGetCommand(resource.ResourceGetCommand):
 
 
 class ApiKeyCreateCommand(resource.ResourceCommand):
-
     def __init__(self, resource, *args, **kwargs):
         super(ApiKeyCreateCommand, self).__init__(
-            resource, 'create', 'Create a new %s.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            resource,
+            'create',
+            'Create a new %s.' % resource.get_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('-u', '--user', type=str,
-                                 help='User for which to create API Keys.',
-                                 default='')
-        self.parser.add_argument('-m', '--metadata', type=json.loads,
-                                 help='Optional metadata to associate with the API Keys.',
-                                 default={})
-        self.parser.add_argument('-k', '--only-key', action='store_true', dest='only_key',
-                                 default=False,
-                                 help='Only print API Key to the console on creation.')
+        self.parser.add_argument(
+            '-u', '--user', type=str, help='User for which to create API Keys.', default=''
+        )
+        self.parser.add_argument(
+            '-m',
+            '--metadata',
+            type=json.loads,
+            help='Optional metadata to associate with the API Keys.',
+            default={},
+        )
+        self.parser.add_argument(
+            '-k',
+            '--only-key',
+            action='store_true',
+            dest='only_key',
+            default=False,
+            help='Only print API Key to the console on creation.',
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -322,25 +389,41 @@ class ApiKeyCreateCommand(resource.ResourceCommand):
         if args.only_key:
             print(instance.key)
         else:
-            self.print_output(instance, table.PropertyValueTable,
-                              attributes=['all'], json=args.json, yaml=args.yaml)
+            self.print_output(
+                instance,
+                table.PropertyValueTable,
+                attributes=['all'],
+                json=args.json,
+                yaml=args.yaml,
+            )
 
 
 class ApiKeyLoadCommand(resource.ResourceCommand):
-
     def __init__(self, resource, *args, **kwargs):
         super(ApiKeyLoadCommand, self).__init__(
-            resource, 'load', 'Load %s from a file.' % resource.get_display_name().lower(),
-            *args, **kwargs)
+            resource,
+            'load',
+            'Load %s from a file.' % resource.get_display_name().lower(),
+            *args,
+            **kwargs
+        )
 
-        self.parser.add_argument('file',
-                                 help=('JSON/YAML file containing the %s(s) to load.'
-                                       % resource.get_display_name().lower()),
-                                 default='')
+        self.parser.add_argument(
+            'file',
+            help=(
+                'JSON/YAML file containing the %s(s) to load.' % resource.get_display_name().lower()
+            ),
+            default='',
+        )
 
-        self.parser.add_argument('-w', '--width', nargs='+', type=int,
-                                 default=None,
-                                 help=('Set the width of columns in output.'))
+        self.parser.add_argument(
+            '-w',
+            '--width',
+            nargs='+',
+            type=int,
+            default=None,
+            help=('Set the width of columns in output.'),
+        )
 
     @resource.add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
@@ -357,7 +440,7 @@ class ApiKeyLoadCommand(resource.ResourceCommand):
                 'user': res['user'],  # required
                 'key_hash': res['key_hash'],  # required
                 'metadata': res.get('metadata', {}),
-                'enabled': res.get('enabled', False)
+                'enabled': res.get('enabled', False),
             }
 
             if 'id' in res:
@@ -381,10 +464,14 @@ class ApiKeyLoadCommand(resource.ResourceCommand):
     def run_and_print(self, args, **kwargs):
         instances = self.run(args, **kwargs)
         if instances:
-            self.print_output(instances, table.MultiColumnTable,
-                              attributes=ApiKeyListCommand.display_attributes,
-                              widths=args.width,
-                              json=args.json, yaml=args.yaml)
+            self.print_output(
+                instances,
+                table.MultiColumnTable,
+                attributes=ApiKeyListCommand.display_attributes,
+                widths=args.width,
+                json=args.json,
+                yaml=args.yaml,
+            )
 
 
 class ApiKeyDeleteCommand(resource.ResourceDeleteCommand):

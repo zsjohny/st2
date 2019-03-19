@@ -38,10 +38,8 @@ __all__ = [
     'create_request',
     'publish_request',
     'is_action_canceled_or_canceling',
-
     'request_pause',
     'request_resume',
-
     'store_execution_output_data',
 ]
 
@@ -103,8 +101,9 @@ def create_request(liveaction, action_db=None, runnertype_db=None):
     # Validate action parameters.
     schema = util_schema.get_schema_for_action_parameters(action_db, runnertype_db)
     validator = util_schema.get_validator()
-    util_schema.validate(liveaction.parameters, schema, validator, use_default=True,
-                         allow_default_none=True)
+    util_schema.validate(
+        liveaction.parameters, schema, validator, use_default=True, allow_default_none=True
+    )
 
     # validate that no immutable params are being overriden. Although possible to
     # ignore the override it is safer to inform the user to avoid surprises.
@@ -112,8 +111,9 @@ def create_request(liveaction, action_db=None, runnertype_db=None):
     immutables.extend(_get_immutable_params(runnertype_db.runner_parameters))
     overridden_immutables = [p for p in six.iterkeys(liveaction.parameters) if p in immutables]
     if len(overridden_immutables) > 0:
-        raise ValueError('Override of immutable parameter(s) %s is unsupported.'
-                         % str(overridden_immutables))
+        raise ValueError(
+            'Override of immutable parameter(s) %s is unsupported.' % str(overridden_immutables)
+        )
 
     # Set notification settings for action.
     # XXX: There are cases when we don't want notifications to be sent for a particular
@@ -140,15 +140,17 @@ def create_request(liveaction, action_db=None, runnertype_db=None):
         _cleanup_liveaction(liveaction)
         raise trace_exc.TraceNotFoundException(six.text_type(e))
 
-    execution = executions.create_execution_object(liveaction=liveaction, action_db=action_db,
-                                                   runnertype_db=runnertype_db, publish=False)
+    execution = executions.create_execution_object(
+        liveaction=liveaction, action_db=action_db, runnertype_db=runnertype_db, publish=False
+    )
 
     if trace_db:
         trace_service.add_or_update_given_trace_db(
             trace_db=trace_db,
             action_executions=[
                 trace_service.get_trace_component_for_action_execution(execution, liveaction)
-            ])
+            ],
+        )
 
     get_driver().inc_counter('action.executions.%s' % (liveaction.status))
 
@@ -170,8 +172,11 @@ def publish_request(liveaction, execution):
     # TODO: This results in two queries, optimize it
     #  extra = {'liveaction_db': liveaction, 'execution_db': execution}
     extra = {}
-    LOG.audit('Action execution requested. LiveAction.id=%s, ActionExecution.id=%s' %
-              (liveaction.id, execution.id), extra=extra)
+    LOG.audit(
+        'Action execution requested. LiveAction.id=%s, ActionExecution.id=%s'
+        % (liveaction.id, execution.id),
+        extra=extra,
+    )
 
     return liveaction, execution
 
@@ -193,7 +198,7 @@ def update_status(liveaction, new_status, result=None, publish=True):
         'liveaction_id': liveaction.id,
         'status': new_status,
         'result': result,
-        'publish': False
+        'publish': False,
     }
 
     if new_status in action_constants.LIVEACTION_COMPLETED_STATES:
@@ -202,21 +207,22 @@ def update_status(liveaction, new_status, result=None, publish=True):
     liveaction = action_utils.update_liveaction_status(**updates)
     action_execution = executions.update_execution(liveaction)
 
-    msg = ('The status of action execution is changed from %s to %s. '
-           '<LiveAction.id=%s, ActionExecution.id=%s>' % (old_status,
-           new_status, liveaction.id, action_execution.id))
+    msg = (
+        'The status of action execution is changed from %s to %s. '
+        '<LiveAction.id=%s, ActionExecution.id=%s>'
+        % (old_status, new_status, liveaction.id, action_execution.id)
+    )
 
-    extra = {
-        'action_execution_db': action_execution,
-        'liveaction_db': liveaction
-    }
+    extra = {'action_execution_db': action_execution, 'liveaction_db': liveaction}
 
     LOG.audit(msg, extra=extra)
     LOG.info(msg)
 
     # Invoke post run if liveaction status is completed or paused.
-    if (new_status in action_constants.LIVEACTION_COMPLETED_STATES or
-            new_status == action_constants.LIVEACTION_STATUS_PAUSED):
+    if (
+        new_status in action_constants.LIVEACTION_COMPLETED_STATES
+        or new_status == action_constants.LIVEACTION_STATUS_PAUSED
+    ):
         runners_utils.invoke_post_run(liveaction)
 
     if publish:
@@ -227,14 +233,18 @@ def update_status(liveaction, new_status, result=None, publish=True):
 
 def is_action_canceled_or_canceling(liveaction_id):
     liveaction_db = action_utils.get_liveaction_by_id(liveaction_id)
-    return liveaction_db.status in [action_constants.LIVEACTION_STATUS_CANCELED,
-                                    action_constants.LIVEACTION_STATUS_CANCELING]
+    return liveaction_db.status in [
+        action_constants.LIVEACTION_STATUS_CANCELED,
+        action_constants.LIVEACTION_STATUS_CANCELING,
+    ]
 
 
 def is_action_paused_or_pausing(liveaction_id):
     liveaction_db = action_utils.get_liveaction_by_id(liveaction_id)
-    return liveaction_db.status in [action_constants.LIVEACTION_STATUS_PAUSED,
-                                    action_constants.LIVEACTION_STATUS_PAUSING]
+    return liveaction_db.status in [
+        action_constants.LIVEACTION_STATUS_PAUSED,
+        action_constants.LIVEACTION_STATUS_PAUSING,
+    ]
 
 
 def request_cancellation(liveaction, requester):
@@ -253,15 +263,14 @@ def request_cancellation(liveaction, requester):
             'completed state.' % liveaction.id
         )
 
-    result = {
-        'message': 'Action canceled by user.',
-        'user': requester
-    }
+    result = {'message': 'Action canceled by user.', 'user': requester}
 
     # Run cancelation sequence for liveaction that is in running state or
     # if the liveaction is operating under a workflow.
-    if ('parent' in liveaction.context or
-            liveaction.status in action_constants.LIVEACTION_STATUS_RUNNING):
+    if (
+        'parent' in liveaction.context
+        or liveaction.status in action_constants.LIVEACTION_STATUS_RUNNING
+    ):
         status = action_constants.LIVEACTION_STATUS_CANCELING
     else:
         status = action_constants.LIVEACTION_STATUS_CANCELED
@@ -295,15 +304,16 @@ def request_pause(liveaction, requester):
             '"%s" runner.' % (liveaction.id, action_db.runner_type['name'])
         )
 
-    if (liveaction.status == action_constants.LIVEACTION_STATUS_PAUSING or
-            liveaction.status == action_constants.LIVEACTION_STATUS_PAUSED):
+    if (
+        liveaction.status == action_constants.LIVEACTION_STATUS_PAUSING
+        or liveaction.status == action_constants.LIVEACTION_STATUS_PAUSED
+    ):
         execution = ActionExecution.get(liveaction__id=str(liveaction.id))
         return (liveaction, execution)
 
     if liveaction.status != action_constants.LIVEACTION_STATUS_RUNNING:
         raise runner_exc.UnexpectedActionExecutionStatusError(
-            'Unable to pause liveaction "%s" because it is not in a running state.'
-            % liveaction.id
+            'Unable to pause liveaction "%s" because it is not in a running state.' % liveaction.id
         )
 
     liveaction = update_status(liveaction, action_constants.LIVEACTION_STATUS_PAUSING)
@@ -337,7 +347,7 @@ def request_resume(liveaction, requester):
 
     running_states = [
         action_constants.LIVEACTION_STATUS_RUNNING,
-        action_constants.LIVEACTION_STATUS_RESUMING
+        action_constants.LIVEACTION_STATUS_RESUMING,
     ]
 
     if liveaction.status in running_states:
@@ -428,8 +438,9 @@ def get_root_execution(execution_db):
     return get_root_execution(parent_execution_db) if parent_execution_db else execution_db
 
 
-def store_execution_output_data(execution_db, action_db, data, output_type='output',
-                                timestamp=None):
+def store_execution_output_data(
+    execution_db, action_db, data, output_type='output', timestamp=None
+):
     """
     Store output from an execution as a new document in the collection.
     """
@@ -438,14 +449,15 @@ def store_execution_output_data(execution_db, action_db, data, output_type='outp
     runner_ref = getattr(action_db, 'runner_type', {}).get('name', 'unknown')
     timestamp = timestamp or date_utils.get_datetime_utc_now()
 
-    output_db = ActionExecutionOutputDB(execution_id=execution_id,
-                                        action_ref=action_ref,
-                                        runner_ref=runner_ref,
-                                        timestamp=timestamp,
-                                        output_type=output_type,
-                                        data=data)
-    output_db = ActionExecutionOutput.add_or_update(output_db, publish=True,
-                                                    dispatch_trigger=False)
+    output_db = ActionExecutionOutputDB(
+        execution_id=execution_id,
+        action_ref=action_ref,
+        runner_ref=runner_ref,
+        timestamp=timestamp,
+        output_type=output_type,
+        data=data,
+    )
+    output_db = ActionExecutionOutput.add_or_update(output_db, publish=True, dispatch_trigger=False)
 
     return output_db
 
@@ -458,17 +470,16 @@ def is_children_active(liveaction_id):
 
     children_execution_dbs = ActionExecution.query(parent=str(execution_db.id))
 
-    inactive_statuses = (
-        action_constants.LIVEACTION_COMPLETED_STATES +
-        [action_constants.LIVEACTION_STATUS_PAUSED, action_constants.LIVEACTION_STATUS_PENDING]
-    )
-
-    completed = [
-        child_exec_db.status in inactive_statuses
-        for child_exec_db in children_execution_dbs
+    inactive_statuses = action_constants.LIVEACTION_COMPLETED_STATES + [
+        action_constants.LIVEACTION_STATUS_PAUSED,
+        action_constants.LIVEACTION_STATUS_PENDING,
     ]
 
-    return (not all(completed))
+    completed = [
+        child_exec_db.status in inactive_statuses for child_exec_db in children_execution_dbs
+    ]
+
+    return not all(completed)
 
 
 def _cleanup_liveaction(liveaction):

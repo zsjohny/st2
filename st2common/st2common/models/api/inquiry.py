@@ -54,30 +54,11 @@ class InquiryAPI(BaseAPI):
         "description": "Record of an Inquiry",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string",
-                "required": True
-            },
-            "route": {
-                "type": "string",
-                "default": "",
-                "required": True
-            },
-            "ttl": {
-                "type": "integer",
-                "default": 1440,
-                "required": True
-            },
-            "users": {
-                "type": "array",
-                "default": [],
-                "required": True
-            },
-            "roles": {
-                "type": "array",
-                "default": [],
-                "required": True
-            },
+            "id": {"type": "string", "required": True},
+            "route": {"type": "string", "default": "", "required": True},
+            "ttl": {"type": "integer", "default": 1440, "required": True},
+            "users": {"type": "array", "default": [], "required": True},
+            "roles": {"type": "array", "default": [], "required": True},
             "schema": {
                 "type": "object",
                 "default": {
@@ -87,30 +68,32 @@ class InquiryAPI(BaseAPI):
                         "continue": {
                             "type": "boolean",
                             "description": "Would you like to continue the workflow?",
-                            "required": True
+                            "required": True,
                         }
                     },
                 },
-                "required": True
+                "required": True,
             },
             "liveaction": REQUIRED_ATTR_SCHEMAS['liveaction'],
             "runner": REQUIRED_ATTR_SCHEMAS['runner'],
             "status": {
                 "description": "The current status of the action execution.",
                 "type": "string",
-                "enum": LIVEACTION_STATUSES
+                "enum": LIVEACTION_STATUSES,
             },
             "parent": {"type": "string"},
             "result": {
-                "anyOf": [{"type": "array"},
-                          {"type": "boolean"},
-                          {"type": "integer"},
-                          {"type": "number"},
-                          {"type": "object"},
-                          {"type": "string"}]
-            }
+                "anyOf": [
+                    {"type": "array"},
+                    {"type": "boolean"},
+                    {"type": "integer"},
+                    {"type": "number"},
+                    {"type": "object"},
+                    {"type": "string"},
+                ]
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
@@ -123,7 +106,7 @@ class InquiryAPI(BaseAPI):
             'status': doc.get('status', None),
             'liveaction': doc.get('liveaction', None),
             'parent': doc.get('parent', None),
-            'result': doc.get('result', None)
+            'result': doc.get('result', None),
         }
 
         for field in ['route', 'ttl', 'users', 'roles', 'schema']:
@@ -142,30 +125,11 @@ class InquiryResponseAPI(BaseAPI):
         "description": "Record of an Inquiry",
         "type": "object",
         "properties": {
-            "id": {
-                "type": "string",
-                "required": True
-            },
-            "route": {
-                "type": "string",
-                "default": "",
-                "required": True
-            },
-            "ttl": {
-                "type": "integer",
-                "default": 1440,
-                "required": True
-            },
-            "users": {
-                "type": "array",
-                "default": [],
-                "required": True
-            },
-            "roles": {
-                "type": "array",
-                "default": [],
-                "required": True
-            },
+            "id": {"type": "string", "required": True},
+            "route": {"type": "string", "default": "", "required": True},
+            "ttl": {"type": "integer", "default": 1440, "required": True},
+            "users": {"type": "array", "default": [], "required": True},
+            "roles": {"type": "array", "default": [], "required": True},
             "schema": {
                 "type": "object",
                 "default": {
@@ -175,14 +139,14 @@ class InquiryResponseAPI(BaseAPI):
                         "continue": {
                             "type": "boolean",
                             "description": "Would you like to continue the workflow?",
-                            "required": True
+                            "required": True,
                         }
                     },
                 },
-                "required": True
-            }
+                "required": True,
+            },
         },
-        "additionalProperties": False
+        "additionalProperties": False,
     }
 
     @classmethod
@@ -201,9 +165,7 @@ class InquiryResponseAPI(BaseAPI):
         else:
             doc = model
 
-        newdoc = {
-            "id": doc["id"]
-        }
+        newdoc = {"id": doc["id"]}
         for field in ["route", "ttl", "users", "roles", "schema"]:
             newdoc[field] = doc["result"].get(field)
 
@@ -222,5 +184,5 @@ class InquiryResponseAPI(BaseAPI):
             ttl=getattr(inquiry_api, 'ttl', None),
             users=getattr(inquiry_api, 'users', None),
             roles=getattr(inquiry_api, 'roles', None),
-            schema=getattr(inquiry_api, 'schema', None)
+            schema=getattr(inquiry_api, 'schema', None),
         )

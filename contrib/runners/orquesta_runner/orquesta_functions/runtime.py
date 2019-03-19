@@ -41,7 +41,7 @@ def format_task_result(instances):
         'result': instance.result,
         'status': instance.status,
         'start_timestamp': str(instance.start_timestamp),
-        'end_timestamp': str(instance.end_timestamp)
+        'end_timestamp': str(instance.end_timestamp),
     }
 
 
@@ -91,9 +91,7 @@ def task(context, task_id=None, route=None):
 
         # Query the database by the workflow execution ID, task ID, and task route.
         instances = wf_db_access.TaskExecution.query(
-            workflow_execution=workflow_execution_id,
-            task_id=task_id,
-            task_route=route
+            workflow_execution=workflow_execution_id, task_id=task_id, task_route=route
         )
 
     if not instances:

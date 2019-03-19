@@ -73,17 +73,31 @@ except ImportError:
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tool for requirements.txt generation.')
-    parser.add_argument('-s', '--source-requirements', nargs='+',
-                        required=True,
-                        help='Specify paths to requirements file(s). '
-                        'In case several requirements files are given their content is merged.')
-    parser.add_argument('-f', '--fixed-requirements', required=True,
-                        help='Specify path to fixed-requirements.txt file.')
-    parser.add_argument('-o', '--output-file', default='requirements.txt',
-                        help='Specify path to the resulting requirements file.')
-    parser.add_argument('--skip', default=None,
-                        help=('Comma delimited list of requirements to not '
-                              'include in the generated file.'))
+    parser.add_argument(
+        '-s',
+        '--source-requirements',
+        nargs='+',
+        required=True,
+        help='Specify paths to requirements file(s). '
+        'In case several requirements files are given their content is merged.',
+    )
+    parser.add_argument(
+        '-f',
+        '--fixed-requirements',
+        required=True,
+        help='Specify path to fixed-requirements.txt file.',
+    )
+    parser.add_argument(
+        '-o',
+        '--output-file',
+        default='requirements.txt',
+        help='Specify path to the resulting requirements file.',
+    )
+    parser.add_argument(
+        '--skip',
+        default=None,
+        help=('Comma delimited list of requirements to not ' 'include in the generated file.'),
+    )
     if len(sys.argv) < 2:
         parser.print_help()
         sys.exit(1)
@@ -92,8 +106,7 @@ def parse_args():
 
 def check_pip_version():
     if StrictVersion(pip.__version__) < StrictVersion('6.1.0'):
-        print("Upgrade pip, your version `{0}' "
-              "is outdated:\n".format(pip.__version__), GET_PIP)
+        print("Upgrade pip, your version `{0}' " "is outdated:\n".format(pip.__version__), GET_PIP)
         sys.exit(1)
 
 
@@ -134,8 +147,7 @@ def merge_source_requirements(sources):
     return merged_requirements
 
 
-def write_requirements(sources=None, fixed_requirements=None, output_file=None,
-                       skip=None):
+def write_requirements(sources=None, fixed_requirements=None, output_file=None, skip=None):
     """
     Write resulting requirements taking versions from the fixed_requirements.
     """
@@ -198,7 +210,9 @@ if __name__ == '__main__':
     else:
         skip = None
 
-    write_requirements(sources=args['source_requirements'],
-                       fixed_requirements=args['fixed_requirements'],
-                       output_file=args['output_file'],
-                       skip=skip)
+    write_requirements(
+        sources=args['source_requirements'],
+        fixed_requirements=args['fixed_requirements'],
+        output_file=args['output_file'],
+        skip=skip,
+    )

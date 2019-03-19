@@ -23,6 +23,7 @@ import st2tests
 
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
+
 tests_config.parse_args()
 
 from tests.unit import base
@@ -46,34 +47,31 @@ from st2tests.mocks import workflow as mock_wf_ex_xport
 TEST_PACK = 'orquesta_tests'
 TEST_PACK_PATH = st2tests.fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, st2tests.fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 
-@mock.patch.object(
-    publishers.CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(publishers.CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_create),
+)
 @mock.patch.object(
     lv_ac_xport.LiveActionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_lv_ac_xport.MockLiveActionPublisher.publish_state),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_create),
+)
 @mock.patch.object(
     wf_ex_xport.WorkflowExecutionPublisher,
     'publish_state',
-    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state))
+    mock.MagicMock(side_effect=mock_wf_ex_xport.MockWorkflowExecutionPublisher.publish_state),
+)
 class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(OrquestaFunctionTest, cls).setUpClass()
@@ -83,15 +81,20 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
             actions_registrar.register_from_pack(pack)
 
-    def _execute_workflow(self, wf_name, expected_task_sequence, expected_output,
-                          expected_status=wf_statuses.SUCCEEDED, expected_errors=None):
+    def _execute_workflow(
+        self,
+        wf_name,
+        expected_task_sequence,
+        expected_output,
+        expected_status=wf_statuses.SUCCEEDED,
+        expected_errors=None,
+    ):
         wf_file = wf_name + '.yaml'
         wf_meta = base.get_wf_fixture_meta_data(TEST_PACK_PATH, wf_file)
         lv_ac_db = lv_db_models.LiveActionDB(action=wf_meta['name'])
@@ -105,9 +108,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
 
         for task_id, route in expected_task_sequence:
             tk_ex_dbs = wf_db_access.TaskExecution.query(
-                workflow_execution=str(wf_ex_db.id),
-                task_id=task_id,
-                task_route=route
+                workflow_execution=str(wf_ex_db.id), task_id=task_id, task_route=route
             )
 
             if len(tk_ex_dbs) <= 0:
@@ -157,7 +158,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             ('task4', 0),
             ('task9', 1),
             ('task9', 2),
-            ('task5', 0)
+            ('task5', 0),
         ]
 
         expected_output = {
@@ -166,7 +167,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'task9__2__parent': 'task8__2',
             'that_task_by_name': 'task1',
             'this_task_by_name': 'task1',
-            'this_task_no_arg': 'task1'
+            'this_task_no_arg': 'task1',
         }
 
         self._execute_workflow(wf_name, expected_task_sequence, expected_output)
@@ -186,7 +187,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             ('task4', 0),
             ('task9', 1),
             ('task9', 2),
-            ('task5', 0)
+            ('task5', 0),
         ]
 
         expected_output = {
@@ -195,7 +196,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             'task9__2__parent': 'task8__2',
             'that_task_by_name': 'task1',
             'this_task_by_name': 'task1',
-            'this_task_no_arg': 'task1'
+            'this_task_no_arg': 'task1',
         }
 
         self._execute_workflow(wf_name, expected_task_sequence, expected_output)
@@ -203,9 +204,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
     def test_task_nonexistent_in_yaql(self):
         wf_name = 'yaql-task-nonexistent'
 
-        expected_task_sequence = [
-            ('task1', 0)
-        ]
+        expected_task_sequence = [('task1', 0)]
 
         expected_output = None
 
@@ -219,7 +218,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
                 ),
                 'task_transition_id': 'noop__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -228,15 +227,13 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             expected_task_sequence,
             expected_output,
             expected_status=ac_const.LIVEACTION_STATUS_FAILED,
-            expected_errors=expected_errors
+            expected_errors=expected_errors,
         )
 
     def test_task_nonexistent_in_jinja(self):
         wf_name = 'jinja-task-nonexistent'
 
-        expected_task_sequence = [
-            ('task1', 0)
-        ]
+        expected_task_sequence = [('task1', 0)]
 
         expected_output = None
 
@@ -250,7 +247,7 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
                 ),
                 'task_transition_id': 'noop__t0',
                 'task_id': 'task1',
-                'route': 0
+                'route': 0,
             }
         ]
 
@@ -259,5 +256,5 @@ class OrquestaFunctionTest(st2tests.ExecutionDbTestCase):
             expected_task_sequence,
             expected_output,
             expected_status=ac_const.LIVEACTION_STATUS_FAILED,
-            expected_errors=expected_errors
+            expected_errors=expected_errors,
         )

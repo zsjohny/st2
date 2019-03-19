@@ -21,7 +21,6 @@ from st2common.util import jinja as jinja_utils
 
 
 class JinjaUtilsJsonEscapeTestCase(unittest2.TestCase):
-
     def test_doublequotes(self):
         env = jinja_utils.get_jinja_environment()
         template = '{{ test_str | json_escape }}'

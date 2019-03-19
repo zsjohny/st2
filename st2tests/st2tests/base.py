@@ -88,17 +88,14 @@ __all__ = [
     'RunnerTestCase',
     'ExecutionDbTestCase',
     'WorkflowTestCase',
-
     # Pack test classes
     'BaseSensorTestCase',
     'BaseActionTestCase',
     'BaseActionAliasTestCase',
-
     'get_fixtures_path',
     'get_resources_path',
-
     'blocking_eventlet_spawn',
-    'make_mock_stream_readline'
+    'make_mock_stream_readline',
 ]
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -141,7 +138,6 @@ class RunnerTestCase(unittest2.TestCase):
 
 
 class BaseTestCase(TestCase):
-
     @classmethod
     def _register_packs(self):
         """
@@ -173,18 +169,12 @@ class EventletTestCase(TestCase):
             select=True,
             socket=True,
             thread=False if '--use-debugger' in sys.argv else True,
-            time=True
+            time=True,
         )
 
     @classmethod
     def tearDownClass(cls):
-        eventlet.monkey_patch(
-            os=False,
-            select=False,
-            socket=False,
-            thread=False,
-            time=False
-        )
+        eventlet.monkey_patch(os=False, select=False, socket=False, thread=False, time=False)
 
 
 class BaseDbTestCase(BaseTestCase):
@@ -206,16 +196,20 @@ class BaseDbTestCase(BaseTestCase):
 
         if cls.DISPLAY_LOG_MESSAGES:
             config_path = os.path.join(BASE_DIR, '../conf/logging.conf')
-            logging.config.fileConfig(config_path,
-                                      disable_existing_loggers=False)
+            logging.config.fileConfig(config_path, disable_existing_loggers=False)
 
     @classmethod
     def _establish_connection_and_re_create_db(cls):
         username = cfg.CONF.database.username if hasattr(cfg.CONF.database, 'username') else None
         password = cfg.CONF.database.password if hasattr(cfg.CONF.database, 'password') else None
         cls.db_connection = db_setup(
-            cfg.CONF.database.db_name, cfg.CONF.database.host, cfg.CONF.database.port,
-            username=username, password=password, ensure_indexes=False)
+            cfg.CONF.database.db_name,
+            cfg.CONF.database.host,
+            cfg.CONF.database.port,
+            username=username,
+            password=password,
+            ensure_indexes=False,
+        )
 
         cls._drop_collections()
         cls.db_connection.drop_database(cfg.CONF.database.db_name)
@@ -226,8 +220,10 @@ class BaseDbTestCase(BaseTestCase):
         # multiple services can start up at the same time and race conditions are possible.
         if cls.ensure_indexes:
             if len(cls.ensure_indexes_models) == 0 or len(cls.ensure_indexes_models) > 1:
-                msg = ('Ensuring indexes for all the models, this could significantly slow down '
-                       'the tests')
+                msg = (
+                    'Ensuring indexes for all the models, this could significantly slow down '
+                    'the tests'
+                )
                 print('#' * len(msg), file=sys.stderr)
                 print(msg, file=sys.stderr)
                 print('#' * len(msg), file=sys.stderr)
@@ -309,9 +305,7 @@ class ExecutionDbTestCase(DbTestCase):
     """
 
     ensure_indexes = True
-    ensure_indexes_models = [
-        ActionExecutionSchedulingQueueItemDB
-    ]
+    ensure_indexes_models = [ActionExecutionSchedulingQueueItemDB]
 
     def _wait_on_status(self, liveaction_db, status, retries=300, delay=0.1, raise_exc=True):
         assert isinstance(status, six.string_types), '%s is not of text type' % (status)
@@ -383,7 +377,7 @@ class DbModelTestCase(DbTestCase):
         assert_funcs = {
             'mongoengine.fields.DictField': self.assertDictEqual,
             'mongoengine.fields.ListField': self.assertListEqual,
-            'mongoengine.fields.SortedListField': self.assertListEqual
+            'mongoengine.fields.SortedListField': self.assertListEqual,
         }
 
         for k, v in six.iteritems(fields):
@@ -393,10 +387,7 @@ class DbModelTestCase(DbTestCase):
     def _assert_values_equal(self, a, values=None):
         values = values or {}
 
-        assert_funcs = {
-            'dict': self.assertDictEqual,
-            'list': self.assertListEqual
-        }
+        assert_funcs = {'dict': self.assertDictEqual, 'list': self.assertListEqual}
 
         for k, v in six.iteritems(values):
             assert_func = assert_funcs.get(type(v).__name__, self.assertEqual)
@@ -426,8 +417,7 @@ class DbModelTestCase(DbTestCase):
         # Assert instance is deleted from the database.
         retrieved = self.access_type.get_by_id(instance.id)
         retrieved.delete()
-        self.assertRaises(StackStormDBObjectNotFoundError,
-                          self.access_type.get_by_id, instance.id)
+        self.assertRaises(StackStormDBObjectNotFoundError, self.access_type.get_by_id, instance.id)
 
     def _assert_unique_key_constraint(self, instance):
         # Assert instance is not already in the database.
@@ -439,9 +429,7 @@ class DbModelTestCase(DbTestCase):
 
         # Assert exception is thrown if try to create same instance again.
         delattr(instance, 'id')
-        self.assertRaises(StackStormDBObjectConflictError,
-                          self.access_type.add_or_update,
-                          instance)
+        self.assertRaises(StackStormDBObjectConflictError, self.access_type.add_or_update, instance)
 
 
 class CleanDbTestCase(BaseDbTestCase):
@@ -469,6 +457,7 @@ class CleanFilesTestCase(TestCase):
     """
     Base test class which deletes specified files and directories on setUp and `tearDown.
     """
+
     to_delete_files = []
     to_delete_directories = []
 
@@ -576,8 +565,11 @@ class IntegrationTestCase(TestCase):
             else:
                 stderr = ''
 
-            msg = ('Process exited with code=%s.\nStdout:\n%s\n\nStderr:\n%s' %
-                   (return_code, stdout, stderr))
+            msg = 'Process exited with code=%s.\nStdout:\n%s\n\nStderr:\n%s' % (
+                return_code,
+                stdout,
+                stderr,
+            )
             self.fail(msg)
 
     def assertProcessExited(self, proc):
@@ -604,7 +596,7 @@ class WorkflowTestCase(ExecutionDbTestCase):
             'file_name': wf_meta_file_name,
             'file_path': wf_meta_file_path,
             'content': wf_meta_content,
-            'name': wf_name
+            'name': wf_name,
         }
 
     def get_wf_def(self, test_pack_path, wf_meta):
@@ -619,7 +611,7 @@ class WorkflowTestCase(ExecutionDbTestCase):
             'st2': {
                 'api_url': api_util.get_full_public_api_url(),
                 'action_execution_id': str(ac_ex_db.id),
-                'user': 'stanley'
+                'user': 'stanley',
             }
         }
 
@@ -636,7 +628,7 @@ class WorkflowTestCase(ExecutionDbTestCase):
             'context': wf_ex_db.context,
             'state': wf_ex_db.state,
             'output': wf_ex_db.output,
-            'errors': wf_ex_db.errors
+            'errors': wf_ex_db.errors,
         }
 
         conductor = conducting.WorkflowConductor.deserialize(data)
@@ -679,7 +671,7 @@ class WorkflowTestCase(ExecutionDbTestCase):
             'route': route,
             'spec': task_spec,
             'ctx': ctx or {},
-            'actions': task_actions
+            'actions': task_actions,
         }
 
         task_ex_db = wf_svc.request_task_execution(wf_ex_db, st2_ctx, task_req)
@@ -710,7 +702,6 @@ class WorkflowTestCase(ExecutionDbTestCase):
 
 
 class FakeResponse(object):
-
     def __init__(self, text, status_code, reason):
         self.text = text
         self.status_code = status_code

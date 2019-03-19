@@ -32,7 +32,7 @@ __all__ = [
     'validate_token_and_source',
     'generate_api_key',
     'validate_api_key',
-    'validate_api_key_and_source'
+    'validate_api_key_and_source',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -102,8 +102,8 @@ def generate_api_key():
     hashed_seed = hashlib.sha256(seed).hexdigest()
 
     base64_encoded = base64.b64encode(
-        six.b(hashed_seed),
-        six.b(random.choice(['rA', 'aZ', 'gQ', 'hH', 'hG', 'aR', 'DD']))).rstrip(b'==')
+        six.b(hashed_seed), six.b(random.choice(['rA', 'aZ', 'gQ', 'hH', 'hG', 'aR', 'DD']))
+    ).rstrip(b'==')
     base64_encoded = base64_encoded.decode()
     return base64_encoded
 

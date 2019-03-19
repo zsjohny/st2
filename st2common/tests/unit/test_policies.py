@@ -19,38 +19,24 @@ from st2common.policies import ResourcePolicyApplicator, get_driver
 from st2tests import DbTestCase
 from st2tests.fixturesloader import FixturesLoader
 
-__all__ = [
-    'PolicyTestCase'
-]
+__all__ = ['PolicyTestCase']
 
 PACK = 'generic'
 TEST_FIXTURES = {
-    'runners': [
-        'testrunner1.yaml'
-    ],
-    'actions': [
-        'action1.yaml'
-    ],
-    'policytypes': [
-        'fake_policy_type_1.yaml',
-        'fake_policy_type_2.yaml'
-    ],
-    'policies': [
-        'policy_1.yaml',
-        'policy_2.yaml'
-    ]
+    'runners': ['testrunner1.yaml'],
+    'actions': ['action1.yaml'],
+    'policytypes': ['fake_policy_type_1.yaml', 'fake_policy_type_2.yaml'],
+    'policies': ['policy_1.yaml', 'policy_2.yaml'],
 }
 
 
 class PolicyTestCase(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(PolicyTestCase, cls).setUpClass()
 
         loader = FixturesLoader()
-        loader.save_fixtures_to_db(fixtures_pack=PACK,
-                                   fixtures_dict=TEST_FIXTURES)
+        loader.save_fixtures_to_db(fixtures_pack=PACK, fixtures_dict=TEST_FIXTURES)
 
     def test_get_by_ref(self):
         policy_db = Policy.get_by_ref('wolfpack.action-1.concurrency')

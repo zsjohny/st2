@@ -52,8 +52,7 @@ class LoaderTest(unittest2.TestCase):
 
     def test_module_load_from_file(self):
         plugin_path = os.path.join(SRC_ROOT, 'plugin/standaloneplugin.py')
-        plugin_classes = plugin_loader.register_plugin(
-            LoaderTest.DummyPlugin, plugin_path)
+        plugin_classes = plugin_loader.register_plugin(LoaderTest.DummyPlugin, plugin_path)
         # Even though there are two classes in that file, only one
         # matches the specs of DummyPlugin class.
         self.assertEqual(1, len(plugin_classes))
@@ -79,16 +78,14 @@ class LoaderTest(unittest2.TestCase):
     def test_syspath_unchanged_load_multiple_plugins(self):
         plugin_1_path = os.path.join(SRC_ROOT, 'plugin/sampleplugin.py')
         try:
-            plugin_loader.register_plugin(
-                LoaderTest.DummyPlugin, plugin_1_path)
+            plugin_loader.register_plugin(LoaderTest.DummyPlugin, plugin_1_path)
         except ImportError:
             pass
         old_sys_path = copy.copy(sys.path)
 
         plugin_2_path = os.path.join(SRC_ROOT, 'plugin/sampleplugin2.py')
         try:
-            plugin_loader.register_plugin(
-                LoaderTest.DummyPlugin, plugin_2_path)
+            plugin_loader.register_plugin(LoaderTest.DummyPlugin, plugin_2_path)
         except ImportError:
             pass
         self.assertEqual(old_sys_path, sys.path, 'Should be equal.')
@@ -97,18 +94,24 @@ class LoaderTest(unittest2.TestCase):
         file_path = os.path.join(SRC_ROOT, 'plugin/sampleplugin3.py')
 
         expected_msg = 'doesn\'t expose class named "SamplePluginNotExists"'
-        self.assertRaisesRegexp(Exception, expected_msg,
-                                plugin_loader.register_plugin_class,
-                                base_class=LoaderTest.DummyPlugin,
-                                file_path=file_path,
-                                class_name='SamplePluginNotExists')
+        self.assertRaisesRegexp(
+            Exception,
+            expected_msg,
+            plugin_loader.register_plugin_class,
+            base_class=LoaderTest.DummyPlugin,
+            file_path=file_path,
+            class_name='SamplePluginNotExists',
+        )
 
     def test_register_plugin_class_abstract_method_not_implemented(self):
         file_path = os.path.join(SRC_ROOT, 'plugin/sampleplugin3.py')
 
         expected_msg = 'doesn\'t implement required "do_work" method from the base class'
-        self.assertRaisesRegexp(plugin_loader.IncompatiblePluginException, expected_msg,
-                                plugin_loader.register_plugin_class,
-                                base_class=LoaderTest.DummyPlugin,
-                                file_path=file_path,
-                                class_name='SamplePlugin')
+        self.assertRaisesRegexp(
+            plugin_loader.IncompatiblePluginException,
+            expected_msg,
+            plugin_loader.register_plugin_class,
+            base_class=LoaderTest.DummyPlugin,
+            file_path=file_path,
+            class_name='SamplePlugin',
+        )

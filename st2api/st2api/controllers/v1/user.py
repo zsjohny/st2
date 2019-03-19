@@ -18,9 +18,7 @@ from oslo_config import cfg
 from st2common.rbac import utils as rbac_utils
 from st2common.services.rbac import get_roles_for_user
 
-__all__ = [
-    'UserController'
-]
+__all__ = ['UserController']
 
 
 class UserController(object):
@@ -42,15 +40,12 @@ class UserController(object):
 
         data = {
             'username': requester_user.name,
-            'authentication': {
-                'method': auth_info['method'],
-                'location': auth_info['location']
-            },
+            'authentication': {'method': auth_info['method'], 'location': auth_info['location']},
             'rbac': {
                 'enabled': cfg.CONF.rbac.enable,
                 'roles': roles,
-                'is_admin': rbac_utils.user_is_admin(user_db=requester_user)
-            }
+                'is_admin': rbac_utils.user_is_admin(user_db=requester_user),
+            },
         }
 
         if auth_info.get('token_expire', None):

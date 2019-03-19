@@ -25,13 +25,10 @@ from st2tests.api import BaseAPIControllerWithRBACTestCase
 
 __all__ = [
     'FunctionalTest',
-
     'APIControllerWithRBACTestCase',
     'APIControllerWithIncludeAndExcludeFilterTestCase',
-
     'FakeResponse',
-
-    'BaseInquiryControllerTestCase'
+    'BaseInquiryControllerTestCase',
 ]
 
 
@@ -69,8 +66,10 @@ class APIControllerWithIncludeAndExcludeFilterTestCase(object):
         url = self.get_all_path + '?include_attributes=id&exclude_attributes=id'
         resp = self.app.get(url, expect_errors=True)
         self.assertEqual(resp.status_int, 400)
-        expected_msg = ('exclude.*? and include.*? arguments are mutually exclusive. '
-                        'You need to provide either one or another, but not both.')
+        expected_msg = (
+            'exclude.*? and include.*? arguments are mutually exclusive. '
+            'You need to provide either one or another, but not both.'
+        )
         self.assertRegexpMatches(resp.json['faultstring'], expected_msg)
 
     def test_get_all_invalid_exclude_and_include_parameter(self):
@@ -78,7 +77,7 @@ class APIControllerWithIncludeAndExcludeFilterTestCase(object):
         url = self.get_all_path + '?exclude_attributes=invalid_field'
         resp = self.app.get(url, expect_errors=True)
 
-        expected_msg = ('Invalid or unsupported exclude attribute specified: .*invalid_field.*')
+        expected_msg = 'Invalid or unsupported exclude attribute specified: .*invalid_field.*'
         self.assertEqual(resp.status_int, 400)
         self.assertRegexpMatches(resp.json['faultstring'], expected_msg)
 
@@ -86,7 +85,7 @@ class APIControllerWithIncludeAndExcludeFilterTestCase(object):
         url = self.get_all_path + '?include_attributes=invalid_field'
         resp = self.app.get(url, expect_errors=True)
 
-        expected_msg = ('Invalid or unsupported include attribute specified: .*invalid_field.*')
+        expected_msg = 'Invalid or unsupported include attribute specified: .*invalid_field.*'
         self.assertEqual(resp.status_int, 400)
         self.assertRegexpMatches(resp.json['faultstring'], expected_msg)
 
@@ -98,8 +97,9 @@ class APIControllerWithIncludeAndExcludeFilterTestCase(object):
         object_ids = self._insert_mock_models()
 
         # Valid include attribute  - mandatory field which should always be included
-        resp = self.app.get('%s?include_attributes=%s' % (self.get_all_path,
-                                                          mandatory_include_fields[0]))
+        resp = self.app.get(
+            '%s?include_attributes=%s' % (self.get_all_path, mandatory_include_fields[0])
+        )
 
         self.assertEqual(resp.status_int, 200)
         self.assertTrue(len(resp.json) >= 1)
@@ -154,8 +154,7 @@ class APIControllerWithIncludeAndExcludeFilterTestCase(object):
 
         # 2. Verify attribute is excluded when filter is provided
         exclude_attribute = self.exclude_attribute_field_name
-        resp = self.app.get('%s?exclude_attributes=%s' % (self.get_all_path,
-                                                          exclude_attribute))
+        resp = self.app.get('%s?exclude_attributes=%s' % (self.get_all_path, exclude_attribute))
 
         self.assertEqual(resp.status_int, 200)
         self.assertTrue(len(resp.json) >= 1)
@@ -202,7 +201,6 @@ class APIControllerWithIncludeAndExcludeFilterTestCase(object):
 
 
 class FakeResponse(object):
-
     def __init__(self, text, status_code, reason):
         self.text = text
         self.status_code = status_code
@@ -216,7 +214,6 @@ class FakeResponse(object):
 
 
 class BaseActionExecutionControllerTestCase(object):
-
     @staticmethod
     def _get_actionexecution_id(resp):
         return resp.json['id']
@@ -232,8 +229,9 @@ class BaseActionExecutionControllerTestCase(object):
         return self.app.post_json('/v1/executions', liveaction, *args, **kwargs)
 
     def _do_delete(self, actionexecution_id, expect_errors=False):
-        return self.app.delete('/v1/executions/%s' % actionexecution_id,
-                               expect_errors=expect_errors)
+        return self.app.delete(
+            '/v1/executions/%s' % actionexecution_id, expect_errors=expect_errors
+        )
 
     def _do_put(self, actionexecution_id, updates, *args, **kwargs):
         return self.app.put_json('/v1/executions/%s' % actionexecution_id, updates, *args, **kwargs)
@@ -262,10 +260,7 @@ class BaseInquiryControllerTestCase(BaseFunctionalTest, CleanDbTestCase):
         return self.app.get('/v1/inquiries/?limit=%s' % limit, *args, **kwargs)
 
     def _do_respond(self, inquiry_id, response, *args, **kwargs):
-        payload = {
-            "id": inquiry_id,
-            "response": response
-        }
+        payload = {"id": inquiry_id, "response": response}
         return self.app.put_json('/v1/inquiries/%s' % inquiry_id, payload, *args, **kwargs)
 
     def _do_create_inquiry(self, liveaction, result, status='pending', *args, **kwargs):

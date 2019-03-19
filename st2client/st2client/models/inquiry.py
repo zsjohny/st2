@@ -28,11 +28,4 @@ class Inquiry(core.Resource):
     _plural = 'Inquiries'
     _plural_display_name = 'Inquiries'
     _url_path = 'inquiries'
-    _repr_attributes = [
-        'id',
-        'schema',
-        'roles',
-        'users',
-        'route',
-        'ttl'
-    ]
+    _repr_attributes = ['id', 'schema', 'roles', 'users', 'route', 'ttl']

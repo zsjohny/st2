@@ -40,8 +40,9 @@ class MockAuthBackend(BaseAuthenticationBackend):
     groups = []
 
     def authenticate(self, username, password):
-        return ((username == 'auser' and password == 'apassword') or
-                (username == 'username' and password == 'password:password'))
+        return (username == 'auser' and password == 'apassword') or (
+            username == 'username' and password == 'password:password'
+        )
 
     def get_user(self, username):
         return username
@@ -50,7 +51,7 @@ class MockAuthBackend(BaseAuthenticationBackend):
         return self.groups
 
 
-class MockRequest():
+class MockRequest:
     def __init__(self, ttl):
         self.ttl = ttl
 
@@ -89,7 +90,8 @@ class HandlerTestCase(CleanDbTestCase):
         user_db = self.users['user_1']
         source = 'assignments/%s.yaml' % user_db.name
         role_assignment_db_1 = assign_role_to_user(
-            role_db=role_db, user_db=user_db, source=source, is_remote=False)
+            role_db=role_db, user_db=user_db, source=source, is_remote=False
+        )
 
         self.roles['mock_local_role_1'] = role_db
         self.role_assignments['assignment_1'] = role_assignment_db_1
@@ -98,7 +100,8 @@ class HandlerTestCase(CleanDbTestCase):
         user_db = self.users['user_1']
         source = 'assignments/%s.yaml' % user_db.name
         role_assignment_db_2 = assign_role_to_user(
-            role_db=role_db, user_db=user_db, source=source, is_remote=False)
+            role_db=role_db, user_db=user_db, source=source, is_remote=False
+        )
 
         self.roles['mock_local_role_2'] = role_db
         self.role_assignments['assignment_2'] = role_assignment_db_2
@@ -116,8 +119,8 @@ class HandlerTestCase(CleanDbTestCase):
         h = handlers.ProxyAuthHandler()
         request = {}
         token = h.handle_auth(
-            request, headers={}, remote_addr=None,
-            remote_user='test_proxy_handler')
+            request, headers={}, remote_addr=None, remote_user='test_proxy_handler'
+        )
         self.assertEqual(token.user, 'test_proxy_handler')
 
     def test_standalone_bad_auth_type(self):
@@ -126,8 +129,12 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPUnauthorized):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=('complex', DUMMY_CREDS))
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('complex', DUMMY_CREDS),
+            )
 
     def test_standalone_no_auth(self):
         h = handlers.StandaloneAuthHandler()
@@ -135,8 +142,8 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPUnauthorized):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=None)
+                request, headers={}, remote_addr=None, remote_user=None, authorization=None
+            )
 
     def test_standalone_bad_auth_value(self):
         h = handlers.StandaloneAuthHandler()
@@ -144,33 +151,47 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPUnauthorized):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=('basic', 'gobblegobble'))
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('basic', 'gobblegobble'),
+            )
 
     def test_standalone_handler(self):
         h = handlers.StandaloneAuthHandler()
         request = {}
 
         token = h.handle_auth(
-            request, headers={}, remote_addr=None,
-            remote_user=None, authorization=('basic', DUMMY_CREDS))
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'auser')
 
     def test_standalone_handler_ttl(self):
         h = handlers.StandaloneAuthHandler()
 
         token1 = h.handle_auth(
-            MockRequest(23), headers={}, remote_addr=None,
-            remote_user=None, authorization=('basic', DUMMY_CREDS))
+            MockRequest(23),
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         token2 = h.handle_auth(
-            MockRequest(2300), headers={}, remote_addr=None,
-            remote_user=None, authorization=('basic', DUMMY_CREDS))
+            MockRequest(2300),
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token1.user, 'auser')
         self.assertNotEqual(token1.expiry, token2.expiry)
 
-    @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name='auser')))
+    @mock.patch.object(User, 'get_by_name', mock.MagicMock(return_value=UserDB(name='auser')))
     def test_standalone_for_user_not_service(self):
         h = handlers.StandaloneAuthHandler()
         request = MockRequest(60)
@@ -178,20 +199,28 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPBadRequest):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=('basic', DUMMY_CREDS))
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('basic', DUMMY_CREDS),
+            )
 
     @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name='auser', is_service=True)))
+        User, 'get_by_name', mock.MagicMock(return_value=UserDB(name='auser', is_service=True))
+    )
     def test_standalone_for_user_service(self):
         h = handlers.StandaloneAuthHandler()
         request = MockRequest(60)
         request.user = 'anotheruser'
 
         token = h.handle_auth(
-            request, headers={}, remote_addr=None,
-            remote_user=None, authorization=('basic', DUMMY_CREDS))
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'anotheruser')
 
     def test_standalone_for_user_not_found(self):
@@ -201,8 +230,12 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPBadRequest):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=('basic', DUMMY_CREDS))
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('basic', DUMMY_CREDS),
+            )
 
     def test_standalone_impersonate_user_not_found(self):
         h = handlers.StandaloneAuthHandler()
@@ -211,15 +244,21 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPBadRequest):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=('basic', DUMMY_CREDS))
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('basic', DUMMY_CREDS),
+            )
 
     @mock.patch.object(
-        User, 'get_by_name',
-        mock.MagicMock(return_value=UserDB(name='auser', is_service=True)))
+        User, 'get_by_name', mock.MagicMock(return_value=UserDB(name='auser', is_service=True))
+    )
     @mock.patch.object(
-        User, 'get_by_nickname',
-        mock.MagicMock(return_value=UserDB(name='anotheruser', is_service=True)))
+        User,
+        'get_by_nickname',
+        mock.MagicMock(return_value=UserDB(name='anotheruser', is_service=True)),
+    )
     def test_standalone_impersonate_user_with_nick_origin(self):
         h = handlers.StandaloneAuthHandler()
         request = MockRequest(60)
@@ -227,8 +266,12 @@ class HandlerTestCase(CleanDbTestCase):
         request.nickname_origin = 'slack'
 
         token = h.handle_auth(
-            request, headers={}, remote_addr=None,
-            remote_user=None, authorization=('basic', DUMMY_CREDS))
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'anotheruser')
 
     def test_standalone_impersonate_user_no_origin(self):
@@ -238,8 +281,12 @@ class HandlerTestCase(CleanDbTestCase):
 
         with self.assertRaises(exc.HTTPBadRequest):
             h.handle_auth(
-                request, headers={}, remote_addr=None,
-                remote_user=None, authorization=('basic', DUMMY_CREDS))
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('basic', DUMMY_CREDS),
+            )
 
     def test_password_contains_colon(self):
         h = handlers.StandaloneAuthHandler()
@@ -247,8 +294,8 @@ class HandlerTestCase(CleanDbTestCase):
 
         authorization = ('Basic', base64.b64encode(b'username:password:password'))
         token = h.handle_auth(
-            request, headers={}, remote_addr=None,
-            remote_user=None, authorization=authorization)
+            request, headers={}, remote_addr=None, remote_user=None, authorization=authorization
+        )
         self.assertEqual(token.user, 'username')
 
     def test_group_to_role_sync_is_performed_on_successful_auth_no_groups_returned(self):
@@ -269,8 +316,13 @@ class HandlerTestCase(CleanDbTestCase):
         # No groups configured should return early
         h._auth_backend.groups = []
 
-        token = h.handle_auth(request, headers={}, remote_addr=None, remote_user=None,
-                              authorization=('basic', DUMMY_CREDS))
+        token = h.handle_auth(
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'auser')
 
         # Verify nothing has changed
@@ -295,12 +347,15 @@ class HandlerTestCase(CleanDbTestCase):
         self.assertEqual(role_dbs[1], self.roles['mock_local_role_2'])
 
         # Single group configured but no group mapping in the database
-        h._auth_backend.groups = [
-            'CN=stormers,OU=groups,DC=stackstorm,DC=net'
-        ]
+        h._auth_backend.groups = ['CN=stormers,OU=groups,DC=stackstorm,DC=net']
 
-        token = h.handle_auth(request, headers={}, remote_addr=None, remote_user=None,
-                              authorization=('basic', DUMMY_CREDS))
+        token = h.handle_auth(
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'auser')
 
         # Verify nothing has changed
@@ -319,9 +374,11 @@ class HandlerTestCase(CleanDbTestCase):
         request = {}
 
         # Single mapping, new remote assignment should be created
-        create_group_to_role_map(group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
-                                 roles=['mock_role_3', 'mock_role_4'],
-                                 source='mappings/stormers.yaml')
+        create_group_to_role_map(
+            group='CN=stormers,OU=groups,DC=stackstorm,DC=net',
+            roles=['mock_role_3', 'mock_role_4'],
+            source='mappings/stormers.yaml',
+        )
 
         # Verify initial state
         role_dbs = get_roles_for_user(user_db=user_db, include_remote=True)
@@ -329,12 +386,15 @@ class HandlerTestCase(CleanDbTestCase):
         self.assertEqual(role_dbs[0], self.roles['mock_local_role_1'])
         self.assertEqual(role_dbs[1], self.roles['mock_local_role_2'])
 
-        h._auth_backend.groups = [
-            'CN=stormers,OU=groups,DC=stackstorm,DC=net'
-        ]
+        h._auth_backend.groups = ['CN=stormers,OU=groups,DC=stackstorm,DC=net']
 
-        token = h.handle_auth(request, headers={}, remote_addr=None, remote_user=None,
-                              authorization=('basic', DUMMY_CREDS))
+        token = h.handle_auth(
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'auser')
 
         # Verify a new role assignments based on the group mapping has been created
@@ -356,8 +416,13 @@ class HandlerTestCase(CleanDbTestCase):
         request = {}
 
         def handle_auth():
-            token = h.handle_auth(request, headers={}, remote_addr=None, remote_user=None,
-                                  authorization=('basic', DUMMY_CREDS))
+            token = h.handle_auth(
+                request,
+                headers={},
+                remote_addr=None,
+                remote_user=None,
+                authorization=('basic', DUMMY_CREDS),
+            )
             self.assertEqual(token.user, 'auser')
 
         thread_pool = eventlet.GreenPool(20)
@@ -367,8 +432,9 @@ class HandlerTestCase(CleanDbTestCase):
 
         thread_pool.waitall()
 
-    @mock.patch.object(RBACRemoteGroupToRoleSyncer, 'sync',
-                      mock.Mock(side_effect=Exception('throw')))
+    @mock.patch.object(
+        RBACRemoteGroupToRoleSyncer, 'sync', mock.Mock(side_effect=Exception('throw'))
+    )
     def test_group_to_role_sync_error_non_fatal_on_succesful_auth(self):
         # Enable group sync
         cfg.CONF.set_override(group='rbac', name='sync_remote_groups', override=True)
@@ -377,11 +443,14 @@ class HandlerTestCase(CleanDbTestCase):
         h = handlers.StandaloneAuthHandler()
         request = {}
 
-        h._auth_backend.groups = [
-            'CN=stormers,OU=groups,DC=stackstorm,DC=net'
-        ]
+        h._auth_backend.groups = ['CN=stormers,OU=groups,DC=stackstorm,DC=net']
 
         # sync() method called upon successful authentication throwing should not be fatal
-        token = h.handle_auth(request, headers={}, remote_addr=None, remote_user=None,
-                              authorization=('basic', DUMMY_CREDS))
+        token = h.handle_auth(
+            request,
+            headers={},
+            remote_addr=None,
+            remote_user=None,
+            authorization=('basic', DUMMY_CREDS),
+        )
         self.assertEqual(token.user, 'auser')

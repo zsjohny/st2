@@ -19,10 +19,7 @@ import hashlib
 
 from st2reactor.container.partitioners import DefaultPartitioner, get_all_enabled_sensors
 
-__all__ = [
-    'HashPartitioner',
-    'Range'
-]
+__all__ = ['HashPartitioner', 'Range']
 
 # The range expression serialized is of the form `RANGE_START..RANGE_END|RANGE_START..RANGE_END ...`
 SUB_RANGE_SEPARATOR = '|'
@@ -35,7 +32,7 @@ class Range(object):
     RANGE_MIN_VALUE = 0
 
     RANGE_MAX_ENUM = 'max'
-    RANGE_MAX_VALUE = 2**32
+    RANGE_MAX_VALUE = 2 ** 32
 
     def __init__(self, range_repr):
         self.range_start, self.range_end = self._get_range_boundaries(range_repr)
@@ -73,7 +70,6 @@ class Range(object):
 
 
 class HashPartitioner(DefaultPartitioner):
-
     def __init__(self, sensor_node_name, hash_ranges):
         super(HashPartitioner, self).__init__(sensor_node_name=sensor_node_name)
         self._hash_ranges = self._create_hash_ranges(hash_ranges)
@@ -112,7 +108,7 @@ class HashPartitioner(DefaultPartitioner):
         h = ctypes.c_uint(0)
         for d in reversed(str(md5_hash_int_repr)):
             d = ctypes.c_uint(int(d))
-            higherorder = ctypes.c_uint(h.value & 0xf8000000)
+            higherorder = ctypes.c_uint(h.value & 0xF8000000)
             h = ctypes.c_uint(h.value << 5)
             h = ctypes.c_uint(h.value ^ (higherorder.value >> 27))
             h = ctypes.c_uint(h.value ^ d.value)

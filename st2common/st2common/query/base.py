@@ -33,10 +33,7 @@ from st2common.util import date as date_utils
 
 LOG = logging.getLogger(__name__)
 
-__all__ = [
-    'Querier',
-    'QueryContext'
-]
+__all__ = ['Querier', 'QueryContext']
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -48,8 +45,11 @@ class Querier(object):
 
         if 'results_tracker' in cfg.CONF and config_option in cfg.CONF.results_tracker:
             config_value = getattr(cfg.CONF.results_tracker, config_option)
-            LOG.warning('You are using deprecated config group "results_tracker" for "%s". '
-                        'Please use "resultstracker" group instead.', config_option)
+            LOG.warning(
+                'You are using deprecated config group "results_tracker" for "%s". '
+                'Please use "resultstracker" group instead.',
+                config_option,
+            )
 
         if not config_value and config_option in cfg.CONF.resultstracker:
             config_value = getattr(cfg.CONF.resultstracker, config_option)
@@ -100,16 +100,11 @@ class Querier(object):
             else:
                 if not blocking:
                     self._thread_pool.spawn(
-                        self._query_and_save_results,
-                        query_context,
-                        last_query_time
+                        self._query_and_save_results, query_context, last_query_time
                     )
                 # Add an option to block and execute the function directly for unit tests.
                 else:
-                    self._query_and_save_results(
-                        query_context,
-                        last_query_time
-                    )
+                    self._query_and_save_results(query_context, last_query_time)
 
         for query in reschedule_queries:
             self._query_contexts.put((query[0], query[1]))
@@ -122,9 +117,7 @@ class Querier(object):
         LOG.debug('Querying external service for results. Context: %s' % actual_query_context)
         try:
             (status, results) = self.query(
-                execution_id,
-                actual_query_context,
-                last_query_time=last_query_time
+                execution_id, actual_query_context, last_query_time=last_query_time
             )
         except:
             LOG.exception('Failed querying results for liveaction_id %s.', execution_id)
@@ -143,8 +136,10 @@ class Querier(object):
                 LOG.debug('Removed state object %s.', query_context)
             return
 
-        if (status in action_constants.LIVEACTION_COMPLETED_STATES or
-                status == action_constants.LIVEACTION_STATUS_PAUSED):
+        if (
+            status in action_constants.LIVEACTION_COMPLETED_STATES
+            or status == action_constants.LIVEACTION_STATUS_PAUSED
+        ):
             runners_utils.invoke_post_run(liveaction_db)
             self._delete_state_object(query_context)
             LOG.debug(
@@ -157,7 +152,7 @@ class Querier(object):
                 'Query for liveaction_id %s is not rescheduled '
                 'because state object %s has been deleted.',
                 execution_id,
-                query_context.id
+                query_context.id,
             )
 
             return
@@ -175,8 +170,10 @@ class Querier(object):
         liveaction_db.result = results
 
         # Action has completed, record end_timestamp
-        if (liveaction_db.status in action_constants.LIVEACTION_COMPLETED_STATES and
-                not liveaction_db.end_timestamp):
+        if (
+            liveaction_db.status in action_constants.LIVEACTION_COMPLETED_STATES
+            and not liveaction_db.end_timestamp
+        ):
             liveaction_db.end_timestamp = date_utils.get_datetime_utc_now()
 
         # update liveaction, update actionexecution and then publish update.
@@ -209,7 +206,7 @@ class Querier(object):
         except db_exc.StackStormDBObjectNotFoundError:
             pass
 
-        return (state_db is not None)
+        return state_db is not None
 
     def query(self, execution_id, query_context, last_query_time=None):
         """
@@ -222,8 +219,11 @@ class Querier(object):
         pass
 
     def print_stats(self):
-        LOG.info('\t --- Name: %s, pending queuries: %d', self.__class__.__name__,
-                 self._query_contexts.qsize())
+        LOG.info(
+            '\t --- Name: %s, pending queuries: %d',
+            self.__class__.__name__,
+            self._query_contexts.qsize(),
+        )
 
 
 class QueryContext(object):
@@ -235,9 +235,13 @@ class QueryContext(object):
 
     @classmethod
     def from_model(cls, model):
-        return QueryContext(str(model.id), str(model.execution_id), model.query_context,
-                            model.query_module)
+        return QueryContext(
+            str(model.id), str(model.execution_id), model.query_context, model.query_module
+        )
 
     def __repr__(self):
-        return ('<QueryContext id=%s,execution_id=%s,query_context=%s>' %
-                (self.id, self.execution_id, self.query_context))
+        return '<QueryContext id=%s,execution_id=%s,query_context=%s>' % (
+            self.id,
+            self.execution_id,
+            self.query_context,
+        )

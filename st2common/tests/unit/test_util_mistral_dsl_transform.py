@@ -49,19 +49,10 @@ TEST_FIXTURES = {
         WF_JINJA_MIXED_CTX1_FILE,
         WF_JINJA_MIXED_CTX2_FILE,
         WF_NO_REQ_PARAM_FILE,
-        WF_UNEXP_PARAM_FILE
+        WF_UNEXP_PARAM_FILE,
     ],
-    'actions': [
-        'local.yaml',
-        'a1.yaml',
-        'a2.yaml',
-        'action1.yaml'
-    ],
-    'runners': [
-        'run-local.yaml',
-        'testrunner1.yaml',
-        'testrunner2.yaml'
-    ]
+    'actions': ['local.yaml', 'a1.yaml', 'a2.yaml', 'action1.yaml'],
+    'runners': ['run-local.yaml', 'testrunner1.yaml', 'testrunner2.yaml'],
 }
 
 PACK = 'generic'
@@ -76,16 +67,20 @@ WF_PRE_XFORM_DEF = FIXTURES['workflows'][WF_PRE_XFORM_FILE]
 WF_POST_XFORM_PATH = LOADER.get_fixture_file_path_abs(PACK, 'workflows', WF_POST_XFORM_FILE)
 WF_POST_XFORM_DEF = FIXTURES['workflows'][WF_POST_XFORM_FILE]
 WF_JINJA_ST2KV_PRE_XFORM_PATH = LOADER.get_fixture_file_path_abs(
-    PACK, 'workflows', WF_JINJA_ST2KV_PRE_XFORM_FILE)
+    PACK, 'workflows', WF_JINJA_ST2KV_PRE_XFORM_FILE
+)
 WF_JINJA_ST2KV_PRE_XFORM_DEF = FIXTURES['workflows'][WF_JINJA_ST2KV_PRE_XFORM_FILE]
 WF_JINJA_ST2KV_POST_XFORM_PATH = LOADER.get_fixture_file_path_abs(
-    PACK, 'workflows', WF_JINJA_ST2KV_POST_XFORM_FILE)
+    PACK, 'workflows', WF_JINJA_ST2KV_POST_XFORM_FILE
+)
 WF_JINJA_MIXED_CTX1_DEF = FIXTURES['workflows'][WF_JINJA_MIXED_CTX1_FILE]
 WF_JINJA_MIXED_CTX1_PATH = LOADER.get_fixture_file_path_abs(
-    PACK, 'workflows', WF_JINJA_MIXED_CTX1_FILE)
+    PACK, 'workflows', WF_JINJA_MIXED_CTX1_FILE
+)
 WF_JINJA_MIXED_CTX2_DEF = FIXTURES['workflows'][WF_JINJA_MIXED_CTX2_FILE]
 WF_JINJA_MIXED_CTX2_PATH = LOADER.get_fixture_file_path_abs(
-    PACK, 'workflows', WF_JINJA_MIXED_CTX2_FILE)
+    PACK, 'workflows', WF_JINJA_MIXED_CTX2_FILE
+)
 WF_JINJA_ST2KV_POST_XFORM_DEF = FIXTURES['workflows'][WF_JINJA_ST2KV_POST_XFORM_FILE]
 WF_NO_REQ_PARAM_PATH = LOADER.get_fixture_file_path_abs(PACK, 'workflows', WF_NO_REQ_PARAM_FILE)
 WF_NO_REQ_PARAM_DEF = FIXTURES['workflows'][WF_NO_REQ_PARAM_FILE]
@@ -94,7 +89,6 @@ WF_UNEXP_PARAM_DEF = FIXTURES['workflows'][WF_UNEXP_PARAM_FILE]
 
 
 class DSLTransformTestCase(DbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(DSLTransformTestCase, cls).setUpClass()

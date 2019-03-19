@@ -102,9 +102,19 @@ class HTTPRunnerTestCase(unittest2.TestCase):
         self.assertTrue(client.verify)
 
         mock_requests.request.assert_called_with(
-            'GET', url, allow_redirects=False, auth=None, cookies=None,
-            data='', files=None, headers={}, params=None, proxies=None,
-            timeout=60, verify=True)
+            'GET',
+            url,
+            allow_redirects=False,
+            auth=None,
+            cookies=None,
+            data='',
+            files=None,
+            headers={},
+            params=None,
+            proxies=None,
+            timeout=60,
+            verify=True,
+        )
 
     @mock.patch('http_runner.http_runner.requests')
     def test_https_verify_false(self, mock_requests):
@@ -122,9 +132,19 @@ class HTTPRunnerTestCase(unittest2.TestCase):
         self.assertFalse(client.verify)
 
         mock_requests.request.assert_called_with(
-            'GET', url, allow_redirects=False, auth=None, cookies=None,
-            data='', files=None, headers={}, params=None, proxies=None,
-            timeout=60, verify=False)
+            'GET',
+            url,
+            allow_redirects=False,
+            auth=None,
+            cookies=None,
+            data='',
+            files=None,
+            headers={},
+            params=None,
+            proxies=None,
+            timeout=60,
+            verify=False,
+        )
 
     @mock.patch('http_runner.http_runner.requests')
     def test_https_auth_basic(self, mock_requests):
@@ -144,6 +164,16 @@ class HTTPRunnerTestCase(unittest2.TestCase):
         self.assertEqual(result['headers'], mock_result.headers)
 
         mock_requests.request.assert_called_once_with(
-            'GET', url, allow_redirects=False, auth=client.auth, cookies=None,
-            data='', files=None, headers={}, params=None, proxies=None,
-            timeout=60, verify=False)
+            'GET',
+            url,
+            allow_redirects=False,
+            auth=client.auth,
+            cookies=None,
+            data='',
+            files=None,
+            headers={},
+            params=None,
+            proxies=None,
+            timeout=60,
+            verify=False,
+        )

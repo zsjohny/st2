@@ -21,10 +21,7 @@ import io
 
 from st2common.content import utils
 
-__all__ = [
-    'ContentPackConfigParser',
-    'ContentPackConfig'
-]
+__all__ = ['ContentPackConfigParser', 'ContentPackConfig']
 
 
 class ContentPackConfigParser(object):
@@ -85,8 +82,7 @@ class ContentPackConfigParser(object):
         if not self.pack_path:
             return None
 
-        global_config_path = os.path.join(self.pack_path,
-                                          self.GLOBAL_CONFIG_NAME)
+        global_config_path = os.path.join(self.pack_path, self.GLOBAL_CONFIG_NAME)
         return global_config_path
 
     @classmethod

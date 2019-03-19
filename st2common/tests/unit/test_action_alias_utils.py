@@ -14,12 +14,10 @@
 # limitations under the License.
 
 from __future__ import absolute_import
-from sre_parse import (parse, AT, AT_BEGINNING, AT_BEGINNING_STRING, AT_END, AT_END_STRING)
+from sre_parse import parse, AT, AT_BEGINNING, AT_BEGINNING_STRING, AT_END, AT_END_STRING
 from unittest2 import TestCase
 from st2common.exceptions.content import ParseException
-from st2common.models.utils.action_alias_utils import (
-    ActionAliasFormatParser, search_regex_tokens,
-)
+from st2common.models.utils.action_alias_utils import ActionAliasFormatParser, search_regex_tokens
 
 
 class TestActionAliasParser(TestCase):
@@ -64,18 +62,17 @@ class TestActionAliasParser(TestCase):
         param_stream = 'a=foobar1 b="boobar2 3 4" c=\'coobar3 4\' d={"a": "b"}'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'a': 'foobar1',
-                                            'b': 'boobar2 3 4',
-                                            'c': 'coobar3 4',
-                                            'd': '{"a": "b"}'})
+        self.assertEqual(
+            extracted_values,
+            {'a': 'foobar1', 'b': 'boobar2 3 4', 'c': 'coobar3 4', 'd': '{"a": "b"}'},
+        )
 
         # Params along with a "normal" alias format
         alias_format = '{{ captain }} is my captain'
         param_stream = 'Malcolm Reynolds is my captain weirdo="River Tam"'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'captain': 'Malcolm Reynolds',
-                                            'weirdo': 'River Tam'})
+        self.assertEqual(extracted_values, {'captain': 'Malcolm Reynolds', 'weirdo': 'River Tam'})
 
     def test_simple_parsing(self):
         alias_format = 'skip {{a}} more skip {{b}} and skip more.'
@@ -103,8 +100,7 @@ class TestActionAliasParser(TestCase):
         param_stream = 'acl "a1 a2" "b1" "c1"'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'a': 'a1 a2', 'b': 'b1',
-                                            'c': 'c1', 'd': '1'})
+        self.assertEqual(extracted_values, {'a': 'a1 a2', 'b': 'b1', 'c': 'c1', 'd': '1'})
 
     def test_spacing(self):
         alias_format = 'acl {{a=test}}'
@@ -125,16 +121,14 @@ class TestActionAliasParser(TestCase):
         param_stream = 'skip {"a": "b", "c": "d"} more skip x.'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'a': '{"a": "b", "c": "d"}',
-                                            'b': 'x'})
+        self.assertEqual(extracted_values, {'a': '{"a": "b", "c": "d"}', 'b': 'x'})
 
     def test_param_spaces(self):
         alias_format = 's {{a}} more {{ b }} more {{ c=99 }} more {{ d = 99 }}'
         param_stream = 's one more two more three more'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'a': 'one', 'b': 'two',
-                                            'c': 'three', 'd': '99'})
+        self.assertEqual(extracted_values, {'a': 'one', 'b': 'two', 'c': 'three', 'd': '99'})
 
     def test_enclosed_defaults(self):
         alias_format = 'skip {{ a = value }} more'
@@ -162,26 +156,23 @@ class TestActionAliasParser(TestCase):
         param_stream = 'testing value b=value2'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'a': 'value',
-                                            'b': 'value2'})
+        self.assertEqual(extracted_values, {'a': 'value', 'b': 'value2'})
 
         # default value, single extra pair with quotes
         alias_format = 'testing {{ a=new }}'
         param_stream = 'testing b="another value"'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'a': 'new',
-                                            'b': 'another value'})
+        self.assertEqual(extracted_values, {'a': 'new', 'b': 'another value'})
 
         # multiple values and multiple extra pairs
         alias_format = 'testing {{ b=abc }} {{ c=xyz }}'
         param_stream = 'testing newvalue d={"1": "2"} e="long value"'
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'b': 'newvalue',
-                                            'c': 'xyz',
-                                            'd': '{"1": "2"}',
-                                            'e': 'long value'})
+        self.assertEqual(
+            extracted_values, {'b': 'newvalue', 'c': 'xyz', 'd': '{"1": "2"}', 'e': 'long value'}
+        )
 
     def test_stream_is_none_with_all_default_values(self):
         alias_format = 'skip {{d=test1}} more skip {{e=test1}}.'
@@ -203,21 +194,28 @@ class TestActionAliasParser(TestCase):
         parser = ActionAliasFormatParser(alias_format, param_stream)
 
         expected_msg = 'Command "" doesn\'t match format string "skip {{d}} more skip {{e}}."'
-        self.assertRaisesRegexp(ParseException, expected_msg,
-                                parser.get_extracted_param_value)
+        self.assertRaisesRegexp(ParseException, expected_msg, parser.get_extracted_param_value)
 
     def test_all_the_things(self):
         # this is the most insane example I could come up with
-        alias_format = "{{ p0='http' }} g {{ p1=p }} a " + \
-                       "{{ url }} {{ p2={'a':'b'} }} {{ p3={{ e.i }} }}"
+        alias_format = (
+            "{{ p0='http' }} g {{ p1=p }} a " + "{{ url }} {{ p2={'a':'b'} }} {{ p3={{ e.i }} }}"
+        )
         param_stream = "g a http://google.com {{ execution.id }} p4='testing' p5={'a':'c'}"
         parser = ActionAliasFormatParser(alias_format, param_stream)
         extracted_values = parser.get_extracted_param_value()
-        self.assertEqual(extracted_values, {'p0': 'http', 'p1': 'p',
-                                            'url': 'http://google.com',
-                                            'p2': '{{ execution.id }}',
-                                            'p3': '{{ e.i }}',
-                                            'p4': 'testing', 'p5': "{'a':'c'}"})
+        self.assertEqual(
+            extracted_values,
+            {
+                'p0': 'http',
+                'p1': 'p',
+                'url': 'http://google.com',
+                'p2': '{{ execution.id }}',
+                'p3': '{{ e.i }}',
+                'p4': 'testing',
+                'p5': "{'a':'c'}",
+            },
+        )
 
     def test_command_doesnt_match_format_string(self):
         alias_format = 'foo bar ponies'
@@ -225,8 +223,7 @@ class TestActionAliasParser(TestCase):
         parser = ActionAliasFormatParser(alias_format, param_stream)
 
         expected_msg = 'Command "foo lulz ponies" doesn\'t match format string "foo bar ponies"'
-        self.assertRaisesRegexp(ParseException, expected_msg,
-                                parser.get_extracted_param_value)
+        self.assertRaisesRegexp(ParseException, expected_msg, parser.get_extracted_param_value)
 
     def test_ending_parameters_matching(self):
         alias_format = 'foo bar'
@@ -247,8 +244,10 @@ class TestActionAliasParser(TestCase):
         param_stream = 'bar foo ASDF-1234'
         parser = ActionAliasFormatParser(alias_format, param_stream)
 
-        expected_msg = r'''Command "bar foo ASDF-1234" doesn't match format string '''\
-                       r'''"^\s*foo (?P<issue_key>[A-Z][A-Z0-9]+-[0-9]+)"'''
+        expected_msg = (
+            r'''Command "bar foo ASDF-1234" doesn't match format string '''
+            r'''"^\s*foo (?P<issue_key>[A-Z][A-Z0-9]+-[0-9]+)"'''
+        )
         with self.assertRaises(ParseException) as e:
             parser.get_extracted_param_value()
 
@@ -266,8 +265,10 @@ class TestActionAliasParser(TestCase):
         param_stream = 'foo ASDF-1234 bar'
         parser = ActionAliasFormatParser(alias_format, param_stream)
 
-        expected_msg = r'''Command "foo ASDF-1234 bar" doesn't match format string '''\
-                       r'''"foo (?P<issue_key>[A-Z][A-Z0-9]+-[0-9]+)\s*$"'''
+        expected_msg = (
+            r'''Command "foo ASDF-1234 bar" doesn't match format string '''
+            r'''"foo (?P<issue_key>[A-Z][A-Z0-9]+-[0-9]+)\s*$"'''
+        )
         with self.assertRaises(ParseException) as e:
             parser.get_extracted_param_value()
 
@@ -285,8 +286,10 @@ class TestActionAliasParser(TestCase):
         param_stream = 'bar ASDF-1234'
         parser = ActionAliasFormatParser(alias_format, param_stream)
 
-        expected_msg = r'''Command "bar ASDF-1234" doesn't match format string '''\
-                       r'''"^\s*foo (?P<issue_key>[A-Z][A-Z0-9]+-[0-9]+)\s*$"'''
+        expected_msg = (
+            r'''Command "bar ASDF-1234" doesn't match format string '''
+            r'''"^\s*foo (?P<issue_key>[A-Z][A-Z0-9]+-[0-9]+)\s*$"'''
+        )
         with self.assertRaises(ParseException) as e:
             parser.get_extracted_param_value()
 

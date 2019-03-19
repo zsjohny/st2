@@ -37,10 +37,23 @@ class ParallelSSHClient(object):
     KEYS_TO_TRANSFORM = ['stdout', 'stderr']
     CONNECT_ERROR = 'Cannot connect to host.'
 
-    def __init__(self, hosts, user=None, password=None, pkey_file=None, pkey_material=None, port=22,
-                 bastion_host=None, concurrency=10, raise_on_any_error=False, connect=True,
-                 passphrase=None, handle_stdout_line_func=None, handle_stderr_line_func=None,
-                 sudo_password=False):
+    def __init__(
+        self,
+        hosts,
+        user=None,
+        password=None,
+        pkey_file=None,
+        pkey_material=None,
+        port=22,
+        bastion_host=None,
+        concurrency=10,
+        raise_on_any_error=False,
+        connect=True,
+        passphrase=None,
+        handle_stdout_line_func=None,
+        handle_stderr_line_func=None,
+        sudo_password=False,
+    ):
         """
         :param handle_stdout_line_func: Callback function which is called dynamically each time a
                                         new stdout line is received.
@@ -93,17 +106,19 @@ class ParallelSSHClient(object):
         for host in self._hosts:
             while not self._pool.free():
                 eventlet.sleep(self._scan_interval)
-            self._pool.spawn(self._connect, host=host, results=results,
-                             raise_on_any_error=raise_on_any_error)
+            self._pool.spawn(
+                self._connect, host=host, results=results, raise_on_any_error=raise_on_any_error
+            )
 
         self._pool.waitall()
 
         if self._successful_connects < 1:
             # We definitely have to raise an exception in this case.
-            LOG.error('Unable to connect to any of the hosts.',
-                      extra={'connect_results': results})
-            msg = ('Unable to connect to any one of the hosts: %s.\n\n connect_errors=%s' %
-                   (self._hosts, json.dumps(results, indent=2)))
+            LOG.error('Unable to connect to any of the hosts.', extra={'connect_results': results})
+            msg = 'Unable to connect to any one of the hosts: %s.\n\n connect_errors=%s' % (
+                self._hosts,
+                json.dumps(results, indent=2),
+            )
             raise NoHostsConnectedToException(msg)
 
         return results
@@ -125,10 +140,7 @@ class ParallelSSHClient(object):
         :rtype: ``dict`` of ``str`` to ``dict``
         """
 
-        options = {
-            'cmd': cmd,
-            'timeout': timeout
-        }
+        options = {'cmd': cmd, 'timeout': timeout}
         results = self._execute_in_pool(self._run_command, **options)
         return results
 
@@ -159,7 +171,7 @@ class ParallelSSHClient(object):
             'local_path': local_path,
             'remote_path': remote_path,
             'mode': mode,
-            'mirror_local_mode': mirror_local_mode
+            'mirror_local_mode': mirror_local_mode,
         }
 
         return self._execute_in_pool(self._put_files, **options)
@@ -174,9 +186,7 @@ class ParallelSSHClient(object):
         :rtype path: ``dict`` of ``str`` to ``dict``
         """
 
-        options = {
-            'path': path
-        }
+        options = {'path': path}
         return self._execute_in_pool(self._mkdir, **options)
 
     def delete_file(self, path):
@@ -189,9 +199,7 @@ class ParallelSSHClient(object):
         :rtype path: ``dict`` of ``str`` to ``dict``
         """
 
-        options = {
-            'path': path
-        }
+        options = {'path': path}
         return self._execute_in_pool(self._delete_file, **options)
 
     def delete_dir(self, path, force=False, timeout=None):
@@ -204,10 +212,7 @@ class ParallelSSHClient(object):
         :rtype path: ``dict`` of ``str`` to ``dict``
         """
 
-        options = {
-            'path': path,
-            'force': force
-        }
+        options = {'path': path, 'force': force}
         return self._execute_in_pool(self._delete_dir, **options)
 
     def close(self):
@@ -248,15 +253,18 @@ class ParallelSSHClient(object):
 
         LOG.debug('Connecting to host.', extra=extra)
 
-        client = ParamikoSSHClient(hostname=hostname, port=port,
-                                   username=self._ssh_user,
-                                   password=self._ssh_password,
-                                   bastion_host=self._bastion_host,
-                                   key_files=self._ssh_key_file,
-                                   key_material=self._ssh_key_material,
-                                   passphrase=self._passphrase,
-                                   handle_stdout_line_func=self._handle_stdout_line_func,
-                                   handle_stderr_line_func=self._handle_stderr_line_func)
+        client = ParamikoSSHClient(
+            hostname=hostname,
+            port=port,
+            username=self._ssh_user,
+            password=self._ssh_password,
+            bastion_host=self._bastion_host,
+            key_files=self._ssh_key_file,
+            key_material=self._ssh_key_material,
+            passphrase=self._passphrase,
+            handle_stdout_line_func=self._handle_stdout_line_func,
+            handle_stderr_line_func=self._handle_stderr_line_func,
+        )
         try:
             client.connect()
         except SSHException as ex:
@@ -283,8 +291,9 @@ class ParallelSSHClient(object):
         try:
             LOG.debug('Running command: %s on host: %s.', cmd, host)
             client = self._hosts_client[host]
-            (stdout, stderr, exit_code) = client.run(cmd, timeout=timeout,
-                                                     call_line_handler_func=True)
+            (stdout, stderr, exit_code) = client.run(
+                cmd, timeout=timeout, call_line_handler_func=True
+            )
 
             result = self._handle_command_result(stdout=stdout, stderr=stderr, exit_code=exit_code)
             results[host] = result
@@ -294,16 +303,17 @@ class ParallelSSHClient(object):
             LOG.exception(error)
             results[host] = self._generate_error_result(exc=ex, message=error)
 
-    def _put_files(self, local_path, remote_path, host, results, mode=None,
-                   mirror_local_mode=False):
+    def _put_files(
+        self, local_path, remote_path, host, results, mode=None, mirror_local_mode=False
+    ):
         try:
             LOG.debug('Copying file to host: %s' % host)
             if os.path.isdir(local_path):
                 result = self._hosts_client[host].put_dir(local_path, remote_path)
             else:
-                result = self._hosts_client[host].put(local_path, remote_path,
-                                                      mirror_local_mode=mirror_local_mode,
-                                                      mode=mode)
+                result = self._hosts_client[host].put(
+                    local_path, remote_path, mirror_local_mode=mirror_local_mode, mode=mode
+                )
             LOG.debug('Result of copy: %s' % result)
             results[host] = result
         except Exception as ex:
@@ -356,12 +366,19 @@ class ParallelSSHClient(object):
                 else:
                     username = 'unknown'
 
-                error = ('Invalid sudo password provided or sudo is not configured for this user '
-                        '(%s)' % (username))
+                error = (
+                    'Invalid sudo password provided or sudo is not configured for this user '
+                    '(%s)' % (username)
+                )
                 raise ValueError(error)
-        is_succeeded = (exit_code == 0)
-        result_dict = {'stdout': stdout, 'stderr': stderr, 'return_code': exit_code,
-                       'succeeded': is_succeeded, 'failed': not is_succeeded}
+        is_succeeded = exit_code == 0
+        result_dict = {
+            'stdout': stdout,
+            'stderr': stderr,
+            'return_code': exit_code,
+            'succeeded': is_succeeded,
+            'failed': not is_succeeded,
+        }
 
         result = jsonify.json_loads(result_dict, ParallelSSHClient.KEYS_TO_TRANSFORM)
         return result
@@ -376,8 +393,11 @@ class ParallelSSHClient(object):
         if not cmd:
             return cmd
 
-        result = re.sub(r'ST2_ACTION_AUTH_TOKEN=(.+?)\s+?', 'ST2_ACTION_AUTH_TOKEN=%s ' %
-                        (MASKED_ATTRIBUTE_VALUE), cmd)
+        result = re.sub(
+            r'ST2_ACTION_AUTH_TOKEN=(.+?)\s+?',
+            'ST2_ACTION_AUTH_TOKEN=%s ' % (MASKED_ATTRIBUTE_VALUE),
+            cmd,
+        )
         return result
 
     @staticmethod
@@ -416,5 +436,8 @@ class ParallelSSHClient(object):
         return error_dict
 
     def __repr__(self):
-        return ('<ParallelSSHClient hosts=%s,user=%s,id=%s>' %
-                (repr(self._hosts), self._ssh_user, id(self)))
+        return '<ParallelSSHClient hosts=%s,user=%s,id=%s>' % (
+            repr(self._hosts),
+            self._ssh_user,
+            id(self),
+        )

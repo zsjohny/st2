@@ -17,12 +17,9 @@ from __future__ import absolute_import
 import json
 
 from st2common.runners.base import ActionRunner
-from st2common.constants.action import (LIVEACTION_STATUS_SUCCEEDED)
+from st2common.constants.action import LIVEACTION_STATUS_SUCCEEDED
 
-__all__ = [
-    'get_runner',
-    'MockActionRunner'
-]
+__all__ = ['get_runner', 'MockActionRunner']
 
 
 def get_runner(config=None):
@@ -48,15 +45,8 @@ class MockActionRunner(ActionRunner):
         if self.runner_parameters.get('raise', False):
             raise Exception('Raise required.')
 
-        default_result = {
-            'ran': True,
-            'action_params': action_params
-        }
-        default_context = {
-            'third_party_system': {
-                'ref_id': '1234'
-            }
-        }
+        default_result = {'ran': True, 'action_params': action_params}
+        default_context = {'third_party_system': {'ref_id': '1234'}}
 
         status = self.runner_parameters.get('mock_status', LIVEACTION_STATUS_SUCCEEDED)
         result = self.runner_parameters.get('mock_result', default_result)

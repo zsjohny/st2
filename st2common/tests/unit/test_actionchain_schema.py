@@ -22,11 +22,15 @@ from st2tests.fixturesloader import FixturesLoader
 
 FIXTURES_PACK = 'generic'
 TEST_FIXTURES = {
-    'actionchains': ['chain1.yaml', 'malformedchain.yaml', 'no_default_chain.yaml',
-                     'chain_with_vars.yaml', 'chain_with_publish.yaml']
+    'actionchains': [
+        'chain1.yaml',
+        'malformedchain.yaml',
+        'no_default_chain.yaml',
+        'chain_with_vars.yaml',
+        'chain_with_publish.yaml',
+    ]
 }
-FIXTURES = FixturesLoader().load_fixtures(fixtures_pack=FIXTURES_PACK,
-                                          fixtures_dict=TEST_FIXTURES)
+FIXTURES = FixturesLoader().load_fixtures(fixtures_pack=FIXTURES_PACK, fixtures_dict=TEST_FIXTURES)
 CHAIN_1 = FIXTURES['actionchains']['chain1.yaml']
 MALFORMED_CHAIN = FIXTURES['actionchains']['malformedchain.yaml']
 NO_DEFAULT_CHAIN = FIXTURES['actionchains']['no_default_chain.yaml']
@@ -35,7 +39,6 @@ CHAIN_WITH_PUBLISH = FIXTURES['actionchains']['chain_with_publish.yaml']
 
 
 class ActionChainSchemaTest(unittest2.TestCase):
-
     def test_actionchain_schema_valid(self):
         chain = actionchain.ActionChain(**CHAIN_1)
         self.assertEquals(len(chain.chain), len(CHAIN_1['chain']))
@@ -54,8 +57,9 @@ class ActionChainSchemaTest(unittest2.TestCase):
     def test_actionchain_with_publish(self):
         chain = actionchain.ActionChain(**CHAIN_WITH_PUBLISH)
         self.assertEquals(len(chain.chain), len(CHAIN_WITH_PUBLISH['chain']))
-        self.assertEquals(len(chain.chain[0].publish),
-                          len(CHAIN_WITH_PUBLISH['chain'][0]['publish']))
+        self.assertEquals(
+            len(chain.chain[0].publish), len(CHAIN_WITH_PUBLISH['chain'][0]['publish'])
+        )
 
     def test_actionchain_schema_invalid(self):
         with self.assertRaises(ValidationError):

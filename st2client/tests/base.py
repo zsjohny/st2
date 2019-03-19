@@ -29,16 +29,7 @@ LOG = logging.getLogger(__name__)
 
 FAKE_ENDPOINT = 'http://127.0.0.1:8268'
 
-RESOURCES = [
-    {
-        "id": "123",
-        "name": "abc",
-    },
-    {
-        "id": "456",
-        "name": "def"
-    }
-]
+RESOURCES = [{"id": "123", "name": "abc"}, {"id": "456", "name": "def"}]
 
 
 class FakeResource(models.Resource):
@@ -46,7 +37,6 @@ class FakeResource(models.Resource):
 
 
 class FakeResponse(object):
-
     def __init__(self, text, status_code, reason, *args):
         self.text = text
         self.status_code = status_code
@@ -63,10 +53,7 @@ class FakeResponse(object):
 
 class FakeClient(object):
     def __init__(self):
-        self.managers = {
-            'FakeResource': models.ResourceManager(FakeResource,
-                                                   FAKE_ENDPOINT)
-        }
+        self.managers = {'FakeResource': models.ResourceManager(FakeResource, FAKE_ENDPOINT)}
 
 
 class FakeApp(object):
@@ -86,8 +73,15 @@ class BaseCLITestCase(unittest2.TestCase):
         super(BaseCLITestCase, self).setUp()
 
         # Setup environment
-        for var in ['ST2_BASE_URL', 'ST2_AUTH_URL', 'ST2_API_URL', 'ST2_STREAM_URL',
-                    'ST2_AUTH_TOKEN', 'ST2_CONFIG_FILE', 'ST2_API_KEY']:
+        for var in [
+            'ST2_BASE_URL',
+            'ST2_AUTH_URL',
+            'ST2_API_URL',
+            'ST2_STREAM_URL',
+            'ST2_AUTH_TOKEN',
+            'ST2_CONFIG_FILE',
+            'ST2_API_KEY',
+        ]:
             if var in os.environ:
                 del os.environ[var]
 

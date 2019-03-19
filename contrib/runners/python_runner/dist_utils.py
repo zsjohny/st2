@@ -59,7 +59,7 @@ __all__ = [
     'fetch_requirements',
     'apply_vagrant_workaround',
     'get_version_string',
-    'parse_version_string'
+    'parse_version_string',
 ]
 
 
@@ -68,10 +68,12 @@ def check_pip_version(min_version='6.0.0'):
     Ensure that a minimum supported version of pip is installed.
     """
     if StrictVersion(pip.__version__) < StrictVersion(min_version):
-        print("Upgrade pip, your version '{0}' "
-              "is outdated. Minimum required version is '{1}':\n{2}".format(pip.__version__,
-                                                                            min_version,
-                                                                            GET_PIP))
+        print(
+            "Upgrade pip, your version '{0}' "
+            "is outdated. Minimum required version is '{1}':\n{2}".format(
+                pip.__version__, min_version, GET_PIP
+            )
+        )
         sys.exit(1)
 
 
@@ -108,8 +110,7 @@ def get_version_string(init_file):
 
     with open(init_file, 'r') as fp:
         content = fp.read()
-        version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                                  content, re.M)
+        version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", content, re.M)
         if version_match:
             return version_match.group(1)
 

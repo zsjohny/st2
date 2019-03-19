@@ -29,14 +29,16 @@ class ContainerUtilsTest(CleanDbTestCase):
         super(ContainerUtilsTest, self).setUp()
 
         # Insert mock TriggerDB
-        trigger_db = TriggerDB(name='name1', pack='pack1', type='type1',
-                               parameters={'a': 1, 'b': '2', 'c': 'foo'})
+        trigger_db = TriggerDB(
+            name='name1', pack='pack1', type='type1', parameters={'a': 1, 'b': '2', 'c': 'foo'}
+        )
         self.trigger_db = Trigger.add_or_update(trigger_db)
 
     def test_create_trigger_instance_invalid_trigger(self):
         trigger_instance = 'dummy_pack.footrigger'
-        instance = create_trigger_instance(trigger=trigger_instance, payload={},
-                                           occurrence_time=None)
+        instance = create_trigger_instance(
+            trigger=trigger_instance, payload={}, occurrence_time=None
+        )
         self.assertTrue(instance is None)
 
     def test_create_trigger_instance_success(self):
@@ -47,33 +49,39 @@ class ContainerUtilsTest(CleanDbTestCase):
 
         # TriggerDB look up by id
         trigger = {'id': self.trigger_db.id}
-        trigger_instance_db = create_trigger_instance(trigger=trigger, payload=payload,
-                                                      occurrence_time=occurrence_time)
+        trigger_instance_db = create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
         self.assertEqual(trigger_instance_db.trigger, 'pack1.name1')
 
         # Object doesn't exist (invalid id)
         trigger = {'id': '5776aa2b0640fd2991b15987'}
-        trigger_instance_db = create_trigger_instance(trigger=trigger, payload=payload,
-                                                      occurrence_time=occurrence_time)
+        trigger_instance_db = create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
         self.assertEqual(trigger_instance_db, None)
 
         # TriggerDB look up by uid
         trigger = {'uid': self.trigger_db.uid}
-        trigger_instance_db = create_trigger_instance(trigger=trigger, payload=payload,
-                                                      occurrence_time=occurrence_time)
+        trigger_instance_db = create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
         self.assertEqual(trigger_instance_db.trigger, 'pack1.name1')
 
         trigger = {'uid': 'invaliduid'}
-        trigger_instance_db = create_trigger_instance(trigger=trigger, payload=payload,
-                                                      occurrence_time=occurrence_time)
+        trigger_instance_db = create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
         self.assertEqual(trigger_instance_db, None)
 
         # TriggerDB look up by type and parameters (last resort)
         trigger = {'type': 'pack1.name1', 'parameters': self.trigger_db.parameters}
-        trigger_instance_db = create_trigger_instance(trigger=trigger, payload=payload,
-                                                      occurrence_time=occurrence_time)
+        trigger_instance_db = create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
 
         trigger = {'type': 'pack1.name1', 'parameters': {}}
-        trigger_instance_db = create_trigger_instance(trigger=trigger, payload=payload,
-                                                      occurrence_time=occurrence_time)
+        trigger_instance_db = create_trigger_instance(
+            trigger=trigger, payload=payload, occurrence_time=occurrence_time
+        )
         self.assertEqual(trigger_instance_db, None)

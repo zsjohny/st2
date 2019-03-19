@@ -33,11 +33,7 @@ from st2common.rbac import utils as rbac_utils
 from st2common.router import abort
 from st2common.router import Response
 
-__all__ = [
-    'OverviewController',
-    'ParametersViewController',
-    'EntryPointController'
-]
+__all__ = ['OverviewController', 'ParametersViewController', 'EntryPointController']
 
 http_client = six.moves.http_client
 
@@ -45,7 +41,6 @@ LOG = logging.getLogger(__name__)
 
 
 class LookupUtils(object):
-
     @staticmethod
     def _get_action_by_id(id):
         try:
@@ -75,7 +70,6 @@ class LookupUtils(object):
 
 
 class ParametersViewController(object):
-
     def get_one(self, action_id, requester_user):
         return self._get_one(action_id, requester_user=requester_user)
 
@@ -90,13 +84,14 @@ class ParametersViewController(object):
         action_db = LookupUtils._get_action_by_id(action_id)
 
         permission_type = PermissionType.ACTION_VIEW
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=action_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=action_db, permission_type=permission_type
+        )
 
         runner_db = LookupUtils._get_runner_by_name(action_db.runner_type['name'])
         all_params = action_param_utils.get_params_view(
-            action_db=action_db, runner_db=runner_db, merged_only=True)
+            action_db=action_db, runner_db=runner_db, merged_only=True
+        )
 
         return {'parameters': all_params}
 
@@ -106,16 +101,9 @@ class OverviewController(resource.ContentPackResourceController):
     access = Action
     supported_filters = {}
 
-    query_options = {
-        'sort': ['pack', 'name']
-    }
+    query_options = {'sort': ['pack', 'name']}
 
-    mandatory_include_fields_retrieve = [
-        'pack',
-        'name',
-        'parameters',
-        'runner_type'
-    ]
+    mandatory_include_fields_retrieve = ['pack', 'name', 'parameters', 'runner_type']
 
     def get_one(self, ref_or_id, requester_user):
         """
@@ -124,29 +112,39 @@ class OverviewController(resource.ContentPackResourceController):
             Handle:
                 GET /actions/views/overview/1
         """
-        resp = super(OverviewController, self)._get_one(ref_or_id,
-                                                        requester_user=requester_user,
-                                                        permission_type=PermissionType.ACTION_VIEW)
+        resp = super(OverviewController, self)._get_one(
+            ref_or_id, requester_user=requester_user, permission_type=PermissionType.ACTION_VIEW
+        )
         action_api = ActionAPI(**resp.json)
         result = self._transform_action_api(action_api=action_api, requester_user=requester_user)
         resp.json = result
         return resp
 
-    def get_all(self, exclude_attributes=None, include_attributes=None, sort=None, offset=0,
-                limit=None, requester_user=None, **raw_filters):
+    def get_all(
+        self,
+        exclude_attributes=None,
+        include_attributes=None,
+        sort=None,
+        offset=0,
+        limit=None,
+        requester_user=None,
+        **raw_filters
+    ):
         """
             List all actions.
 
             Handles requests:
                 GET /actions/views/overview
         """
-        resp = super(OverviewController, self)._get_all(exclude_fields=exclude_attributes,
-                                                        include_fields=include_attributes,
-                                                        sort=sort,
-                                                        offset=offset,
-                                                        limit=limit,
-                                                        raw_filters=raw_filters,
-                                                        requester_user=requester_user)
+        resp = super(OverviewController, self)._get_all(
+            exclude_fields=exclude_attributes,
+            include_fields=include_attributes,
+            sort=sort,
+            offset=offset,
+            limit=limit,
+            raw_filters=raw_filters,
+            requester_user=requester_user,
+        )
         runner_type_names = set([])
         action_ids = []
 
@@ -163,8 +161,9 @@ class OverviewController(resource.ContentPackResourceController):
         # N * 2 additional queries
 
         # 1. Retrieve all the respective runner objects - we only need parameters
-        runner_type_dbs = RunnerType.query(name__in=runner_type_names,
-                                           only_fields=['name', 'runner_parameters'])
+        runner_type_dbs = RunnerType.query(
+            name__in=runner_type_names, only_fields=['name', 'runner_parameters']
+        )
         runner_type_dbs = dict([(runner_db.name, runner_db) for runner_db in runner_type_dbs])
 
         # 2. Retrieve all the respective action objects - we only need parameters
@@ -173,9 +172,9 @@ class OverviewController(resource.ContentPackResourceController):
         for action_api in result:
             action_db = action_dbs.get(action_api.id, None)
             runner_db = runner_type_dbs.get(action_api.runner_type, None)
-            all_params = action_param_utils.get_params_view(action_db=action_db,
-                                                            runner_db=runner_db,
-                                                            merged_only=True)
+            all_params = action_param_utils.get_params_view(
+                action_db=action_db, runner_db=runner_db, merged_only=True
+            )
             action_api.parameters = all_params
 
         resp.json = result
@@ -184,8 +183,9 @@ class OverviewController(resource.ContentPackResourceController):
     @staticmethod
     def _transform_action_api(action_api, requester_user):
         action_id = action_api.id
-        result = ParametersViewController._get_one(action_id=action_id,
-                                                   requester_user=requester_user)
+        result = ParametersViewController._get_one(
+            action_id=action_id, requester_user=requester_user
+        )
         action_api.parameters = result.get('parameters', {})
         return action_api
 
@@ -210,9 +210,9 @@ class EntryPointController(resource.ContentPackResourceController):
         action_db = self._get_by_ref_or_id(ref_or_id=ref_or_id)
 
         permission_type = PermissionType.ACTION_VIEW
-        rbac_utils.assert_user_has_resource_db_permission(user_db=requester_user,
-                                                          resource_db=action_db,
-                                                          permission_type=permission_type)
+        rbac_utils.assert_user_has_resource_db_permission(
+            user_db=requester_user, resource_db=action_db, permission_type=permission_type
+        )
 
         pack = getattr(action_db, 'pack', None)
         entry_point = getattr(action_db, 'entry_point', None)
@@ -220,8 +220,9 @@ class EntryPointController(resource.ContentPackResourceController):
         abs_path = utils.get_entry_point_abs_path(pack, entry_point)
 
         if not abs_path:
-            raise StackStormDBObjectNotFoundError('Action ref_or_id=%s has no entry_point to output'
-                                                  % ref_or_id)
+            raise StackStormDBObjectNotFoundError(
+                'Action ref_or_id=%s has no entry_point to output' % ref_or_id
+            )
 
         with codecs.open(abs_path, 'r') as fp:
             content = fp.read()

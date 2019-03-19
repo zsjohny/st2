@@ -21,9 +21,7 @@ from st2common.models.db.keyvalue import KeyValuePairDB
 from st2common.rbac.resolvers import KeyValuePermissionsResolver
 from tests.unit.test_rbac_resolvers import BasePermissionsResolverTestCase
 
-__all__ = [
-    'KeyValuePermissionsResolver'
-]
+__all__ = ['KeyValuePermissionsResolver']
 
 
 class KeyValuePermissionsResolverTestCase(BasePermissionsResolverTestCase):
@@ -44,10 +42,12 @@ class KeyValuePermissionsResolverTestCase(BasePermissionsResolverTestCase):
         resource_db = self.resources['kvp_1']
 
         permission_types = PermissionType.get_valid_permissions_for_resource_type(
-            ResourceType.KEY_VALUE_PAIR)
+            ResourceType.KEY_VALUE_PAIR
+        )
 
         self.assertUserHasResourceDbPermissions(
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_types=permission_types)
+            permission_types=permission_types,
+        )

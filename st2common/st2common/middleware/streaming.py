@@ -16,9 +16,7 @@
 from __future__ import absolute_import
 import fnmatch
 
-__all__ = [
-    'StreamingMiddleware'
-]
+__all__ = ['StreamingMiddleware']
 
 
 class StreamingMiddleware(object):

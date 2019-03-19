@@ -24,11 +24,7 @@ from st2common.util.api import get_full_public_api_url
 from st2common.util.date import get_datetime_utc_now
 from st2common.constants.keyvalue import DATASTORE_KEY_SEPARATOR, SYSTEM_SCOPE
 
-__all__ = [
-    'BaseDatastoreService',
-    'ActionDatastoreService',
-    'SensorDatastoreService'
-]
+__all__ = ['BaseDatastoreService', 'ActionDatastoreService', 'SensorDatastoreService']
 
 
 class BaseDatastoreService(object):
@@ -125,9 +121,7 @@ class BaseDatastoreService(object):
             kvp = client.keys.get_by_id(id=name, params=params)
         except Exception as e:
             self._logger.exception(
-                'Exception retrieving value from datastore (name=%s): %s',
-                name,
-                e
+                'Exception retrieving value from datastore (name=%s): %s', name, e
             )
             return None
 
@@ -224,11 +218,7 @@ class BaseDatastoreService(object):
             params = {'scope': scope}
             client.keys.delete(instance=instance, params=params)
         except Exception as e:
-            self._logger.exception(
-                'Exception deleting value from datastore (name=%s): %s',
-                name,
-                e
-            )
+            self._logger.exception('Exception deleting value from datastore (name=%s): %s', name, e)
             return False
 
         return True
@@ -299,8 +289,9 @@ class ActionDatastoreService(BaseDatastoreService):
         :param auth_token: Auth token used to authenticate with StackStorm API.
         :type auth_token: ``str``
         """
-        super(ActionDatastoreService, self).__init__(logger=logger, pack_name=pack_name,
-                                                     class_name=class_name)
+        super(ActionDatastoreService, self).__init__(
+            logger=logger, pack_name=pack_name, class_name=class_name
+        )
 
         self._auth_token = auth_token
         self._client = None
@@ -330,8 +321,9 @@ class SensorDatastoreService(BaseDatastoreService):
     """
 
     def __init__(self, logger, pack_name, class_name, api_username):
-        super(SensorDatastoreService, self).__init__(logger=logger, pack_name=pack_name,
-                                                     class_name=class_name)
+        super(SensorDatastoreService, self).__init__(
+            logger=logger, pack_name=pack_name, class_name=class_name
+        )
         self._api_username = api_username
         self._token_expire = get_datetime_utc_now()
 
@@ -344,6 +336,7 @@ class SensorDatastoreService(BaseDatastoreService):
         if not self._client or token_expire:
             # Note: Late import to avoid high import cost (time wise)
             from st2common.services.access import create_token
+
             self._logger.debug('Creating new Client object.')
 
             ttl = cfg.CONF.auth.service_token_ttl

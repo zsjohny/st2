@@ -31,6 +31,7 @@ from oslo_config import cfg
 # XXX: actionsensor import depends on config being setup.
 import st2tests.config as tests_config
 from six.moves import range
+
 tests_config.parse_args()
 
 from mistral_v2.mistral_v2 import MistralRunner
@@ -53,10 +54,7 @@ from st2tests.mocks.liveaction import MockLiveActionPublisherNonBlocking
 TEST_PACK = 'mistral_tests'
 TEST_PACK_PATH = fixturesloader.get_fixtures_packs_base_path() + '/' + TEST_PACK
 
-PACKS = [
-    TEST_PACK_PATH,
-    fixturesloader.get_fixtures_packs_base_path() + '/core'
-]
+PACKS = [TEST_PACK_PATH, fixturesloader.get_fixtures_packs_base_path() + '/core']
 
 # Action executions requirements
 ACTION_PARAMS = {'friend': 'Rocky'}
@@ -92,16 +90,13 @@ WF2_EXEC_CANCELLED = copy.deepcopy(WF2_EXEC)
 WF2_EXEC_CANCELLED['state'] = 'CANCELLED'
 
 
-@mock.patch.object(
-    CUDPublisher,
-    'publish_update',
-    mock.MagicMock(return_value=None))
+@mock.patch.object(CUDPublisher, 'publish_update', mock.MagicMock(return_value=None))
 @mock.patch.object(
     CUDPublisher,
     'publish_create',
-    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create))
+    mock.MagicMock(side_effect=MockLiveActionPublisher.publish_create),
+)
 class MistralRunnerCancelTest(ExecutionDbTestCase):
-
     @classmethod
     def setUpClass(cls):
         super(MistralRunnerCancelTest, cls).setUpClass()
@@ -118,8 +113,7 @@ class MistralRunnerCancelTest(ExecutionDbTestCase):
 
         # Register test pack(s).
         actions_registrar = actionsregistrar.ActionsRegistrar(
-            use_pack_cache=False,
-            fail_on_failure=True
+            use_pack_cache=False, fail_on_failure=True
         )
 
         for pack in PACKS:
@@ -129,28 +123,25 @@ class MistralRunnerCancelTest(ExecutionDbTestCase):
     def get_runner_class(cls, runner_name):
         return runners.get_runner(runner_name, runner_name).__class__
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'update',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC_CANCELLED)))
-    @mock.patch.object(
-        action_service, 'is_children_active',
-        mock.MagicMock(return_value=True))
+        executions.ExecutionManager,
+        'update',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC_CANCELLED)),
+    )
+    @mock.patch.object(action_service, 'is_children_active', mock.MagicMock(return_value=True))
     @mock.patch.object(
         LiveActionPublisher,
         'publish_state',
-        mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+        mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+    )
     def test_cancel(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -166,29 +157,33 @@ class MistralRunnerCancelTest(ExecutionDbTestCase):
         liveaction = self._wait_on_status(liveaction, action_constants.LIVEACTION_STATUS_CANCELING)
         executions.ExecutionManager.update.assert_called_with(WF1_EXEC.get('id'), 'CANCELLED')
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(side_effect=[WF2, WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        workflows.WorkflowManager, 'create', mock.MagicMock(side_effect=[[WF2], [WF1]])
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(side_effect=[WF2, WF1]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(
+            side_effect=[executions.Execution(None, WF2_EXEC), executions.Execution(None, WF1_EXEC)]
+        ),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(side_effect=[[WF2], [WF1]]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(side_effect=[
-            executions.Execution(None, WF2_EXEC),
-            executions.Execution(None, WF1_EXEC)]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'update',
-        mock.MagicMock(side_effect=[
-            executions.Execution(None, WF2_EXEC_CANCELLED),
-            executions.Execution(None, WF1_EXEC_CANCELLED)]))
+        executions.ExecutionManager,
+        'update',
+        mock.MagicMock(
+            side_effect=[
+                executions.Execution(None, WF2_EXEC_CANCELLED),
+                executions.Execution(None, WF1_EXEC_CANCELLED),
+            ]
+        ),
+    )
     @mock.patch.object(
         LiveActionPublisher,
         'publish_state',
-        mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+        mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+    )
     def test_cancel_subworkflow_action(self):
         liveaction1 = LiveActionDB(action=WF2_NAME, parameters=ACTION_PARAMS)
         liveaction1, execution1 = action_service.request(liveaction1)
@@ -201,8 +196,8 @@ class MistralRunnerCancelTest(ExecutionDbTestCase):
         # Mock the children of the parent execution to make this
         # test case has subworkflow execution.
         with mock.patch.object(
-                ActionExecutionDB, 'children',
-                new_callable=mock.PropertyMock) as action_ex_children_mock:
+            ActionExecutionDB, 'children', new_callable=mock.PropertyMock
+        ) as action_ex_children_mock:
             action_ex_children_mock.return_value = [execution2.id]
 
             mistral_context = liveaction1.context.get('mistral', None)
@@ -214,42 +209,42 @@ class MistralRunnerCancelTest(ExecutionDbTestCase):
             liveaction1, execution1 = action_service.request_cancellation(liveaction1, requester)
 
             liveaction1 = self._wait_on_status(
-                liveaction1,
-                action_constants.LIVEACTION_STATUS_CANCELED
+                liveaction1, action_constants.LIVEACTION_STATUS_CANCELED
             )
 
             self.assertTrue(executions.ExecutionManager.update.called)
 
             calls = [
                 mock.call(WF2_EXEC.get('id'), 'CANCELLED'),
-                mock.call(WF1_EXEC.get('id'), 'CANCELLED')
+                mock.call(WF1_EXEC.get('id'), 'CANCELLED'),
             ]
 
             executions.ExecutionManager.update.assert_has_calls(calls, any_order=False)
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'update',
-        mock.MagicMock(side_effect=[requests.exceptions.ConnectionError(),
-                                    executions.Execution(None, WF1_EXEC_CANCELLED)]))
-    @mock.patch.object(
-        action_service, 'is_children_active',
-        mock.MagicMock(return_value=True))
+        executions.ExecutionManager,
+        'update',
+        mock.MagicMock(
+            side_effect=[
+                requests.exceptions.ConnectionError(),
+                executions.Execution(None, WF1_EXEC_CANCELLED),
+            ]
+        ),
+    )
+    @mock.patch.object(action_service, 'is_children_active', mock.MagicMock(return_value=True))
     @mock.patch.object(
         LiveActionPublisher,
         'publish_state',
-        mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state))
+        mock.MagicMock(side_effect=MockLiveActionPublisher.publish_state),
+    )
     def test_cancel_retry(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)
@@ -265,25 +260,24 @@ class MistralRunnerCancelTest(ExecutionDbTestCase):
         liveaction = self._wait_on_status(liveaction, action_constants.LIVEACTION_STATUS_CANCELING)
         executions.ExecutionManager.update.assert_called_with(WF1_EXEC.get('id'), 'CANCELLED')
 
+    @mock.patch.object(workflows.WorkflowManager, 'list', mock.MagicMock(return_value=[]))
+    @mock.patch.object(workflows.WorkflowManager, 'get', mock.MagicMock(return_value=WF1))
+    @mock.patch.object(workflows.WorkflowManager, 'create', mock.MagicMock(return_value=[WF1]))
     @mock.patch.object(
-        workflows.WorkflowManager, 'list',
-        mock.MagicMock(return_value=[]))
+        executions.ExecutionManager,
+        'create',
+        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)),
+    )
     @mock.patch.object(
-        workflows.WorkflowManager, 'get',
-        mock.MagicMock(return_value=WF1))
-    @mock.patch.object(
-        workflows.WorkflowManager, 'create',
-        mock.MagicMock(return_value=[WF1]))
-    @mock.patch.object(
-        executions.ExecutionManager, 'create',
-        mock.MagicMock(return_value=executions.Execution(None, WF1_EXEC)))
-    @mock.patch.object(
-        executions.ExecutionManager, 'update',
-        mock.MagicMock(side_effect=requests.exceptions.ConnectionError('Connection refused')))
+        executions.ExecutionManager,
+        'update',
+        mock.MagicMock(side_effect=requests.exceptions.ConnectionError('Connection refused')),
+    )
     @mock.patch.object(
         LiveActionPublisher,
         'publish_state',
-        mock.MagicMock(side_effect=MockLiveActionPublisherNonBlocking.publish_state))
+        mock.MagicMock(side_effect=MockLiveActionPublisherNonBlocking.publish_state),
+    )
     def test_cancel_retry_exhausted(self):
         liveaction = LiveActionDB(action=WF1_NAME, parameters=ACTION_PARAMS)
         liveaction, execution = action_service.request(liveaction)

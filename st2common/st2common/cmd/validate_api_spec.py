@@ -33,20 +33,14 @@ from st2common.script_setup import teardown as common_teardown
 import six
 
 
-__all__ = [
-    'main'
-]
+__all__ = ['main']
 
 
 cfg.CONF.register_cli_opt(
-    cfg.StrOpt('spec-file', short='f', required=False,
-               default='st2common/st2common/openapi.yaml')
+    cfg.StrOpt('spec-file', short='f', required=False, default='st2common/st2common/openapi.yaml')
 )
 
-cfg.CONF.register_cli_opt(
-    cfg.BoolOpt('generate', short='-c', required=False,
-                default=False)
-)
+cfg.CONF.register_cli_opt(cfg.BoolOpt('generate', short='-c', required=False, default=False))
 
 LOG = logging.getLogger(__name__)
 
@@ -64,9 +58,7 @@ def _validate_definitions(spec):
         api_model = definition.get('x-api-model', None)
 
         if not api_model:
-            msg = (
-                'API model field "x-api-model" not defined for definition "%s".' % model
-            )
+            msg = 'API model field "x-api-model" not defined for definition "%s".' % model
 
             if verbose:
                 LOG.info('Supplied definition for model %s: \n\n%s.', model, definition)
@@ -82,9 +74,11 @@ def validate_spec():
     generate_spec = cfg.CONF.generate
 
     if not os.path.exists(spec_file) and not generate_spec:
-        msg = ('No spec file found in location %s. ' % spec_file +
-               'Provide a valid spec file or ' +
-               'pass --generate-api-spec to genrate a spec.')
+        msg = (
+            'No spec file found in location %s. ' % spec_file
+            + 'Provide a valid spec file or '
+            + 'pass --generate-api-spec to genrate a spec.'
+        )
         raise Exception(msg)
 
     if generate_spec:

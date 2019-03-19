@@ -51,5 +51,5 @@ setup(
         'bin/st2sensorcontainer',
         'bin/st2garbagecollector',
         'bin/st2timersengine',
-    ]
+    ],
 )

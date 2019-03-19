@@ -21,9 +21,7 @@ from mongoengine import LongField
 
 from st2common.util import date as date_utils
 
-__all__ = [
-    'ComplexDateTimeField'
-]
+__all__ = ['ComplexDateTimeField']
 
 SECOND_TO_MICROSECONDS = 1000000
 
@@ -60,7 +58,7 @@ class ComplexDateTimeField(LongField):
         :type data: ``int``
         """
         result = datetime.datetime.utcfromtimestamp(data // SECOND_TO_MICROSECONDS)
-        microseconds_reminder = (data % SECOND_TO_MICROSECONDS)
+        microseconds_reminder = data % SECOND_TO_MICROSECONDS
         result = result.replace(microsecond=microseconds_reminder)
         result = date_utils.add_utc_tz(result)
         return result
@@ -81,7 +79,7 @@ class ComplexDateTimeField(LongField):
 
         seconds = calendar.timegm(value.timetuple())
         microseconds_reminder = value.time().microsecond
-        result = (int(seconds * SECOND_TO_MICROSECONDS) + microseconds_reminder)
+        result = int(seconds * SECOND_TO_MICROSECONDS) + microseconds_reminder
         return result
 
     def __get__(self, instance, owner):
@@ -99,8 +97,7 @@ class ComplexDateTimeField(LongField):
     def validate(self, value):
         value = self.to_python(value)
         if not isinstance(value, datetime.datetime):
-            self.error('Only datetime objects may used in a '
-                       'ComplexDateTimeField')
+            self.error('Only datetime objects may used in a ' 'ComplexDateTimeField')
 
     def to_python(self, value):
         original_value = value
