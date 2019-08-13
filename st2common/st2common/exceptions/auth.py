@@ -82,3 +82,7 @@ class AmbiguousUserError(StackStormBaseException):
 
 class NotServiceUserError(StackStormBaseException):
     pass
+
+
+class SSOVerificationError(StackStormBaseException):
+    pass
