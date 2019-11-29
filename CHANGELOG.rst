@@ -12,8 +12,10 @@ Added
   #4757
 * Add ``user`` parameter to ``re_run`` method of st2client. #4785
 * Install pack dependencies automatically. #4769
-* Add support for `immutable_parameters` on Action Aliases. This feature allows default parameters to be supplied to the action on every execution of the alias. #4786
-* Add ``get_entrypoint()`` method to ``ActionResourceManager`` attribute of st2client. #4791  
+* Add support for `immutable_parameters` on Action Aliases. This feature allows default
+  parameters to be supplied to the action on every execution of the alias. #4786
+* Add ``get_entrypoint()`` method to ``ActionResourceManager`` attribute of st2client.
+  #4791
 
 Changed
 ~~~~~~~
@@ -28,9 +30,23 @@ Changed
   writing very large executions (executions with large results) to the database. #4767
 * Improved development instructions in requirements.txt and dist_utils.py comment headers
   (improvement) #4774
+* Add new ``actionrunner.stream_output_buffer_size`` config option and default it to ``-1``
+  (previously default value was ``0``). This should result in a better performance and smaller
+  CPU utilization for Python runner actions which produce a lot of output.
+  (improvement)
+
+  Reported and contributed by Joshua Meyer (@jdmeyer3) #4803
 * Add new ``action_runner.pip_opts`` st2.conf config option which allows user to specify a list
   of command line option which are passed to ``pip install`` command when installing pack
   dependencies into a pack specific virtual environment. #4792
+* Refactor how orquesta handles individual item result for with items task. Before the fix,
+  when there are a lot of items and/or result size for each item is huge, there is a negative
+  performance impact on write to the database when recording the conductor state. (improvement)
+* Remove automatic rendering of workflow output when updating task state for orquesta workflows.
+  This caused workflow output to render incorrectly in certain use case. The render_workflow_output
+  function must be called separately. (improvement)
+* Update various internal dependencies to latest stable versions (cryptography, jinja2, requests,
+  apscheduler, eventlet, amqp, kombu, semver, six) #4819 (improvement)
 
 Fixed
 ~~~~~
@@ -53,6 +69,21 @@ Fixed
   doesn't depend on internal pip API and so it works with latest pip version. (bug fix) #4750
 * Fix dependency conflicts in pack CI runs: downgrade requests dependency back to 0.21.0, update
   internal dependencies and test expectations (amqp, pyyaml, prance, six) (bugfix) #4774
+* Fix secrets masking in action parameters section defined inside the rule when using
+  ``GET /v1/rules`` and ``GET /v1/rules/<ref>`` API endpoint. (bug fix) #4788 #4807
+
+  Contributed by @Nicodemos305 and @jeansfelix
+* Fix a bug with authentication API endpoint (``POST /auth/v1/tokens``) returning internal
+  server error when running under gunicorn and when``auth.api_url`` config option was not set.
+  (bug fix) #4809
+
+  Reported by @guzzijones
+* Fixed ``st2 execution get`` and ``st2 run`` not printing the ``action.ref`` for non-workflow
+  actions. (bug fix) #4739
+
+  Contributed by Nick Maludy (@nmaludy Encore Technologies)
+* Update ``st2 execution get`` command to always include ``context.user``, ``start_timestamp`` and
+  ``end_timestamp`` attributes. (improvement) #4739
 
 3.1.0 - June 27, 2019
 ---------------------
