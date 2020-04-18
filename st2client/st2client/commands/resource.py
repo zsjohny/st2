@@ -367,6 +367,7 @@ class ResourceGetCommand(ResourceViewCommand):
 
         self.parser.add_argument(argument,
                                  metavar=metavar,
+                                 nargs='+',
                                  help=help)
         self.parser.add_argument('-a', '--attr', nargs='+',
                                  default=self.display_attributes,
@@ -376,19 +377,35 @@ class ResourceGetCommand(ResourceViewCommand):
 
     @add_auth_token_to_kwargs_from_cli
     def run(self, args, **kwargs):
-        resource_id = getattr(args, self.pk_argument_name, None)
-        return self.get_resource_by_id(resource_id, **kwargs)
+        resource_ids = getattr(args, self.pk_argument_name, None)
+
+        more_than_one_resource = len(resource_ids) > 1
+
+        resources = []
+        for resource_id in resource_ids:
+            try:
+                resource = self.get_resource_by_id(resource_id, **kwargs)
+            except ResourceNotFoundError:
+                self.print_not_found(resource_id)
+
+                if not more_than_one_resource:
+                    # For backward compatibility reasons and to comply with common "get one"
+                    # behavior, we only fail if a single source is requested
+                    raise OperationFailureException('Resource %s not found.' % resource_id)
+
+                continue
+
+            resources.append(resource)
+
+        return resources
 
     def run_and_print(self, args, **kwargs):
-        try:
-            instance = self.run(args, **kwargs)
+        instances = self.run(args, **kwargs)
+
+        for instance in instances:
             self.print_output(instance, table.PropertyValueTable,
-                              attributes=args.attr, json=args.json, yaml=args.yaml,
-                              attribute_display_order=self.attribute_display_order)
-        except ResourceNotFoundError:
-            resource_id = getattr(args, self.pk_argument_name, None)
-            self.print_not_found(resource_id)
-            raise OperationFailureException('Resource %s not found.' % resource_id)
+                                attributes=args.attr, json=args.json, yaml=args.yaml,
+                                attribute_display_order=self.attribute_display_order)
 
 
 class ContentPackResourceGetCommand(ResourceGetCommand):
