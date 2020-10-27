@@ -2,7 +2,7 @@
 # Note: amqp is used by kombu
 amqp==2.5.2
 apscheduler==3.6.3
-cryptography==2.8
+cryptography==3.2
 # Note: 0.20.0 removed select.poll() on which some of our code and libraries we
 # depend on rely
 eventlet==0.25.1
